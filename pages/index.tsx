@@ -9,6 +9,11 @@ const IndexPage = () => (
         <a>About</a>
       </Link>
     </p>
+    <style jsx>{`
+      a {
+        color: red;
+      }
+    `}</style>
   </Layout>
 )
 
