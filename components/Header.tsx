@@ -7,11 +7,13 @@ import Wrapper from './Wrapper'
 
 type Props = {
   children?: ReactNode
+  background?: ReactNode
 }
 
-const Header = ({ children }: Props): JSX.Element => (
+const Header = ({ children, background }: Props): JSX.Element => (
   <>
     <header>
+      {background}
       <Wrapper>
         <div className='headerPadding'>
           <div className='navBar'>
@@ -39,6 +41,7 @@ const Header = ({ children }: Props): JSX.Element => (
       }
       header {
         display: flex;
+        position: relative;
         width: 100%;
         justify-content: center;
       }
