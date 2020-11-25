@@ -13,24 +13,28 @@ const Header = ({ children }: Props) => (
   <>
     <header>
       <Wrapper>
-        <div>
-          <Link href="/"><a><Logo /></a></Link>
-          <Navigation />
+        <div className="headerPadding">
+          <div className="navBar">
+            <Link href="/"><a><Logo /></a></Link>
+            <Navigation />
+          </div>
+          {children}
         </div>
-        {children}
       </Wrapper>
     </header>
     <style jsx>{`
-      div {
+      div.navBar {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
         height: 44px;
       }
+      div.headerPadding {
+        padding: var(--headerpadding);
+      }
       header {
         display: flex;
-        padding-top: var(--outermargin);
         width: 100%;
         justify-content: center;
       }

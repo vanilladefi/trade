@@ -1,11 +1,11 @@
-import React, { ReactNode } from 'react'
+import React from 'react'
 import Fonts from './Fonts'
 import MediaQueries from './MediaQueries'
 import Variables from './Variables'
 
-type Props = {
+/* type Props = {
   children?: ReactNode
-}
+} */
 
 const GlobalStyles = () => (
   <>
@@ -26,6 +26,7 @@ const GlobalStyles = () => (
         flex-direction: column;
         align-items: center;
         width: 100%;
+        min-height: 100vh;
       }
       h1, h2, h3, h4, h5 {
         font-family: var(--titlefont);

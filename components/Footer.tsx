@@ -1,12 +1,8 @@
-import React, { ReactNode } from 'react'
-import Link from 'next/link'
+import React from 'react'
+//import Link from 'next/link'
 
 import Wrapper from './Wrapper'
 import Logo from './Logo'
-
-type Props = {
-  children?: ReactNode
-}
 
 const Footer = () => (
   <>
@@ -17,6 +13,7 @@ const Footer = () => (
         <span>I'm here to stay (Footer)</span>
       </Wrapper>
     </footer>
+    <div />
     <style jsx>{`
       footer {
         display: flex;
@@ -26,6 +23,12 @@ const Footer = () => (
         color: var(--white);
         width: 100%;
         font-size: 14px;
+      }
+      div {
+        display: flex;
+        width: 100%;
+        flex-grow: 1;
+        background: var(--dark);
       }
     `}</style>
   </>

@@ -1,4 +1,5 @@
 import React from 'react'
+import Button from './input/Button'
 import NavLink from './NavLink'
 
 const Navigation = () => <nav>
@@ -11,6 +12,9 @@ const Navigation = () => <nav>
   <NavLink href="/users">
     Stake
   </NavLink>
+  <Button>
+    Connect Wallet
+  </Button>
   <style jsx>{`
     nav {
       display: flex;

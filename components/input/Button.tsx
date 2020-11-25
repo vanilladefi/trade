@@ -1,25 +1,71 @@
 import React, { ReactNode } from 'react'
+import classNames from 'classnames'
 
-type Props = {
-  children?: ReactNode
+export enum ButtonColor {
+  GRADIENT,
+  DARK,
+  TRANSPARENT,
 }
 
-const Wrapper = ({ children }: Props) => (
-  <>
-    <button>
-      {children}
-    </button>
-    <style jsx>{`
-    button {
-      display: flex;
-      margin-bottom: var(--outermargin);
-      flex-direction: column;
-      width: 100%;
-      max-width: var(--maxlayoutwidth);
-      padding: 0px var(--outermargin);
-    }
-  `}</style>
-  </>
-)
+export enum Rounding {
+  ALL,
+  TOPLEFT,
+  TOPRIGHT,
+  BOTTOMRIGHT,
+  BOTTOMLEFT
+}
 
-export default Wrapper
+type Props = {
+  children?: ReactNode,
+  large?: boolean
+  color?: ButtonColor,
+  rounded?: Rounding
+}
+
+const Button = ({ children, large, color = ButtonColor.GRADIENT, rounded = Rounding.ALL }: Props) => {
+  const buttonClass = classNames({ 'large': large, 'gradient': color === ButtonColor.GRADIENT, 'dark': color === ButtonColor.DARK, 'transparent': color === ButtonColor.TRANSPARENT, 'roundedTopLeft roundedTopRight roundedBottomRight roundedBottomLeft': rounded === Rounding.ALL })
+  return (
+    <>
+      <button className={buttonClass}>
+        {children}
+      </button>
+      <style jsx>{`
+        button {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: var(--buttonpadding);
+          border: 0;
+          font-size: var(--buttonsize);
+          font-weight: var(--buttonweight);
+          outline: 0;
+          cursor: pointer;
+          line-height: 5px;
+        }
+        button.gradient {
+          background: var(--buttongradient);
+        }
+        button.dark {
+          background: var(--dark);
+        }
+        button.transparent {
+          background: transparent;
+        }
+        button.roundedTopLeft {
+          border-top-left-radius: 9999px;
+        }
+        button.roundedTopRight {
+          border-top-right-radius: 9999px;
+        }
+        button.roundedBottomLeft {
+          border-bottom-left-radius: 9999px;
+        }
+        button.roundedBottomRight {
+          border-bottom-right-radius: 9999px;
+        }
+      `}</style>
+    </>
+  )
+}
+
+export default Button

@@ -12,10 +12,9 @@ const Variables = () => (
       --activelink: var(--dark);
       
       /* Gradients */
-      --topgradient: background: radial-gradient(78.72% 122.74% at 91.23% 0%, #FFEEC2 0%, #F4F4F0 100%);
-      --midgradient: background: radial-gradient(107.22% 272.74% at 100% -2.86%, rgba(251, 241, 215, 0.96) 0%, #F8F7F3 100%);
-      --bottomgradient: background: radial-gradient(107.22% 272.74% at 100% -2.86%, rgba(251, 241, 215, 0.96) 0%, #F8F7F3 100%);
-      --buttongradient: background: linear-gradient(272.09deg, #FFD866 4.89%, #FFC684 95.55%);
+      --topgradient: radial-gradient(78.72% 122.74% at 91.23% 0%, #FFEEC2 0%, #F4F4F0 100%);
+      --boxgradient: radial-gradient(107.22% 272.74% at 100% -2.86%, rgba(251, 241, 215, 0.96) 0%, #F8F7F3 100%);
+      --buttongradient: linear-gradient(272.09deg, #FFD866 4.89%, #FFC684 95.55%);
       
       /* Dimensions */
       --maxlayoutwidth: 1060px;
@@ -23,6 +22,9 @@ const Variables = () => (
       /* Spacing */
       --outermargin: 44px;
       --layoutmargin: 40px;
+      --headerpadding: var(--outermargin) 56px;
+      --buttonpadding: 20px;
+      --largebuttonpadding: 23px 39px;
 
       /* Fonts */
       --titlefont: 'Darker Grotesque', sans-serif;

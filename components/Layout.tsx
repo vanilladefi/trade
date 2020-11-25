@@ -3,7 +3,6 @@ import Head from 'next/head'
 import Header from './Header'
 import Footer from './Footer'
 import GlobalStyles from './GlobalStyles'
-import Wrapper from './Wrapper'
 
 type Props = {
   children?: ReactNode,

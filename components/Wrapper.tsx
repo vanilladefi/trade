@@ -12,7 +12,6 @@ const Wrapper = ({ children }: Props) => (
     <style jsx>{`
     div {
       display: flex;
-      margin-bottom: var(--outermargin);
       flex-direction: column;
       width: 100%;
       max-width: var(--maxlayoutwidth);
