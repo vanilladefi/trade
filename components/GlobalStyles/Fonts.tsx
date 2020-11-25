@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Fonts = () => (
+const Fonts = (): JSX.Element => (
   <style global>{`
       @font-face {
         font-family: 'Darker Grotesque';

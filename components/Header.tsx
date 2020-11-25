@@ -9,13 +9,17 @@ type Props = {
   children?: ReactNode
 }
 
-const Header = ({ children, background }: Props) => (
+const Header = ({ children }: Props): JSX.Element => (
   <>
     <header>
       <Wrapper>
-        <div className="headerPadding">
-          <div className="navBar">
-            <Link href="/"><a><Logo /></a></Link>
+        <div className='headerPadding'>
+          <div className='navBar'>
+            <Link href='/'>
+              <a>
+                <Logo />
+              </a>
+            </Link>
             <Navigation />
           </div>
           {children}

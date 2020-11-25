@@ -4,7 +4,7 @@ import classNames from 'classnames'
 export enum Color {
   WHITE,
   DARK,
-  GRADIENT
+  GRADIENT,
 }
 
 type Props = {
@@ -12,13 +12,15 @@ type Props = {
   color?: Color
 }
 
-const BoxSection = ({ children, color = Color.WHITE }: Props) => {
-  const boxClass = classNames('boxSection', { 'white': color === Color.WHITE, 'dark': color === Color.DARK, 'gradient': color === Color.GRADIENT })
+const BoxSection = ({ children, color = Color.WHITE }: Props): JSX.Element => {
+  const boxClass = classNames('boxSection', {
+    white: color === Color.WHITE,
+    dark: color === Color.DARK,
+    gradient: color === Color.GRADIENT,
+  })
   return (
     <>
-      <section className={boxClass}>
-        {children}
-      </section>
+      <section className={boxClass}>{children}</section>
       <style jsx>{`
         section {
           display: flex;

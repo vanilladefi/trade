@@ -4,7 +4,7 @@ import React from 'react'
 import Wrapper from './Wrapper'
 import { Logo } from './Brand'
 
-const Footer = () => (
+const Footer = (): JSX.Element => (
   <>
     <footer>
       <Wrapper>

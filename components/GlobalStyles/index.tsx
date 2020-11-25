@@ -7,7 +7,7 @@ import Variables from './Variables'
   children?: ReactNode
 } */
 
-const GlobalStyles = () => (
+const GlobalStyles = (): JSX.Element => (
   <>
     <Fonts />
     <Variables />

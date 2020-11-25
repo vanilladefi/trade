@@ -4,11 +4,9 @@ type Props = {
   children?: ReactNode
 }
 
-const HugeMonospace = ({ children }: Props) => (
+const HugeMonospace = ({ children }: Props): JSX.Element => (
   <>
-    <h2>
-      {children}
-    </h2>
+    <h2>{children}</h2>
     <style jsx>{`
       h2 {
         font-family: var(--monofont);

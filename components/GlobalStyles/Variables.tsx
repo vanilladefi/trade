@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Variables = () => (
+const Variables = (): JSX.Element => (
   <style global>{`
     :root {
       /* Colors */

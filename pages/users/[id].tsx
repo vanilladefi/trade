@@ -10,10 +10,10 @@ type Props = {
   errors?: string
 }
 
-const StaticPropsDetail = ({ item, errors }: Props) => {
+const StaticPropsDetail = ({ item, errors }: Props): JSX.Element => {
   if (errors) {
     return (
-      <Layout title="Error | Next.js + TypeScript Example">
+      <Layout title='Error | Next.js + TypeScript Example'>
         <p>
           <span style={{ color: 'red' }}>Error:</span> {errors}
         </p>
@@ -23,9 +23,8 @@ const StaticPropsDetail = ({ item, errors }: Props) => {
 
   return (
     <Layout
-      title={`${
-        item ? item.name : 'User Detail'
-      } | Next.js + TypeScript Example`}
+      title={`${item ? item.name : 'User Detail'
+        } | Next.js + TypeScript Example`}
     >
       {item && <ListDetail item={item} />}
     </Layout>

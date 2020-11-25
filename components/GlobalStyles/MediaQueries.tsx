@@ -1,6 +1,6 @@
 import React from 'react'
 
-const MediaQueries = () => (
+const MediaQueries = (): JSX.Element => (
   <style global>{`
     @media (max-width: var(--tablet)) {
       :root {

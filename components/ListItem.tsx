@@ -7,8 +7,8 @@ type Props = {
   data: User
 }
 
-const ListItem = ({ data }: Props) => (
-  <Link href="/users/[id]" as={`/users/${data.id}`}>
+const ListItem = ({ data }: Props): JSX.Element => (
+  <Link href='/users/[id]' as={`/users/${data.id}`}>
     <a>
       {data.id}: {data.name}
     </a>

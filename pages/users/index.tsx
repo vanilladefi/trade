@@ -10,8 +10,8 @@ type Props = {
   items: User[]
 }
 
-const WithStaticProps = ({ items }: Props) => (
-  <Layout title="Users List | Next.js + TypeScript Example">
+const WithStaticProps = ({ items }: Props): JSX.Element => (
+  <Layout title='Users List | Next.js + TypeScript Example'>
     <h1>Users List</h1>
     <p>
       Example fetching data from inside <code>getStaticProps()</code>.
@@ -19,7 +19,7 @@ const WithStaticProps = ({ items }: Props) => (
     <p>You are currently on: /users</p>
     <List items={items} />
     <p>
-      <Link href="/">
+      <Link href='/'>
         <a>Go home</a>
       </Link>
     </p>

@@ -1,15 +1,22 @@
 import BoxSection, { Color } from '../components/BoxSection'
+import Button from '../components/input/Button'
 import Layout from '../components/Layout'
 import HugeMonospace from '../components/typography/HugeMonospace'
 import HugeTitle from '../components/typography/HugeTitle'
 import Wrapper from '../components/Wrapper'
 
 const HeaderContent = (
-  <section><HugeTitle>Vanilla Rewards You For Making a Profit</HugeTitle><HugeMonospace>Trade any token on Uniswap and receive ~5% in extra profit</HugeMonospace></section>
+  <section>
+    <HugeTitle>Vanilla Rewards You For Making a Profit</HugeTitle>
+    <HugeMonospace>
+      Trade any token on Uniswap and receive ~5% in extra profit
+    </HugeMonospace>
+    <Button large>Start trading</Button>
+  </section>
 )
 
 const IndexPage = (): JSX.Element => (
-  <Layout title="Vanilla" hero={HeaderContent}>
+  <Layout title='Vanilla' hero={HeaderContent}>
     <Wrapper>
       <BoxSection color={Color.DARK}>
         <h1>#ProfitMining</h1>
@@ -20,7 +27,7 @@ const IndexPage = (): JSX.Element => (
         <h1>VNL can be staked to increase rewards and direct capital flows.</h1>
       </BoxSection>
     </Wrapper>
-  </Layout >
+  </Layout>
 )
 
 export default IndexPage

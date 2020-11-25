@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Gradient = () => (
+const Gradient = (): JSX.Element => (
   <>
     <div></div>
     <style jsx>{`

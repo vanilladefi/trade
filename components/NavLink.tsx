@@ -7,15 +7,13 @@ type Props = LinkProps & {
   children?: ReactNode
 }
 
-const NavLink = ({ href, children }: Props) => {
+const NavLink = ({ href, children }: Props): JSX.Element => {
   const router = useRouter()
-  const linkClass = classNames({ 'active': router.pathname === href })
+  const linkClass = classNames({ active: router.pathname === href })
   return (
     <>
       <Link href={href}>
-        <a className={linkClass}>
-          {children}
-        </a>
+        <a className={linkClass}>{children}</a>
       </Link>
       <style jsx>{`
         a {

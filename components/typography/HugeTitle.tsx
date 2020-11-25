@@ -4,11 +4,9 @@ type Props = {
   children?: ReactNode
 }
 
-const HugeTitle = ({ children }: Props) => (
+const HugeTitle = ({ children }: Props): JSX.Element => (
   <>
-    <h1>
-      {children}
-    </h1>
+    <h1>{children}</h1>
     <style jsx>{`
       h1 {
         font-size: var(--hugetitlesize);

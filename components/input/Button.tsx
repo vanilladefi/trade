@@ -12,23 +12,33 @@ export enum Rounding {
   TOPLEFT,
   TOPRIGHT,
   BOTTOMRIGHT,
-  BOTTOMLEFT
+  BOTTOMLEFT,
 }
 
 type Props = {
-  children?: ReactNode,
+  children?: ReactNode
   large?: boolean
-  color?: ButtonColor,
+  color?: ButtonColor
   rounded?: Rounding
 }
 
-const Button = ({ children, large, color = ButtonColor.GRADIENT, rounded = Rounding.ALL }: Props) => {
-  const buttonClass = classNames({ 'large': large, 'gradient': color === ButtonColor.GRADIENT, 'dark': color === ButtonColor.DARK, 'transparent': color === ButtonColor.TRANSPARENT, 'roundedTopLeft roundedTopRight roundedBottomRight roundedBottomLeft': rounded === Rounding.ALL })
+const Button = ({
+  children,
+  large,
+  color = ButtonColor.GRADIENT,
+  rounded = Rounding.ALL,
+}: Props): JSX.Element => {
+  const buttonClass = classNames({
+    large: large,
+    gradient: color === ButtonColor.GRADIENT,
+    dark: color === ButtonColor.DARK,
+    transparent: color === ButtonColor.TRANSPARENT,
+    'roundedTopLeft roundedTopRight roundedBottomRight roundedBottomLeft':
+      rounded === Rounding.ALL,
+  })
   return (
     <>
-      <button className={buttonClass}>
-        {children}
-      </button>
+      <button className={buttonClass}>{children}</button>
       <style jsx>{`
         button {
           display: flex;
