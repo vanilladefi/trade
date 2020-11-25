@@ -36,11 +36,16 @@ const Button = ({ children, large, color = ButtonColor.GRADIENT, rounded = Round
           align-items: center;
           padding: var(--buttonpadding);
           border: 0;
+          font-family: var(--bodyfont);
           font-size: var(--buttonsize);
           font-weight: var(--buttonweight);
           outline: 0;
           cursor: pointer;
           line-height: 5px;
+        }
+        button.large {
+          padding: var(--largebuttonpadding);
+          font-size: var(--largebuttonsize);
         }
         button.gradient {
           background: var(--buttongradient);

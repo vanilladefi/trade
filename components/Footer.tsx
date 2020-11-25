@@ -2,7 +2,7 @@ import React from 'react'
 //import Link from 'next/link'
 
 import Wrapper from './Wrapper'
-import Logo from './Logo'
+import { Logo } from './Brand'
 
 const Footer = () => (
   <>

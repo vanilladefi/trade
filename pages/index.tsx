@@ -8,7 +8,7 @@ const HeaderContent = (
   <section><HugeTitle>Vanilla Rewards You For Making a Profit</HugeTitle><HugeMonospace>Trade any token on Uniswap and receive ~5% in extra profit</HugeMonospace></section>
 )
 
-const IndexPage = () => (
+const IndexPage = (): JSX.Element => (
   <Layout title="Vanilla" hero={HeaderContent}>
     <Wrapper>
       <BoxSection color={Color.DARK}>

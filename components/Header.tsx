@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react'
 
 import Link from 'next/link'
-import Logo from './Logo'
+import { Logo } from './Brand'
 import Navigation from './Navigation'
 import Wrapper from './Wrapper'
 
@@ -9,7 +9,7 @@ type Props = {
   children?: ReactNode
 }
 
-const Header = ({ children }: Props) => (
+const Header = ({ children, background }: Props) => (
   <>
     <header>
       <Wrapper>

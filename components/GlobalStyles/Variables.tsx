@@ -31,15 +31,21 @@ const Variables = () => (
       --titleweight: 700;
       --titlesize: 42px;
       --hugetitlesize: 53px;
+
       --monofont: 'Fira Code', monospace;
       --monoweight: 400;
       --hugemonosize: 30px;
+
       --bodyfont: 'Inter', sans-serif;
       --bodyweight: 400;
       --bodysize: 18px;
       --smallsize: 16px;
+
       --theadweight: 500;
       --buttonweight: 600;
+
+      --buttonsize: var(--smallsize);
+      --largebuttonsize: 23px;
       --mobilebuttonsize: 35px;
 
       /* Breakpoints ( From tailwind CSS ) */
