@@ -3,6 +3,7 @@ import { Row, Column, Width } from '../components/grid/Flex'
 import Button from '../components/input/Button'
 import Layout from '../components/Layout'
 import HugeMonospace from '../components/typography/HugeMonospace'
+import { Highlight } from '../components/typography/Text'
 import { BoxTitle, LandingTitle } from '../components/typography/Titles'
 import Wrapper from '../components/Wrapper'
 
@@ -62,6 +63,53 @@ const IndexPage = (): JSX.Element => (
               rewards. E.g. By staking 10 VNL on yourself, you can increase your
               rewards by ~5%
             </p>
+          </Column>
+        </Row>
+      </BoxSection>
+    </Wrapper>
+
+    <Wrapper>
+      <BoxSection color={Color.DARK}>
+        <Row>
+          <Column>
+            <BoxTitle>
+              VNL is the governance token of the Vanilla economic system.
+            </BoxTitle>
+          </Column>
+          <Column width={Width.SIX}></Column>
+          <Column width={Width.SIX}>
+            <Highlight>
+              Holders of VNL determine the direction of Vanilla by voting on
+              incentive changes, system upgrades and treasury allocations.
+            </Highlight>
+            <Button large>Learn more</Button>
+          </Column>
+        </Row>
+      </BoxSection>
+    </Wrapper>
+
+    <Wrapper>
+      <BoxSection color={Color.WHITE}>
+        <Row>
+          <Column>
+            <BoxTitle>Roadmap</BoxTitle>
+          </Column>
+        </Row>
+      </BoxSection>
+    </Wrapper>
+
+    <Wrapper>
+      <BoxSection color={Color.GRADIENT}>
+        <Row>
+          <Column width={Width.FOUR}>
+            <BoxTitle>Security</BoxTitle>
+          </Column>
+          <Column width={Width.EIGHT}>
+            <Highlight>
+              All Vanilla smart contracts have been thoroughly audited and there
+              is a public bug bounty, but Vanilla is still beta software. Use at
+              your own risk.
+            </Highlight>
           </Column>
         </Row>
       </BoxSection>

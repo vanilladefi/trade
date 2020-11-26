@@ -55,6 +55,8 @@ const Variables = (): JSX.Element => (
       --smallsize: 16px;
 
       --boxbodysize: 22px;
+      --highlightsize: 31px;
+      --highlightlineheight: 49px;
 
       --theadweight: 500;
       --buttonweight: 600;
