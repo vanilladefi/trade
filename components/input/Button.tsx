@@ -1,4 +1,4 @@
-import React, { ReactNode, DetailedHTMLProps, StyleHTMLAttributes } from 'react'
+import React, { ReactNode } from 'react'
 import classNames from 'classnames'
 
 export enum ButtonColor {
