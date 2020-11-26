@@ -3,6 +3,11 @@ import React from 'react'
 const Variables = (): JSX.Element => (
   <style global>{`
     :root {
+      /* Breakpoints ( From tailwind CSS ) */
+      --tablet: 640px;
+      --laptop: 1024px;
+      --desktop: 1280px;
+
       /* Colors */
       --white: #FFFFFF;
       --dark: #2C1929;
@@ -17,7 +22,7 @@ const Variables = (): JSX.Element => (
       --buttongradient: linear-gradient(272.09deg, #FFD866 4.89%, #FFC684 95.55%);
       
       /* Dimensions */
-      --maxlayoutwidth: 1060px;
+      --maxlayoutwidth: var(--desktop);
 
       /* Spacing */
       --outermargin: 44px;
@@ -27,17 +32,19 @@ const Variables = (): JSX.Element => (
       --largebuttonpadding: 23px 39px;
       
       --subpage-titlemargin: 56px 0 34px 0;
-      --lander-titlemargin: 120px 0 32px 0;
+      --landing-titlemargin: 120px 0 32px 0;
 
       /* Fonts */
       --titlefont: 'Darker Grotesque', sans-serif;
       --titleweight: 700;
       --titlesize: 42px;
       --hugetitlesize: 53px;
+      --landing-hugetitlesize: 76px;
 
       --monofont: 'Fira Code', monospace;
       --monoweight: 400;
       --hugemonosize: 30px;
+      --hugemonolineheight: 45px;
 
       --bodyfont: 'Inter', sans-serif;
       --bodyweight: 400;
@@ -50,11 +57,6 @@ const Variables = (): JSX.Element => (
       --buttonsize: var(--smallsize);
       --largebuttonsize: 23px;
       --mobilebuttonsize: 35px;
-
-      /* Breakpoints ( From tailwind CSS ) */
-      --tablet: 640px;
-      --laptop: 1024px;
-      --desktop: 1280px;
     }
   `}</style>
 )
