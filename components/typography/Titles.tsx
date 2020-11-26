@@ -19,6 +19,21 @@ export const LandingTitle = ({ children }: Props): JSX.Element => (
   </>
 )
 
+export const BoxTitle = ({ children }: Props): JSX.Element => (
+  <>
+    <h1>{children}</h1>
+    <style jsx>{`
+      h1 {
+        font-size: var(--boxtitlesize);
+        font-weight: var(--titleweight);
+        line-height: 65px;
+        padding: 0;
+        margin: var(--box-titlemargin);
+      }
+    `}</style>
+  </>
+)
+
 export const HugeTitle = ({ children }: Props): JSX.Element => (
   <>
     <h1>{children}</h1>

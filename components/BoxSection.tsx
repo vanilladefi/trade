@@ -26,9 +26,12 @@ const BoxSection = ({ children, color = Color.WHITE }: Props): JSX.Element => {
           display: flex;
           width: 100%;
           margin-bottom: var(--layoutmargin);
+          font-size: var(--boxbodysize);
+          padding: var(--boxpadding);
         }
         section.white {
           background: var(--white);
+          color: var(--dark);
         }
         section.dark {
           background: var(--dark);
@@ -36,6 +39,7 @@ const BoxSection = ({ children, color = Color.WHITE }: Props): JSX.Element => {
         }
         section.gradient {
           background: var(--boxgradient);
+          color: var(--dark);
         }
       `}</style>
     </>

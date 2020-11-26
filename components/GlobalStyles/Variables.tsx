@@ -27,18 +27,21 @@ const Variables = (): JSX.Element => (
       /* Spacing */
       --outermargin: 44px;
       --layoutmargin: 40px;
+      --boxpadding: 60px 72px;
       --headerpadding: var(--outermargin) 56px;
       --buttonpadding: 20px;
       --largebuttonpadding: 23px 39px;
       
       --subpage-titlemargin: 56px 0 34px 0;
       --landing-titlemargin: 120px 0 32px 0;
+      --box-titlemargin: 0 0 32px 0;
 
       /* Fonts */
       --titlefont: 'Darker Grotesque', sans-serif;
       --titleweight: 700;
       --titlesize: 42px;
       --hugetitlesize: 53px;
+      --boxtitlesize: 67px;
       --landing-hugetitlesize: 76px;
 
       --monofont: 'Fira Code', monospace;
@@ -50,6 +53,8 @@ const Variables = (): JSX.Element => (
       --bodyweight: 400;
       --bodysize: 18px;
       --smallsize: 16px;
+
+      --boxbodysize: 22px;
 
       --theadweight: 500;
       --buttonweight: 600;
