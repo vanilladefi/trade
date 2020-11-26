@@ -1,6 +1,7 @@
 import Button from '../../components/input/Button'
 import BoxSection, { Color } from '../../components/BoxSection'
 import Layout from '../../components/Layout'
+import { Title } from '../../components/typography/Titles'
 import HugeMonospace from '../../components/typography/HugeMonospace'
 import Wrapper from '../../components/Wrapper'
 import Gradient from '../../components/backgrounds/gradient'
@@ -8,11 +9,13 @@ import Gradient from '../../components/backgrounds/gradient'
 const HeaderContent: JSX.Element = (
   <section>
     <Gradient />
-    <h1>Start Trading</h1>
+    <Title>Start Trading</Title>
     <HugeMonospace>
       Make trades, see your profits blossom and mine VNL.
     </HugeMonospace>
-    <Button large={true}>Connect wallet</Button>
+    <Button large injectedStyles={'margin-bottom: 76px;'}>
+      Connect wallet
+    </Button>
   </section>
 )
 

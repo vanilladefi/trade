@@ -25,6 +25,9 @@ const Variables = (): JSX.Element => (
       --headerpadding: var(--outermargin) 56px;
       --buttonpadding: 20px;
       --largebuttonpadding: 23px 39px;
+      
+      --subpage-titlemargin: 56px 0 34px 0;
+      --lander-titlemargin: 120px 0 32px 0;
 
       /* Fonts */
       --titlefont: 'Darker Grotesque', sans-serif;

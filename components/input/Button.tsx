@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import React, { ReactNode, DetailedHTMLProps, StyleHTMLAttributes } from 'react'
 import classNames from 'classnames'
 
 export enum ButtonColor {
@@ -20,6 +20,7 @@ type Props = {
   large?: boolean
   color?: ButtonColor
   rounded?: Rounding
+  injectedStyles?: string
 }
 
 const Button = ({
@@ -27,6 +28,7 @@ const Button = ({
   large,
   color = ButtonColor.GRADIENT,
   rounded = Rounding.ALL,
+  injectedStyles,
 }: Props): JSX.Element => {
   const buttonClass = classNames({
     large: large,
@@ -78,6 +80,7 @@ const Button = ({
         button.roundedBottomRight {
           border-bottom-right-radius: 9999px;
         }
+        ${injectedStyles}
       `}</style>
     </>
   )
