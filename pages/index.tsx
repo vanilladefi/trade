@@ -101,10 +101,10 @@ const IndexPage = (): JSX.Element => (
     <Wrapper>
       <BoxSection color={Color.GRADIENT}>
         <Row>
-          <Column width={Width.FOUR}>
+          <Column width={Width.FIVE}>
             <BoxTitle>Security</BoxTitle>
           </Column>
-          <Column width={Width.EIGHT}>
+          <Column width={Width.SEVEN}>
             <Highlight>
               All Vanilla smart contracts have been thoroughly audited and there
               is a public bug bounty, but Vanilla is still beta software. Use at
