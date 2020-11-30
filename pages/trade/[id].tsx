@@ -26,10 +26,11 @@ const HeaderContent: JSX.Element = (
   </>
 )
 
-const TradePage = (): JSX.Element => {
+const Trade = (): JSX.Element => {
   const router = useRouter()
+  const { id } = router.query
   return <>
-    <Modal>fhjehlgiuehauih</Modal>
+    <Modal open={!!id} >{id}</Modal>
     <Layout title='Trade | Vanilla' hero={HeaderContent}>
       <Wrapper>
         <BoxSection color={Color.WHITE}>
@@ -41,4 +42,4 @@ const TradePage = (): JSX.Element => {
 }
 
 
-export default TradePage
+export default Trade

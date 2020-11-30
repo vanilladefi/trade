@@ -15,6 +15,8 @@ const Variables = (): JSX.Element => (
       --beige: #F3F1EA;
       --inactivelink: #857482;
       --activelink: var(--dark);
+      --curtain-background: rgba(44, 21, 45, 0.83);
+      --curtain-backdropfilter: blur(20px);
       
       /* Gradients */
       --topgradient: radial-gradient(78.72% 122.74% at 91.23% 0%, #FFEEC2 0%, #F4F4F0 100%);
