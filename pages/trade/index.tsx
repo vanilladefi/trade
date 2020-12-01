@@ -1,4 +1,3 @@
-import { useRouter } from 'next/router'
 import Button from '../../components/input/Button'
 import BoxSection, { Color } from '../../components/BoxSection'
 import Layout from '../../components/Layout'
@@ -7,7 +6,6 @@ import HugeMonospace from '../../components/typography/HugeMonospace'
 import Wrapper from '../../components/Wrapper'
 import Gradient from '../../components/backgrounds/gradient'
 import { Row, Column, Width } from '../../components/grid/Flex'
-import Modal from '../../components/Modal'
 
 const HeaderContent: JSX.Element = (
   <>
