@@ -18,18 +18,19 @@ const HeaderContent: JSX.Element = (
         <HugeMonospace>
           Make trades, see your profits blossom and mine VNL.
         </HugeMonospace>
-        <Button large injectedStyles={'margin-bottom: 76px;'}>
-          Connect wallet
-        </Button>
+        <Button large>Connect wallet</Button>
       </Column>
     </Row>
+    <style jsx>{`
+      div {
+        --buttonmargin: 0 0 76px 0;
+      }
+    `}</style>
   </>
 )
 
-const TradePage = (): JSX.Element => {
-  const router = useRouter()
-  return <>
-    <Modal>fhjehlgiuehauih</Modal>
+const TradePage = (): JSX.Element => (
+  <>
     <Layout title='Trade | Vanilla' hero={HeaderContent}>
       <Wrapper>
         <BoxSection color={Color.WHITE}>
@@ -38,7 +39,6 @@ const TradePage = (): JSX.Element => {
       </Wrapper>
     </Layout>
   </>
-}
-
+)
 
 export default TradePage

@@ -28,6 +28,7 @@ const BoxSection = ({ children, color = Color.WHITE }: Props): JSX.Element => {
           margin-bottom: var(--layoutmargin);
           font-size: var(--boxbodysize);
           padding: var(--boxpadding);
+          --titlesize: var(--boxtitlesize);
         }
         section.white {
           background: var(--white);

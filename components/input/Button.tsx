@@ -47,6 +47,7 @@ const Button = ({
           justify-content: center;
           align-items: center;
           padding: var(--buttonpadding);
+          margin: var(--buttonmargin);
           border: 0;
           font-family: var(--bodyfont);
           font-size: var(--buttonsize);

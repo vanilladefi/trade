@@ -63,3 +63,18 @@ export const Title = ({ children }: Props): JSX.Element => (
     `}</style>
   </>
 )
+
+export const SmallTitle = ({ children }: Props): JSX.Element => (
+  <>
+    <h2>{children}</h2>
+    <style jsx>{`
+      h2 {
+        font-size: var(--bodysize);
+        margin: 0;
+        padding: 0;
+        font-weight: var(--titleweight);
+        line-height: 1em;
+      }
+    `}</style>
+  </>
+)
