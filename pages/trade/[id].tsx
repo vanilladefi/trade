@@ -24,7 +24,7 @@ const ModalContent = (): JSX.Element => (
     />
     <div>
       <Column>
-        <SmallTitle>SHARE FOR MORE VNL</SmallTitle>
+        <SmallTitle>Share for more VNL</SmallTitle>
         <span>Learn more</span>
       </Column>
       <span>links here</span>

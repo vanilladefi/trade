@@ -10,13 +10,19 @@ export enum Color {
 type Props = {
   children?: ReactNode
   color?: Color
+  nosidepadding?: boolean
 }
 
-const BoxSection = ({ children, color = Color.WHITE }: Props): JSX.Element => {
+const BoxSection = ({
+  children,
+  color = Color.WHITE,
+  nosidepadding,
+}: Props): JSX.Element => {
   const boxClass = classNames('boxSection', {
     white: color === Color.WHITE,
     dark: color === Color.DARK,
     gradient: color === Color.GRADIENT,
+    nosidepadding: nosidepadding === true,
   })
   return (
     <>
@@ -44,6 +50,10 @@ const BoxSection = ({ children, color = Color.WHITE }: Props): JSX.Element => {
         section.gradient {
           background: var(--boxgradient);
           color: var(--dark);
+        }
+        section.nosidepadding {
+          padding-left: 0;
+          padding-right: 0;
         }
       `}</style>
     </>

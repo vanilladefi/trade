@@ -20,6 +20,8 @@ const GlobalStyles = (): JSX.Element => (
         background: var(--white);
         margin: 0;
         padding: 0;
+        position: relative;
+        overflow-x: hidden;
       }
       #__next {
         display: flex;

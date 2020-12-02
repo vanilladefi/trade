@@ -3,6 +3,7 @@ import BoxSection, { Color } from '../components/BoxSection'
 import { Row, Column, Width } from '../components/grid/Flex'
 import Button from '../components/input/Button'
 import Layout from '../components/Layout'
+import Timeline from '../components/Timeline'
 import HugeMonospace from '../components/typography/HugeMonospace'
 import { Highlight } from '../components/typography/Text'
 import { Title } from '../components/typography/Titles'
@@ -34,6 +35,13 @@ const HeaderContent = (
     `}</style>
   </Column>
 )
+
+const milestones = [
+  { name: 'Profit Mining', time: 'Live' },
+  { name: 'Staking', time: 'Q2' },
+  { name: 'Governance', time: 'Q4' },
+  { name: 'Funds', time: 'Q1' },
+]
 
 const IndexPage = (): JSX.Element => (
   <Layout title='Vanilla' hero={HeaderContent}>
@@ -108,15 +116,26 @@ const IndexPage = (): JSX.Element => (
       </BoxSection>
     </Wrapper>
 
-    <Wrapper>
-      <BoxSection color={Color.WHITE}>
-        <Row>
-          <Column>
+    <BoxSection color={Color.WHITE} nosidepadding>
+      <Column>
+        <Row className='centered'>
+          <Wrapper className='timelinewrapper'>
             <Title>Roadmap</Title>
-          </Column>
+          </Wrapper>
         </Row>
-      </BoxSection>
-    </Wrapper>
+        <Timeline milestones={milestones} />
+      </Column>
+      <style jsx>{`
+        .timelinewrapper {
+          justify-self: center;
+          --outermargin: calc(var(--outermargin) * 2);
+        }
+        .centered {
+          width: 100%;
+          justify-content: center;
+        }
+      `}</style>
+    </BoxSection>
 
     <Wrapper>
       <BoxSection color={Color.GRADIENT}>

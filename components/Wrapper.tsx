@@ -2,11 +2,12 @@ import React, { ReactNode } from 'react'
 
 type Props = {
   children?: ReactNode
+  className?: string
 }
 
-const Wrapper = ({ children }: Props): JSX.Element => (
+const Wrapper = ({ children, className }: Props): JSX.Element => (
   <>
-    <div>{children}</div>
+    <div className={className}>{children}</div>
     <style jsx>{`
       div {
         display: flex;
