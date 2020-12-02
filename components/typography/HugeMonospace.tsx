@@ -14,7 +14,7 @@ const HugeMonospace = ({ children }: Props): JSX.Element => (
         font-size: var(--hugemonosize);
         line-height: var(--hugemonolineheight);
         padding: 0;
-        margin: 0 0 40px 0;
+        margin: var(--hugemonomargin);
       }
     `}</style>
   </>

@@ -33,22 +33,30 @@ const Variables = (): JSX.Element => (
       /* Spacing */
       --outermargin: 44px;
       --layoutmargin: 40px;
+
       --boxpadding: 60px 72px;
       --headerpadding: var(--outermargin) 56px;
+      
       --buttonpadding: 20px;
       --buttonmargin: 0;
       --largebuttonpadding: 23px 39px;
+      
       --modalpadding: 8px 15px;
       --tradeflowerpadding: 18px 23px;
       
+      --titlemargin: 0;
+      --hugemonomargin: 0 0 40px 0;
       --subpage-titlemargin: 56px 0 34px 0;
       --landing-titlemargin: 120px 0 32px 0;
       --box-titlemargin: 0 0 32px 0;
+      --box-hugemonomargin: 0 0 20px 0;
+      --subpage-buttonmargin: 0 0 76px 0;
+      --landing-buttonmargin: 0 0 90px 0;
 
       /* Fonts */
       --titlefont: 'Darker Grotesque', sans-serif;
       --titleweight: 700;
-      --titlesize: 42px;
+      --titlesize: 44px;
       --hugetitlesize: 53px;
       --boxtitlesize: 67px;
       --landing-hugetitlesize: 76px;
@@ -64,6 +72,7 @@ const Variables = (): JSX.Element => (
       --smallsize: 16px;
 
       --boxbodysize: 22px;
+      --boxlineheight: 34px;
       --highlightsize: 31px;
       --highlightlineheight: 49px;
 

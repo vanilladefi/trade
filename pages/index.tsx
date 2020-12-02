@@ -1,17 +1,18 @@
+import Image from 'next/image'
 import BoxSection, { Color } from '../components/BoxSection'
 import { Row, Column, Width } from '../components/grid/Flex'
 import Button from '../components/input/Button'
 import Layout from '../components/Layout'
 import HugeMonospace from '../components/typography/HugeMonospace'
 import { Highlight } from '../components/typography/Text'
-import { BoxTitle, LandingTitle } from '../components/typography/Titles'
+import { Title } from '../components/typography/Titles'
 import Wrapper from '../components/Wrapper'
 
 const HeaderContent = (
-  <Column>
+  <Column className='landingHero'>
     <Row>
       <Column width={Width.NINE}>
-        <LandingTitle>Vanilla Rewards You For Making a Profit</LandingTitle>
+        <Title>Vanilla Rewards You For Making a Profit</Title>
       </Column>
     </Row>
     <Row>
@@ -24,6 +25,13 @@ const HeaderContent = (
         </Button>
       </Column>
     </Row>
+    <style jsx>{`
+      .landingHero {
+        --titlesize: var(--landing-hugetitlesize);
+        --titlemargin: var(--landing-titlemargin);
+        --buttonmargin: var(--landing-buttonmargin);
+      }
+    `}</style>
   </Column>
 )
 
@@ -33,8 +41,8 @@ const IndexPage = (): JSX.Element => (
       <BoxSection color={Color.DARK}>
         <Row>
           <Column width={Width.FOUR}></Column>
-          <Column width={Width.EIGHT}>
-            <BoxTitle>#ProfitMining</BoxTitle>
+          <Column width={Width.EIGHT} className='profitMiningHeader'>
+            <Title>#ProfitMining</Title>
             <HugeMonospace>
               Mine VNL by making a profit trading tokens through Vanilla
             </HugeMonospace>
@@ -43,6 +51,7 @@ const IndexPage = (): JSX.Element => (
               difficulty increases as the amount of capital in the Vanilla
               system grows
             </p>
+            <br />
             <Button large>Learn more</Button>
           </Column>
         </Row>
@@ -53,17 +62,27 @@ const IndexPage = (): JSX.Element => (
       <BoxSection color={Color.GRADIENT}>
         <Row>
           <Column>
-            <BoxTitle>
+            <Title>
               VNL can be staked to increase rewards and direct capital flows.
-            </BoxTitle>
+            </Title>
           </Column>
-          <Column width={Width.SIX}>
-            <p>
-              Anyone can stake VNL on themselves to increase their personal
-              rewards. E.g. By staking 10 VNL on yourself, you can increase your
-              rewards by ~5%
-            </p>
-          </Column>
+          <Row>
+            <Column width={Width.SIX}>
+              <p>
+                Anyone can stake VNL on themselves to increase their personal
+                rewards. E.g. By staking 10 VNL on yourself, you can increase
+                your rewards by ~5%
+              </p>
+            </Column>
+            <Column width={Width.SIX}>
+              <Image
+                src='/images/stakinginfo.png'
+                alt='Staking Infographic'
+                height='337px'
+                width='393px'
+              />
+            </Column>
+          </Row>
         </Row>
       </BoxSection>
     </Wrapper>
@@ -72,9 +91,9 @@ const IndexPage = (): JSX.Element => (
       <BoxSection color={Color.DARK}>
         <Row>
           <Column>
-            <BoxTitle>
+            <Title>
               VNL is the governance token of the Vanilla economic system.
-            </BoxTitle>
+            </Title>
           </Column>
           <Column width={Width.SIX}></Column>
           <Column width={Width.SIX}>
@@ -82,6 +101,7 @@ const IndexPage = (): JSX.Element => (
               Holders of VNL determine the direction of Vanilla by voting on
               incentive changes, system upgrades and treasury allocations.
             </Highlight>
+            <br />
             <Button large>Learn more</Button>
           </Column>
         </Row>
@@ -92,7 +112,7 @@ const IndexPage = (): JSX.Element => (
       <BoxSection color={Color.WHITE}>
         <Row>
           <Column>
-            <BoxTitle>Roadmap</BoxTitle>
+            <Title>Roadmap</Title>
           </Column>
         </Row>
       </BoxSection>
@@ -102,7 +122,7 @@ const IndexPage = (): JSX.Element => (
       <BoxSection color={Color.GRADIENT}>
         <Row>
           <Column width={Width.FIVE}>
-            <BoxTitle>Security</BoxTitle>
+            <Title>Security</Title>
           </Column>
           <Column width={Width.SEVEN}>
             <Highlight>

@@ -6,11 +6,12 @@ import HugeMonospace from '../../components/typography/HugeMonospace'
 import Wrapper from '../../components/Wrapper'
 import Gradient from '../../components/backgrounds/gradient'
 import { Row, Column, Width } from '../../components/grid/Flex'
+import Link from 'next/link'
 
 const HeaderContent: JSX.Element = (
   <>
     <Gradient />
-    <Row>
+    <Row className='subpageHeader'>
       <Column width={Width.EIGHT}>
         <Title>Start Trading</Title>
         <HugeMonospace>
@@ -20,8 +21,9 @@ const HeaderContent: JSX.Element = (
       </Column>
     </Row>
     <style jsx>{`
-      div {
-        --buttonmargin: 0 0 76px 0;
+      .subpageHeader {
+        --buttonmargin: var(--subpage-buttonmargin);
+        --titlemargin: var(--subpage-titlemargin);
       }
     `}</style>
   </>
@@ -33,6 +35,7 @@ const TradePage = (): JSX.Element => (
       <Wrapper>
         <BoxSection color={Color.WHITE}>
           <h1>List of tokens comes here</h1>
+          <Link href='/trade/ebin'>Open latest trade</Link>
         </BoxSection>
       </Wrapper>
     </Layout>

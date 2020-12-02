@@ -18,17 +18,27 @@ export enum Width {
 type Props = {
   children?: ReactNode
   width?: Width
+  className?: string
 }
 
+/**
+ * CSS3 Flexbox Column
+ *
+ * @param children React children
+ * @param width taken flex-basis of the column on a 12-column grid. e.g. Width.FIVE. Defaults to Width.TWELVE
+ * @param className regular React className for CSS variable scoping to work
+ */
 export const Column = ({
   children,
   width = Width.TWELVE,
+  className,
 }: Props): JSX.Element => (
   <>
-    <div>{children}</div>
+    <div className={className}>{children}</div>
     <style jsx>{`
       div {
         display: flex;
+        position: relative;
         flex-direction: column;
         flex-basis: ${((width + 1) / 12) * 100}%;
         align-items: flex-start;
@@ -38,12 +48,19 @@ export const Column = ({
   </>
 )
 
-export const Row = ({ children }: Props): JSX.Element => (
+/**
+ * CSS3 Flexbox Row
+ *
+ * @param children React children
+ * @param className regular React className for CSS variable scoping to work
+ */
+export const Row = ({ children, className }: Props): JSX.Element => (
   <>
-    <div>{children}</div>
+    <div className={className}>{children}</div>
     <style jsx>{`
       div {
         display: flex;
+        position: relative;
         flex-direction: row;
         flex-flow: row wrap;
       }
