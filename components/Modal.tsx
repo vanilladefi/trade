@@ -24,7 +24,7 @@ const Modal = ({
           onClick={(e) => {
             e.preventDefault()
             setOpen(false)
-            onRequestClose()
+            setTimeout(() => onRequestClose(), 200)
           }}
         >
           <div
@@ -52,7 +52,7 @@ const Modal = ({
           backdrop-filter: ${isOpen ? 'var(--curtain-backdropfilter)' : 'none'};
           z-index: 999;
           cursor: pointer;
-          transition: 0.8s ease backdrop-filter, 0.2s ease background;
+          transition: 0.2s ease backdrop-filter, 0.2s ease background;
         }
         .modal {
           width: 480px;

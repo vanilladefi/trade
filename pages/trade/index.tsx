@@ -8,7 +8,7 @@ import Gradient from '../../components/backgrounds/gradient'
 import { Row, Column, Width } from '../../components/grid/Flex'
 import Link from 'next/link'
 
-const HeaderContent: JSX.Element = (
+export const HeaderContent: JSX.Element = (
   <>
     <Gradient />
     <Row className='subpageHeader'>
@@ -29,15 +29,21 @@ const HeaderContent: JSX.Element = (
   </>
 )
 
+export const BodyContent = (): JSX.Element => {
+  return (
+    <Wrapper>
+      <BoxSection color={Color.WHITE}>
+        <h1>List of tokens comes here</h1>
+        <Link href='/trade/ebin'>Open latest trade</Link>
+      </BoxSection>
+    </Wrapper>
+  )
+}
+
 const TradePage = (): JSX.Element => (
   <>
     <Layout title='Trade | Vanilla' hero={HeaderContent}>
-      <Wrapper>
-        <BoxSection color={Color.WHITE}>
-          <h1>List of tokens comes here</h1>
-          <Link href='/trade/ebin'>Open latest trade</Link>
-        </BoxSection>
-      </Wrapper>
+      <BodyContent />
     </Layout>
   </>
 )
