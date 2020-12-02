@@ -1,6 +1,4 @@
 import React from 'react'
-import { Row } from './grid/Flex'
-import Wrapper from './Wrapper'
 
 export type Milestone = {
   name: string
