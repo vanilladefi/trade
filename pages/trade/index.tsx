@@ -1,12 +1,12 @@
-import Button from '../../components/input/Button'
-import BoxSection, { Color } from '../../components/BoxSection'
-import Layout from '../../components/Layout'
-import { Title } from '../../components/typography/Titles'
-import HugeMonospace from '../../components/typography/HugeMonospace'
-import Wrapper from '../../components/Wrapper'
-import Gradient from '../../components/backgrounds/gradient'
-import { Row, Column, Width } from '../../components/grid/Flex'
 import Link from 'next/link'
+import Gradient from '../../components/backgrounds/gradient'
+import BoxSection, { Color } from '../../components/BoxSection'
+import { Column, Row, Width } from '../../components/grid/Flex'
+import Button from '../../components/input/Button'
+import Layout from '../../components/Layout'
+import HugeMonospace from '../../components/typography/HugeMonospace'
+import { Title } from '../../components/typography/Titles'
+import Wrapper from '../../components/Wrapper'
 
 export const HeaderContent: JSX.Element = (
   <>

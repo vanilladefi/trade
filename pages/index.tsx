@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import BoxSection, { Color } from '../components/BoxSection'
-import { Row, Column, Width } from '../components/grid/Flex'
+import { Column, Row, Width } from '../components/grid/Flex'
 import Button from '../components/input/Button'
 import Layout from '../components/Layout'
 import Timeline from '../components/Timeline'

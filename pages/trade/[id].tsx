@@ -1,12 +1,12 @@
 import { useRouter } from 'next/router'
-import Layout from '../../components/Layout'
-import { SmallTitle } from '../../components/typography/Titles'
 import { Column } from '../../components/grid/Flex'
-
+import Layout from '../../components/Layout'
 import Modal from '../../components/Modal'
 import TradeFlower from '../../components/TradeFlower'
-
+import { SmallTitle } from '../../components/typography/Titles'
 import { BodyContent, HeaderContent } from './'
+
+
 
 const ModalContent = (): JSX.Element => (
   <Column>

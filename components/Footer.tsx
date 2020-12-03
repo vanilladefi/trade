@@ -1,8 +1,7 @@
 import React from 'react'
-//import Link from 'next/link'
-
-import Wrapper from './Wrapper'
 import { Logo } from './Brand'
+//import Link from 'next/link'
+import Wrapper from './Wrapper'
 
 const Footer = (): JSX.Element => (
   <>
