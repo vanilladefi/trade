@@ -1,4 +1,6 @@
 import React from 'react'
+import { Row } from './grid/Flex'
+import Wrapper from './Wrapper'
 
 export type Milestone = {
   name: string
@@ -14,16 +16,20 @@ const Timeline = ({ milestones }: Props): JSX.Element => {
     <>
       <div className='timeline'>
         <div className='line' />
-        {milestones.map((milestone) => (
-          <div
-            className='milestone'
-            key={`${milestone.name}-${milestone.time}`}
-          >
-            <div className='ball'></div>
-            <h2>{milestone.name}</h2>
-            <h3>{milestone.time}</h3>
+        <Wrapper>
+          <div className='milestones'>
+            {milestones.map((milestone) => (
+              <div
+                className='milestone'
+                key={`${milestone.name}-${milestone.time}`}
+              >
+                <div className='ball'></div>
+                <h2>{milestone.name}</h2>
+                <h3>{milestone.time}</h3>
+              </div>
+            ))}
           </div>
-        ))}
+        </Wrapper>
       </div>
       <style jsx>{`
         .timeline {
@@ -32,7 +38,6 @@ const Timeline = ({ milestones }: Props): JSX.Element => {
           width: 100%;
           position: relative;
           flex-wrap: nowrap;
-          overflow-x: scroll-x;
           align-items: flex-start;
           justify-content: center;
           margin-top: 38px;
@@ -40,6 +45,12 @@ const Timeline = ({ milestones }: Props): JSX.Element => {
           padding-left: 0;
           padding-right: 0;
           left: 0;
+          overflow-x: scroll;
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .timeline::-webkit-scrollbar {
+          display: none;
         }
         .line {
           width: 100%;
@@ -51,9 +62,18 @@ const Timeline = ({ milestones }: Props): JSX.Element => {
         }
         .milestone {
           display: flex;
+          flex-shrink: 0;
           width: 224px;
           flex-direction: column;
           z-index: 2;
+        }
+        .milestones {
+          display: flex;
+          flex-direction: row;
+          padding: var(--boxpadding);
+          padding-top: 0;
+          padding-bottom: 0;
+          justify-content: space-between;
         }
         .ball {
           width: 27px;

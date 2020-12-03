@@ -117,22 +117,32 @@ const IndexPage = (): JSX.Element => (
     </Wrapper>
 
     <BoxSection color={Color.WHITE} nosidepadding>
-      <Column>
-        <Row className='centered'>
-          <Wrapper className='timelinewrapper'>
+      <div className='timelinebox'>
+        <Wrapper className='timelinewrapper'>
+          <div className='centered'>
             <Title>Roadmap</Title>
-          </Wrapper>
-        </Row>
+          </div>
+        </Wrapper>
         <Timeline milestones={milestones} />
-      </Column>
+      </div>
       <style jsx>{`
+        .timelinebox {
+          display: flex;
+          width: 100%;
+          position: relative;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
         .timelinewrapper {
           justify-self: center;
-          --outermargin: calc(var(--outermargin) * 2);
         }
         .centered {
           width: 100%;
           justify-content: center;
+          padding: var(--boxpadding);
+          padding-top: 0;
+          padding-bottom: 0;
         }
       `}</style>
     </BoxSection>
