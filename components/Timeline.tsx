@@ -13,8 +13,8 @@ type Props = {
 const Timeline = ({ milestones }: Props): JSX.Element => {
   return (
     <>
+      <div className='line' />
       <div className='timeline'>
-        <div className='line' />
         <Wrapper>
           <div className='milestones'>
             {milestones.map((milestone) => (
@@ -39,7 +39,7 @@ const Timeline = ({ milestones }: Props): JSX.Element => {
           flex-wrap: nowrap;
           align-items: flex-start;
           justify-content: center;
-          margin-top: 38px;
+          padding-top: 38px;
           padding-bottom: 76px;
           padding-left: 0;
           padding-right: 0;
@@ -52,12 +52,13 @@ const Timeline = ({ milestones }: Props): JSX.Element => {
           display: none;
         }
         .line {
+          flex-shrink: 0;
           width: 100%;
           height: 4px;
           background: var(--roadmapcolor);
-          position: absolute;
-          top: 11px;
-          left: 0;
+          position: sticky;
+          margin-top: 11px;
+          transform: translateY(53px);
         }
         .milestone {
           display: flex;
