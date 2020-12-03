@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import BoxSection, { Color } from '../components/BoxSection'
+import BoxSection, { Color, SeriousBox } from '../components/BoxSection'
 import { Column, Row, Width } from '../components/grid/Flex'
 import Button from '../components/input/Button'
 import Layout from '../components/Layout'
@@ -149,18 +149,32 @@ const IndexPage = (): JSX.Element => (
 
     <Wrapper>
       <BoxSection color={Color.GRADIENT}>
-        <Row>
-          <Column width={Width.FIVE}>
-            <Title>Security</Title>
-          </Column>
-          <Column width={Width.SEVEN}>
-            <Highlight>
-              All Vanilla smart contracts have been thoroughly audited and there
-              is a public bug bounty, but Vanilla is still beta software. Use at
-              your own risk.
-            </Highlight>
-          </Column>
-        </Row>
+        <Column>
+          <Row>
+            <Column width={Width.FIVE}>
+              <Title>Security</Title>
+            </Column>
+            <Column width={Width.SEVEN}>
+              <Highlight>
+                All Vanilla smart contracts have been thoroughly audited and
+                there is a public bug bounty, but Vanilla is still beta
+                software. Use at your own risk.
+              </Highlight>
+            </Column>
+          </Row>
+          <Row gap={'66px'}>
+            <Column width={Width.SIX}>
+              <SeriousBox>
+                <h1>Audit</h1>
+              </SeriousBox>
+            </Column>
+            <Column width={Width.SIX}>
+              <SeriousBox>
+                <h1>Bug Bounty</h1>
+              </SeriousBox>
+            </Column>
+          </Row>
+        </Column>
       </BoxSection>
     </Wrapper>
   </Layout>

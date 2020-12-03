@@ -7,7 +7,7 @@ const Footer = (): JSX.Element => (
   <>
     <footer>
       <Wrapper>
-        <Logo />
+        <Logo white />
         <hr />
         <span>I'm here to stay (Footer)</span>
       </Wrapper>
@@ -22,6 +22,7 @@ const Footer = (): JSX.Element => (
         color: var(--white);
         width: 100%;
         font-size: 14px;
+        padding: var(--boxpadding);
       }
       div {
         display: flex;

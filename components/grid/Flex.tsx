@@ -19,6 +19,7 @@ type Props = {
   children?: ReactNode
   width?: Width
   className?: string
+  gap?: string
 }
 
 /**
@@ -53,16 +54,19 @@ export const Column = ({
  *
  * @param children React children
  * @param className regular React className for CSS variable scoping to work
+ * @param gap CSS gap property
  */
-export const Row = ({ children, className }: Props): JSX.Element => (
+export const Row = ({ children, className, gap }: Props): JSX.Element => (
   <>
     <div className={className}>{children}</div>
     <style jsx>{`
       div {
         display: flex;
         position: relative;
+        width: 100%;
         flex-direction: row;
         flex-flow: row wrap;
+        gap: ${gap ? gap : '0px'};
       }
     `}</style>
   </>

@@ -13,6 +13,22 @@ type Props = {
   nosidepadding?: boolean
 }
 
+export const SeriousBox = ({ children }: Props): JSX.Element => {
+  return (
+    <>
+      <div className='seriousBox'>{children}</div>
+      <style jsx>{`
+        .seriousBox {
+          padding: 41px 0;
+          width: 100%;
+          border-top: 1px solid var(--dark);
+          border-bottom: 1px solid var(--dark);
+        }
+      `}</style>
+    </>
+  )
+}
+
 const BoxSection = ({
   children,
   color = Color.WHITE,
