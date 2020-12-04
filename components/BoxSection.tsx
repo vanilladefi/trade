@@ -11,6 +11,7 @@ type Props = {
   children?: ReactNode
   color?: Color
   nosidepadding?: boolean
+  className?: string
 }
 
 export const SeriousBox = ({ children }: Props): JSX.Element => {
@@ -23,6 +24,7 @@ export const SeriousBox = ({ children }: Props): JSX.Element => {
           width: 100%;
           border-top: 1px solid var(--dark);
           border-bottom: 1px solid var(--dark);
+          --titlesize: 30px;
         }
       `}</style>
     </>
@@ -33,8 +35,9 @@ const BoxSection = ({
   children,
   color = Color.WHITE,
   nosidepadding,
+  className,
 }: Props): JSX.Element => {
-  const boxClass = classNames('boxSection', {
+  const boxClass = classNames(`boxSection${className ? ` ${className}` : ''}`, {
     white: color === Color.WHITE,
     dark: color === Color.DARK,
     gradient: color === Color.GRADIENT,
@@ -46,6 +49,7 @@ const BoxSection = ({
       <style jsx>{`
         section {
           display: flex;
+          position: relative;
           width: 100%;
           margin-bottom: var(--layoutmargin);
           font-size: var(--boxbodysize);

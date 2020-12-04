@@ -83,6 +83,8 @@ const Variables = (): JSX.Element => (
       --buttonsize: var(--smallsize);
       --largebuttonsize: 23px;
       --mobilebuttonsize: 35px;
+
+      --activelinkborder: 4px solid var(--activelink);
     }
   `}</style>
 )

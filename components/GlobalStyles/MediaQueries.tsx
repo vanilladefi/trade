@@ -8,22 +8,6 @@ const MediaQueries = (): JSX.Element => (
         --layoutmargin: 10px;
       }
     }
-    @media (min-width: var(--laptop)) {
-      :root {
-        --outermargin: 44px;
-        --layoutmargin: 40px;
-        --titlesize: 67px;
-        --hugetitlesize: 76px;
-      }
-    }
-    @media (min-width: var(--desktop)) {
-      :root {
-        --outermargin: 44px;
-        --layoutmargin: 40px;
-        --titlesize: 67px;
-        --hugetitlesize: 76px;
-      }
-    }
   `}</style>
 )
 

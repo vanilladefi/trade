@@ -1,4 +1,6 @@
 import Image from 'next/image'
+import HandFlower from '../components/backgrounds/handflower'
+import WhiteFlowers from '../components/backgrounds/whiteflowers'
 import BoxSection, { Color, SeriousBox } from '../components/BoxSection'
 import { Column, Row, Width } from '../components/grid/Flex'
 import Button from '../components/input/Button'
@@ -47,6 +49,7 @@ const IndexPage = (): JSX.Element => (
   <Layout title='Vanilla' hero={HeaderContent}>
     <Wrapper>
       <BoxSection color={Color.DARK}>
+        <WhiteFlowers />
         <Row>
           <Column width={Width.FOUR}></Column>
           <Column width={Width.EIGHT} className='profitMiningHeader'>
@@ -97,6 +100,7 @@ const IndexPage = (): JSX.Element => (
 
     <Wrapper>
       <BoxSection color={Color.DARK}>
+        <HandFlower />
         <Row>
           <Column>
             <Title>
@@ -163,14 +167,14 @@ const IndexPage = (): JSX.Element => (
             </Column>
           </Row>
           <Row gap={'66px'}>
-            <Column width={Width.SIX}>
+            <Column grow>
               <SeriousBox>
-                <h1>Audit</h1>
+                <Title>Audit</Title>
               </SeriousBox>
             </Column>
-            <Column width={Width.SIX}>
+            <Column grow>
               <SeriousBox>
-                <h1>Bug Bounty</h1>
+                <Title>Bug Bounty</Title>
               </SeriousBox>
             </Column>
           </Row>

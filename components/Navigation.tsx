@@ -14,6 +14,7 @@ const Navigation = (): JSX.Element => (
         flex-direction: row;
         height: 100%;
         justify-content: center;
+        align-items: center;
       }
     `}</style>
   </nav>

@@ -32,7 +32,7 @@ const NavLink = ({ href, children }: Props): JSX.Element => {
         }
         a.active {
           color: var(--activelink);
-          border-bottom: 4px solid var(--activelink);
+          border-bottom: var(--activelinkborder);
         }
       `}</style>
     </>
