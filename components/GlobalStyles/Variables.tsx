@@ -71,6 +71,7 @@ const Variables = (): JSX.Element => (
       --bodyweight: 400;
       --bodysize: 18px;
       --smallsize: 16px;
+      --minisize: 14px;
 
       --boxbodysize: 22px;
       --boxlineheight: 34px;

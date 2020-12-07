@@ -15,12 +15,30 @@ export enum Width {
   TWELVE,
 }
 
+export enum Justification {
+  START = 'flex-start',
+  CENTER = 'center',
+  SPACE_BETWEEN = 'space-between',
+  SPACE_AROUND = 'space-around',
+  SPACE_EVENLY = 'space-evenly',
+  END = 'flex-end',
+}
+
+export enum Alignment {
+  START = 'flex-start',
+  CENTER = 'center',
+  STRETCH = 'stretch',
+  END = 'flex-end',
+}
+
 type Props = {
   children?: ReactNode
   width?: Width
   className?: string
   gap?: string
   grow?: boolean
+  justifyContent?: Justification
+  alignItems?: Alignment
 }
 
 /**
@@ -35,6 +53,8 @@ export const Column = ({
   width,
   className,
   grow,
+  alignItems = Alignment.START,
+  justifyContent = Justification.START,
 }: Props): JSX.Element => (
   <>
     <div className={className}>{children}</div>
@@ -45,8 +65,8 @@ export const Column = ({
         flex-direction: column;
         ${width ? `flex-basis: ${((width + 1) / 12) * 100}%;` : ''}
         ${grow ? 'flex-grow: 1;' : 'flex-grow: 0;'}
-        align-items: flex-start;
-        justify-content: flex-start;
+        align-items: ${alignItems};
+        justify-content: ${justifyContent};
       }
     `}</style>
   </>
@@ -59,7 +79,13 @@ export const Column = ({
  * @param className regular React className for CSS variable scoping to work
  * @param gap CSS gap property
  */
-export const Row = ({ children, className, gap }: Props): JSX.Element => (
+export const Row = ({
+  children,
+  className,
+  gap,
+  alignItems = Alignment.START,
+  justifyContent = Justification.START,
+}: Props): JSX.Element => (
   <>
     <div className={className}>{children}</div>
     <style jsx>{`
@@ -70,6 +96,8 @@ export const Row = ({ children, className, gap }: Props): JSX.Element => (
         flex-direction: row;
         flex-flow: row wrap;
         gap: ${gap ? gap : '0px'};
+        align-items: ${alignItems};
+        justify-content: ${justifyContent};
       }
     `}</style>
   </>
