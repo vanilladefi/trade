@@ -1,26 +1,41 @@
 import React from 'react'
 
 const Variables = (): JSX.Element => (
-  <style>{`
+  <style jsx global>{`
     :root {
-
       /* Colors */
-      --white: #FFFFFF;
-      --dark: #2C1929; 
-      --yellow: #D5EBF4;
-      --beige: #F3F1EA;
+      --white: #ffffff;
+      --dark: #2c1929;
+      --yellow: #d5ebf4;
+      --beige: #f3f1ea;
       --inactivelink: #857482;
       --activelink: var(--dark);
       --curtain-background: rgba(44, 21, 45, 0.83);
       --curtain-backdropfilter: blur(10px);
-      --roadmapcolor: #FFD866;
-      
+      --roadmapcolor: #ffd866;
+
       /* Gradients */
-      --topgradient: radial-gradient(78.72% 122.74% at 91.23% 0%, #FFEEC2 0%, #F4F4F0 100%);
-      --boxgradient: radial-gradient(107.22% 272.74% at 100% -2.86%, rgba(251, 241, 215, 0.96) 0%, #F8F7F3 100%);
-      --buttongradient: linear-gradient(272.09deg, #FFD866 4.89%, #FFC684 95.55%);
-      --tradeflowergradient: linear-gradient(326deg, #FFEDAB 8.09%, #EDEDED 89.18%);
-      
+      --topgradient: radial-gradient(
+        78.72% 122.74% at 91.23% 0%,
+        #ffeec2 0%,
+        #f4f4f0 100%
+      );
+      --boxgradient: radial-gradient(
+        107.22% 272.74% at 100% -2.86%,
+        rgba(251, 241, 215, 0.96) 0%,
+        #f8f7f3 100%
+      );
+      --buttongradient: linear-gradient(
+        272.09deg,
+        #ffd866 4.89%,
+        #ffc684 95.55%
+      );
+      --tradeflowergradient: linear-gradient(
+        326deg,
+        #ffedab 8.09%,
+        #ededed 89.18%
+      );
+
       /* Dimensions */
       --maxlayoutwidth: 1280px;
 
@@ -36,14 +51,14 @@ const Variables = (): JSX.Element => (
       --boxpadding-xl: 5rem;
 
       --headerpadding: var(--outermargin);
-      
+
       --buttonpadding: 20px;
       --buttonmargin: 0;
       --largebuttonpadding: 1.3rem 1.5rem 1.4rem;
-      
-      --modalpadding: .5rem 1rem;
+
+      --modalpadding: 0.5rem 1rem;
       --tradeflowerpadding: 18px 23px;
-      
+
       --titlemargin: 0;
       --hugemonomargin: 0 0 1.8rem 0;
       --subpage-titlemargin: 56px 0 1.5rem 0;
@@ -76,8 +91,8 @@ const Variables = (): JSX.Element => (
       --bodyfont: 'Inter', sans-serif;
       --bodyweight: 400;
       --bodysize: 1rem;
-      --smallsize: .9rem;
-      --minisize: .8rem;
+      --smallsize: 0.9rem;
+      --minisize: 0.8rem;
       --mobilenavlinksize: 1.8rem;
 
       --boxbodysize: 1.2rem;
@@ -93,7 +108,6 @@ const Variables = (): JSX.Element => (
       --mobilebuttonsize: 1.2rem;
 
       --activelinkborder: 4px solid var(--activelink);
-
     }
 
     @media (min-width: 640px) {
@@ -122,7 +136,6 @@ const Variables = (): JSX.Element => (
         --rootfontsize: var(--rootfontsize-xxl);
       }
     }
-
   `}</style>
 )
 

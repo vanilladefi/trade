@@ -10,14 +10,14 @@ const GlobalStyles = (): JSX.Element => (
   <>
     <Fonts />
     <Variables />
-    <style>{`
+    <style jsx global>{`
       * {
         box-sizing: border-box;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
       }
       html {
-        font-size: var(--rootfontsize)
+        font-size: var(--rootfontsize);
       }
       body {
         background: var(--white);
@@ -33,11 +33,18 @@ const GlobalStyles = (): JSX.Element => (
         width: 100%;
         min-height: 100vh;
       }
-      h1, h2, h3, h4, h5 {
+      h1,
+      h2,
+      h3,
+      h4,
+      h5 {
         font-family: var(--titlefont);
         font-weight: var(--titleweight);
       }
-      p, a, span, tbody {
+      p,
+      a,
+      span,
+      tbody {
         font-family: var(--bodyfont);
         font-weight: var(--bodyweight);
       }
