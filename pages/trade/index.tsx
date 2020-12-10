@@ -130,7 +130,6 @@ const TradePage = (): JSX.Element => {
   return (
     <>
       <Layout title='Trade | Vanilla' hero={HeaderContent}>
-        <Modal></Modal>
         <BodyContent data={data} columns={columns} />
       </Layout>
     </>
