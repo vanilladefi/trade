@@ -49,13 +49,21 @@ export const HeaderContent: JSX.Element = (
 export const BodyContent = (props: Props): JSX.Element => {
   return (
     <Wrapper>
-      <Row>
-        <Column width={Width.TWELVE}>
-          <h1>List of tokens comes here</h1>
-          <Link href='/trade/ebin'>Open latest trade</Link>
-          <TokenList {...props} />
-        </Column>
-      </Row>
+      <BoxSection color={Color.WHITE}>
+        <Row>
+          <Column>
+            <h1>Available Tokens</h1>
+            <TokenList />
+            <Link href='/trade/ebin'>Open latest trade</Link>
+          </Column>
+        </Row>
+      </BoxSection>
+      <style jsx>{`
+        h1 {
+          font-size: 33px;
+          text-transform: uppercase;
+        }
+      `}</style>
     </Wrapper>
   )
 }

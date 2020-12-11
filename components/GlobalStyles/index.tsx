@@ -49,6 +49,7 @@ const GlobalStyles = (): JSX.Element => (
         font-weight: var(--bodyweight);
       }
     `}</style>
+    <MediaQueries />
   </>
 )
 
