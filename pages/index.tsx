@@ -66,7 +66,17 @@ const IndexPage = (): JSX.Element => (
     </Wrapper>
 
     <Wrapper>
-      <Flower width={300} height={300} />
+      <div
+        style={{
+          width: '600px',
+          margin: '250px auto',
+          background: 'linear-gradient(326deg, #FFEDAB 8.09%, #EDEDED 89.18%)',
+          height: '600px',
+          borderRadius: '16px',
+        }}
+      >
+        <Flower />
+      </div>
     </Wrapper>
 
     <Wrapper>
