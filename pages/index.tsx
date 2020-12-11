@@ -11,6 +11,7 @@ import HugeMonospace from '../components/typography/HugeMonospace'
 import { Highlight } from '../components/typography/Text'
 import { Title } from '../components/typography/Titles'
 import Wrapper from '../components/Wrapper'
+import Flower from '../components/Flower'
 
 const HeaderContent = (
   <Column className='landingHero'>
@@ -62,6 +63,10 @@ const IndexPage = (): JSX.Element => (
           </Column>
         </Row>
       </BoxSection>
+    </Wrapper>
+
+    <Wrapper>
+      <Flower width={300} height={300} />
     </Wrapper>
 
     <Wrapper>
