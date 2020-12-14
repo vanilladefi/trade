@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import React, { useState } from 'react'
 import Gradient from '../../components/backgrounds/gradient'
@@ -104,8 +105,18 @@ const TradePage = (): JSX.Element => {
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Logo',
+        Header: (): any => null,
         accessor: 'imageUrl',
+        Cell: ({ row }) => {
+          return (
+            <Image
+              src={row.cells[0].value}
+              height='30px'
+              width='30px'
+              layout='fixed'
+            />
+          )
+        },
       },
       {
         Header: 'Name',
@@ -130,6 +141,11 @@ const TradePage = (): JSX.Element => {
       {
         Header: 'Change',
         accessor: 'priceChange',
+      },
+      {
+        Header: () => null,
+        accessor: 'buy',
+        Cell: () => <Button>Buy</Button>,
       },
     ],
     []

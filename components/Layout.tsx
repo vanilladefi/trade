@@ -3,6 +3,7 @@ import React, { ReactNode } from 'react'
 import Footer from './Footer'
 import GlobalStyles from './GlobalStyles'
 import Header from './Header'
+import { WalletContext } from './state/Wallet'
 
 type Props = {
   children?: ReactNode
@@ -10,27 +11,29 @@ type Props = {
   title?: string
 }
 
-const Layout = ({ children, hero, title = 'Vanilla' }: Props): JSX.Element => (
-  <>
-    {/* HTML <head> */}
-    <Head>
-      <title>{title}</title>
-      <meta charSet='utf-8' />
-      <meta name='viewport' content='initial-scale=1.0, width=device-width' />
-    </Head>
+const Layout = ({ children, hero, title = 'Vanilla' }: Props): JSX.Element => {
+  return (
+    <WalletContext.Provider value={{}}>
+      {/* HTML <head> */}
+      <Head>
+        <title>{title}</title>
+        <meta charSet='utf-8' />
+        <meta name='viewport' content='initial-scale=1.0, width=device-width' />
+      </Head>
 
-    {/* Header, nav */}
-    <Header children={hero} />
+      {/* Header, nav */}
+      <Header children={hero} />
 
-    {/* Site content */}
-    {children}
+      {/* Site content */}
+      {children}
 
-    {/* Footer */}
-    <Footer />
+      {/* Footer */}
+      <Footer />
 
-    {/* Global CSS, like variables & fonts */}
-    <GlobalStyles />
-  </>
-)
+      {/* Global CSS, like variables & fonts */}
+      <GlobalStyles />
+    </WalletContext.Provider>
+  )
+}
 
 export default Layout
