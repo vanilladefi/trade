@@ -10,7 +10,7 @@ import { Title } from '../../components/typography/Titles'
 import Wrapper from '../../components/Wrapper'
 
 type Props = {
-  data?: {
+  data: {
     imageUrl: string
     name: string
     ticker: string
@@ -19,7 +19,7 @@ type Props = {
     liquidity: string
     priceChange: number
   }[]
-  columns?: {
+  columns: {
     Header: string
     accessor: string
   }[]
