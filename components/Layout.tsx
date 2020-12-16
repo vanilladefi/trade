@@ -3,7 +3,7 @@ import React, { ReactNode } from 'react'
 import Footer from './Footer'
 import GlobalStyles from './GlobalStyles'
 import Header from './Header'
-import { WalletContext } from './state/Wallet'
+import { WalletProvider } from './state/Wallet'
 
 type Props = {
   children?: ReactNode
@@ -13,7 +13,7 @@ type Props = {
 
 const Layout = ({ children, hero, title = 'Vanilla' }: Props): JSX.Element => {
   return (
-    <WalletContext.Provider value={{}}>
+    <WalletProvider>
       {/* HTML <head> */}
       <Head>
         <title>{title}</title>
@@ -32,7 +32,7 @@ const Layout = ({ children, hero, title = 'Vanilla' }: Props): JSX.Element => {
 
       {/* Global CSS, like variables & fonts */}
       <GlobalStyles />
-    </WalletContext.Provider>
+    </WalletProvider>
   )
 }
 
