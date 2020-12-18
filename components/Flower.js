@@ -35,6 +35,7 @@ const Flower = ({ stems, iterations, color, maxSize, seed }) => {
     []
   )
 
+  // set defaults if nothing is in url
   let isMobile = false
   seed ? seed : (seed = 123456)
   stems ? stems : (stems = 10)
