@@ -2,11 +2,11 @@ import * as THREE from 'three'
 import React, { useRef, useMemo } from 'react'
 import { extend, useFrame, useThree } from 'react-three-fiber'
 import lerp from 'lerp'
-import { MeshLine, MeshLineRaycast } from 'three.meshline'
+import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'three.meshline'
 import SimplexNoise from 'simplex-noise' // https://github.com/jwagner/simplex-noise.js
 import { calcMap } from '../../utils/Calc'
 
-extend(MeshLine)
+extend({ MeshLine, MeshLineMaterial })
 
 const r = () => Math.max(0.2, Math.random())
 
@@ -30,13 +30,13 @@ function Fatline({ curve, width, rotation, color, speed }) {
   )
 }
 
-export default function Petals({ mouse, stems, colors }) {
-  const simplex = new SimplexNoise()
+export default function Petals({ mouse, stems, iterations, color, seed }) {
+  const simplex = new SimplexNoise(seed)
   const angleRange = 6.9
   const speed = 4
-  const iterations = 30
   const depth = 0.034
-
+  stems = parseInt(stems)
+  iterations = parseInt(iterations)
   const lines = useMemo(
     () =>
       new Array(stems).fill().map((_, index) => {
@@ -47,7 +47,7 @@ export default function Petals({ mouse, stems, colors }) {
           //const angle = (index / 20) * Math.PI * 2
           // (val, inputMin, inputMax, outputMin, outputMax)
           const speed = calcMap(
-            simplex.noise2D(increment, 102),
+            simplex.noise2D(increment, 0),
             1,
             -1,
             -angleRange,
@@ -61,7 +61,6 @@ export default function Petals({ mouse, stems, colors }) {
             -angleRange,
             angleRange
           )
-          console.log(angle)
           increment += increment
           return pos
             .add(
@@ -73,9 +72,10 @@ export default function Petals({ mouse, stems, colors }) {
             )
             .clone()
         })
-        const curve = new THREE.CatmullRomCurve3(points).getPoints(102)
+        console.log(stems)
+        const curve = new THREE.CatmullRomCurve3(points).getPoints(300)
         return {
-          color: colors[parseInt(colors.length * Math.random())],
+          color: color,
           width: 0.15,
           speed: Math.max(0.001, 0.004 * Math.random()),
           rotation: new THREE.Euler(
@@ -96,13 +96,13 @@ export default function Petals({ mouse, stems, colors }) {
     if (ref.current) {
       ref.current.rotation.x = lerp(
         ref.current.rotation.x,
-        0 + mouse.current[1] / aspect / 200,
-        0.1
+        0 + mouse.current[1] / aspect / -200,
+        0.8
       )
       ref.current.rotation.y = lerp(
         ref.current.rotation.y,
-        0 + mouse.current[0] / aspect / 400,
-        0.1
+        0 + mouse.current[0] / aspect / -400,
+        0.8
       )
     }
   })

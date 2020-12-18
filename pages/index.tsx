@@ -11,7 +11,6 @@ import HugeMonospace from '../components/typography/HugeMonospace'
 import { Highlight } from '../components/typography/Text'
 import { Title } from '../components/typography/Titles'
 import Wrapper from '../components/Wrapper'
-import Flower from '../components/Flower'
 
 const HeaderContent = (
   <Column className='landingHero'>
@@ -64,21 +63,6 @@ const IndexPage = (): JSX.Element => (
         </Row>
       </BoxSection>
     </Wrapper>
-
-    <Wrapper>
-      <div
-        style={{
-          width: '600px',
-          margin: '250px auto',
-          background: 'linear-gradient(326deg, #FFEDAB 8.09%, #EDEDED 89.18%)',
-          height: '600px',
-          borderRadius: '16px',
-        }}
-      >
-        <Flower />
-      </div>
-    </Wrapper>
-
     <Wrapper>
       <BoxSection color={Color.GRADIENT}>
         <Row>
