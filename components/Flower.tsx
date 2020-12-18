@@ -25,7 +25,21 @@ function useHasMounted() {
   return hasMounted
 }
 
-const Flower = ({ stems, iterations, color, maxSize, seed }) => {
+type Props = {
+  stems?: any
+  iterations?: any
+  color?: String
+  maxSize: Number
+  seed: any
+}
+
+const Flower = ({
+  stems,
+  iterations,
+  color,
+  maxSize,
+  seed,
+}: Props): JSX.Element => {
   const [hovered, hover] = useState(false)
   const [down, set] = useState(false)
   const mouse = useRef([0, 0])
