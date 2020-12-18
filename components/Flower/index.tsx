@@ -1,18 +1,10 @@
-import React, {
-  Suspense,
-  useState,
-  useCallback,
-  useEffect,
-  useRef,
-  useMemo,
-} from 'react'
-import dynamic from 'next/dynamic'
+import React, { useCallback, useRef } from 'react'
 
-import { Canvas, extend, MeshProps, useFrame } from 'react-three-fiber' // https://github.com/pmndrs/react-three-fiber
+import { Canvas } from 'react-three-fiber' // https://github.com/pmndrs/react-three-fiber
 
-import Particles from './Flower/Particles'
-import Petals from './Flower/Petals'
-import Sparks from './Flower/Sparks'
+//import Particles from './Particles'
+import Petals from './Petals'
+//import Sparks from './Sparks'
 import router from 'next/router'
 
 import Tilt from 'react-parallax-tilt'
@@ -40,8 +32,6 @@ const Flower = ({
   maxSize,
   seed,
 }: Props): JSX.Element => {
-  const [hovered, hover] = useState(false)
-  const [down, set] = useState(false)
   const mouse = useRef([0, 0])
   const onMouseMove = useCallback(
     ({ clientX: x, clientY: y }) =>
@@ -87,8 +77,6 @@ const Flower = ({
             pixelRatio={Math.min(2, isMobile ? window.devicePixelRatio : 1)}
             camera={{ fov: 80, position: [0, 0, 50] }}
             onMouseMove={onMouseMove}
-            onMouseUp={() => set(false)}
-            onMouseDown={() => set(true)}
           >
             <fog attach='fog' args={['white', 1, 1000]} />
             {/* <ambientLight intensity={1} /> */}

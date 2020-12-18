@@ -1,7 +1,7 @@
 import Layout from '../components/Layout'
 
 import Wrapper from '../components/Wrapper'
-import Flower from '../components/Flower.tsx'
+import Flower from '../components/Flower'
 
 const FlowerPage = (): JSX.Element => (
   <Layout title='VNL Flower Demo'>
