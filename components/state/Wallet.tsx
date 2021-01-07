@@ -2,6 +2,9 @@ import WalletConnectProvider from '@walletconnect/web3-provider'
 import { ethers, providers } from 'ethers'
 import React, { Dispatch, ReactNode } from 'react'
 
+//
+// Type declarations, enums
+//
 declare global {
   interface Window {
     web3: providers.ExternalProvider
@@ -24,14 +27,18 @@ enum WalletActions {
 
 type WalletAction = {
   type: WalletActions
-  payload: string | ProviderTypes
+  payload?: string | ProviderTypes
 }
 
 type WalletState = {
   modalOpen: boolean
+  defaultProvider: boolean
   ethers: providers.Provider
 }
 
+//
+// Functions to connect to web3 wallets
+//
 const getWeb3Provider = (
   web3: providers.ExternalProvider | providers.JsonRpcFetchFunc
 ) => {
@@ -69,8 +76,12 @@ const ethersWithProvider = (
   return ethers.getDefaultProvider()
 }
 
+//
+// State
+//
 const initialState = {
   modalOpen: false,
+  defaultProvider: true,
   ethers: ethersWithProvider(),
 }
 
@@ -80,28 +91,57 @@ function walletReducer(
 ): WalletState {
   switch (action.type) {
     case WalletActions.CONNECT_WALLET: {
+      let state: WalletState = prevState
+
       if (action.payload as ProviderTypes) {
         const payload: ProviderTypes = action.payload as ProviderTypes
-        return Object.assign(prevState, { ethers: ethersWithProvider(payload) })
+        const ethers = ethersWithProvider(payload)
+
+        // If ethersWithProvider() returns the default provider, fall back to previous state
+        if (ethers as ethers.providers.ExternalProvider) {
+          state = Object.assign(prevState, {
+            ethers: ethers,
+            defaultProvider: false,
+          })
+        }
+
+        return { ...state }
       }
-      return prevState
+
+      return { ...state }
     }
     case WalletActions.DISCONNECT_WALLET: {
-      return Object.assign(prevState, { ethers: ethersWithProvider() })
+      return {
+        ...prevState,
+        ethers: ethersWithProvider(),
+        defaultProvider: true,
+      }
     }
     case WalletActions.OPEN_MODAL: {
-      return Object.assign(prevState, { modalOpen: true })
+      return { ...prevState, modalOpen: true }
     }
     case WalletActions.CLOSE_MODAL: {
-      return Object.assign(prevState, { modalOpen: false })
+      return { ...prevState, modalOpen: false }
     }
   }
 }
 
+//
+// React contexts
+//
 const WalletStateContext = React.createContext(initialState)
 const WalletDispatchContext = React.createContext<Dispatch<WalletAction>>(
   () => null
 )
+
+//
+// Primary exports
+//
+function useWallet(): [WalletState, React.Dispatch<WalletAction>] {
+  const state = React.useContext(WalletStateContext)
+  const dispatch = React.useContext(WalletDispatchContext)
+  return [state, dispatch]
+}
 
 type ProviderProps = {
   children?: ReactNode
@@ -118,4 +158,10 @@ const WalletProvider = ({ children }: ProviderProps): JSX.Element => {
   )
 }
 
-export { ethersWithProvider, ProviderTypes, WalletProvider }
+export {
+  ethersWithProvider,
+  ProviderTypes,
+  WalletProvider,
+  useWallet,
+  WalletActions,
+}

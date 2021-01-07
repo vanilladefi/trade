@@ -4,6 +4,7 @@ import Footer from './Footer'
 import GlobalStyles from './GlobalStyles'
 import Header from './Header'
 import { WalletProvider } from './state/Wallet'
+import WalletModal from './WalletModal'
 
 type Props = {
   children?: ReactNode
@@ -20,6 +21,8 @@ const Layout = ({ children, hero, title = 'Vanilla' }: Props): JSX.Element => {
         <meta charSet='utf-8' />
         <meta name='viewport' content='initial-scale=1.0, width=device-width' />
       </Head>
+
+      <WalletModal />
 
       {/* Header, nav */}
       <Header children={hero} />

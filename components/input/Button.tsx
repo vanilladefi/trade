@@ -15,12 +15,15 @@ export enum Rounding {
   BOTTOMLEFT,
 }
 
+type Callback = () => void
+
 type Props = {
   children?: ReactNode
   large?: boolean
   color?: ButtonColor
   rounded?: Rounding
   injectedStyles?: string
+  onClick?: Callback
 }
 
 const Button = ({
@@ -29,6 +32,7 @@ const Button = ({
   color = ButtonColor.GRADIENT,
   rounded = Rounding.ALL,
   injectedStyles,
+  onClick,
 }: Props): JSX.Element => {
   const buttonClass = classNames({
     large: large,
@@ -40,7 +44,9 @@ const Button = ({
   })
   return (
     <>
-      <button className={buttonClass}>{children}</button>
+      <button className={buttonClass} onClick={onClick}>
+        {children}
+      </button>
       <style jsx>{`
         button {
           display: flex;

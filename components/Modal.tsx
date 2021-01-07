@@ -1,10 +1,11 @@
+import classNames from 'classnames'
 import React, { ReactNode, useEffect, useState } from 'react'
 
 type Callback = () => void
 type Props = {
   children?: ReactNode
   open?: boolean
-  onRequestClose: Callback
+  onRequestClose?: Callback
 }
 
 const Modal = ({
@@ -13,6 +14,7 @@ const Modal = ({
   onRequestClose,
 }: Props): JSX.Element => {
   const [isOpen, setOpen] = useState(false)
+  const curtainClasses = classNames('curtain', { closed: !isOpen })
   useEffect(() => {
     setOpen(open)
   }, [open])
@@ -20,11 +22,11 @@ const Modal = ({
     <>
       {open && (
         <div
-          className='curtain'
+          className={curtainClasses}
           onClick={(e) => {
             e.preventDefault()
             setOpen(false)
-            setTimeout(() => onRequestClose(), 200)
+            setTimeout(() => onRequestClose && onRequestClose(), 200)
           }}
         >
           <div
@@ -41,13 +43,13 @@ const Modal = ({
       <style jsx>{`
         .curtain {
           display: flex;
-          position: absolute;
+          position: fixed;
           top: 0;
           left: 0;
           align-items: center;
           justify-content: center;
           width: 100%;
-          height: 100%;
+          height: 100vh;
           background: ${isOpen ? 'var(--curtain-background)' : 'transparent'};
           backdrop-filter: ${isOpen ? 'var(--curtain-backdropfilter)' : 'none'};
           z-index: 999;
@@ -64,6 +66,10 @@ const Modal = ({
           cursor: default;
           opacity: ${isOpen ? 1 : 0};
           transition: 0.1s ease opacity;
+        }
+        .closed {
+          display: none;
+          pointer-events: click-through;
         }
       `}</style>
     </>
