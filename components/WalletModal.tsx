@@ -1,29 +1,76 @@
 import { utils } from 'ethers'
-import { useWallet } from 'use-wallet'
-import Button from './input/Button'
+import React, { useMemo } from 'react'
+import { Connectors, useWallet } from 'use-wallet'
+import Gradient from './backgrounds/gradient'
+import { Column, Width } from './grid/Flex'
+import Button, { ButtonColor } from './input/Button'
 import Modal from './Modal'
 import { AppActions, useAppState } from './State'
+import { SmallTitle } from './typography/Titles'
 
 const ProviderOptions = (): JSX.Element => {
   const wallet = useWallet()
+  const [, dispatch] = useAppState()
+
+  const connectWallet = (walletType: keyof Connectors): void => {
+    wallet.connect(walletType)
+    dispatch({ type: AppActions.SAVE_WALLET_TYPE, payload: walletType })
+  }
+
   return (
-    <>
-      <Button onClick={() => wallet.connect('injected')}>Metamask</Button>
-      <Button onClick={() => wallet.connect('walletconnect')}>
-        WalletConnect
-      </Button>
-    </>
+    <Column>
+      <div>
+        <SmallTitle>CONNECT TO A WALLET</SmallTitle>
+      </div>
+      <div>
+        <Column width={Width.TWELVE}>
+          <Gradient />
+          <Button
+            color={ButtonColor.WHITE}
+            onClick={() => connectWallet('injected')}
+          >
+            Metamask
+          </Button>
+          <Button
+            color={ButtonColor.WHITE}
+            onClick={() => connectWallet('walletconnect')}
+          >
+            WalletConnect
+          </Button>
+        </Column>
+      </div>
+      <style jsx>{`
+        div {
+          display: flex;
+          flex-direction: row;
+          padding: 19px 17px;
+          justify-content: space-between;
+        }
+      `}</style>
+    </Column>
   )
 }
 
 const WalletView = (): JSX.Element => {
   const wallet = useWallet()
+  const [, dispatch] = useAppState()
+
+  const walletBalance = useMemo(() => {
+    return Number.parseFloat(
+      utils.formatUnits(wallet.balance, 'ether')
+    ).toFixed(3)
+  }, [wallet])
+
+  const resetWallet = (): void => {
+    wallet.reset()
+    dispatch({ type: AppActions.RESET_WALLET_TYPE })
+  }
+
   return (
     <>
-      <Button onClick={() => wallet.reset()}>Disconnect</Button>
-
+      <Button onClick={() => resetWallet()}>Disconnect</Button>
       <h2>Wallet Balance:</h2>
-      <span>{utils.formatUnits(wallet.balance, 'ether')} ETH</span>
+      <span>{walletBalance} ETH</span>
     </>
   )
 }

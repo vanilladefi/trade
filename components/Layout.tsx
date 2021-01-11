@@ -15,7 +15,15 @@ type Props = {
 
 const Layout = ({ children, hero, title = 'Vanilla' }: Props): JSX.Element => {
   return (
-    <UseWalletProvider chainId={1}>
+    <UseWalletProvider
+      chainId={1}
+      connectors={{
+        walletconnect: {
+          rpcUrl:
+            'https://mainnet.infura.io/v3/2b58be24601f4086baef24488838c239',
+        },
+      }}
+    >
       <AppStateProvider>
         {/* HTML <head> */}
         <Head>

@@ -1,5 +1,5 @@
 import { utils } from 'ethers'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useWallet } from 'use-wallet'
 import Button, {
   ButtonColor,
@@ -13,6 +13,22 @@ import { AppActions, useAppState } from './State'
 const Navigation = (): JSX.Element => {
   const wallet = useWallet()
   const [appState, dispatch] = useAppState()
+
+  const walletBalance = useMemo(() => {
+    return Number.parseFloat(
+      utils.formatUnits(wallet.balance, 'ether')
+    ).toFixed(3)
+  }, [wallet])
+
+  const walletAddress = useMemo(() => {
+    const long = wallet.account || ''
+    const short = wallet.account
+      ? `${wallet.account.substring(0, 6)}...${wallet.account.substring(
+          wallet.account.length - 4
+        )}`
+      : ''
+    return { long, short }
+  }, [wallet])
 
   return (
     <nav>
@@ -46,16 +62,23 @@ const Navigation = (): JSX.Element => {
             bordered
             noRightBorder
           >
-            {utils.formatUnits(wallet.balance, 'ether')} ETH
+            {walletBalance} ETH
           </Button>
           <Button
+            onClick={() =>
+              dispatch({
+                type: appState.modalOpen
+                  ? AppActions.CLOSE_MODAL
+                  : AppActions.OPEN_MODAL,
+              })
+            }
             color={ButtonColor.TRANSPARENT}
             bordered
             rounded={Rounding.RIGHT}
-            width='200'
             overflow={Overflow.ELLIPSIS}
+            title={walletAddress.long}
           >
-            {wallet.account}
+            {walletAddress.short}
           </Button>
         </ButtonGroup>
       )}

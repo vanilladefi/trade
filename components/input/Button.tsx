@@ -5,6 +5,7 @@ export enum ButtonColor {
   GRADIENT,
   DARK,
   TRANSPARENT,
+  WHITE,
 }
 
 export enum Rounding {
@@ -43,6 +44,7 @@ type Props = {
   height?: string
   injectedStyles?: string
   onClick?: Callback
+  title?: string
 }
 
 const Button = ({
@@ -57,12 +59,14 @@ const Button = ({
   height,
   injectedStyles,
   onClick,
+  title,
 }: Props): JSX.Element => {
   const buttonClass = classNames({
     large: large,
     gradient: color === ButtonColor.GRADIENT,
     dark: color === ButtonColor.DARK,
     transparent: color === ButtonColor.TRANSPARENT,
+    white: color === ButtonColor.WHITE,
     bordered: bordered,
     noRightBorder: noRightBorder,
     'roundedTopLeft roundedTopRight roundedBottomRight roundedBottomLeft':
@@ -74,7 +78,7 @@ const Button = ({
   })
   return (
     <>
-      <button className={buttonClass} onClick={onClick}>
+      <button className={buttonClass} onClick={onClick} title={title}>
         {children}
       </button>
       <style jsx>{`
@@ -104,6 +108,9 @@ const Button = ({
         }
         button.dark {
           background: var(--dark);
+        }
+        button.white {
+          background: var(--white);
         }
         button.transparent {
           background: transparent;
