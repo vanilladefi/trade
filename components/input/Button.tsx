@@ -9,10 +9,24 @@ export enum ButtonColor {
 
 export enum Rounding {
   ALL,
+  LEFT,
+  RIGHT,
+  TOP,
+  BOTTOM,
   TOPLEFT,
   TOPRIGHT,
   BOTTOMRIGHT,
   BOTTOMLEFT,
+}
+
+export enum Overflow {
+  AUTO = 'overflow: auto;',
+  HIDDEN = 'overflow: hidden;',
+  ELLIPSIS = `
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  `,
 }
 
 type Callback = () => void
@@ -21,7 +35,12 @@ type Props = {
   children?: ReactNode
   large?: boolean
   color?: ButtonColor
+  bordered?: boolean
+  noRightBorder?: boolean
   rounded?: Rounding
+  overflow?: Overflow
+  width?: string
+  height?: string
   injectedStyles?: string
   onClick?: Callback
 }
@@ -31,6 +50,11 @@ const Button = ({
   large,
   color = ButtonColor.GRADIENT,
   rounded = Rounding.ALL,
+  bordered = false,
+  noRightBorder = false,
+  overflow,
+  width,
+  height,
   injectedStyles,
   onClick,
 }: Props): JSX.Element => {
@@ -39,8 +63,14 @@ const Button = ({
     gradient: color === ButtonColor.GRADIENT,
     dark: color === ButtonColor.DARK,
     transparent: color === ButtonColor.TRANSPARENT,
+    bordered: bordered,
+    noRightBorder: noRightBorder,
     'roundedTopLeft roundedTopRight roundedBottomRight roundedBottomLeft':
       rounded === Rounding.ALL,
+    'roundedTopLeft roundedTopRight': rounded === Rounding.TOP,
+    'roundedBottomLeft roundedBottomRight': rounded === Rounding.BOTTOM,
+    'roundedTopLeft roundedBottomLeft': rounded === Rounding.LEFT,
+    'roundedTopRight roundedBottomRight': rounded === Rounding.RIGHT,
   })
   return (
     <>
@@ -61,6 +91,9 @@ const Button = ({
           outline: 0;
           cursor: pointer;
           line-height: 5px;
+          ${width ? 'width: ' + width + 'px;' : ''}
+          ${height ? 'height: ' + height + 'px;' : ''}
+          ${overflow ? overflow : ''}
         }
         button.large {
           padding: var(--largebuttonpadding);
@@ -75,6 +108,9 @@ const Button = ({
         button.transparent {
           background: transparent;
         }
+        button.bordered {
+          border: 3px solid var(--dark);
+        }
         button.roundedTopLeft {
           border-top-left-radius: 9999px;
         }
@@ -87,10 +123,25 @@ const Button = ({
         button.roundedBottomRight {
           border-bottom-right-radius: 9999px;
         }
+        button.noRightBorder {
+          border-right-width: 0;
+        }
         ${injectedStyles}
       `}</style>
     </>
   )
 }
+
+export const ButtonGroup = ({ children }: Props): JSX.Element => (
+  <>
+    <div className='buttonGroup'>{children}</div>
+    <style jsx>{`
+      .buttonGroup {
+        display: flex;
+        flex-direction: row;
+      }
+    `}</style>
+  </>
+)
 
 export default Button

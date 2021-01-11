@@ -1,9 +1,10 @@
 import Head from 'next/head'
 import React, { ReactNode } from 'react'
+import { UseWalletProvider } from 'use-wallet'
 import Footer from './Footer'
 import GlobalStyles from './GlobalStyles'
 import Header from './Header'
-import { WalletProvider } from './state/Wallet'
+import { AppStateProvider } from './State'
 import WalletModal from './WalletModal'
 
 type Props = {
@@ -14,28 +15,33 @@ type Props = {
 
 const Layout = ({ children, hero, title = 'Vanilla' }: Props): JSX.Element => {
   return (
-    <WalletProvider>
-      {/* HTML <head> */}
-      <Head>
-        <title>{title}</title>
-        <meta charSet='utf-8' />
-        <meta name='viewport' content='initial-scale=1.0, width=device-width' />
-      </Head>
+    <UseWalletProvider chainId={1}>
+      <AppStateProvider>
+        {/* HTML <head> */}
+        <Head>
+          <title>{title}</title>
+          <meta charSet='utf-8' />
+          <meta
+            name='viewport'
+            content='initial-scale=1.0, width=device-width'
+          />
+        </Head>
 
-      <WalletModal />
+        <WalletModal />
 
-      {/* Header, nav */}
-      <Header children={hero} />
+        {/* Header, nav */}
+        <Header children={hero} />
 
-      {/* Site content */}
-      {children}
+        {/* Site content */}
+        {children}
 
-      {/* Footer */}
-      <Footer />
+        {/* Footer */}
+        <Footer />
 
-      {/* Global CSS, like variables & fonts */}
-      <GlobalStyles />
-    </WalletProvider>
+        {/* Global CSS, like variables & fonts */}
+        <GlobalStyles />
+      </AppStateProvider>
+    </UseWalletProvider>
   )
 }
 

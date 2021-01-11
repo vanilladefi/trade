@@ -1,42 +1,63 @@
+import { utils } from 'ethers'
 import React from 'react'
-import Button from './input/Button'
+import { useWallet } from 'use-wallet'
+import Button, {
+  ButtonColor,
+  ButtonGroup,
+  Overflow,
+  Rounding
+} from './input/Button'
 import NavLink from './NavLink'
-import { useWallet, WalletActions } from './state/Wallet'
+import { AppActions, useAppState } from './State'
 
 const Navigation = (): JSX.Element => {
-  const [state, dispatch] = useWallet()
-  React.useEffect(() => console.log('State changed?'), [state])
+  const wallet = useWallet()
+  const [appState, dispatch] = useAppState()
+
   return (
     <nav>
       <NavLink href='/'>Home</NavLink>
       <NavLink href='/trade'>Trade</NavLink>
       <NavLink href='/users'>Stake</NavLink>
-      {state.defaultProvider ? (
-        <div className='connectButton'>
-          <Button
-            onClick={() =>
-              dispatch({
-                type: state.modalOpen
-                  ? WalletActions.CLOSE_MODAL
-                  : WalletActions.OPEN_MODAL,
-              })
-            }
-          >
-            Connect Wallet
-          </Button>
-        </div>
-      ) : (
+      {wallet.status === 'disconnected' ? (
         <Button
           onClick={() =>
             dispatch({
-              type: state.modalOpen
-                ? WalletActions.CLOSE_MODAL
-                : WalletActions.OPEN_MODAL,
+              type: appState.modalOpen
+                ? AppActions.CLOSE_MODAL
+                : AppActions.OPEN_MODAL,
             })
           }
         >
-          Wallet
+          Connect Wallet
         </Button>
+      ) : (
+        <ButtonGroup>
+          <Button
+            onClick={() =>
+              dispatch({
+                type: appState.modalOpen
+                  ? AppActions.CLOSE_MODAL
+                  : AppActions.OPEN_MODAL,
+              })
+            }
+            rounded={Rounding.LEFT}
+            color={ButtonColor.TRANSPARENT}
+            bordered
+            noRightBorder
+          >
+            {utils.formatUnits(wallet.balance, 'ether')} ETH
+          </Button>
+          <Button
+            color={ButtonColor.TRANSPARENT}
+            bordered
+            rounded={Rounding.RIGHT}
+            width='200'
+            overflow={Overflow.ELLIPSIS}
+          >
+            {wallet.account}
+          </Button>
+        </ButtonGroup>
       )}
       <style jsx>{`
         nav {
