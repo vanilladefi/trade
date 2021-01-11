@@ -14,7 +14,7 @@ import Wrapper from '../components/Wrapper'
 const HeaderContent = (
   <Column className='landingHero'>
     <Row>
-      <Column width={Width.NINE}>
+      <Column width={Width.TEN}>
         <Title>Vanilla Rewards You For Making a Profit</Title>
       </Column>
     </Row>
@@ -33,6 +33,7 @@ const HeaderContent = (
         --titlesize: var(--landing-hugetitlesize);
         --titlemargin: var(--landing-titlemargin);
         --buttonmargin: var(--landing-buttonmargin);
+        --titlecolor: var(--dark);
       }
     `}</style>
   </Column>

@@ -11,10 +11,14 @@ const GlobalStyles = (): JSX.Element => (
   <>
     <Fonts />
     <Variables />
-    <MediaQueries />
     <style global>{`
       * {
         box-sizing: border-box;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      html {
+        font-size: var(--rootfontsize)
       }
       body {
         background: var(--white);
