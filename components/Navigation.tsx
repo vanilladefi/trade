@@ -18,7 +18,7 @@ const Navigation = (): JSX.Element => {
     return Number.parseFloat(
       utils.formatUnits(wallet.balance, 'ether')
     ).toFixed(3)
-  }, [wallet])
+  }, [wallet.balance])
 
   const walletAddress = useMemo(() => {
     const long = wallet.account || ''
@@ -28,13 +28,12 @@ const Navigation = (): JSX.Element => {
         )}`
       : ''
     return { long, short }
-  }, [wallet])
+  }, [wallet.account])
 
   return (
     <nav>
       <NavLink href='/'>Home</NavLink>
       <NavLink href='/trade'>Trade</NavLink>
-      <NavLink href='/users'>Stake</NavLink>
       {wallet.status === 'disconnected' ? (
         <Button
           onClick={() =>

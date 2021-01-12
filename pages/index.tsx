@@ -3,6 +3,7 @@ import HandFlower from '../components/backgrounds/handflower'
 import WhiteFlowers from '../components/backgrounds/whiteflowers'
 import BoxSection, { Color, SeriousBox } from '../components/BoxSection'
 import { Column, Row, Width } from '../components/grid/Flex'
+import { GridItem, GridTemplate } from '../components/grid/Grid'
 import Button from '../components/input/Button'
 import Layout from '../components/Layout'
 import Timeline from '../components/Timeline'
@@ -157,18 +158,18 @@ const IndexPage = (): JSX.Element => (
               </Highlight>
             </Column>
           </Row>
-          <Row gap={'66px'}>
-            <Column grow>
+          <GridTemplate gap={'66px'} columns={2}>
+            <GridItem>
               <SeriousBox>
                 <Title>Audit</Title>
               </SeriousBox>
-            </Column>
-            <Column grow>
+            </GridItem>
+            <GridItem>
               <SeriousBox>
                 <Title>Bug Bounty</Title>
               </SeriousBox>
-            </Column>
-          </Row>
+            </GridItem>
+          </GridTemplate>
         </Column>
       </BoxSection>
     </Wrapper>

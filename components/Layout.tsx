@@ -7,13 +7,21 @@ import Header from './Header'
 import { AppStateProvider } from './State'
 import WalletModal from './WalletModal'
 
+type RenderFunction = () => ReactNode
+
 type Props = {
   children?: ReactNode
   hero?: ReactNode
+  heroRenderer?: RenderFunction
   title?: string
 }
 
-const Layout = ({ children, hero, title = 'Vanilla' }: Props): JSX.Element => {
+const Layout = ({
+  children,
+  hero,
+  heroRenderer,
+  title = 'Vanilla',
+}: Props): JSX.Element => {
   return (
     <UseWalletProvider
       chainId={1}
@@ -38,7 +46,7 @@ const Layout = ({ children, hero, title = 'Vanilla' }: Props): JSX.Element => {
         <WalletModal />
 
         {/* Header, nav */}
-        <Header children={hero} />
+        <Header children={hero} renderChildren={heroRenderer} />
 
         {/* Site content */}
         {children}

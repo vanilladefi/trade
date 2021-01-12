@@ -59,7 +59,7 @@ const WalletView = (): JSX.Element => {
     return Number.parseFloat(
       utils.formatUnits(wallet.balance, 'ether')
     ).toFixed(3)
-  }, [wallet])
+  }, [wallet.balance])
 
   const resetWallet = (): void => {
     wallet.reset()

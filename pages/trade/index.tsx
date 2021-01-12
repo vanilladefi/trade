@@ -1,13 +1,16 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useState } from 'react'
+import { useWallet } from 'use-wallet'
 import Gradient from '../../components/backgrounds/gradient'
 import { Column, Row, Width } from '../../components/grid/Flex'
+import { GridItem, GridTemplate } from '../../components/grid/Grid'
 import Button from '../../components/input/Button'
 import Layout from '../../components/Layout'
+import { AppActions, useAppState } from '../../components/State'
 import TokenList from '../../components/TokenList'
 import HugeMonospace from '../../components/typography/HugeMonospace'
-import { Title } from '../../components/typography/Titles'
+import { SmallTitle, Title } from '../../components/typography/Titles'
 import Wrapper from '../../components/Wrapper'
 
 type Props = {
@@ -26,39 +29,74 @@ type Props = {
   }[]
 }
 
-export const HeaderContent: JSX.Element = (
-  <>
-    <Gradient />
-    <Row className='subpageHeader'>
-      <Column width={Width.EIGHT}>
-        <Title>Start Trading</Title>
-        <HugeMonospace>
-          Make trades, see your profits blossom and mine VNL.
-        </HugeMonospace>
-        <Button large>Connect wallet</Button>
-      </Column>
-    </Row>
-    <style jsx>{`
-      .subpageHeader {
-        --buttonmargin: var(--subpage-buttonmargin);
-        --titlemargin: var(--subpage-titlemargin);
-      }
-    `}</style>
-  </>
-)
+export const HeaderContent = (): JSX.Element => {
+  const [, dispatch] = useAppState()
+  const wallet = useWallet()
+  return (
+    <>
+      <Gradient />
+      <Row className='subpageHeader'>
+        {wallet.status !== 'connected' ? (
+          <Column width={Width.EIGHT}>
+            <Title>Start Trading</Title>
+            <HugeMonospace>
+              Make trades, see your profits blossom and mine VNL.
+            </HugeMonospace>
+            <Button
+              large
+              onClick={() => dispatch({ type: AppActions.OPEN_MODAL })}
+            >
+              Connect wallet
+            </Button>
+          </Column>
+        ) : (
+          <Column width={Width.TWELVE}>
+            <Title>My trading</Title>
+            <GridTemplate>
+              <GridItem>
+                <Column>
+                  <SmallTitle>TOTAL BALANCE</SmallTitle>
+                  <h1>Amountenings $</h1>
+                  <span>this is the subtitle</span>
+                </Column>
+              </GridItem>
+              <GridItem>
+                <Column>
+                  <SmallTitle>PROFITABLE POSITIONS</SmallTitle>
+                  <h1>24/34</h1>
+                </Column>
+              </GridItem>
+              <GridItem>
+                <Column>
+                  <SmallTitle>UNREALIZED PROFIT</SmallTitle>
+                  <h1>12%</h1>
+                  <span>1.15 VNL</span>
+                </Column>
+              </GridItem>
+            </GridTemplate>
+          </Column>
+        )}
+      </Row>
+      <style jsx global>{`
+        .subpageHeader {
+          --buttonmargin: var(--subpage-buttonmargin);
+          --titlemargin: var(--subpage-titlemargin);
+        }
+      `}</style>
+    </>
+  )
+}
 
 export const BodyContent = (props: Props): JSX.Element => {
   return (
     <Wrapper>
-      <BoxSection color={Color.WHITE}>
-        <Row>
-          <Column>
-            <h1>Available Tokens</h1>
-            <TokenList />
-            <Link href='/trade/ebin'>Open latest trade</Link>
-          </Column>
-        </Row>
-      </BoxSection>
+      <Row>
+        <Column width={Width.TWELVE}>
+          <h1>AVAILABLE TOKENS</h1>
+          <Link href='/trade/ebin'>Open latest trade</Link>
+          <TokenList {...props} />
+        </Column>
+      </Row>
       <style jsx>{`
         h1 {
           font-size: 33px;
@@ -153,7 +191,7 @@ const TradePage = (): JSX.Element => {
   const [modalOpen, setModalOpen] = useState(false)
   return (
     <>
-      <Layout title='Trade | Vanilla' hero={HeaderContent}>
+      <Layout title='Trade | Vanilla' heroRenderer={HeaderContent}>
         <BodyContent data={data} columns={columns} />
       </Layout>
     </>

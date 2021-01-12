@@ -20,7 +20,7 @@ type AppState = {
 
 export const loadState = (): AppState => {
   try {
-    const serializedState = localStorage.getItem('appState')
+    const serializedState = sessionStorage.getItem('appState')
     if (serializedState === null) {
       return initialState
     }
@@ -33,7 +33,7 @@ export const loadState = (): AppState => {
 export const saveState = (state: AppState): void => {
   try {
     const serializedState = JSON.stringify(state)
-    localStorage.setItem('appState', serializedState)
+    sessionStorage.setItem('appState', serializedState)
   } catch {
     console.error('Could not persist app state')
   }
@@ -87,8 +87,11 @@ const AppStateProvider = ({ children }: ProviderProps): JSX.Element => {
   const [state, dispatch] = React.useReducer(stateReducer, previousState)
 
   React.useEffect(() => {
-    if (previousState.walletType !== initialState.walletType) {
-      if (wallet.status !== 'connected') {
+    if (
+      previousState.walletType !== initialState.walletType &&
+      previousState.walletType !== null
+    ) {
+      if (wallet.connector !== 'provided' && wallet.status !== 'connected') {
         wallet.connect(previousState.walletType)
       }
     }
