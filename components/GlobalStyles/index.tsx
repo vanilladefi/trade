@@ -1,6 +1,5 @@
 import React from 'react'
 import Fonts from './Fonts'
-import MediaQueries from './MediaQueries'
 import Variables from './Variables'
 
 /* type Props = {
