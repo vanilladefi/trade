@@ -7,11 +7,11 @@ import { Column, Row, Width } from '../../components/grid/Flex'
 import { GridItem, GridTemplate } from '../../components/grid/Grid'
 import Button from '../../components/input/Button'
 import Layout from '../../components/Layout'
-import { AppActions, useAppState } from '../../components/State'
 import TokenList from '../../components/TokenList'
 import HugeMonospace from '../../components/typography/HugeMonospace'
 import { SmallTitle, Title } from '../../components/typography/Titles'
 import Wrapper from '../../components/Wrapper'
+import { AppActions, useWalletState } from '../../state/Wallet'
 
 type Props = {
   data: {
@@ -30,7 +30,7 @@ type Props = {
 }
 
 export const HeaderContent = (): JSX.Element => {
-  const [, dispatch] = useAppState()
+  const [, dispatch] = useWalletState()
   const wallet = useWallet()
   return (
     <>

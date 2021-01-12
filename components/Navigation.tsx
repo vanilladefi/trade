@@ -1,6 +1,7 @@
 import { utils } from 'ethers'
 import React, { useMemo } from 'react'
 import { useWallet } from 'use-wallet'
+import { AppActions, useWalletState } from '../state/Wallet'
 import Button, {
   ButtonColor,
   ButtonGroup,
@@ -8,11 +9,10 @@ import Button, {
   Rounding
 } from './input/Button'
 import NavLink from './NavLink'
-import { AppActions, useAppState } from './State'
 
 const Navigation = (): JSX.Element => {
   const wallet = useWallet()
-  const [appState, dispatch] = useAppState()
+  const [WalletState, dispatch] = useWalletState()
 
   const walletBalance = useMemo(() => {
     return Number.parseFloat(
@@ -38,7 +38,7 @@ const Navigation = (): JSX.Element => {
         <Button
           onClick={() =>
             dispatch({
-              type: appState.modalOpen
+              type: WalletState.modalOpen
                 ? AppActions.CLOSE_MODAL
                 : AppActions.OPEN_MODAL,
             })
@@ -51,7 +51,7 @@ const Navigation = (): JSX.Element => {
           <Button
             onClick={() =>
               dispatch({
-                type: appState.modalOpen
+                type: WalletState.modalOpen
                   ? AppActions.CLOSE_MODAL
                   : AppActions.OPEN_MODAL,
               })
@@ -66,7 +66,7 @@ const Navigation = (): JSX.Element => {
           <Button
             onClick={() =>
               dispatch({
-                type: appState.modalOpen
+                type: WalletState.modalOpen
                   ? AppActions.CLOSE_MODAL
                   : AppActions.OPEN_MODAL,
               })

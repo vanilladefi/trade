@@ -1,16 +1,16 @@
 import { utils } from 'ethers'
 import React, { useMemo } from 'react'
 import { Connectors, useWallet } from 'use-wallet'
+import { AppActions, useWalletState } from '../state/Wallet'
 import Gradient from './backgrounds/gradient'
 import { Column, Width } from './grid/Flex'
 import Button, { ButtonColor } from './input/Button'
 import Modal from './Modal'
-import { AppActions, useAppState } from './State'
 import { SmallTitle } from './typography/Titles'
 
 const ProviderOptions = (): JSX.Element => {
   const wallet = useWallet()
-  const [, dispatch] = useAppState()
+  const [, dispatch] = useWalletState()
 
   const connectWallet = (walletType: keyof Connectors): void => {
     wallet.connect(walletType)
@@ -53,7 +53,7 @@ const ProviderOptions = (): JSX.Element => {
 
 const WalletView = (): JSX.Element => {
   const wallet = useWallet()
-  const [, dispatch] = useAppState()
+  const [, dispatch] = useWalletState()
 
   const walletBalance = useMemo(() => {
     return Number.parseFloat(
@@ -76,11 +76,11 @@ const WalletView = (): JSX.Element => {
 }
 
 const WalletModal = (): JSX.Element => {
-  const [appState, dispatch] = useAppState()
+  const [WalletState, dispatch] = useWalletState()
   const wallet = useWallet()
   return (
     <Modal
-      open={appState.modalOpen}
+      open={WalletState.modalOpen}
       onRequestClose={() => dispatch({ type: AppActions.CLOSE_MODAL })}
     >
       {wallet.status === 'disconnected' && <ProviderOptions />}

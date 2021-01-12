@@ -13,14 +13,14 @@ type AppAction = {
   payload?: string | keyof Connectors
 }
 
-type AppState = {
+type WalletState = {
   modalOpen: boolean
   walletType: keyof Connectors
 }
 
-export const loadState = (): AppState => {
+export const loadState = (): WalletState => {
   try {
-    const serializedState = sessionStorage.getItem('appState')
+    const serializedState = sessionStorage.getItem(' WalletState')
     if (serializedState === null) {
       return initialState
     }
@@ -30,10 +30,10 @@ export const loadState = (): AppState => {
   }
 }
 
-export const saveState = (state: AppState): void => {
+export const saveState = (state: WalletState): void => {
   try {
     const serializedState = JSON.stringify(state)
-    sessionStorage.setItem('appState', serializedState)
+    sessionStorage.setItem(' WalletState', serializedState)
   } catch {
     console.error('Could not persist app state')
   }
@@ -44,7 +44,7 @@ const initialState = {
   walletType: 'provided' as keyof Connectors,
 }
 
-function stateReducer(prevState: AppState, action: AppAction): AppState {
+function stateReducer(prevState: WalletState, action: AppAction): WalletState {
   switch (action.type) {
     case AppActions.OPEN_MODAL: {
       return { ...prevState, modalOpen: true }
@@ -67,12 +67,14 @@ function stateReducer(prevState: AppState, action: AppAction): AppState {
   }
 }
 
-const AppStateContext = React.createContext(initialState)
-const AppDispatchContext = React.createContext<Dispatch<AppAction>>(() => null)
+const WalletStateContext = React.createContext(initialState)
+const WalletDispatchContext = React.createContext<Dispatch<AppAction>>(
+  () => null
+)
 
-function useAppState(): [AppState, React.Dispatch<AppAction>] {
-  const state = React.useContext(AppStateContext)
-  const dispatch = React.useContext(AppDispatchContext)
+function useWalletState(): [WalletState, React.Dispatch<AppAction>] {
+  const state = React.useContext(WalletStateContext)
+  const dispatch = React.useContext(WalletDispatchContext)
   return [state, dispatch]
 }
 
@@ -80,7 +82,7 @@ type ProviderProps = {
   children?: ReactNode
 }
 
-const AppStateProvider = ({ children }: ProviderProps): JSX.Element => {
+const WalletStateProvider = ({ children }: ProviderProps): JSX.Element => {
   const wallet = useWallet()
 
   const previousState = loadState()
@@ -99,12 +101,12 @@ const AppStateProvider = ({ children }: ProviderProps): JSX.Element => {
   }, [state])
 
   return (
-    <AppDispatchContext.Provider value={dispatch}>
-      <AppStateContext.Provider value={state}>
+    <WalletDispatchContext.Provider value={dispatch}>
+      <WalletStateContext.Provider value={state}>
         {children}
-      </AppStateContext.Provider>
-    </AppDispatchContext.Provider>
+      </WalletStateContext.Provider>
+    </WalletDispatchContext.Provider>
   )
 }
 
-export { AppStateProvider, useAppState, AppActions }
+export { WalletStateProvider, useWalletState, AppActions }

@@ -1,10 +1,10 @@
 import Head from 'next/head'
 import React, { ReactNode } from 'react'
 import { UseWalletProvider } from 'use-wallet'
+import { WalletStateProvider } from '../state/Wallet'
 import Footer from './Footer'
 import GlobalStyles from './GlobalStyles'
 import Header from './Header'
-import { AppStateProvider } from './State'
 import WalletModal from './WalletModal'
 
 type RenderFunction = () => ReactNode
@@ -32,7 +32,7 @@ const Layout = ({
         },
       }}
     >
-      <AppStateProvider>
+      <WalletStateProvider>
         {/* HTML <head> */}
         <Head>
           <title>{title}</title>
@@ -56,7 +56,7 @@ const Layout = ({
 
         {/* Global CSS, like variables & fonts */}
         <GlobalStyles />
-      </AppStateProvider>
+      </WalletStateProvider>
     </UseWalletProvider>
   )
 }
