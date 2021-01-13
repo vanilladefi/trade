@@ -128,7 +128,7 @@ const TradePage = (): JSX.Element => {
     tokenList.map((token) =>
       Fetcher.fetchPairData(WETH[ChainId.MAINNET], token)
     )
-  )
+  ) yeah don't do this, sorry Infura
   console.log(tokenInfo) */
   const data = React.useMemo(
     () => [
