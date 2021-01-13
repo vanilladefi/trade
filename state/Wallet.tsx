@@ -1,3 +1,4 @@
+import { Token } from '@uniswap/sdk'
 import React, { Dispatch, ReactNode } from 'react'
 import { Connectors, useWallet } from 'use-wallet'
 
@@ -6,16 +7,18 @@ enum AppActions {
   CLOSE_MODAL,
   SAVE_WALLET_TYPE,
   RESET_WALLET_TYPE,
+  SET_TOKEN_LIST,
 }
 
 type AppAction = {
   type: AppActions
-  payload?: string | keyof Connectors
+  payload?: string | keyof Connectors | Array<Token>
 }
 
 type WalletState = {
   modalOpen: boolean
   walletType: keyof Connectors
+  tokenList: Array<Token>
 }
 
 export const loadState = (): WalletState => {
@@ -42,6 +45,7 @@ export const saveState = (state: WalletState): void => {
 const initialState = {
   modalOpen: false,
   walletType: 'provided' as keyof Connectors,
+  tokenList: new Array<Token>(),
 }
 
 function stateReducer(prevState: WalletState, action: AppAction): WalletState {
@@ -60,6 +64,9 @@ function stateReducer(prevState: WalletState, action: AppAction): WalletState {
     }
     case AppActions.RESET_WALLET_TYPE: {
       return { ...prevState, walletType: initialState.walletType }
+    }
+    case AppActions.SET_TOKEN_LIST: {
+      return { ...prevState, tokenList: action.payload as Array<Token> }
     }
     default: {
       return prevState

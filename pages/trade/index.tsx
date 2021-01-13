@@ -1,3 +1,5 @@
+import uniswapTokens from '@uniswap/default-token-list'
+import { ChainId, Token } from '@uniswap/sdk'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useState } from 'react'
@@ -108,6 +110,26 @@ export const BodyContent = (props: Props): JSX.Element => {
 }
 
 const TradePage = (): JSX.Element => {
+  const tokenList = React.useMemo(() => {
+    const jsonToArray = uniswapTokens.tokens.map(
+      (token) =>
+        new Token(
+          ChainId.MAINNET,
+          token.address,
+          token.decimals,
+          token.symbol,
+          token.name
+        )
+    )
+    return jsonToArray
+  }, [])
+  console.log(tokenList)
+  /* const tokenInfo = Promise.all(
+    tokenList.map((token) =>
+      Fetcher.fetchPairData(WETH[ChainId.MAINNET], token)
+    )
+  )
+  console.log(tokenInfo) */
   const data = React.useMemo(
     () => [
       {

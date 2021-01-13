@@ -21,7 +21,13 @@ const GridTemplate = ({
           display: grid;
           width: 100%;
           grid-gap: ${gap};
-          grid-template-columns: repeat(${columns}, minmax(min-content, 1fr));
+          grid-template-columns: repeat(
+            auto-fill,
+            minmax(
+              min-content,
+              calc(100% / ${columns} - ${gap} / ${columns - 1} - 15px)
+            )
+          );
         }
       `}</style>
     </>
