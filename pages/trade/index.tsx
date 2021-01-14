@@ -1,6 +1,5 @@
 import { useQuery } from '@apollo/client'
-import Image from 'next/image'
-import Link from 'next/link'
+import uniswapTokens from '@uniswap/default-token-list'
 import React, { useState } from 'react'
 import { useWallet } from 'use-wallet'
 import Gradient from '../../components/backgrounds/gradient'
@@ -12,7 +11,7 @@ import TokenList from '../../components/TokenList'
 import HugeMonospace from '../../components/typography/HugeMonospace'
 import { SmallTitle, Title } from '../../components/typography/Titles'
 import Wrapper from '../../components/Wrapper'
-import { GET_TOKEN_INFO } from '../../state/graphql/queries'
+import { GET_TOKEN_INFO, TokenQueryResponse } from '../../state/graphql/queries'
 import { AppActions, useWalletState } from '../../state/Wallet'
 
 type Props = {
@@ -89,90 +88,37 @@ export const HeaderContent = (): JSX.Element => {
   )
 }
 
-export const BodyContent = (props: Props): JSX.Element => {
+export const BodyContent = (): JSX.Element => {
   const { loading, error, data: tokenList } = useQuery(GET_TOKEN_INFO, {
     variables: { wethAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' },
   })
-  console.log(loading, error, tokenList)
-  return (
-    <Wrapper>
-      <Row>
-        <Column width={Width.TWELVE}>
-          <h1>AVAILABLE TOKENS</h1>
-          <Link href='/trade/ebin'>Open latest trade</Link>
-          <TokenList {...props} />
-        </Column>
-      </Row>
-      <style jsx>{`
-        h1 {
-          font-size: 33px;
-          text-transform: uppercase;
+  const data = tokenList
+    ? tokenList.pairs.map((pair: TokenQueryResponse) => {
+        const uniswapSDKMatch =
+          uniswapTokens &&
+          uniswapTokens.tokens &&
+          uniswapTokens.tokens.find((token) => token.address === pair.token1.id)
+        return {
+          imageUrl: uniswapSDKMatch ? uniswapSDKMatch.logoURI : '',
+          name: pair.token1.name,
+          ticker: pair.token1.symbol,
+          price: parseFloat(pair.token0Price).toFixed(3),
+          marketCap: pair.totalSupply,
+          liquidity: parseFloat(pair.reserveUSD).toFixed(0),
+          priceChange: 0,
         }
-      `}</style>
-    </Wrapper>
-  )
-}
+      })
+    : []
 
-const TradePage = (): JSX.Element => {
-  /*   const tokenList = React.useMemo(() => {
-    const jsonToArray = uniswapTokens.tokens.map(
-      (token) =>
-        new Token(
-          ChainId.MAINNET,
-          token.address,
-          token.decimals,
-          token.symbol,
-          token.name
-        )
-    )
-    return jsonToArray
-  }, []) */
-  const data = React.useMemo(
-    () => [
-      {
-        imageUrl: '/images/uniswap.png',
-        name: 'Uniswap',
-        ticker: 'UNI',
-        price: '$447.63',
-        marketCap: '$1,000,000,000',
-        liquidity: '$26,364,263',
-        priceChange: -1.25,
-      },
-      {
-        imageUrl: '/images/uniswap.png',
-        name: 'Uniswap',
-        ticker: 'UNI',
-        price: '$447.63',
-        marketCap: '$1,000,000,000',
-        liquidity: '$26,364,263',
-        priceChange: -1.25,
-      },
-      {
-        imageUrl: '/images/uniswap.png',
-        name: 'Uniswap',
-        ticker: 'UNI',
-        price: '$447.63',
-        marketCap: '$1,000,000,000',
-        liquidity: '$26,364,263',
-        priceChange: -1.25,
-      },
-    ],
-    []
-  )
+  console.log(data)
+
   const columns = React.useMemo(
     () => [
       {
         Header: (): any => null,
         accessor: 'imageUrl',
         Cell: ({ row }) => {
-          return (
-            <Image
-              src={row.cells[0].value}
-              height='30px'
-              width='30px'
-              layout='fixed'
-            />
-          )
+          return <img src={row.cells[0].value} height='30px' width='30px' />
         },
       },
       {
@@ -207,11 +153,46 @@ const TradePage = (): JSX.Element => {
     ],
     []
   )
+  console.log(loading, error?.networkError, tokenList)
+
+  return (
+    <Wrapper>
+      <Row>
+        <Column width={Width.TWELVE}>
+          <h1>AVAILABLE TOKENS</h1>
+          {/* <Link href='/trade/ebin'>Open latest trade</Link> */}
+          {!loading && <TokenList data={data} columns={columns} />}
+        </Column>
+      </Row>
+      <style jsx>{`
+        h1 {
+          font-size: 33px;
+          text-transform: uppercase;
+        }
+      `}</style>
+    </Wrapper>
+  )
+}
+
+const TradePage = (): JSX.Element => {
+  /*   const tokenList = React.useMemo(() => {
+    const jsonToArray = uniswapTokens.tokens.map(
+      (token) =>
+        new Token(
+          ChainId.MAINNET,
+          token.address,
+          token.decimals,
+          token.symbol,
+          token.name
+        )
+    )
+    return jsonToArray
+  }, []) */
   const [modalOpen, setModalOpen] = useState(false)
   return (
     <>
       <Layout title='Trade | Vanilla' heroRenderer={HeaderContent}>
-        <BodyContent data={data} columns={columns} />
+        <BodyContent />
       </Layout>
     </>
   )
