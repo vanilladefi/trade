@@ -1,5 +1,4 @@
-import uniswapTokens from '@uniswap/default-token-list'
-import { ChainId, Token } from '@uniswap/sdk'
+import { useQuery } from '@apollo/client'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useState } from 'react'
@@ -13,6 +12,7 @@ import TokenList from '../../components/TokenList'
 import HugeMonospace from '../../components/typography/HugeMonospace'
 import { SmallTitle, Title } from '../../components/typography/Titles'
 import Wrapper from '../../components/Wrapper'
+import { GET_TOKEN_INFO } from '../../state/graphql/queries'
 import { AppActions, useWalletState } from '../../state/Wallet'
 
 type Props = {
@@ -90,6 +90,10 @@ export const HeaderContent = (): JSX.Element => {
 }
 
 export const BodyContent = (props: Props): JSX.Element => {
+  const { loading, error, data: tokenList } = useQuery(GET_TOKEN_INFO, {
+    variables: { wethAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' },
+  })
+  console.log(loading, error, tokenList)
   return (
     <Wrapper>
       <Row>
@@ -110,7 +114,7 @@ export const BodyContent = (props: Props): JSX.Element => {
 }
 
 const TradePage = (): JSX.Element => {
-  const tokenList = React.useMemo(() => {
+  /*   const tokenList = React.useMemo(() => {
     const jsonToArray = uniswapTokens.tokens.map(
       (token) =>
         new Token(
@@ -122,14 +126,7 @@ const TradePage = (): JSX.Element => {
         )
     )
     return jsonToArray
-  }, [])
-  console.log(tokenList)
-  /* const tokenInfo = Promise.all(
-    tokenList.map((token) =>
-      Fetcher.fetchPairData(WETH[ChainId.MAINNET], token)
-    )
-  ) yeah don't do this, sorry Infura
-  console.log(tokenInfo) */
+  }, []) */
   const data = React.useMemo(
     () => [
       {

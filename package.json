@@ -9,6 +9,7 @@
     "type-check": "tsc"
   },
   "dependencies": {
+    "@apollo/client": "^3.3.6",
     "@types/react-table": "^7.0.25",
     "@uniswap/default-token-list": "^1.5.0",
     "@uniswap/sdk": "^3.0.3",
@@ -16,6 +17,7 @@
     "classnames": "^2.2.6",
     "framer-motion": "^3.2.1",
     "ethers": "^5.0.24",
+    "graphql": "^15.4.0",
     "next": "^10.0.3",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
