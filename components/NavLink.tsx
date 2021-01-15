@@ -17,22 +17,33 @@ const NavLink = ({ href, children }: Props): JSX.Element => {
       </Link>
       <style jsx>{`
         a {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          height: 100%;
-          border-top: 4px solid transparent;
-          border-bottom: 4px solid transparent;
-          font-family: var(--bodyfont);
-          font-size: var(--smallsize);
-          font-weight: var(--buttonweight);
-          text-decoration: none;
+          width: 100%;
+          font-size: var(--mobilenavlinksize);
           color: var(--inactivelink);
-          margin-right: var(--layoutmargin);
+          text-decoration: none;
+          padding: 1rem 0;
         }
         a.active {
           color: var(--activelink);
-          border-bottom: var(--activelinkborder);
+        }
+        @media (min-width: 680px) {
+          a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+            font-family: var(--bodyfont);
+            font-size: var(--bodysize);
+            font-weight: var(--buttonweight);
+            padding: 1rem 0rem;
+            width: auto;
+            margin-right: 3rem;
+          }
+          a.active {
+            border-bottom: var(--activelinkborder);
+          }
         }
       `}</style>
     </>

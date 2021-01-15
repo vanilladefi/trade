@@ -11,7 +11,7 @@ export const Title = ({ children }: Props): JSX.Element => (
       h1 {
         font-size: var(--titlesize);
         font-weight: var(--titleweight);
-        line-height: 1em;
+        line-height: 0.89;
         padding: 0;
         margin: var(--titlemargin);
       }

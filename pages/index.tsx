@@ -14,18 +14,10 @@ import Wrapper from '../components/Wrapper'
 const HeaderContent = (
   <Column className='landingHero'>
     <Row>
-      <Column width={Width.NINE}>
-        <Title>Vanilla Rewards You For Making a Profit</Title>
-      </Column>
-    </Row>
-    <Row>
-      <Column width={Width.EIGHT}>
-        <HugeMonospace>
-          Trade any token on Uniswap and receive ~5% in extra profit
-        </HugeMonospace>
-        <Button large injectedStyles={'margin-bottom: 90px;'}>
-          Start trading
-        </Button>
+      <Column width={Width.TEN}>
+        <Title>Vanilla Rewards You For Making a Profit In DeFi</Title>
+        <HugeMonospace>Trade, lend, profit.</HugeMonospace>
+        <Button large>Start trading</Button>
       </Column>
     </Row>
     <style jsx>{`
@@ -33,6 +25,8 @@ const HeaderContent = (
         --titlesize: var(--landing-hugetitlesize);
         --titlemargin: var(--landing-titlemargin);
         --buttonmargin: var(--landing-buttonmargin);
+        --titlecolor: var(--dark);
+        max-width: 45rem;
       }
     `}</style>
   </Column>
@@ -106,9 +100,6 @@ const IndexPage = (): JSX.Element => (
             <Title>
               VNL is the governance token of the Vanilla economic system.
             </Title>
-          </Column>
-          <Column width={Width.SIX}></Column>
-          <Column width={Width.SIX}>
             <Highlight>
               Holders of VNL determine the direction of Vanilla by voting on
               incentive changes, system upgrades and treasury allocations.

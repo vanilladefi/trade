@@ -1,16 +1,12 @@
 import React from 'react'
 
 const Variables = (): JSX.Element => (
-  <style global>{`
+  <style>{`
     :root {
-      /* Breakpoints ( From tailwind CSS ) */
-      --tablet: 640px;
-      --laptop: 1024px;
-      --desktop: 1280px;
 
       /* Colors */
       --white: #FFFFFF;
-      --dark: #2C1929;
+      --dark: #2C1929; 
       --yellow: #D5EBF4;
       --beige: #F3F1EA;
       --inactivelink: #857482;
@@ -26,67 +22,107 @@ const Variables = (): JSX.Element => (
       --tradeflowergradient: linear-gradient(326deg, #FFEDAB 8.09%, #EDEDED 89.18%);
       
       /* Dimensions */
-      --maxlayoutwidth: var(--desktop);
+      --maxlayoutwidth: 1280px;
 
       /* Border radiuses */
       --tradeflowerborderradius: 9px;
 
       /* Spacing */
-      --outermargin: 44px;
-      --layoutmargin: 40px;
+      --outermargin: 1rem;
+      --layoutmargin: 1rem;
+      --boxpadding: 2rem;
+      --boxpadding-md: 3rem;
+      --boxpadding-lg: 4rem;
+      --boxpadding-xl: 5rem;
 
-      --boxpadding: 60px 72px;
-      --headerpadding: var(--outermargin) 56px;
+      --headerpadding: var(--outermargin);
       
       --buttonpadding: 20px;
       --buttonmargin: 0;
-      --largebuttonpadding: 23px 39px;
+      --largebuttonpadding: 1.3rem 1.5rem 1.4rem;
       
-      --modalpadding: 8px 15px;
+      --modalpadding: .5rem 1rem;
       --tradeflowerpadding: 18px 23px;
       
       --titlemargin: 0;
-      --hugemonomargin: 0 0 40px 0;
-      --subpage-titlemargin: 56px 0 34px 0;
-      --landing-titlemargin: 120px 0 32px 0;
+      --hugemonomargin: 0 0 1.8rem 0;
+      --subpage-titlemargin: 56px 0 1.5rem 0;
+      --landing-titlemargin: 6rem 0 1.5rem 0;
       --box-titlemargin: 0 0 32px 0;
       --box-hugemonomargin: 0 0 20px 0;
       --subpage-buttonmargin: 0 0 76px 0;
-      --landing-buttonmargin: 0 0 90px 0;
+      --landing-buttonmargin: 0 0 7rem 0;
 
       /* Fonts */
+
+      --rootfontsize: 12px;
+      --rootfontsize-md: 14px;
+      --rootfontsize-lg: 18px;
+      --rootfontsize-xl: 20px;
+      --rootfontsize-xxl: 20px;
+
       --titlefont: 'Darker Grotesque', sans-serif;
       --titleweight: 700;
-      --titlesize: 44px;
-      --hugetitlesize: 53px;
-      --boxtitlesize: 67px;
-      --landing-hugetitlesize: 76px;
+      --titlesize: 2.4rem;
+      --hugetitlesize: 2.8rem;
+      --boxtitlesize: 3rem;
+      --landing-hugetitlesize: 4rem;
 
       --monofont: 'Fira Code', monospace;
       --monoweight: 400;
-      --hugemonosize: 30px;
-      --hugemonolineheight: 45px;
+      --hugemonosize: 2rem;
+      --hugemonolineheight: 2.8rem;
 
       --bodyfont: 'Inter', sans-serif;
       --bodyweight: 400;
-      --bodysize: 18px;
-      --smallsize: 16px;
-      --minisize: 14px;
+      --bodysize: 1rem;
+      --smallsize: .9rem;
+      --minisize: .8rem;
+      --mobilenavlinksize: 1.8rem;
 
-      --boxbodysize: 22px;
-      --boxlineheight: 34px;
-      --highlightsize: 31px;
-      --highlightlineheight: 49px;
+      --boxbodysize: 1.2rem;
+      --boxlineheight: 1.8;
+      --highlightsize: 1.2rem;
+      --highlightlineheight: 1.8;
 
       --theadweight: 500;
       --buttonweight: 600;
 
-      --buttonsize: var(--smallsize);
-      --largebuttonsize: 23px;
-      --mobilebuttonsize: 35px;
+      --buttonsize: 1rem;
+      --largebuttonsize: 1.2rem;
+      --mobilebuttonsize: 1.2rem;
 
       --activelinkborder: 4px solid var(--activelink);
+
     }
+
+    @media (min-width: 640px) {
+      :root {
+        --rootfontsize: var(--rootfontsize-md);
+        --boxpadding: var(--boxpadding-md);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      :root {
+        --rootfontsize: var(--rootfontsize-lg);
+        --boxpadding: var(--boxpadding-lg);
+      }
+    }
+
+    @media (min-width: 1280px) {
+      :root {
+        --rootfontsize: var(--rootfontsize-xl);
+        --boxpadding: var(--boxpadding-xl);
+      }
+    }
+
+    @media (min-width: 1400px) {
+      :root {
+        --rootfontsize: var(--rootfontsize-xxl);
+      }
+    }
+
   `}</style>
 )
 
