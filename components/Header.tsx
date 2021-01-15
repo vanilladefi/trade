@@ -6,11 +6,6 @@ import MenuToggle from './MenuToggle'
 import Navigation from './Navigation'
 import Wrapper from './Wrapper'
 
-const variants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-}
-
 type Props = {
   children?: ReactNode
   background?: ReactNode
