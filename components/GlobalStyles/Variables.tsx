@@ -1,7 +1,7 @@
 import React from 'react'
 
 const Variables = (): JSX.Element => (
-  <style global>{`
+  <style>{`
     :root {
 
       /* Colors */
@@ -39,19 +39,19 @@ const Variables = (): JSX.Element => (
       
       --buttonpadding: 20px;
       --buttonmargin: 0;
-      --largebuttonpadding: 23px 39px;
+      --largebuttonpadding: 1.3rem 1.5rem 1.4rem;
       
       --modalpadding: .5rem 1rem;
       --tradeflowerpadding: 18px 23px;
       
       --titlemargin: 0;
-      --hugemonomargin: 0 0 40px 0;
-      --subpage-titlemargin: 56px 0 34px 0;
-      --landing-titlemargin: 120px 0 32px 0;
+      --hugemonomargin: 0 0 1.8rem 0;
+      --subpage-titlemargin: 56px 0 1.5rem 0;
+      --landing-titlemargin: 6rem 0 1.5rem 0;
       --box-titlemargin: 0 0 32px 0;
       --box-hugemonomargin: 0 0 20px 0;
       --subpage-buttonmargin: 0 0 76px 0;
-      --landing-buttonmargin: 0 0 90px 0;
+      --landing-buttonmargin: 0 0 7rem 0;
 
       /* Fonts */
 
@@ -78,6 +78,7 @@ const Variables = (): JSX.Element => (
       --bodysize: 1rem;
       --smallsize: .9rem;
       --minisize: .8rem;
+      --mobilenavlinksize: 1.8rem;
 
       --boxbodysize: 1.2rem;
       --boxlineheight: 1.8;

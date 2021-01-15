@@ -14,7 +14,6 @@ export const Title = ({ children }: Props): JSX.Element => (
         line-height: 0.89;
         padding: 0;
         margin: var(--titlemargin);
-        color: var(--dark);
       }
     `}</style>
   </>

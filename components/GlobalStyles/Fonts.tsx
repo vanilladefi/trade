@@ -1,7 +1,7 @@
 import React from 'react'
 
 const Fonts = (): JSX.Element => (
-  <style global>{`
+  <style>{`
       @font-face {
         font-family: 'Darker Grotesque';
         src: url('fonts/Darker_Grotesque/DarkerGrotesque-Bold.ttf') format('truetype');

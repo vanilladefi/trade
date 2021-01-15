@@ -124,7 +124,9 @@ const Footer = (): JSX.Element => (
               <Logo white />
             </a>
           </Link>
-          <Navigation />
+          <div className='desktopNav'>
+            <Navigation />
+          </div>
         </div>
         <Row
           justifyContent={Justification.SPACE_BETWEEN}
@@ -154,7 +156,7 @@ const Footer = (): JSX.Element => (
         color: var(--white);
         width: 100%;
         font-size: var(--minisize);
-        padding: var(--boxpadding);
+        padding: 2.3rem;
         background-image: url('/images/footer_flower.svg');
         background-repeat: no-repeat;
         background-blend-mode: screen;
@@ -176,6 +178,14 @@ const Footer = (): JSX.Element => (
         color: var(--white);
         --inactivelink: var(--white);
         --activelink: var(--white);
+      }
+      div.desktopNav {
+        display: none;
+      }
+      @media (min-width: 680px) {
+        div.desktopNav {
+          display: block;
+        }
       }
     `}</style>
   </>

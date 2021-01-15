@@ -10,7 +10,7 @@ const GlobalStyles = (): JSX.Element => (
   <>
     <Fonts />
     <Variables />
-    <style global>{`
+    <style>{`
       * {
         box-sizing: border-box;
         -webkit-font-smoothing: antialiased;
