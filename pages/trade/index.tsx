@@ -92,12 +92,14 @@ export const BodyContent = (): JSX.Element => {
   const { loading, error, data: tokenList } = useQuery(GET_TOKEN_INFO, {
     variables: { wethAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' },
   })
+
   const data = tokenList
     ? tokenList.pairs.map((pair: TokenQueryResponse) => {
         const uniswapSDKMatch =
           uniswapTokens &&
           uniswapTokens.tokens &&
           uniswapTokens.tokens.find((token) => token.address === pair.token1.id)
+        console.log(uniswapSDKMatch)
         return {
           imageUrl: uniswapSDKMatch ? uniswapSDKMatch.logoURI : '',
           name: pair.token1.name,
@@ -153,7 +155,6 @@ export const BodyContent = (): JSX.Element => {
     ],
     []
   )
-  console.log(loading, error?.networkError, tokenList)
 
   return (
     <Wrapper>
@@ -175,19 +176,6 @@ export const BodyContent = (): JSX.Element => {
 }
 
 const TradePage = (): JSX.Element => {
-  /*   const tokenList = React.useMemo(() => {
-    const jsonToArray = uniswapTokens.tokens.map(
-      (token) =>
-        new Token(
-          ChainId.MAINNET,
-          token.address,
-          token.decimals,
-          token.symbol,
-          token.name
-        )
-    )
-    return jsonToArray
-  }, []) */
   const [modalOpen, setModalOpen] = useState(false)
   return (
     <>
