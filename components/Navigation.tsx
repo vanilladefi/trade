@@ -97,6 +97,13 @@ const Navigation = (): JSX.Element => {
           nav {
             display: flex;
             padding: 0;
+            flex-direction: row;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+          }
+          .connectButton {
+            margin: 0;
           }
         }
       `}</style>

@@ -26,7 +26,7 @@ export const GET_TOKEN_INFO = gql`
   query tokenInfo($wethAddress: Bytes!) {
     pairs(
       where: { token0: $wethAddress }
-      first: 100
+      first: 1000
       orderBy: reserveUSD
       orderDirection: desc
     ) {

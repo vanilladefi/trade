@@ -35,6 +35,7 @@ type Props = {
   children?: ReactNode
   width?: Width
   className?: string
+  style?: string
   gap?: string
   grow?: boolean
   justifyContent?: Justification
@@ -52,12 +53,15 @@ export const Column = ({
   children,
   width,
   className,
+  style,
   grow,
   alignItems = Alignment.START,
   justifyContent = Justification.START,
 }: Props): JSX.Element => (
   <>
-    <div className={className}>{children}</div>
+    <div className={className} style={style}>
+      {children}
+    </div>
     <style jsx>{`
       div {
         display: flex;

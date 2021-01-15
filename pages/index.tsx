@@ -80,7 +80,11 @@ const IndexPage = (): JSX.Element => (
                 your rewards by ~5%
               </p>
             </Column>
-            <Column width={Width.SIX}>
+            <Column
+              width={Width.SIX}
+              className='stakingInfo'
+              style={{ mixBlendMode: 'darken' }}
+            >
               <Image
                 src='/images/stakinginfo.png'
                 alt='Staking Infographic'

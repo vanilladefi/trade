@@ -1,5 +1,7 @@
 import { useQuery } from '@apollo/client'
 import uniswapTokens from '@uniswap/default-token-list'
+import Image from 'next/image'
+import Link from 'next/link'
 import React, { useState } from 'react'
 import { useWallet } from 'use-wallet'
 import Gradient from '../../components/backgrounds/gradient'
@@ -92,27 +94,28 @@ export const BodyContent = (): JSX.Element => {
   const { loading, error, data: tokenList } = useQuery(GET_TOKEN_INFO, {
     variables: { wethAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' },
   })
-
   const data = tokenList
-    ? tokenList.pairs.map((pair: TokenQueryResponse) => {
+    ? tokenList.pairs.filter((pair: TokenQueryResponse) => {
         const uniswapSDKMatch =
           uniswapTokens &&
           uniswapTokens.tokens &&
-          uniswapTokens.tokens.find((token) => token.address === pair.token1.id)
-        console.log(uniswapSDKMatch)
-        return {
-          imageUrl: uniswapSDKMatch ? uniswapSDKMatch.logoURI : '',
-          name: pair.token1.name,
-          ticker: pair.token1.symbol,
-          price: parseFloat(pair.token0Price).toFixed(3),
-          marketCap: pair.totalSupply,
-          liquidity: parseFloat(pair.reserveUSD).toFixed(0),
-          priceChange: 0,
-        }
+          uniswapTokens.tokens.find((token) => {
+            console.log(token.symbol)
+            return token.address === pair.token1.id
+          })
+        return (
+          uniswapSDKMatch && {
+            imageUrl: uniswapSDKMatch ? uniswapSDKMatch.logoURI : '',
+            name: pair.token1.name,
+            ticker: pair.token1.symbol,
+            price: parseFloat(pair.token0Price).toFixed(3),
+            marketCap: pair.totalSupply,
+            liquidity: parseFloat(pair.reserveUSD).toFixed(0),
+            priceChange: 0,
+          }
+        )
       })
     : []
-
-  console.log(data)
 
   const columns = React.useMemo(
     () => [
@@ -120,7 +123,14 @@ export const BodyContent = (): JSX.Element => {
         Header: (): any => null,
         accessor: 'imageUrl',
         Cell: ({ row }) => {
-          return <img src={row.cells[0].value} height='30px' width='30px' />
+          return (
+            <Image
+              src={row.cells[0].value}
+              height='30px'
+              width='30px'
+              layout='fixed'
+            />
+          )
         },
       },
       {
@@ -155,14 +165,13 @@ export const BodyContent = (): JSX.Element => {
     ],
     []
   )
-
   return (
     <Wrapper>
       <Row>
         <Column width={Width.TWELVE}>
           <h1>AVAILABLE TOKENS</h1>
-          {/* <Link href='/trade/ebin'>Open latest trade</Link> */}
-          {!loading && <TokenList data={data} columns={columns} />}
+          <Link href='/trade/ebin'>Open latest trade</Link>
+          <TokenList data={data} columns={columns} />
         </Column>
       </Row>
       <style jsx>{`
@@ -179,7 +188,7 @@ const TradePage = (): JSX.Element => {
   const [modalOpen, setModalOpen] = useState(false)
   return (
     <>
-      <Layout title='Trade | Vanilla' heroRenderer={HeaderContent}>
+      <Layout title='Trade | Vanilla' heroRenderer={HeaderContent}>
         <BodyContent />
       </Layout>
     </>
