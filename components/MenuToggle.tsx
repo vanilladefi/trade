@@ -1,7 +1,11 @@
 import * as React from 'react'
 import { motion } from 'framer-motion'
 
-const Path = (props) => (
+type Props = {
+  toggle: any
+}
+
+const Path = (props: any) => (
   <motion.path
     fill='transparent'
     strokeWidth='2.5'
@@ -11,10 +15,6 @@ const Path = (props) => (
     {...props}
   />
 )
-
-type Props = {
-  toggle: any
-}
 
 const MenuToggle = ({ toggle }: Props): JSX.Element => (
   <>

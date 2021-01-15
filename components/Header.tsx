@@ -35,7 +35,7 @@ const MobileNavigation = (): JSX.Element => {
               right: '0',
               display: 'flex',
               backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              zIndex: '4',
+              zIndex: 4,
             }}
           >
             <div
@@ -58,7 +58,6 @@ const MobileNavigation = (): JSX.Element => {
               animate={{ right: 0.1 }} // framer-motion does not handle animate to right 0 very well for some reason
               exit={{ right: -440 }}
               transition={{ type: 'tween' }}
-              onClick={null}
               style={{
                 position: 'fixed',
                 top: '0',
