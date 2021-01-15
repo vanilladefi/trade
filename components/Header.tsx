@@ -83,7 +83,11 @@ const MobileNavigation = (): JSX.Element => {
   )
 }
 
-const Header = ({ children, background }: Props): JSX.Element => {
+const Header = ({
+  children,
+  background,
+  renderChildren,
+}: Props): JSX.Element => {
   return (
     <>
       <header>
@@ -103,7 +107,7 @@ const Header = ({ children, background }: Props): JSX.Element => {
                 <Navigation />
               </div>
             </div>
-            {children}
+            {children || renderChildren()}
           </div>
         </Wrapper>
       </header>
