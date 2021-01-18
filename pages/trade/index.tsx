@@ -156,7 +156,6 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
             name: pair.token1.name,
             ticker: pair.token1.symbol,
             price: parseFloat(pair.token0Price).toFixed(3),
-            marketCap: pair.totalSupply,
             liquidity: parseFloat(pair.reserveUSD).toFixed(0),
             priceChange: 0,
           }
@@ -192,12 +191,13 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
         accessor: 'price',
       },
       {
-        Header: 'Market Cap',
-        accessor: 'marketCap',
-      },
-      {
         Header: 'Liquidity',
         accessor: 'liquidity',
+        Cell: ({ row }) => {
+          return (
+            '$' + row.original.liquidity
+          )
+        },
       },
       {
         Header: 'Change',
@@ -215,17 +215,11 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
     <Wrapper>
       <Row>
         <Column width={Width.TWELVE}>
-          <h1>AVAILABLE TOKENS</h1>
-          <span onClick={() => setTradeModalOpen(true)}>Open latest trade</span>
+          <h2>AVAILABLE TOKENS</h2>
+          {/* <span onClick={() => setTradeModalOpen(true)}>Open latest trade</span> */}
           <TokenList data={data} columns={columns} />
         </Column>
       </Row>
-      <style jsx>{`
-        h1 {
-          font-size: 33px;
-          text-transform: uppercase;
-        }
-      `}</style>
     </Wrapper>
   )
 }

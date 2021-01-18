@@ -59,10 +59,9 @@ const Modal = ({
         .modal {
           width: 480px;
           height: auto;
-          border-radius: 32px;
+          border-radius: 1.5rem;
           background: var(--white);
           z-index: 1000;
-          padding: var(--modalpadding);
           cursor: default;
           opacity: ${isOpen ? 1 : 0};
           transition: 0.1s ease opacity;

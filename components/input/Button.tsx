@@ -95,8 +95,8 @@ const Button = ({
           outline: 0;
           cursor: pointer;
           line-height: 5px;
-          ${width ? 'width: ' + width + 'px;' : ''}
-          ${height ? 'height: ' + height + 'px;' : ''}
+          ${width ? 'width: ' + width : ''}
+          ${height ? 'height: ' + height : ''}
           ${overflow ? overflow : ''}
         }
         button.large {

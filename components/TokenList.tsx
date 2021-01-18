@@ -64,8 +64,8 @@ const TokenList = ({ data, columns }: Props): JSX.Element => {
           border-collapse: separate;
           table-layout: auto;
           width: calc(100% + 34px);
-          margin-left: -17px;
-          margin-right: -17px;
+          margin-left: -1rem;
+          margin-right: -1rem;
           font-family: var(--bodyfont);
           font-size: var(--bodysize);
           border-spacing: 0 13px;
@@ -74,7 +74,7 @@ const TokenList = ({ data, columns }: Props): JSX.Element => {
         td,
         th {
           text-align: left;
-          padding: 14px 17px;
+          padding: var(--tablepadding);
           border-spacing: 13px 0;
         }
         th {

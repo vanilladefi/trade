@@ -1,6 +1,6 @@
 import { Token } from '@uniswap/sdk'
 import React, { Dispatch, ReactNode } from 'react'
-import { Connectors, useWallet } from 'use-wallet'
+import { Connectors, useWallet, Wallet } from 'use-wallet'
 
 enum AppActions {
   OPEN_MODAL,
@@ -92,26 +92,20 @@ type ProviderProps = {
 
 const WalletStateProvider = ({ children }: ProviderProps): JSX.Element => {
   const wallet = useWallet()
-
-  const previousState = loadState()
-  const [state, dispatch] = React.useReducer(stateReducer, previousState)
+  const [state, dispatch] = React.useReducer(stateReducer, loadState())
 
   React.useEffect(() => {
+    const previousState = loadState()
+    saveState(state)
     if (
+      previousState !== state &&
       previousState.walletType !== initialState.walletType &&
       previousState.walletType !== null
     ) {
       if (wallet.connector !== 'provided' && wallet.status !== 'connected') {
-        console.log(
-          'use effect triggered',
-          wallet.connector,
-          previousState.walletType,
-          wallet.status
-        )
         wallet.connect(previousState.walletType)
       }
     }
-    saveState(state)
   }, [state])
 
   return (
