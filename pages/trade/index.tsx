@@ -135,13 +135,23 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
   })
 
   const data = tokenList
-    ? tokenList.pairs.filter((pair: TokenQueryResponse) => {
-        const uniswapSDKMatch =
-          uniswapTokens &&
-          uniswapTokens.tokens &&
-          uniswapTokens.tokens.find((token) => token.address === pair.token1.id)
-        return (
-          uniswapSDKMatch && {
+    ? tokenList.pairs
+        .filter(
+          (pair: TokenQueryResponse) =>
+            uniswapTokens &&
+            uniswapTokens.tokens &&
+            uniswapTokens.tokens.find(
+              (token) => token.symbol === pair.token1.symbol
+            )
+        )
+        .map((pair: TokenQueryResponse) => {
+          const uniswapSDKMatch =
+            uniswapTokens &&
+            uniswapTokens.tokens &&
+            uniswapTokens.tokens.find(
+              (token) => token.symbol === pair.token1.symbol
+            )
+          return {
             imageUrl: uniswapSDKMatch ? uniswapSDKMatch.logoURI : '',
             name: pair.token1.name,
             ticker: pair.token1.symbol,
@@ -150,8 +160,7 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
             liquidity: parseFloat(pair.reserveUSD).toFixed(0),
             priceChange: 0,
           }
-        )
-      })
+        })
     : []
 
   const columns = React.useMemo(
@@ -162,10 +171,10 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
         Cell: ({ row }) => {
           return (
             <Image
-              src={row.cells[0].value}
+              src={row.original.imageUrl}
               height='30px'
               width='30px'
-              layout='fixed'
+              layout={'fixed'}
             />
           )
         },
