@@ -27,15 +27,16 @@ export type TokenQueryResponse = {
 
 export const GET_TOKEN_INFO = gql`
   query tokenInfo($wethAddress: String, $tokenList: [String]) {
-    pairs(
-      where: {
-        token0: { id: { _eq: $wethAddress } }
-        token1: { id: { _in: $tokenList } }
-      }
-      orderBy: reserveUSD
-      orderDirection: desc
-    ) {
+    pairs(orderBy: reserveUSD, orderDirection: desc) {
       id
+      token1(where: { id: $wethAddress }) {
+        id
+      }
+      token0(where: { id_in: $tokenList }) {
+        id
+        name
+        symbol
+      }
       totalSupply
       reserveUSD
       volumeUSD
