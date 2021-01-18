@@ -6,7 +6,7 @@ import { useWallet } from 'use-wallet'
 import Gradient from '../../components/backgrounds/gradient'
 import { Column, Row, Width } from '../../components/grid/Flex'
 import { GridItem, GridTemplate } from '../../components/grid/Grid'
-import Button from '../../components/input/Button'
+import Button, { ButtonColor } from '../../components/input/Button'
 import Layout from '../../components/Layout'
 import Modal from '../../components/Modal'
 import TokenList from '../../components/TokenList'
@@ -206,7 +206,7 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
       {
         Header: () => null,
         accessor: 'buy',
-        Cell: () => <Button>Buy</Button>,
+        Cell: () => <Button color={ButtonColor.DARK}>Buy</Button>,
       },
     ],
     []

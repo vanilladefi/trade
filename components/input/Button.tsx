@@ -108,6 +108,7 @@ const Button = ({
         }
         button.dark {
           background: var(--dark);
+          color: var(--white);
         }
         button.white {
           background: var(--white);
