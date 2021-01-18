@@ -1,11 +1,14 @@
 import { gql } from '@apollo/client'
 import tokenList from '@uniswap/default-token-list'
 
-export const WETH_ADDR = tokenList.tokens.find(
+export const WETH = tokenList.tokens.find(
   (token) => token.symbol === 'WETH'
 ) || {
+  symbol: 'WETH',
   address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
 }
+
+export const WETH_ADDR = WETH.address
 
 export type TokenQueryResponse = {
   id: string
@@ -23,19 +26,13 @@ export type TokenQueryResponse = {
 }
 
 export const GET_TOKEN_INFO = gql`
-  query tokenInfo($wethAddress: Bytes!) {
+  query tokenInfo($wethAddress: String, $tokenList: [String]) {
     pairs(
-      where: { token0: $wethAddress }
-      first: 1000
+      where: { token0: $wethAddress, token1_in: $tokenList }
       orderBy: reserveUSD
       orderDirection: desc
     ) {
       id
-      token1 {
-        id
-        name
-        symbol
-      }
       totalSupply
       reserveUSD
       volumeUSD
@@ -45,10 +42,9 @@ export const GET_TOKEN_INFO = gql`
 `
 
 export const SUBSCRIBE_TO_TOKEN_INFO = gql`
-  subscription tokenInfo($wethAddress: Bytes!) {
+  subscription tokenInfo($wethAddress: Bytes, $tokenList: [String]) {
     pairs(
-      where: { token0: $wethAddress }
-      first: 100
+      where: { token0: { id: $wethAddress }, token1: { symbol_in: $tokenList } }
       orderBy: reserveUSD
       orderDirection: desc
     ) {

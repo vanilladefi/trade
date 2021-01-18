@@ -1,19 +1,24 @@
 import { useQuery } from '@apollo/client'
 import uniswapTokens from '@uniswap/default-token-list'
 import Image from 'next/image'
-import Link from 'next/link'
-import React, { useState } from 'react'
+import React, { Dispatch, SetStateAction, useState } from 'react'
 import { useWallet } from 'use-wallet'
 import Gradient from '../../components/backgrounds/gradient'
 import { Column, Row, Width } from '../../components/grid/Flex'
 import { GridItem, GridTemplate } from '../../components/grid/Grid'
 import Button from '../../components/input/Button'
 import Layout from '../../components/Layout'
+import Modal from '../../components/Modal'
 import TokenList from '../../components/TokenList'
+import TradeFlower from '../../components/TradeFlower'
 import HugeMonospace from '../../components/typography/HugeMonospace'
 import { SmallTitle, Title } from '../../components/typography/Titles'
 import Wrapper from '../../components/Wrapper'
-import { GET_TOKEN_INFO, TokenQueryResponse } from '../../state/graphql/queries'
+import {
+  GET_TOKEN_INFO,
+  TokenQueryResponse,
+  WETH_ADDR
+} from '../../state/graphql/queries'
 import { AppActions, useWalletState } from '../../state/Wallet'
 
 type Props = {
@@ -30,6 +35,8 @@ type Props = {
     Header: string
     accessor: string
   }[]
+  setTradeModalOpen: Dispatch<SetStateAction<boolean>>
+  tradeModalOpen: boolean
 }
 
 export const HeaderContent = (): JSX.Element => {
@@ -90,19 +97,52 @@ export const HeaderContent = (): JSX.Element => {
   )
 }
 
-export const BodyContent = (): JSX.Element => {
+const ModalContent = (): JSX.Element => (
+  <Column>
+    <div>
+      <SmallTitle>TRADE SUCCESSFUL!</SmallTitle>
+    </div>
+    <TradeFlower
+      received={{ ticker: 'DAI', amount: 2.5 }}
+      paid={{ ticker: 'ETH', amount: 0.0056572 }}
+      tradeURL={{
+        domain: 'vnl.com',
+        transactionHash:
+          '0x05c7cedb4b6a234a92fcc9e396661cbed6d89e301899af6569dae3ff32a48acb',
+      }}
+    />
+    <div>
+      <Column>
+        <SmallTitle>Share for more VNL</SmallTitle>
+        <span>Learn more</span>
+      </Column>
+      <span>links here</span>
+    </div>
+    <style jsx>{`
+      div {
+        display: flex;
+        flex-direction: row;
+        padding: 19px 17px;
+        justify-content: space-between;
+      }
+    `}</style>
+  </Column>
+)
+
+export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
   const { loading, error, data: tokenList } = useQuery(GET_TOKEN_INFO, {
-    variables: { wethAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' },
+    variables: {
+      wethAddress: WETH_ADDR,
+      tokenList: uniswapTokens.tokens.map((token) => token.address),
+    },
   })
+
   const data = tokenList
     ? tokenList.pairs.filter((pair: TokenQueryResponse) => {
         const uniswapSDKMatch =
           uniswapTokens &&
           uniswapTokens.tokens &&
-          uniswapTokens.tokens.find((token) => {
-            console.log(token.symbol)
-            return token.address === pair.token1.id
-          })
+          uniswapTokens.tokens.find((token) => token.address === pair.token1.id)
         return (
           uniswapSDKMatch && {
             imageUrl: uniswapSDKMatch ? uniswapSDKMatch.logoURI : '',
@@ -170,7 +210,7 @@ export const BodyContent = (): JSX.Element => {
       <Row>
         <Column width={Width.TWELVE}>
           <h1>AVAILABLE TOKENS</h1>
-          <Link href='/trade/ebin'>Open latest trade</Link>
+          <span onClick={() => setTradeModalOpen(true)}>Open latest trade</span>
           <TokenList data={data} columns={columns} />
         </Column>
       </Row>
@@ -188,8 +228,14 @@ const TradePage = (): JSX.Element => {
   const [modalOpen, setModalOpen] = useState(false)
   return (
     <>
+      <Modal open={modalOpen} onRequestClose={() => setModalOpen(false)}>
+        <ModalContent />
+      </Modal>
       <Layout title='Trade | Vanilla' heroRenderer={HeaderContent}>
-        <BodyContent />
+        <BodyContent
+          setTradeModalOpen={setModalOpen}
+          tradeModalOpen={modalOpen}
+        />
       </Layout>
     </>
   )

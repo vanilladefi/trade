@@ -107,7 +107,7 @@ const Header = ({
                 <Navigation />
               </div>
             </div>
-            {children || renderChildren()}
+            {children || (renderChildren && renderChildren())}
           </div>
         </Wrapper>
       </header>
