@@ -45,6 +45,7 @@ const ProviderOptions = (): JSX.Element => {
           flex-direction: row;
           padding: 19px 17px;
           justify-content: space-between;
+          font-size: var(--hugemonosize);
         }
       `}</style>
     </Column>

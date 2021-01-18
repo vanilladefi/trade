@@ -63,6 +63,7 @@ function stateReducer(prevState: WalletState, action: AppAction): WalletState {
       return prevState
     }
     case AppActions.RESET_WALLET_TYPE: {
+      console.log('reset wallet type called')
       return { ...prevState, walletType: initialState.walletType }
     }
     case AppActions.SET_TOKEN_LIST: {
@@ -101,6 +102,12 @@ const WalletStateProvider = ({ children }: ProviderProps): JSX.Element => {
       previousState.walletType !== null
     ) {
       if (wallet.connector !== 'provided' && wallet.status !== 'connected') {
+        console.log(
+          'use effect triggered',
+          wallet.connector,
+          previousState.walletType,
+          wallet.status
+        )
         wallet.connect(previousState.walletType)
       }
     }
