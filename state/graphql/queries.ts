@@ -14,6 +14,9 @@ export type TokenQueryResponse = {
   id: string
   reserveUSD: string
   token0Price: string
+  token0: {
+    id: string,
+  }
   token1: {
     id: string
     name: string
@@ -34,6 +37,7 @@ export const GET_TOKEN_INFO = gql`
     ) {
       id
       token0 {
+        id
         name
       }
       token1(where: { id_in: $tokenList }) {

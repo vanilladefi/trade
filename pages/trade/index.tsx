@@ -158,6 +158,8 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
             price: parseFloat(pair.token0Price).toFixed(3),
             liquidity: parseFloat(pair.reserveUSD).toFixed(0),
             priceChange: 0,
+            token0: pair.token0.id,
+            token1: pair.token1.id
           }
         })
     : []
@@ -206,11 +208,16 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
       {
         Header: () => null,
         accessor: 'buy',
-        Cell: () => <Button color={ButtonColor.DARK}>Buy</Button>,
+        Cell: ({row}) => <Button color={ButtonColor.DARK} onClick={() => trade({token0: row.original.token0, token1: row.original.token1})}>Buy</Button>,
       },
     ],
     []
   )
+
+  const trade = (pairInfo: { token0: string, token1: string}) => {
+    setTradeModalOpen(true);
+  }
+
   return (
     <Wrapper>
       <Row>

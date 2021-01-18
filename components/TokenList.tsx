@@ -87,10 +87,12 @@ const TokenList = ({ data, columns }: Props): JSX.Element => {
         tr td:first-of-type {
           border-top-left-radius: 9999px;
           border-bottom-left-radius: 9999px;
+          padding-right: 0;
         }
         tr td:last-of-type {
           border-top-right-radius: 9999px;
           border-bottom-right-radius: 9999px;
+          padding-right: 0;
         }
         td {
           background: var(--beige);
