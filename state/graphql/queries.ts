@@ -26,13 +26,17 @@ export type TokenQueryResponse = {
 }
 
 export const GET_TOKEN_INFO = gql`
-  query tokenInfo($wethAddress: String, $tokenList: [String]) {
-    pairs(orderBy: reserveUSD, orderDirection: desc) {
+  query tokenInfo($tokenList: [String]) {
+    pairs(
+      where: { token0: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2" }
+      orderBy: reserveUSD
+      orderDirection: desc
+    ) {
       id
-      token1(where: { id: $wethAddress }) {
-        id
+      token0 {
+        name
       }
-      token0(where: { id_in: $tokenList }) {
+      token1(where: { id_in: $tokenList }) {
         id
         name
         symbol

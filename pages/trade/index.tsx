@@ -14,11 +14,7 @@ import TradeFlower from '../../components/TradeFlower'
 import HugeMonospace from '../../components/typography/HugeMonospace'
 import { SmallTitle, Title } from '../../components/typography/Titles'
 import Wrapper from '../../components/Wrapper'
-import {
-  GET_TOKEN_INFO,
-  TokenQueryResponse,
-  WETH_ADDR
-} from '../../state/graphql/queries'
+import { GET_TOKEN_INFO, TokenQueryResponse } from '../../state/graphql/queries'
 import { AppActions, useWalletState } from '../../state/Wallet'
 
 type Props = {
@@ -132,8 +128,9 @@ const ModalContent = (): JSX.Element => (
 export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
   const { loading, error, data: tokenList } = useQuery(GET_TOKEN_INFO, {
     variables: {
-      wethAddress: WETH_ADDR,
-      tokenList: uniswapTokens.tokens.map((token) => token.address),
+      tokenList: uniswapTokens.tokens
+        .filter((token) => token.symbol !== 'WETH')
+        .map((token) => token.address),
     },
   })
 
