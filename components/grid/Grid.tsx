@@ -4,14 +4,14 @@ type Props = {
   children?: ReactNode
   className?: string
   gap?: string
-  columns?: number
+  colMinWidth?: string
 }
 
 const GridTemplate = ({
   children,
   className,
   gap = '89px',
-  columns = 3,
+  colMinWidth = '320px',
 }: Props): JSX.Element => {
   return (
     <>
@@ -21,13 +21,7 @@ const GridTemplate = ({
           display: grid;
           width: 100%;
           grid-gap: ${gap};
-          grid-template-columns: repeat(
-            auto-fill,
-            minmax(
-              min-content,
-              calc(100% / ${columns} - ${gap} / ${columns - 1} - 15px)
-            )
-          );
+          grid-template-columns: repeat(auto-fill, minmax(${colMinWidth}, 1fr));
         }
       `}</style>
     </>
