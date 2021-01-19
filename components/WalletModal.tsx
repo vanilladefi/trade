@@ -1,12 +1,15 @@
 import Link from 'next/link'
-import React, { useMemo } from 'react'
+import React from 'react'
 import { Connectors, useWallet } from 'use-wallet'
 import { AppActions, useWalletState } from '../state/Wallet'
 import Gradient from './backgrounds/gradient'
 import { Alignment, Column, Justification, Row, Width } from './grid/Flex'
 import Button, { ButtonColor, ButtonSize } from './input/Button'
 import Modal from './Modal'
+import Icon, { IconUrls } from './typography/Icon'
+import Spacer from './typography/Spacer'
 import { SmallTitle } from './typography/Titles'
+import WalletAddress from './WalletAddress'
 import WalletIcon from './WalletIcon'
 
 const ProviderOptions = (): JSX.Element => {
@@ -106,16 +109,6 @@ const WalletView = (): JSX.Element => {
     dispatch({ type: AppActions.RESET_WALLET_TYPE })
   }
 
-  const walletAddress = useMemo(() => {
-    const long = wallet.account || ''
-    const short = wallet.account
-      ? `${wallet.account.substring(0, 6)}...${wallet.account.substring(
-          wallet.account.length - 4
-        )}`
-      : ''
-    return { long, short }
-  }, [wallet.account])
-
   return (
     <>
       <div className='modalTitle'>
@@ -133,10 +126,24 @@ const WalletView = (): JSX.Element => {
               </Button>
             </div>
             <div className='middleSection'>
-              <div className='walletIconWrapper'>
-                <WalletIcon walletType={wallet.connector} />
-              </div>
-              <span>{walletAddress.short}</span>
+              <WalletIcon walletType={wallet.connector} />
+              <Spacer />
+              <WalletAddress wallet={wallet} />
+            </div>
+            <div className='bottomSection'>
+              <span
+                onClick={() =>
+                  wallet.account &&
+                  navigator.clipboard.writeText(wallet.account)
+                }
+              >
+                <Icon src={IconUrls.COPY} />
+                Copy address
+              </span>
+              <a href={`https://etherscan.io/address/${wallet.account}`}>
+                <Icon src={IconUrls.ARROW_UP_RIGHT} />
+                View on Etherscan
+              </a>
             </div>
           </div>
         </div>
@@ -205,21 +212,29 @@ const WalletView = (): JSX.Element => {
           overflow: hidden;
           text-overflow: ellipsis;
           max-width: 100%;
-        }
-        .middleSection span {
-          position: relative;
-          display: flex;
-          flex-shrink: 1;
-          flex-grow: 0;
-          max-width: 100%;
           font-family: var(--monofont);
           font-size: var(--highlightsize);
           font-weight: var(--monoweight);
-          margin-left: 1rem;
+          border-bottom: 1px solid #d5d5d5;
         }
-        .walletIconWrapper {
+        .bottomSection {
+          font-size: var(--minisize);
           display: flex;
-          flex-shrink: 0;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+          padding: 1rem 1.5rem;
+        }
+        .bottomSection span,
+        .bottomSection a {
+          display: flex;
+          flex-grow: 0;
+          flex-shrink: 1;
+          width: fit-content;
+          text-decoration: none;
+          color: var(--dark);
+          font-weight: var(--theadweight);
+          opacity: 0.7;
         }
         .modalFooter {
           font-style: italic;

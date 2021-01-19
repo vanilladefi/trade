@@ -10,6 +10,8 @@ import Button, {
   Rounding
 } from './input/Button'
 import NavLink from './NavLink'
+import Spacer from './typography/Spacer'
+import WalletAddress from './WalletAddress'
 import WalletIcon from './WalletIcon'
 
 const Navigation = (): JSX.Element => {
@@ -80,7 +82,9 @@ const Navigation = (): JSX.Element => {
             title={walletAddress.long}
           >
             <Row alignItems={Alignment.CENTER}>
-              <WalletIcon walletType={wallet.connector} /> {walletAddress.short}
+              <WalletAddress wallet={wallet} />
+              <Spacer />
+              <WalletIcon walletType={wallet.connector} />
             </Row>
           </Button>
         </ButtonGroup>
@@ -93,6 +97,7 @@ const Navigation = (): JSX.Element => {
           padding: 6rem 2rem;
           justify-content: flex-start;
           align-items: left;
+          line-height: 1rem;
         }
         .connectButton {
           margin: 2rem 0;

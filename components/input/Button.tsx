@@ -100,7 +100,7 @@ const Button = ({
           font-weight: var(--buttonweight);
           outline: 0;
           cursor: pointer;
-          line-height: 5px;
+          line-height: 1rem;
           ${width ? 'width: ' + width : ''}
           ${height ? 'height: ' + height : ''}
           ${overflow ? overflow : ''}
@@ -112,6 +112,7 @@ const Button = ({
         button.small {
           padding: var(--minisize);
           font-size: var(--minisize);
+          line-height: 5px;
         }
         button.gradient {
           background: var(--buttongradient);

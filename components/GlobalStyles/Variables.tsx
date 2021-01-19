@@ -53,7 +53,7 @@ const Variables = (): JSX.Element => (
 
       --headerpadding: var(--outermargin);
 
-      --buttonpadding: 20px;
+      --buttonpadding: 0.6rem 1rem;
       --buttonmargin: 0;
       --largebuttonpadding: 1.3rem 1.5rem 1.4rem;
 
@@ -114,7 +114,6 @@ const Variables = (): JSX.Element => (
       :root {
         --rootfontsize: var(--rootfontsize-md);
         --boxpadding: var(--boxpadding-md);
-
       }
     }
 
