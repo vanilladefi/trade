@@ -2,6 +2,7 @@ import { utils } from 'ethers'
 import React, { useMemo } from 'react'
 import { useWallet } from 'use-wallet'
 import { AppActions, useWalletState } from '../state/Wallet'
+import { Alignment, Row } from './grid/Flex'
 import Button, {
   ButtonColor,
   ButtonGroup,
@@ -9,6 +10,7 @@ import Button, {
   Rounding
 } from './input/Button'
 import NavLink from './NavLink'
+import WalletIcon from './WalletIcon'
 
 const Navigation = (): JSX.Element => {
   const wallet = useWallet()
@@ -77,7 +79,9 @@ const Navigation = (): JSX.Element => {
             overflow={Overflow.ELLIPSIS}
             title={walletAddress.long}
           >
-            {walletAddress.short}
+            <Row alignItems={Alignment.CENTER}>
+              <WalletIcon walletType={wallet.connector} /> {walletAddress.short}
+            </Row>
           </Button>
         </ButtonGroup>
       )}

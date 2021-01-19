@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import React, { CSSProperties, ReactNode } from 'react'
 
 export enum Width {
   ONE,
@@ -35,7 +35,7 @@ type Props = {
   children?: ReactNode
   width?: Width
   className?: string
-  style?: string
+  style?: CSSProperties
   gap?: string
   grow?: boolean
   justifyContent?: Justification

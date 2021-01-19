@@ -1,6 +1,6 @@
 import { Token } from '@uniswap/sdk'
 import React, { Dispatch, ReactNode } from 'react'
-import { Connectors, useWallet, Wallet } from 'use-wallet'
+import { Connectors, useWallet } from 'use-wallet'
 
 enum AppActions {
   OPEN_MODAL,
@@ -63,7 +63,6 @@ function stateReducer(prevState: WalletState, action: AppAction): WalletState {
       return prevState
     }
     case AppActions.RESET_WALLET_TYPE: {
-      console.log('reset wallet type called')
       return { ...prevState, walletType: initialState.walletType }
     }
     case AppActions.SET_TOKEN_LIST: {
@@ -96,16 +95,15 @@ const WalletStateProvider = ({ children }: ProviderProps): JSX.Element => {
 
   React.useEffect(() => {
     const previousState = loadState()
-    saveState(state)
+    console.log(state.walletType, previousState.walletType)
     if (
-      previousState !== state &&
+      state.walletType !== initialState.walletType &&
       previousState.walletType !== initialState.walletType &&
-      previousState.walletType !== null
+      wallet.status !== 'connected'
     ) {
-      if (wallet.connector !== 'provided' && wallet.status !== 'connected') {
-        wallet.connect(previousState.walletType)
-      }
+      wallet.connect(previousState.walletType)
     }
+    saveState(state)
   }, [state])
 
   return (

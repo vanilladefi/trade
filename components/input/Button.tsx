@@ -8,6 +8,12 @@ export enum ButtonColor {
   WHITE,
 }
 
+export enum ButtonSize {
+  SMALL = 'small',
+  NORMAL = 'normal',
+  LARGE = 'large',
+}
+
 export enum Rounding {
   ALL,
   LEFT,
@@ -34,7 +40,7 @@ type Callback = () => void
 
 type Props = {
   children?: ReactNode
-  large?: boolean
+  size?: ButtonSize
   color?: ButtonColor
   bordered?: boolean
   noRightBorder?: boolean
@@ -49,7 +55,7 @@ type Props = {
 
 const Button = ({
   children,
-  large,
+  size = ButtonSize.NORMAL,
   color = ButtonColor.GRADIENT,
   rounded = Rounding.ALL,
   bordered = false,
@@ -62,7 +68,7 @@ const Button = ({
   title,
 }: Props): JSX.Element => {
   const buttonClass = classNames({
-    large: large,
+    [`${size}`]: true,
     gradient: color === ButtonColor.GRADIENT,
     dark: color === ButtonColor.DARK,
     transparent: color === ButtonColor.TRANSPARENT,
@@ -102,6 +108,10 @@ const Button = ({
         button.large {
           padding: var(--largebuttonpadding);
           font-size: var(--largebuttonsize);
+        }
+        button.small {
+          padding: var(--minisize);
+          font-size: var(--minisize);
         }
         button.gradient {
           background: var(--buttongradient);
