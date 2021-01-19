@@ -10,9 +10,23 @@ extend({ MeshLine, MeshLineMaterial })
 
 const r = () => Math.max(0.2, Math.random())
 
-function Fatline({ curve, width, rotation, color, speed }) {
+function Fatline({ curve, width, rotation, index, color, duration, animate }) {
   const material = useRef()
-  useFrame(() => (material.current.uniforms.dashOffset.value -= speed))
+
+  // animation works now, but is a magic number between dashArray, dashRatio & this if.
+  // TODO: make it logical by defining animation length + add easing
+  const dashArray = 10.2
+  const offsetAmount = dashArray / duration
+  console.log(animate)
+  useFrame(() => {
+    if (material.current.uniforms.dashOffset.value > -1.43 && animate) {
+      material.current.uniforms.dashOffset.value -= offsetAmount + index / 100
+    }
+    if (material.current.uniforms.opacity.value < 1 && animate) {
+      material.current.uniforms.opacity.value += offsetAmount
+    }
+  })
+
   return (
     <mesh raycast={MeshLineRaycast} rotation={rotation}>
       <meshLine attach='geometry' points={curve} />
@@ -20,21 +34,30 @@ function Fatline({ curve, width, rotation, color, speed }) {
         attach='material'
         ref={material}
         transparent
+        opacity={0 - index / 20}
         depthTest={false}
         lineWidth={width}
         color={color}
-        dashArray={0}
-        dashRatio={0}
+        dashArray={dashArray}
+        dashRatio={0.8 - index / 10}
       />
     </mesh>
   )
 }
 
-export default function Petals({ mouse, stems, iterations, color, seed }) {
+export default function Petals({
+  mouse,
+  stems,
+  iterations,
+  color,
+  seed,
+  duration,
+  animate,
+}) {
   const simplex = new SimplexNoise(seed)
   const angleRange = 6.9
   const speed = 4
-  const depth = 0.034
+  const depth = 0.04
   stems = parseInt(stems)
   iterations = parseInt(iterations)
   const lines = useMemo(
@@ -72,18 +95,18 @@ export default function Petals({ mouse, stems, iterations, color, seed }) {
             )
             .clone()
         })
-        console.log(stems)
         const curve = new THREE.CatmullRomCurve3(points).getPoints(300)
         return {
           color: color,
-          width: 0.15,
-          speed: Math.max(0.001, 0.004 * Math.random()),
+          width: 0.1,
+          duration: duration,
           rotation: new THREE.Euler(
             0,
             0,
             calcMap(index, 0, stems, 0, Math.PI * 2)
           ),
           curve,
+          index,
         }
       }),
     [stems]
@@ -111,7 +134,7 @@ export default function Petals({ mouse, stems, iterations, color, seed }) {
     <group ref={ref}>
       <group position={[0, 0, 0]} scale={[1, 1, 1]}>
         {lines.map((props, index) => (
-          <Fatline key={index} {...props} />
+          <Fatline key={index} animate={animate} {...props} />
         ))}
       </group>
     </group>

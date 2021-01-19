@@ -11,7 +11,8 @@ const FlowerPage = (): JSX.Element => (
           stems={14}
           iterations={20}
           color='#000000'
-          maxSize={600}
+          minSize='80vw'
+          maxSize='600px'
           seed={1256666}
         />
       </div>
