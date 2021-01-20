@@ -95,7 +95,6 @@ const WalletStateProvider = ({ children }: ProviderProps): JSX.Element => {
 
   React.useEffect(() => {
     const previousState = loadState()
-    console.log(state.walletType, previousState.walletType)
     if (
       state.walletType !== initialState.walletType &&
       previousState.walletType !== initialState.walletType &&
