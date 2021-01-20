@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Gradient = (): JSX.Element => (
+export const TopGradient = (): JSX.Element => (
   <>
     <div></div>
     <style jsx>{`
@@ -17,4 +17,19 @@ const Gradient = (): JSX.Element => (
   </>
 )
 
-export default Gradient
+export const ModalGradient = (): JSX.Element => (
+  <>
+    <div></div>
+    <style jsx>{`
+      div {
+        background: var(--tradeflowergradient);
+        z-index: -1;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+    `}</style>
+  </>
+)

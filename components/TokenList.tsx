@@ -1,5 +1,7 @@
 import React from 'react'
 import { useTable } from 'react-table'
+import useWindowWidthBreakpoints from 'use-window-width-breakpoints'
+import { BreakPoint } from './GlobalStyles/Breakpoints'
 
 type Token = {
   imageUrl: string
@@ -36,6 +38,15 @@ const TokenList = ({ data, columns }: Props): JSX.Element => {
     prepareRow,
   } = useTable({ columns, data })
 
+  const breakpoint = useWindowWidthBreakpoints({
+    xs: BreakPoint.XS,
+    sm: BreakPoint.SM,
+    md: BreakPoint.MD,
+    lg: BreakPoint.LG,
+    xl: BreakPoint.XL,
+  })
+
+  console.log(breakpoint)
   return (
     <table {...getTableProps()}>
       <thead>

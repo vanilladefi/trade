@@ -1,4 +1,5 @@
 import React from 'react'
+import { BreakPoint } from './Breakpoints'
 
 const Variables = (): JSX.Element => (
   <style jsx global>{`
@@ -110,28 +111,28 @@ const Variables = (): JSX.Element => (
       --activelinkborder: 4px solid var(--activelink);
     }
 
-    @media (min-width: 640px) {
+    @media (min-width: ${BreakPoint.SM}px) {
       :root {
         --rootfontsize: var(--rootfontsize-md);
         --boxpadding: var(--boxpadding-md);
       }
     }
 
-    @media (min-width: 1024px) {
+    @media (min-width: ${BreakPoint.MD}px) {
       :root {
         --rootfontsize: var(--rootfontsize-lg);
         --boxpadding: var(--boxpadding-lg);
       }
     }
 
-    @media (min-width: 1280px) {
+    @media (min-width: ${BreakPoint.LG}px) {
       :root {
         --rootfontsize: var(--rootfontsize-xl);
         --boxpadding: var(--boxpadding-xl);
       }
     }
 
-    @media (min-width: 1400px) {
+    @media (min-width: ${BreakPoint.XL}px) {
       :root {
         --rootfontsize: var(--rootfontsize-xxl);
       }

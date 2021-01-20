@@ -11,8 +11,8 @@ import Button, {
 } from './input/Button'
 import NavLink from './NavLink'
 import Spacer from './typography/Spacer'
-import WalletAddress from './WalletAddress'
-import WalletIcon from './WalletIcon'
+import WalletAddress from './typography/WalletAddress'
+import WalletIcon from './typography/WalletIcon'
 
 const Navigation = (): JSX.Element => {
   const wallet = useWallet()

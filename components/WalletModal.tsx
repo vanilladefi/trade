@@ -2,15 +2,15 @@ import Link from 'next/link'
 import React from 'react'
 import { Connectors, useWallet } from 'use-wallet'
 import { AppActions, useWalletState } from '../state/Wallet'
-import Gradient from './backgrounds/gradient'
+import { ModalGradient } from './backgrounds/gradient'
 import { Alignment, Column, Justification, Row, Width } from './grid/Flex'
 import Button, { ButtonColor, ButtonSize } from './input/Button'
 import Modal from './Modal'
 import Icon, { IconUrls } from './typography/Icon'
 import Spacer from './typography/Spacer'
 import { SmallTitle } from './typography/Titles'
-import WalletAddress from './WalletAddress'
-import WalletIcon from './WalletIcon'
+import WalletAddress from './typography/WalletAddress'
+import WalletIcon from './typography/WalletIcon'
 
 const ProviderOptions = (): JSX.Element => {
   const wallet = useWallet()
@@ -28,7 +28,7 @@ const ProviderOptions = (): JSX.Element => {
       </div>
       <div className='modalMain'>
         <Column width={Width.TWELVE}>
-          <Gradient />
+          <ModalGradient />
           <div className='buttons'>
             <Button
               color={ButtonColor.WHITE}
@@ -115,7 +115,7 @@ const WalletView = (): JSX.Element => {
         <SmallTitle>ACCOUNT</SmallTitle>
       </div>
       <div className='modalMain'>
-        <Gradient />
+        <ModalGradient />
         <div className='mainWrapper'>
           <div className='innerBox'>
             <div className='topRow'>
@@ -240,6 +240,8 @@ const WalletView = (): JSX.Element => {
           border: 0;
           cursor: pointer;
           outline: none;
+          margin: 0;
+          padding: 0;
         }
         .modalFooter {
           font-style: italic;

@@ -3,7 +3,7 @@ import uniswapTokens from '@uniswap/default-token-list'
 import Image from 'next/image'
 import React, { Dispatch, SetStateAction, useState } from 'react'
 import { useWallet } from 'use-wallet'
-import Gradient from '../../components/backgrounds/gradient'
+import { TopGradient } from '../../components/backgrounds/gradient'
 import { Column, Row, Width } from '../../components/grid/Flex'
 import { GridItem, GridTemplate } from '../../components/grid/Grid'
 import Button, { ButtonColor } from '../../components/input/Button'
@@ -14,7 +14,10 @@ import TradeFlower from '../../components/TradeFlower'
 import HugeMonospace from '../../components/typography/HugeMonospace'
 import { SmallTitle, Title } from '../../components/typography/Titles'
 import Wrapper from '../../components/Wrapper'
-import { GET_TOKEN_INFO, TokenQueryResponse } from '../../state/graphql/queries'
+import {
+  GET_TOKEN_INFO,
+  TokenQueryResponse
+} from '../../state/graphql/queries'
 import { AppActions, useWalletState } from '../../state/Wallet'
 
 type Props = {
@@ -40,7 +43,7 @@ export const HeaderContent = (): JSX.Element => {
   const wallet = useWallet()
   return (
     <>
-      <Gradient />
+      <TopGradient />
       <Row className='subpageHeader'>
         {wallet.status !== 'connected' ? (
           <Column width={Width.EIGHT}>
@@ -159,7 +162,7 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
             liquidity: parseFloat(pair.reserveUSD).toFixed(0),
             priceChange: 0,
             token0: pair.token0.id,
-            token1: pair.token1.id
+            token1: pair.token1.id,
           }
         })
     : []
@@ -196,9 +199,7 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
         Header: 'Liquidity',
         accessor: 'liquidity',
         Cell: ({ row }) => {
-          return (
-            '$' + row.original.liquidity
-          )
+          return '$' + row.original.liquidity
         },
       },
       {
@@ -208,14 +209,26 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
       {
         Header: () => null,
         accessor: 'buy',
-        Cell: ({row}) => <Button color={ButtonColor.DARK} onClick={() => trade({token0: row.original.token0, token1: row.original.token1})}>Buy</Button>,
+        Cell: ({ row }) => (
+          <Button
+            color={ButtonColor.DARK}
+            onClick={() =>
+              trade({
+                token0: row.original.token0,
+                token1: row.original.token1,
+              })
+            }
+          >
+            Buy
+          </Button>
+        ),
       },
     ],
     []
   )
 
-  const trade = (pairInfo: { token0: string, token1: string}) => {
-    setTradeModalOpen(true);
+  const trade = (pairInfo: { token0: string; token1: string }) => {
+    setTradeModalOpen(true)
   }
 
   return (
