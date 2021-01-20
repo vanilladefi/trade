@@ -131,7 +131,7 @@ const WalletView = (): JSX.Element => {
               <WalletAddress wallet={wallet} />
             </div>
             <div className='bottomSection'>
-              <span
+              <button
                 onClick={() =>
                   wallet.account &&
                   navigator.clipboard.writeText(wallet.account)
@@ -139,7 +139,7 @@ const WalletView = (): JSX.Element => {
               >
                 <Icon src={IconUrls.COPY} />
                 Copy address
-              </span>
+              </button>
               <a href={`https://etherscan.io/address/${wallet.account}`}>
                 <Icon src={IconUrls.ARROW_UP_RIGHT} />
                 View on Etherscan
@@ -218,14 +218,13 @@ const WalletView = (): JSX.Element => {
           border-bottom: 1px solid #d5d5d5;
         }
         .bottomSection {
-          font-size: var(--minisize);
           display: flex;
           flex-direction: row;
           align-items: center;
           justify-content: space-between;
           padding: 1rem 1.5rem;
         }
-        .bottomSection span,
+        .bottomSection button,
         .bottomSection a {
           display: flex;
           flex-grow: 0;
@@ -233,8 +232,14 @@ const WalletView = (): JSX.Element => {
           width: fit-content;
           text-decoration: none;
           color: var(--dark);
+          font-family: var(--bodyfont);
+          font-size: var(--minisize);
           font-weight: var(--theadweight);
           opacity: 0.7;
+          background: transparent;
+          border: 0;
+          cursor: pointer;
+          outline: none;
         }
         .modalFooter {
           font-style: italic;
