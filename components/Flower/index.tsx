@@ -1,7 +1,6 @@
 import React, { useCallback, useRef } from 'react'
 import { Canvas } from 'react-three-fiber' // https://github.com/pmndrs/react-three-fiber
 import router from 'next/router'
-import Tilt from 'react-parallax-tilt'
 import { InView } from 'react-intersection-observer'
 
 import Petals from './Petals'
@@ -17,12 +16,16 @@ function useHasMounted() {
 type Props = {
   stems?: any
   iterations?: any
-  color?: string
+  color?: Array<String>
   maxSize: string
   minSize: string
   seed: any
   asBackground?: Boolean
   className?: string
+  topLeft?: any
+  topRight?: any
+  bottomLeft?: any
+  bottomRight?: any
 }
 
 const Flower = ({
@@ -33,6 +36,10 @@ const Flower = ({
   minSize,
   seed,
   asBackground,
+  topLeft,
+  topRight,
+  bottomLeft,
+  bottomRight,
   ...rest
 }: Props): JSX.Element => {
   const mouse = useRef([0, 0])
@@ -57,7 +64,7 @@ const Flower = ({
   }
 
   return (
-    <InView rootMargin='-200px 0px' triggerOnce>
+    <InView rootMargin='0px 0px' triggerOnce>
       {({ inView, ref }) => (
         <div ref={ref}>
           {asBackground ? (
@@ -70,11 +77,12 @@ const Flower = ({
                 maxHeight: maxSize,
                 position: 'absolute',
                 zIndex: 0,
+                pointerEvents: 'none',
               }}
             >
               <Canvas
                 pixelRatio={Math.min(2, isMobile ? window.devicePixelRatio : 1)}
-                camera={{ fov: 90, position: [0, 0, 28] }}
+                camera={{ fov: 80, position: [0, 0, 12] }}
               >
                 <Petals
                   stems={stems}
@@ -82,28 +90,21 @@ const Flower = ({
                   mouse={mouse}
                   color={color}
                   seed={seed}
-                  duration={800}
+                  duration={900}
                   animate={inView}
+                  asBackground
                 />
-                <pointLight distance={40} intensity={10} color='white' />
               </Canvas>
             </div>
           ) : (
-            <Tilt
-              gyroscope={true}
-              tiltMaxAngleX={10}
-              tiltMaxAngleY={10}
-              perspective={1100}
-              style={{ transformStyle: 'preserve-3d' }}
-            >
+            <div style={{ position: 'relative' }}>
               <div
                 style={{
                   width: minSize,
                   height: minSize,
                   maxWidth: maxSize,
                   maxHeight: maxSize,
-                  background:
-                    'linear-gradient(326deg, #FFEDAB 8.09%, #EDEDED 89.18%)',
+                  background: 'var(--tradeflowergradient)',
                   borderRadius: '16px',
                 }}
               >
@@ -112,7 +113,7 @@ const Flower = ({
                     2,
                     isMobile ? window.devicePixelRatio : 1
                   )}
-                  camera={{ fov: 80, position: [0, 0, 34] }}
+                  camera={{ fov: 80, position: [0, 0, 19] }}
                   onMouseMove={onMouseMove}
                 >
                   <Petals
@@ -121,41 +122,69 @@ const Flower = ({
                     mouse={mouse}
                     color={color}
                     seed={seed}
-                    duration={600}
+                    duration={800}
                     animate={inView}
+                    asBackground={false}
                   />
-                  <pointLight distance={40} intensity={10} color='white' />
                 </Canvas>
               </div>
-              <div className='data-text top-left-data-text'>Seed {seed}</div>
-              <div className='data-text top-right-data-text'>
-                Iterations {iterations}
-              </div>
-              <div className='data-text bottom-left-data-text'>
-                Stems {stems}
-              </div>
-            </Tilt>
+              {topLeft && (
+                <div className='data-text top-left-data-text'>{topLeft}</div>
+              )}
+              {topRight && (
+                <div className='data-text top-right-data-text'>{topRight}</div>
+              )}
+              {bottomLeft && (
+                <div className='data-text bottom-left-data-text'>
+                  {bottomLeft}
+                </div>
+              )}
+              {bottomRight && (
+                <div className='data-text bottom-right-data-text'>
+                  {bottomRight}
+                </div>
+              )}
+            </div>
           )}
           <style jsx>{`
             .data-text {
               font-family: var(--monofont);
               font-weight: 300;
+              margin: 0;
               position: absolute;
               transform: translateZ(40px);
               font-size: 0.9rem;
               text-transform: uppercase;
+              width: 100%;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              width: 30%;
+              display: block;
             }
             .top-left-data-text {
-              left: 8%;
-              top: 8%;
+              left: 1.5rem;
+              top: 1.5rem;
             }
             .top-right-data-text {
-              right: 8%;
-              top: 8%;
+              right: 1.5rem;
+              top: 1.5rem;
+              text-align: right;
             }
             .bottom-left-data-text {
-              left: 8%;
-              bottom: 8%;
+              left: 1.5rem;
+              bottom: 1.5rem;
+            }
+            .bottom-right-data-text {
+              right: 1.5rem;
+              bottom: 1.5rem;
+              text-align: right;
+            }
+            span {
+              width: 100%;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
             }
           `}</style>
         </div>

@@ -13,7 +13,7 @@ import Wrapper from '../components/Wrapper'
 import Flower from '../components/Flower'
 
 const HeaderContent = (
-  <>
+  <div className='heroContainer'>
     <Column className='landingHero'>
       <Row>
         <Column width={Width.TEN}>
@@ -27,8 +27,8 @@ const HeaderContent = (
       asBackground
       stems={12}
       iterations={10}
-      color='#000000'
-      maxSize='600px'
+      color={['#2C1929']}
+      maxSize='400px'
       minSize='100vw'
       seed={Math.random() * 1337}
       className='heroFlower'
@@ -38,6 +38,9 @@ const HeaderContent = (
         right: 0;
         bottom: 0;
       }
+      .heroContainer {
+        position: relative;
+      }
       .landingHero {
         --titlesize: var(--landing-hugetitlesize);
         --titlemargin: var(--landing-titlemargin);
@@ -46,7 +49,7 @@ const HeaderContent = (
         max-width: 45rem;
       }
     `}</style>
-  </>
+  </div>
 )
 
 const milestones = [
@@ -64,10 +67,49 @@ const IndexPage = (): JSX.Element => (
           <div className='whiteFlowers'>
             <Flower
               asBackground
-              stems={14}
-              iterations={15}
-              color='#FFFFFF'
-              maxSize='600px'
+              stems={12}
+              iterations={12}
+              color={[
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+              ]}
+              maxSize='400px'
+              minSize='80vw'
+              seed={Math.random() * 1256666}
+              className='whiteFlowers'
+            />
+          </div>
+
+          <div className='whiteFlowers2'>
+            <Flower
+              asBackground
+              stems={7}
+              iterations={12}
+              color={[
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+              ]}
+              maxSize='400px'
               minSize='80vw'
               seed={Math.random() * 1256666}
               className='whiteFlowers'
@@ -93,15 +135,22 @@ const IndexPage = (): JSX.Element => (
         </BoxSection>
       </div>
       <style jsx>{`
-        .whiteFlowers {
+        .whiteFlowers,
+        .whiteFlowers2 {
           position: absolute;
-          left: -200px;
-          width: 600px;
-          height: 600px;
-          bottom: 0;
+          left: -180px;
+          width: 400px;
+          height: 400px;
+          bottom: -40px;
+        }
+        .whiteFlowers2 {
+          bottom: auto;
+          top: -80px;
+          left: 20px;
         }
         .miningWrapper {
           position: relative;
+          overflow: hidden;
         }
       `}</style>
     </Wrapper>

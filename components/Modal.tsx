@@ -57,7 +57,7 @@ const Modal = ({
           transition: 0.2s ease backdrop-filter, 0.2s ease background;
         }
         .modal {
-          width: 480px;
+          width: 30rem;
           height: auto;
           border-radius: 1.5rem;
           background: var(--white);

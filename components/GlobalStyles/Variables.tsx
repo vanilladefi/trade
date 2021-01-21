@@ -73,9 +73,9 @@ const Variables = (): JSX.Element => (
       /* Fonts */
       --rootfontsize: 12px;
       --rootfontsize-md: 14px;
-      --rootfontsize-lg: 18px;
-      --rootfontsize-xl: 20px;
-      --rootfontsize-xxl: 20px;
+      --rootfontsize-lg: 16px;
+      --rootfontsize-xl: 18px;
+      --rootfontsize-xxl: 18px;
 
       --titlefont: 'Darker Grotesque', sans-serif;
       --titleweight: 700;

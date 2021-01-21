@@ -106,7 +106,7 @@ const ModalContent = (): JSX.Element => (
       div {
         display: flex;
         flex-direction: row;
-        padding: 19px 17px;
+        padding: 1.1rem 1.2rem;
         justify-content: space-between;
       }
     `}</style>
