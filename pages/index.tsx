@@ -13,23 +13,13 @@ import Wrapper from '../components/Wrapper'
 import Flower from '../components/Flower'
 
 const HeaderContent = (
-<<<<<<< HEAD
-  <Column className='landingHero'>
-    <Row>
-      <Column width={Width.TEN}>
-        <Title>Vanilla Rewards You For Making a Profit In DeFi</Title>
-        <HugeMonospace>Trade, lend, profit.</HugeMonospace>
-        <Button size={ButtonSize.LARGE}>Start trading</Button>
-      </Column>
-    </Row>
-=======
   <>
     <Column className='landingHero'>
       <Row>
         <Column width={Width.TEN}>
           <Title>Vanilla Rewards You For Making a Profit In DeFi</Title>
           <HugeMonospace>Trade, lend, profit.</HugeMonospace>
-          <Button large>Start trading</Button>
+          <Button>Start trading</Button>
         </Column>
       </Row>
     </Column>
@@ -43,7 +33,6 @@ const HeaderContent = (
       seed={Math.random() * 1337}
       className='heroFlower'
     />
->>>>>>> background flowers and initial opening animations
     <style jsx>{`
       .heroFlower {
         right: 0;
@@ -70,27 +59,6 @@ const milestones = [
 const IndexPage = (): JSX.Element => (
   <Layout title='Vanilla' hero={HeaderContent}>
     <Wrapper>
-<<<<<<< HEAD
-      <BoxSection color={Color.DARK}>
-        <WhiteFlowers />
-        <Row>
-          <Column width={Width.FOUR}></Column>
-          <Column width={Width.EIGHT} className='profitMiningHeader'>
-            <Title>#ProfitMining</Title>
-            <HugeMonospace>
-              Mine VNL by making a profit trading tokens through Vanilla
-            </HugeMonospace>
-            <p>
-              Profit mining is the only way to create VNL tokens and mining
-              difficulty increases as the amount of capital in the Vanilla
-              system grows
-            </p>
-            <br />
-            <Button size={ButtonSize.LARGE}>Learn more</Button>
-          </Column>
-        </Row>
-      </BoxSection>
-=======
       <div className='miningWrapper'>
         <BoxSection color={Color.DARK}>
           <div className='whiteFlowers'>
@@ -119,7 +87,7 @@ const IndexPage = (): JSX.Element => (
                 system grows
               </p>
               <br />
-              <Button large>Learn more</Button>
+              <Button>Learn more</Button>
             </Column>
           </Row>
         </BoxSection>
@@ -136,7 +104,6 @@ const IndexPage = (): JSX.Element => (
           position: relative;
         }
       `}</style>
->>>>>>> background flowers and initial opening animations
     </Wrapper>
     <Wrapper>
       <BoxSection color={Color.GRADIENT}>
