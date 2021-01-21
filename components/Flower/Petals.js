@@ -55,8 +55,8 @@ export default function Petals({
   animate,
 }) {
   const simplex = new SimplexNoise(seed)
-  const angleRange = 6.9
-  const speed = 4
+  const angleRange = 6.8
+  const speedRange = 5
   const depth = 0.04
   stems = parseInt(stems)
   iterations = parseInt(iterations)
@@ -64,7 +64,7 @@ export default function Petals({
     () =>
       new Array(stems).fill().map((_, index) => {
         const pos = new THREE.Vector3(0, 0, 0)
-        let increment = 3
+        let increment = 3.4
 
         const points = new Array(iterations).fill().map((_, index) => {
           //const angle = (index / 20) * Math.PI * 2
@@ -73,9 +73,11 @@ export default function Petals({
             simplex.noise2D(increment, 0),
             1,
             -1,
-            -angleRange,
-            angleRange
-          )
+            -speedRange,
+            speedRange
+          ).toFixed(3)
+          console.log(simplex.noise2D(0.2, 0))
+          console.log('Speed :' + speed)
 
           const angle = calcMap(
             simplex.noise2D(increment, 0),
@@ -83,7 +85,8 @@ export default function Petals({
             -1,
             -angleRange,
             angleRange
-          )
+          ).toFixed(3)
+          console.log('Angle :' + angle)
           increment += increment
           return pos
             .add(
@@ -95,7 +98,7 @@ export default function Petals({
             )
             .clone()
         })
-        const curve = new THREE.CatmullRomCurve3(points).getPoints(300)
+        const curve = new THREE.CatmullRomCurve3(points).getPoints(100)
         return {
           color: color,
           width: 0.1,
