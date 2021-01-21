@@ -134,35 +134,37 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
     },
   })
 
-  const data = tokenList
-    ? tokenList.pairs
-        .filter(
-          (pair: TokenQueryResponse) =>
-            uniswapTokens &&
-            uniswapTokens.tokens &&
-            uniswapTokens.tokens.find(
-              (token) => token.symbol === pair.token1.symbol
-            )
-        )
-        .map((pair: TokenQueryResponse) => {
-          const uniswapSDKMatch =
-            uniswapTokens &&
-            uniswapTokens.tokens &&
-            uniswapTokens.tokens.find(
-              (token) => token.symbol === pair.token1.symbol
-            )
-          return {
-            imageUrl: uniswapSDKMatch ? uniswapSDKMatch.logoURI : '',
-            name: pair.token1.name,
-            ticker: pair.token1.symbol,
-            price: parseFloat(pair.token0Price).toFixed(3),
-            liquidity: parseFloat(pair.reserveUSD).toFixed(0),
-            priceChange: 0,
-            token0: pair.token0.id,
-            token1: pair.token1.id,
-          }
-        })
-    : []
+  const data = React.useMemo(() => {
+    return tokenList
+      ? tokenList.pairs
+          .filter(
+            (pair: TokenQueryResponse) =>
+              uniswapTokens &&
+              uniswapTokens.tokens &&
+              uniswapTokens.tokens.find(
+                (token) => token.symbol === pair.token1.symbol
+              )
+          )
+          .map((pair: TokenQueryResponse) => {
+            const uniswapSDKMatch =
+              uniswapTokens &&
+              uniswapTokens.tokens &&
+              uniswapTokens.tokens.find(
+                (token) => token.symbol === pair.token1.symbol
+              )
+            return {
+              imageUrl: uniswapSDKMatch ? uniswapSDKMatch.logoURI : '',
+              name: pair.token1.name,
+              ticker: pair.token1.symbol,
+              price: parseFloat(pair.token0Price).toFixed(3),
+              liquidity: parseFloat(pair.reserveUSD).toFixed(0),
+              priceChange: 0,
+              token0: pair.token0.id,
+              token1: pair.token1.id,
+            }
+          })
+      : []
+  }, [])
 
   const columns = React.useMemo(
     () => [
