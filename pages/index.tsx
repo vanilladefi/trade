@@ -3,7 +3,8 @@ import HandFlower from '../components/backgrounds/handflower'
 import WhiteFlowers from '../components/backgrounds/whiteflowers'
 import BoxSection, { Color, SeriousBox } from '../components/BoxSection'
 import { Column, Row, Width } from '../components/grid/Flex'
-import Button from '../components/input/Button'
+import { GridItem, GridTemplate } from '../components/grid/Grid'
+import Button, { ButtonSize } from '../components/input/Button'
 import Layout from '../components/Layout'
 import Timeline from '../components/Timeline'
 import HugeMonospace from '../components/typography/HugeMonospace'
@@ -17,7 +18,7 @@ const HeaderContent = (
       <Column width={Width.TEN}>
         <Title>Vanilla Rewards You For Making a Profit In DeFi</Title>
         <HugeMonospace>Trade, lend, profit.</HugeMonospace>
-        <Button large>Start trading</Button>
+        <Button size={ButtonSize.LARGE}>Start trading</Button>
       </Column>
     </Row>
     <style jsx>{`
@@ -57,7 +58,7 @@ const IndexPage = (): JSX.Element => (
               system grows
             </p>
             <br />
-            <Button large>Learn more</Button>
+            <Button size={ButtonSize.LARGE}>Learn more</Button>
           </Column>
         </Row>
       </BoxSection>
@@ -79,7 +80,11 @@ const IndexPage = (): JSX.Element => (
                 your rewards by ~5%
               </p>
             </Column>
-            <Column width={Width.SIX}>
+            <Column
+              width={Width.SIX}
+              className='stakingInfo'
+              style={{ mixBlendMode: 'darken' }}
+            >
               <Image
                 src='/images/stakinginfo.png'
                 alt='Staking Infographic'
@@ -105,7 +110,7 @@ const IndexPage = (): JSX.Element => (
               incentive changes, system upgrades and treasury allocations.
             </Highlight>
             <br />
-            <Button large>Learn more</Button>
+            <Button size={ButtonSize.LARGE}>Learn more</Button>
           </Column>
         </Row>
       </BoxSection>
@@ -157,18 +162,18 @@ const IndexPage = (): JSX.Element => (
               </Highlight>
             </Column>
           </Row>
-          <Row gap={'66px'}>
-            <Column grow>
+          <GridTemplate gap={'66px'}>
+            <GridItem>
               <SeriousBox>
                 <Title>Audit</Title>
               </SeriousBox>
-            </Column>
-            <Column grow>
+            </GridItem>
+            <GridItem>
               <SeriousBox>
                 <Title>Bug Bounty</Title>
               </SeriousBox>
-            </Column>
-          </Row>
+            </GridItem>
+          </GridTemplate>
         </Column>
       </BoxSection>
     </Wrapper>

@@ -1,14 +1,17 @@
-import Link from 'next/link'
 import { AnimatePresence, motion, useCycle } from 'framer-motion'
+import Link from 'next/link'
 import React, { ReactNode, useRef } from 'react'
 import { Logo } from './Brand'
 import MenuToggle from './MenuToggle'
 import Navigation from './Navigation'
 import Wrapper from './Wrapper'
 
+type RenderFunction = () => ReactNode
+
 type Props = {
   children?: ReactNode
   background?: ReactNode
+  renderChildren?: RenderFunction
 }
 
 const MobileNavigation = (): JSX.Element => {
@@ -80,7 +83,11 @@ const MobileNavigation = (): JSX.Element => {
   )
 }
 
-const Header = ({ children, background }: Props): JSX.Element => {
+const Header = ({
+  children,
+  background,
+  renderChildren,
+}: Props): JSX.Element => {
   return (
     <>
       <header>
@@ -100,7 +107,7 @@ const Header = ({ children, background }: Props): JSX.Element => {
                 <Navigation />
               </div>
             </div>
-            {children}
+            {children || (renderChildren && renderChildren())}
           </div>
         </Wrapper>
       </header>
