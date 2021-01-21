@@ -1,9 +1,11 @@
+import * as Vibrant from 'node-vibrant'
+import { Palette } from 'node-vibrant/lib/color'
 import React from 'react'
-import { useTable } from 'react-table'
+import { Column, Row, useTable } from 'react-table'
 import useWindowWidthBreakpoints from 'use-window-width-breakpoints'
 import { BreakPoint } from './GlobalStyles/Breakpoints'
 
-type Token = {
+type TokenInfo = {
   imageUrl: string
   name: string
   ticker: string
@@ -14,19 +16,20 @@ type Token = {
 }
 
 type Props = {
-  data: {
-    imageUrl: string
-    name: string
-    ticker: string
-    price: string
-    marketCap: string
-    liquidity: string
-    priceChange: number
-  }[]
-  columns: {
-    Header: string
-    accessor: string
-  }[]
+  data: TokenInfo[]
+  columns: Column<TokenInfo>[]
+}
+
+const beigeBackground = '#f3f1ea'
+const yellowBackground = '#FBF3DB'
+
+const calculateBackgroundColor = (imageUrl?: string | undefined): string => {
+  const bgCallback = (_: undefined | Error, result: Palette | undefined) => {
+    return result && result.Vibrant ? result.Vibrant.getHex() : yellowBackground
+  }
+  if (imageUrl && imageUrl !== '') {
+    Vibrant.from(imageUrl).getPalette(bgCallback)
+  }
 }
 
 const TokenList = ({ data, columns }: Props): JSX.Element => {
@@ -46,7 +49,20 @@ const TokenList = ({ data, columns }: Props): JSX.Element => {
     xl: BreakPoint.XL,
   })
 
+  const getRowProps = (row: Row<TokenInfo>) => {
+    const highlightColor = calculateBackgroundColor(row.original.imageUrl)
+    const gradient = `linear-gradient(271.82deg, ${highlightColor} 78.9%, ${yellowBackground} 96.91%)`
+    console.log(gradient)
+    return {
+      style: {
+        background: gradient,
+      },
+    }
+  }
+
+  /* const showColumn = (column) =>  */
   console.log(breakpoint)
+
   return (
     <table {...getTableProps()}>
       <thead>
@@ -62,7 +78,7 @@ const TokenList = ({ data, columns }: Props): JSX.Element => {
         {rows.map((row) => {
           prepareRow(row)
           return (
-            <tr {...row.getRowProps()}>
+            <tr {...row.getRowProps(() => getRowProps(row))}>
               {row.cells.map((cell) => {
                 return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
               })}
@@ -95,6 +111,9 @@ const TokenList = ({ data, columns }: Props): JSX.Element => {
           color: rgba(#2c1929, 0.6);
           padding: 0px 17px;
         }
+        tbody tr {
+          background: var(--beige);
+        }
         tr td:first-of-type {
           border-top-left-radius: 9999px;
           border-bottom-left-radius: 9999px;
@@ -104,9 +123,6 @@ const TokenList = ({ data, columns }: Props): JSX.Element => {
           border-top-right-radius: 9999px;
           border-bottom-right-radius: 9999px;
           padding-right: 0;
-        }
-        td {
-          background: var(--beige);
         }
       `}</style>
     </table>

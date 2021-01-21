@@ -14,10 +14,7 @@ import TradeFlower from '../../components/TradeFlower'
 import HugeMonospace from '../../components/typography/HugeMonospace'
 import { SmallTitle, Title } from '../../components/typography/Titles'
 import Wrapper from '../../components/Wrapper'
-import {
-  GET_TOKEN_INFO,
-  TokenQueryResponse
-} from '../../state/graphql/queries'
+import { GET_TOKEN_INFO, TokenQueryResponse } from '../../state/graphql/queries'
 import { AppActions, useWalletState } from '../../state/Wallet'
 
 type Props = {
@@ -186,6 +183,7 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
       {
         Header: 'Name',
         accessor: 'name',
+        hide: 'md',
       },
       {
         Header: 'Ticker',

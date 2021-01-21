@@ -7,12 +7,12 @@ const Variables = (): JSX.Element => (
       /* Colors */
       --white: #ffffff;
       --dark: #2c1929;
-      --yellow: #d5ebf4;
+      --yellow: #fbf3db;
       --beige: #f3f1ea;
       --inactivelink: #857482;
       --activelink: var(--dark);
       --curtain-background: rgba(44, 21, 45, 0.83);
-      --curtain-backdropfilter: blur(10px);
+      --curtain-backdropfilter: blur(40px);
       --roadmapcolor: #ffd866;
 
       /* Gradients */
