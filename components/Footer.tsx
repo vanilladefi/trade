@@ -141,7 +141,7 @@ const Footer = (): JSX.Element => (
             alignItems={Alignment.END}
           >
             <LawLinks />
-            <span>Copyright © 2020 Vanilla</span>
+            <span>Copyright © {new Date().getFullYear()} Vanilla</span>
           </Column>
         </Row>
       </Wrapper>
