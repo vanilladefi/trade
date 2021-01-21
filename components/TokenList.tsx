@@ -1,35 +1,41 @@
-import * as Vibrant from 'node-vibrant'
+import Vibrant from 'node-vibrant'
 import { Palette } from 'node-vibrant/lib/color'
 import React from 'react'
 import { Column, Row, useTable } from 'react-table'
 import useWindowWidthBreakpoints from 'use-window-width-breakpoints'
 import { BreakPoint } from './GlobalStyles/Breakpoints'
 
-type TokenInfo = {
+export type TokenInfo = {
   imageUrl: string
   name: string
   ticker: string
   price: string
+  token0: string
+  token1: string
   marketCap: string
   liquidity: string
-  priceChange: number
+  priceChange: string
+  buy?: boolean
 }
 
-type Props = {
+export type Props = {
   data: TokenInfo[]
   columns: Column<TokenInfo>[]
 }
 
-const beigeBackground = '#f3f1ea'
+//const beigeBackground = '#f3f1ea'
 const yellowBackground = '#FBF3DB'
 
 const calculateBackgroundColor = (imageUrl?: string | undefined): string => {
+  let color: string = yellowBackground
   const bgCallback = (_: undefined | Error, result: Palette | undefined) => {
-    return result && result.Vibrant ? result.Vibrant.getHex() : yellowBackground
+    color =
+      result && result.Vibrant ? result.Vibrant.getHex() : yellowBackground
   }
   if (imageUrl && imageUrl !== '') {
     Vibrant.from(imageUrl).getPalette(bgCallback)
   }
+  return color
 }
 
 const TokenList = ({ data, columns }: Props): JSX.Element => {

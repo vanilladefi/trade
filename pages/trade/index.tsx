@@ -2,14 +2,15 @@ import { useQuery } from '@apollo/client'
 import uniswapTokens from '@uniswap/default-token-list'
 import Image from 'next/image'
 import React, { Dispatch, SetStateAction, useState } from 'react'
+import { Cell, Column as TableColumn } from 'react-table'
 import { useWallet } from 'use-wallet'
 import { TopGradient } from '../../components/backgrounds/gradient'
 import { Column, Row, Width } from '../../components/grid/Flex'
 import { GridItem, GridTemplate } from '../../components/grid/Grid'
-import Button, { ButtonColor } from '../../components/input/Button'
+import Button, { ButtonColor, ButtonSize } from '../../components/input/Button'
 import Layout from '../../components/Layout'
 import Modal from '../../components/Modal'
-import TokenList from '../../components/TokenList'
+import TokenList, { TokenInfo } from '../../components/TokenList'
 import TradeFlower from '../../components/TradeFlower'
 import HugeMonospace from '../../components/typography/HugeMonospace'
 import { SmallTitle, Title } from '../../components/typography/Titles'
@@ -18,19 +19,6 @@ import { GET_TOKEN_INFO, TokenQueryResponse } from '../../state/graphql/queries'
 import { AppActions, useWalletState } from '../../state/Wallet'
 
 type Props = {
-  data: {
-    imageUrl: string
-    name: string
-    ticker: string
-    price: string
-    marketCap: string
-    liquidity: string
-    priceChange: number
-  }[]
-  columns: {
-    Header: string
-    accessor: string
-  }[]
   setTradeModalOpen: Dispatch<SetStateAction<boolean>>
   tradeModalOpen: boolean
 }
@@ -49,7 +37,7 @@ export const HeaderContent = (): JSX.Element => {
               Make trades, see your profits blossom and mine VNL.
             </HugeMonospace>
             <Button
-              large
+              size={ButtonSize.LARGE}
               onClick={() => dispatch({ type: AppActions.OPEN_MODAL })}
             >
               Connect wallet
@@ -126,7 +114,7 @@ const ModalContent = (): JSX.Element => (
 )
 
 export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
-  const { loading, error, data: tokenList } = useQuery(GET_TOKEN_INFO, {
+  const { loading, data: tokenList } = useQuery(GET_TOKEN_INFO, {
     variables: {
       tokenList: uniswapTokens.tokens
         .filter((token) => token.symbol !== 'WETH')
@@ -134,7 +122,7 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
     },
   })
 
-  const data = React.useMemo(() => {
+  const data: TokenInfo[] = React.useMemo(() => {
     return tokenList
       ? tokenList.pairs
           .filter(
@@ -158,20 +146,22 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
               ticker: pair.token1.symbol,
               price: parseFloat(pair.token0Price).toFixed(3),
               liquidity: parseFloat(pair.reserveUSD).toFixed(0),
-              priceChange: 0,
+              priceChange: '0',
               token0: pair.token0.id,
               token1: pair.token1.id,
             }
           })
       : []
-  }, [])
+  }, [tokenList])
 
-  const columns = React.useMemo(
+  const columns: TableColumn<TokenInfo>[] = React.useMemo<
+    TableColumn<TokenInfo>[]
+  >(
     () => [
       {
-        Header: (): any => null,
+        Header: () => null,
         accessor: 'imageUrl',
-        Cell: ({ row }) => {
+        Cell: ({ row }: Cell<TokenInfo>) => {
           return (
             <Image
               src={row.original.imageUrl}
@@ -185,7 +175,6 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
       {
         Header: 'Name',
         accessor: 'name',
-        hide: 'md',
       },
       {
         Header: 'Ticker',
@@ -198,7 +187,7 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
       {
         Header: 'Liquidity',
         accessor: 'liquidity',
-        Cell: ({ row }) => {
+        Cell: ({ row }: Cell<TokenInfo>) => {
           return '$' + row.original.liquidity
         },
       },
@@ -209,7 +198,7 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
       {
         Header: () => null,
         accessor: 'buy',
-        Cell: ({ row }) => (
+        Cell: ({ row }: Cell<TokenInfo>) => (
           <Button
             color={ButtonColor.DARK}
             onClick={() =>
@@ -228,6 +217,7 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
   )
 
   const trade = (pairInfo: { token0: string; token1: string }) => {
+    console.log(pairInfo)
     setTradeModalOpen(true)
   }
 
@@ -237,7 +227,7 @@ export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
         <Column width={Width.TWELVE}>
           <h2>AVAILABLE TOKENS</h2>
           {/* <span onClick={() => setTradeModalOpen(true)}>Open latest trade</span> */}
-          <TokenList data={data} columns={columns} />
+          {!loading && <TokenList data={data} columns={columns} />}
         </Column>
       </Row>
     </Wrapper>

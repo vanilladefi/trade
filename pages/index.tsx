@@ -162,7 +162,7 @@ const IndexPage = (): JSX.Element => (
               </Highlight>
             </Column>
           </Row>
-          <GridTemplate gap={'66px'} columns={2}>
+          <GridTemplate gap={'66px'}>
             <GridItem>
               <SeriousBox>
                 <Title>Audit</Title>
