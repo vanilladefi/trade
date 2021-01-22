@@ -7,7 +7,7 @@ import Button, {
   ButtonColor,
   ButtonGroup,
   Overflow,
-  Rounding
+  Rounding,
 } from './input/Button'
 import NavLink from './NavLink'
 import Spacer from './typography/Spacer'
@@ -38,6 +38,7 @@ const Navigation = (): JSX.Element => {
     <nav>
       <NavLink href='/'>Home</NavLink>
       <NavLink href='/trade'>Trade</NavLink>
+      <NavLink href='/faq'>FAQ</NavLink>
       {wallet.status === 'disconnected' ? (
         <Button
           onClick={() =>
