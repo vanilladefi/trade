@@ -1,6 +1,5 @@
 import Image from 'next/image'
 import HandFlower from '../components/backgrounds/handflower'
-import WhiteFlowers from '../components/backgrounds/whiteflowers'
 import BoxSection, { Color, SeriousBox } from '../components/BoxSection'
 import { Column, Row, Width } from '../components/grid/Flex'
 import { GridItem, GridTemplate } from '../components/grid/Grid'
@@ -11,17 +10,37 @@ import HugeMonospace from '../components/typography/HugeMonospace'
 import { Highlight } from '../components/typography/Text'
 import { Title } from '../components/typography/Titles'
 import Wrapper from '../components/Wrapper'
+import Flower from '../components/Flower'
 
 const HeaderContent = (
-  <Column className='landingHero'>
-    <Row>
-      <Column width={Width.TEN}>
-        <Title>Vanilla Rewards You For Making a Profit In DeFi</Title>
-        <HugeMonospace>Trade, lend, profit.</HugeMonospace>
-        <Button size={ButtonSize.LARGE}>Start trading</Button>
-      </Column>
-    </Row>
+  <div className='heroContainer'>
+    <Column className='landingHero'>
+      <Row>
+        <Column width={Width.TEN}>
+          <Title>Vanilla Rewards You For Making a Profit In DeFi</Title>
+          <HugeMonospace>Trade, lend, profit.</HugeMonospace>
+          <Button>Start trading</Button>
+        </Column>
+      </Row>
+    </Column>
+    <Flower
+      asBackground
+      stems={12}
+      iterations={10}
+      color={['#2C1929']}
+      maxSize='400px'
+      minSize='100vw'
+      seed={Math.random() * 1337}
+      className='heroFlower'
+    />
     <style jsx>{`
+      .heroFlower {
+        right: 0;
+        bottom: 0;
+      }
+      .heroContainer {
+        position: relative;
+      }
       .landingHero {
         --titlesize: var(--landing-hugetitlesize);
         --titlemargin: var(--landing-titlemargin);
@@ -30,7 +49,7 @@ const HeaderContent = (
         max-width: 45rem;
       }
     `}</style>
-  </Column>
+  </div>
 )
 
 const milestones = [
@@ -43,27 +62,98 @@ const milestones = [
 const IndexPage = (): JSX.Element => (
   <Layout title='Vanilla' hero={HeaderContent}>
     <Wrapper>
-      <BoxSection color={Color.DARK}>
-        <WhiteFlowers />
-        <Row>
-          <Column width={Width.FOUR}></Column>
-          <Column width={Width.EIGHT} className='profitMiningHeader'>
-            <Title>#ProfitMining</Title>
-            <HugeMonospace>
-              Mine VNL by making a profit trading tokens through Vanilla
-            </HugeMonospace>
-            <p>
-              Profit mining is the only way to create VNL tokens and mining
-              difficulty increases as the amount of capital in the Vanilla
-              system grows
-            </p>
-            <br />
-            <Button size={ButtonSize.LARGE}>Learn more</Button>
-          </Column>
-        </Row>
-      </BoxSection>
-    </Wrapper>
+      <div className='miningWrapper'>
+        <BoxSection color={Color.DARK}>
+          <div className='whiteFlowers'>
+            <Flower
+              asBackground
+              stems={12}
+              iterations={12}
+              color={[
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+              ]}
+              maxSize='400px'
+              minSize='80vw'
+              seed={Math.random() * 1256666}
+              className='whiteFlowers'
+            />
+          </div>
 
+          <div className='whiteFlowers2'>
+            <Flower
+              asBackground
+              stems={7}
+              iterations={12}
+              color={[
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+                '#ECA842',
+                '#E2553B',
+              ]}
+              maxSize='400px'
+              minSize='80vw'
+              seed={Math.random() * 1256666}
+              className='whiteFlowers'
+            />
+          </div>
+
+          <Row>
+            <Column width={Width.FOUR}></Column>
+            <Column width={Width.EIGHT} className='profitMiningHeader'>
+              <Title>#ProfitMining</Title>
+              <HugeMonospace>
+                Mine VNL by making a profit trading tokens through Vanilla
+              </HugeMonospace>
+              <p>
+                Profit mining is the only way to create VNL tokens and mining
+                difficulty increases as the amount of capital in the Vanilla
+                system grows
+              </p>
+              <br />
+              <Button>Learn more</Button>
+            </Column>
+          </Row>
+        </BoxSection>
+      </div>
+      <style jsx>{`
+        .whiteFlowers,
+        .whiteFlowers2 {
+          position: absolute;
+          left: -180px;
+          width: 400px;
+          height: 400px;
+          bottom: -40px;
+        }
+        .whiteFlowers2 {
+          bottom: auto;
+          top: -80px;
+          left: 20px;
+        }
+        .miningWrapper {
+          position: relative;
+          overflow: hidden;
+        }
+      `}</style>
+    </Wrapper>
     <Wrapper>
       <BoxSection color={Color.GRADIENT}>
         <Row>
@@ -143,6 +233,9 @@ const IndexPage = (): JSX.Element => (
           padding: var(--boxpadding);
           padding-top: 0;
           padding-bottom: 0;
+        }
+        .profitMiningHeader {
+          color: red;
         }
       `}</style>
     </BoxSection>
