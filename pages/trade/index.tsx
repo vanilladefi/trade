@@ -1,22 +1,17 @@
-import { useQuery } from '@apollo/client'
-import uniswapTokens from '@uniswap/default-token-list'
-import Image from 'next/image'
 import React, { Dispatch, SetStateAction, useState } from 'react'
-import { Cell, Column as TableColumn } from 'react-table'
 import { useWallet } from 'use-wallet'
 import { TopGradient } from '../../components/backgrounds/gradient'
 import { Column, Row, Width } from '../../components/grid/Flex'
 import { GridItem, GridTemplate } from '../../components/grid/Grid'
-import Button, { ButtonColor, ButtonSize } from '../../components/input/Button'
+import Button, { ButtonSize } from '../../components/input/Button'
 import Layout from '../../components/Layout'
 import Modal from '../../components/Modal'
-import TokenList, { TokenInfo } from '../../components/TokenList'
 import TradeFlower from '../../components/TradeFlower'
 import HugeMonospace from '../../components/typography/HugeMonospace'
 import { SmallTitle, Title } from '../../components/typography/Titles'
 import Wrapper from '../../components/Wrapper'
-import { GET_TOKEN_INFO, TokenQueryResponse } from '../../state/graphql/queries'
 import { AppActions, useWalletState } from '../../state/Wallet'
+import AvailableTokens from './AvailableTokens'
 
 type Props = {
   setTradeModalOpen: Dispatch<SetStateAction<boolean>>
@@ -113,121 +108,23 @@ const ModalContent = (): JSX.Element => (
   </Column>
 )
 
-export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
-  const { loading, data: tokenList } = useQuery(GET_TOKEN_INFO, {
-    variables: {
-      tokenList: uniswapTokens.tokens
-        .filter((token) => token.symbol !== 'WETH')
-        .map((token) => token.address),
-    },
-  })
-
-  const data: TokenInfo[] = React.useMemo(() => {
-    return tokenList
-      ? tokenList.pairs
-          .filter(
-            (pair: TokenQueryResponse) =>
-              uniswapTokens &&
-              uniswapTokens.tokens &&
-              uniswapTokens.tokens.find(
-                (token) => token.symbol === pair.token1.symbol
-              )
-          )
-          .map((pair: TokenQueryResponse) => {
-            const uniswapSDKMatch =
-              uniswapTokens &&
-              uniswapTokens.tokens &&
-              uniswapTokens.tokens.find(
-                (token) => token.symbol === pair.token1.symbol
-              )
-            return {
-              imageUrl: uniswapSDKMatch ? uniswapSDKMatch.logoURI : '',
-              name: pair.token1.name,
-              ticker: pair.token1.symbol,
-              price: parseFloat(pair.token0Price).toFixed(3),
-              liquidity: parseFloat(pair.reserveUSD).toFixed(0),
-              priceChange: '0',
-              token0: pair.token0.id,
-              token1: pair.token1.id,
-            }
-          })
-      : []
-  }, [tokenList])
-
-  const columns: TableColumn<TokenInfo>[] = React.useMemo<
-    TableColumn<TokenInfo>[]
-  >(
-    () => [
-      {
-        Header: () => null,
-        accessor: 'imageUrl',
-        Cell: ({ row }: Cell<TokenInfo>) => {
-          return (
-            <Image
-              src={row.original.imageUrl}
-              height='30px'
-              width='30px'
-              layout={'fixed'}
-            />
-          )
-        },
-      },
-      {
-        Header: 'Name',
-        accessor: 'name',
-      },
-      {
-        Header: 'Ticker',
-        accessor: 'ticker',
-      },
-      {
-        Header: 'Price',
-        accessor: 'price',
-      },
-      {
-        Header: 'Liquidity',
-        accessor: 'liquidity',
-        Cell: ({ row }: Cell<TokenInfo>) => {
-          return '$' + row.original.liquidity
-        },
-      },
-      {
-        Header: 'Change',
-        accessor: 'priceChange',
-      },
-      {
-        Header: () => null,
-        accessor: 'buy',
-        Cell: ({ row }: Cell<TokenInfo>) => (
-          <Button
-            color={ButtonColor.DARK}
-            onClick={() =>
-              trade({
-                token0: row.original.token0,
-                token1: row.original.token1,
-              })
-            }
-          >
-            Buy
-          </Button>
-        ),
-      },
-    ],
-    []
-  )
-
-  const trade = (pairInfo: { token0: string; token1: string }) => {
-    console.log(pairInfo)
-    setTradeModalOpen(true)
-  }
-
+export const BodyContent = ({
+  tradeModalOpen,
+  setTradeModalOpen,
+}: Props): JSX.Element => {
   return (
     <Wrapper>
       <Row>
         <Column width={Width.TWELVE}>
-          <h2>AVAILABLE TOKENS</h2>
           {/* <span onClick={() => setTradeModalOpen(true)}>Open latest trade</span> */}
-          {!loading && <TokenList data={data} columns={columns} />}
+          {/* <OwnedTokens
+            setTradeModalOpen={setTradeModalOpen}
+            tradeModalOpen={tradeModalOpen}
+          /> */}
+          <AvailableTokens
+            setTradeModalOpen={setTradeModalOpen}
+            tradeModalOpen={tradeModalOpen}
+          />
         </Column>
       </Row>
     </Wrapper>

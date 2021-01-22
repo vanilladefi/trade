@@ -1,9 +1,7 @@
-import Vibrant from 'node-vibrant'
-import { Palette } from 'node-vibrant/lib/color'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Column, Row, useTable } from 'react-table'
 import useWindowWidthBreakpoints from 'use-window-width-breakpoints'
-import { BreakPoint } from './GlobalStyles/Breakpoints'
+import { BreakPoint, breakPointOptions } from './GlobalStyles/Breakpoints'
 
 export type TokenInfo = {
   imageUrl: string
@@ -15,38 +13,22 @@ export type TokenInfo = {
   marketCap: string
   liquidity: string
   priceChange: string
+  gradient?: string
   buy?: boolean
+}
+
+export type ColumnWithHide<T extends TokenInfo> = Column<T> & {
+  hideBelow?: string
 }
 
 export type Props = {
   data: TokenInfo[]
-  columns: Column<TokenInfo>[]
+  columns: ColumnWithHide<TokenInfo>[]
 }
 
 //const beigeBackground = '#f3f1ea'
-const yellowBackground = '#FBF3DB'
-
-const calculateBackgroundColor = (imageUrl?: string | undefined): string => {
-  let color: string = yellowBackground
-  const bgCallback = (_: undefined | Error, result: Palette | undefined) => {
-    color =
-      result && result.Vibrant ? result.Vibrant.getHex() : yellowBackground
-  }
-  if (imageUrl && imageUrl !== '') {
-    Vibrant.from(imageUrl).getPalette(bgCallback)
-  }
-  return color
-}
 
 const TokenList = ({ data, columns }: Props): JSX.Element => {
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = useTable({ columns, data })
-
   const breakpoint = useWindowWidthBreakpoints({
     xs: BreakPoint.xs,
     sm: BreakPoint.sm,
@@ -55,19 +37,47 @@ const TokenList = ({ data, columns }: Props): JSX.Element => {
     xl: BreakPoint.xl,
   })
 
+  const [hiddenColumns, setHiddenColumns] = useState<string[]>([])
+
+  useEffect(() => {
+    const hidden: string[] = []
+    columns.forEach((column) => {
+      if (
+        column.id &&
+        column.hideBelow &&
+        breakpoint.down[column.hideBelow as keyof breakPointOptions]
+      ) {
+        hidden.push(column.accessor as string)
+      }
+    })
+    setHiddenColumns(hidden)
+  }, [data, columns])
+
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+  } = useTable({
+    columns,
+    data,
+    initialState: {
+      hiddenColumns: hiddenColumns,
+    },
+  })
+
   const getRowProps = (row: Row<TokenInfo>) => {
-    const highlightColor = calculateBackgroundColor(row.original.imageUrl)
-    const gradient = `linear-gradient(271.82deg, ${highlightColor} 78.9%, ${yellowBackground} 96.91%)`
-    console.log(gradient)
-    return {
-      style: {
-        background: gradient,
-      },
+    if (row.original.gradient) {
+      return {
+        style: {
+          background: row.original.gradient,
+        },
+      }
+    } else {
+      return {}
     }
   }
-
-  /* const showColumn = (column) =>  */
-  console.log(breakpoint)
 
   return (
     <table {...getTableProps()}>

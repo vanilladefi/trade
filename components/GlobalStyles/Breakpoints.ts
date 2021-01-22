@@ -1,3 +1,11 @@
+export type breakPointOptions = {
+  xs?: boolean
+  sm: boolean
+  md?: boolean
+  lg: boolean
+  xl?: true
+}
+
 export enum BreakPoint {
   xs = 0,
   sm = 640,
