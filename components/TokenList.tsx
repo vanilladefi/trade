@@ -51,7 +51,7 @@ const TokenList = ({ data, columns }: Props): JSX.Element => {
       }
     })
     setHiddenColumns(hidden)
-  }, [data, columns])
+  }, [columns])
 
   const {
     getTableProps,
@@ -83,9 +83,14 @@ const TokenList = ({ data, columns }: Props): JSX.Element => {
     <table {...getTableProps()}>
       <thead>
         {headerGroups.map((headerGroup) => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
+          <tr
+            {...headerGroup.getHeaderGroupProps()}
+            key={`headerGroup-${headerGroup.id}`}
+          >
             {headerGroup.headers.map((column) => (
-              <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+              <th {...column.getHeaderProps()} key={`th-${column.id}`}>
+                {column.render('Header')}
+              </th>
             ))}
           </tr>
         ))}
@@ -94,9 +99,16 @@ const TokenList = ({ data, columns }: Props): JSX.Element => {
         {rows.map((row) => {
           prepareRow(row)
           return (
-            <tr {...row.getRowProps(() => getRowProps(row))}>
+            <tr
+              {...row.getRowProps(() => getRowProps(row))}
+              key={`tr-${row.id}`}
+            >
               {row.cells.map((cell) => {
-                return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                return (
+                  <td {...cell.getCellProps()} key={`td-${cell.column.id}`}>
+                    {cell.render('Cell')}
+                  </td>
+                )
               })}
             </tr>
           )
