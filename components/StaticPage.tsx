@@ -1,16 +1,15 @@
 import cx from 'classnames'
-import useWindowWidthBreakpoints from 'use-window-width-breakpoints'
-import { BreakPoint } from 'components/GlobalStyles/Breakpoints'
-import { StaticPageType } from 'lib/staticPage'
-import Layout from 'components/Layout'
-import Wrapper from 'components/Wrapper'
+import { StaticPageType } from '../lib/staticPage'
+import { useCurrentBreakPoint } from './grid/breakpointHooks'
+import Layout from './Layout'
+import Wrapper from './Wrapper'
 
 export default function StaticPage(page: StaticPageType): JSX.Element {
-  const breakpoint = useWindowWidthBreakpoints(BreakPoint)
+  const breakpoint = useCurrentBreakPoint()
   return (
     <Layout title={`${page.title} | Vanilla`}>
       <Wrapper>
-        <div className={cx('staticPage', page.layout, breakpoint.only)}>
+        <div className={cx('staticPage', page.layout, breakpoint)}>
           <h1 className='title'>{page.title}</h1>
           {page.excerpt && <p className='excerpt'>{page.excerpt}</p>}
           <div
