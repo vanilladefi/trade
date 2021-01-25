@@ -1,5 +1,12 @@
 import { Token } from '@uniswap/sdk'
-import React, { Dispatch, ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+  Dispatch,
+  ReactNode,
+} from 'react'
 import { Connectors, useWallet } from 'use-wallet'
 
 enum AppActions {
@@ -8,11 +15,12 @@ enum AppActions {
   SAVE_WALLET_TYPE,
   RESET_WALLET_TYPE,
   SET_TOKEN_LIST,
+  HYDRATE,
 }
 
 type AppAction = {
   type: AppActions
-  payload?: string | keyof Connectors | Array<Token>
+  payload?: string | keyof Connectors | Array<Token> | WalletState
 }
 
 type WalletState = {
@@ -68,20 +76,21 @@ function stateReducer(prevState: WalletState, action: AppAction): WalletState {
     case AppActions.SET_TOKEN_LIST: {
       return { ...prevState, tokenList: action.payload as Array<Token> }
     }
+    case AppActions.HYDRATE: {
+      return action.payload as WalletState
+    }
     default: {
       return prevState
     }
   }
 }
 
-const WalletStateContext = React.createContext(initialState)
-const WalletDispatchContext = React.createContext<Dispatch<AppAction>>(
-  () => null
-)
+const WalletStateContext = createContext(initialState)
+const WalletDispatchContext = createContext<Dispatch<AppAction>>(() => null)
 
-function useWalletState(): [WalletState, React.Dispatch<AppAction>] {
-  const state = React.useContext(WalletStateContext)
-  const dispatch = React.useContext(WalletDispatchContext)
+function useWalletState(): [WalletState, Dispatch<AppAction>] {
+  const state = useContext(WalletStateContext)
+  const dispatch = useContext(WalletDispatchContext)
   return [state, dispatch]
 }
 
@@ -90,18 +99,17 @@ type ProviderProps = {
 }
 
 const WalletStateProvider = ({ children }: ProviderProps): JSX.Element => {
-  const wallet = useWallet()
-  const [state, dispatch] = React.useReducer(stateReducer, loadState())
+  const [state, dispatch] = useReducer(stateReducer, initialState)
 
-  React.useEffect(() => {
-    const previousState = loadState()
-    if (
-      state.walletType !== initialState.walletType &&
-      previousState.walletType !== initialState.walletType &&
-      wallet.status !== 'connected'
-    ) {
-      wallet.connect(previousState.walletType)
-    }
+  useEffect(() => {
+    // Hydrate the state on mount
+    const savedState = loadState()
+    dispatch({ type: AppActions.HYDRATE, payload: savedState })
+  }, [])
+
+  useEffect(() => {
+    // Save the state
+    // TODO: debounce
     saveState(state)
   }, [state])
 
@@ -114,4 +122,25 @@ const WalletStateProvider = ({ children }: ProviderProps): JSX.Element => {
   )
 }
 
-export { WalletStateProvider, useWalletState, AppActions }
+const WalletConnector = (): null => {
+  const wallet = useWallet()
+  const [{ walletType }, dispatch] = useWalletState()
+
+  useEffect(() => {
+    if (
+      walletType !== initialState.walletType &&
+      !['error', 'connected', 'connecting'].includes(wallet.status)
+    ) {
+      // This should only handle cases where we just loaded a page for
+      // the first time
+      wallet.connect(walletType)
+    } else if (wallet.status === 'error') {
+      wallet.reset()
+      dispatch({ type: AppActions.RESET_WALLET_TYPE })
+    }
+  }, [walletType, wallet.status, wallet.connect, wallet.reset])
+
+  return null
+}
+
+export { WalletStateProvider, useWalletState, AppActions, WalletConnector }

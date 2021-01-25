@@ -3,7 +3,7 @@ import Head from 'next/head'
 import React, { ReactNode } from 'react'
 import { UseWalletProvider } from 'use-wallet'
 import { client } from '../state/graphql'
-import { WalletStateProvider } from '../state/Wallet'
+import { WalletStateProvider, WalletConnector } from '../state/Wallet'
 import Footer from './Footer'
 import GlobalStyles from './GlobalStyles'
 import Header from './Header'
@@ -36,6 +36,8 @@ const Layout = ({
     >
       <WalletStateProvider>
         <ApolloProvider client={client}>
+          <WalletConnector />
+
           {/* HTML <head> */}
           <Head>
             <title>{title}</title>
