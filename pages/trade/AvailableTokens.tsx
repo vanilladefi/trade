@@ -35,6 +35,77 @@ const AvailableTokens = ({ setTradeModalOpen }: Props): JSX.Element => {
 
   const [data, setData] = useState<TokenInfo[]>([])
 
+  const columns: ColumnWithHide<TokenInfo>[] = React.useMemo<
+    ColumnWithHide<TokenInfo>[]
+  >(
+    () => [
+      {
+        id: 'imageUrl',
+        Header: () => null,
+        accessor: 'imageUrl',
+        Cell: ({ row }: Cell<TokenInfo>) => {
+          return (
+            <Image
+              src={row.original.imageUrl}
+              height='30px'
+              width='30px'
+              layout={'fixed'}
+            />
+          )
+        },
+      },
+      {
+        id: 'name',
+        Header: 'Name',
+        accessor: 'name',
+        hideBelow: 'md',
+      },
+      {
+        id: 'ticker',
+        Header: 'Ticker',
+        accessor: 'ticker',
+      },
+      {
+        id: 'price',
+        Header: 'Price',
+        accessor: 'price',
+      },
+      {
+        id: 'liquidity',
+        Header: 'Liquidity',
+        accessor: 'liquidity',
+        Cell: ({ row }: Cell<TokenInfo>) => {
+          return '$' + row.original.liquidity
+        },
+        hideBelow: 'md',
+      },
+      {
+        id: 'priceChange',
+        Header: 'Change',
+        accessor: 'priceChange',
+      },
+      {
+        id: 'buy',
+        Header: () => null,
+        accessor: 'buy',
+        Cell: ({ row }: Cell<TokenInfo>) => (
+          <Button
+            color={ButtonColor.DARK}
+            onClick={() =>
+              trade({
+                token0: row.original.token0,
+                token1: row.original.token1,
+              })
+            }
+          >
+            Buy
+          </Button>
+        ),
+      },
+    ],
+    []
+  )
+
   useEffect(() => {
     const calculateGradients = async (pairs: TokenInfo[]) => {
       const pairsWithGradients = await Promise.all(
@@ -85,70 +156,6 @@ const AvailableTokens = ({ setTradeModalOpen }: Props): JSX.Element => {
       calculateGradients(parsedPairs)
     }
   }, [tokenList])
-
-  const columns: ColumnWithHide<TokenInfo>[] = React.useMemo<
-    ColumnWithHide<TokenInfo>[]
-  >(
-    () => [
-      {
-        Header: () => null,
-        accessor: 'imageUrl',
-        Cell: ({ row }: Cell<TokenInfo>) => {
-          return (
-            <Image
-              src={row.original.imageUrl}
-              height='30px'
-              width='30px'
-              layout={'fixed'}
-            />
-          )
-        },
-      },
-      {
-        Header: 'Name',
-        accessor: 'name',
-        hideBelow: 'md',
-      },
-      {
-        Header: 'Ticker',
-        accessor: 'ticker',
-      },
-      {
-        Header: 'Price',
-        accessor: 'price',
-      },
-      {
-        Header: 'Liquidity',
-        accessor: 'liquidity',
-        Cell: ({ row }: Cell<TokenInfo>) => {
-          return '$' + row.original.liquidity
-        },
-        hideBelow: 'md',
-      },
-      {
-        Header: 'Change',
-        accessor: 'priceChange',
-      },
-      {
-        Header: () => null,
-        accessor: 'buy',
-        Cell: ({ row }: Cell<TokenInfo>) => (
-          <Button
-            color={ButtonColor.DARK}
-            onClick={() =>
-              trade({
-                token0: row.original.token0,
-                token1: row.original.token1,
-              })
-            }
-          >
-            Buy
-          </Button>
-        ),
-      },
-    ],
-    []
-  )
 
   const trade = (pairInfo: { token0: string; token1: string }) => {
     console.log(pairInfo)

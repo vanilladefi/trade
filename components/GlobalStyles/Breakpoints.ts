@@ -1,9 +1,9 @@
 export type breakPointOptions = {
-  xs?: boolean
+  xs: boolean
   sm: boolean
-  md?: boolean
+  md: boolean
   lg: boolean
-  xl?: true
+  xl: boolean
 }
 
 export enum BreakPoint {

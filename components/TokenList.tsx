@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react'
-import { Column, Row, useTable } from 'react-table'
-import useWindowWidthBreakpoints from 'use-window-width-breakpoints'
-import { BreakPoint, breakPointOptions } from './GlobalStyles/Breakpoints'
+import { AnimatePresence } from 'framer-motion'
+import React, { useEffect } from 'react'
+import { ColumnWithStrictAccessor, Row, useTable } from 'react-table'
+import { breakPointOptions } from './GlobalStyles/Breakpoints'
+import useIsSmallerThan from './grid/useIsSmallerThan'
 
 export type TokenInfo = {
   imageUrl: string
@@ -17,8 +18,11 @@ export type TokenInfo = {
   buy?: boolean
 }
 
-export type ColumnWithHide<T extends TokenInfo> = Column<T> & {
+export type ColumnWithHide<
+  T extends TokenInfo
+> = ColumnWithStrictAccessor<T> & {
   hideBelow?: string
+  align?: string
 }
 
 export type Props = {
@@ -26,32 +30,20 @@ export type Props = {
   columns: ColumnWithHide<TokenInfo>[]
 }
 
-//const beigeBackground = '#f3f1ea'
-
 const TokenList = ({ data, columns }: Props): JSX.Element => {
-  const breakpoint = useWindowWidthBreakpoints({
-    xs: BreakPoint.xs,
-    sm: BreakPoint.sm,
-    md: BreakPoint.md,
-    lg: BreakPoint.lg,
-    xl: BreakPoint.xl,
-  })
+  const isSmallerThan = useIsSmallerThan()
 
-  const [hiddenColumns, setHiddenColumns] = useState<string[]>([])
-
-  useEffect(() => {
-    const hidden: string[] = []
-    columns.forEach((column) => {
-      if (
-        column.id &&
-        column.hideBelow &&
-        breakpoint.down[column.hideBelow as keyof breakPointOptions]
-      ) {
-        hidden.push(column.accessor as string)
-      }
-    })
-    setHiddenColumns(hidden)
-  }, [columns])
+  const getHiddenColumns = (): string[] => {
+    const hidden = columns
+      .filter(
+        (column) =>
+          column.id &&
+          column.hideBelow &&
+          isSmallerThan[column.hideBelow as keyof breakPointOptions]
+      )
+      .map((column) => (column.id ? column.id : ''))
+    return hidden && hidden.length ? hidden : []
+  }
 
   const {
     getTableProps,
@@ -59,13 +51,18 @@ const TokenList = ({ data, columns }: Props): JSX.Element => {
     headerGroups,
     rows,
     prepareRow,
+    setHiddenColumns,
   } = useTable({
     columns,
     data,
     initialState: {
-      hiddenColumns: hiddenColumns,
+      hiddenColumns: getHiddenColumns(),
     },
   })
+
+  useEffect(() => {
+    setHiddenColumns(getHiddenColumns())
+  }, [columns, isSmallerThan])
 
   const getRowProps = (row: Row<TokenInfo>) => {
     if (row.original.gradient) {
@@ -80,80 +77,83 @@ const TokenList = ({ data, columns }: Props): JSX.Element => {
   }
 
   return (
-    <table {...getTableProps()}>
-      <thead>
-        {headerGroups.map((headerGroup) => (
-          <tr
-            {...headerGroup.getHeaderGroupProps()}
-            key={`headerGroup-${headerGroup.id}`}
-          >
-            {headerGroup.headers.map((column) => (
-              <th {...column.getHeaderProps()} key={`th-${column.id}`}>
-                {column.render('Header')}
-              </th>
-            ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody {...getTableBodyProps()}>
-        {rows.map((row) => {
-          prepareRow(row)
-          return (
+    <AnimatePresence>
+      <table {...getTableProps()}>
+        <thead>
+          {headerGroups.map((headerGroup) => (
             <tr
-              {...row.getRowProps(() => getRowProps(row))}
-              key={`tr-${row.id}`}
+              {...headerGroup.getHeaderGroupProps()}
+              key={`headerGroup-${headerGroup.id}`}
             >
-              {row.cells.map((cell) => {
-                return (
-                  <td {...cell.getCellProps()} key={`td-${cell.column.id}`}>
-                    {cell.render('Cell')}
-                  </td>
-                )
-              })}
+              {headerGroup.headers.map((column) => (
+                <th {...column.getHeaderProps()} key={`th-${column.id}`}>
+                  {column.render('Header')}
+                </th>
+              ))}
             </tr>
-          )
-        })}
-      </tbody>
-      <style jsx>{`
-        table {
-          border-collapse: separate;
-          table-layout: auto;
-          width: calc(100% + 34px);
-          margin-left: -1rem;
-          margin-right: -1rem;
-          font-family: var(--bodyfont);
-          font-size: var(--bodysize);
-          border-spacing: 0 13px;
-          margin-top: -13px;
-        }
-        td,
-        th {
-          text-align: left;
-          padding: var(--tablepadding);
-          border-spacing: 13px 0;
-        }
-        th {
-          font-weight: var(--theadweight);
-          font-size: var(--smallsize);
-          text-transform: uppercase;
-          color: rgba(#2c1929, 0.6);
-          padding: 0px 17px;
-        }
-        tbody tr {
-          background: var(--beige);
-        }
-        tr td:first-of-type {
-          border-top-left-radius: 9999px;
-          border-bottom-left-radius: 9999px;
-          padding-right: 0;
-        }
-        tr td:last-of-type {
-          border-top-right-radius: 9999px;
-          border-bottom-right-radius: 9999px;
-          padding-right: 0;
-        }
-      `}</style>
-    </table>
+          ))}
+        </thead>
+        <tbody {...getTableBodyProps()}>
+          {rows.map((row) => {
+            prepareRow(row)
+            return (
+              <tr
+                {...row.getRowProps(() => getRowProps(row))}
+                key={`tr-${row.id}`}
+              >
+                {row.cells.map((cell) => {
+                  return (
+                    <td {...cell.getCellProps()} key={`td-${cell.column.id}`}>
+                      {cell.render('Cell')}
+                    </td>
+                  )
+                })}
+              </tr>
+            )
+          })}
+        </tbody>
+        <style jsx>{`
+          table {
+            border-collapse: separate;
+            table-layout: auto;
+            width: calc(100% + 2rem);
+            margin-left: -1rem;
+            margin-right: -1rem;
+            font-family: var(--bodyfont);
+            font-size: var(--bodysize);
+            border-spacing: 0 13px;
+            margin-top: -13px;
+            --buttonmargin: 0;
+          }
+          td,
+          th {
+            text-align: left;
+            padding: var(--tablepadding);
+            border-spacing: 13px 0;
+          }
+          th {
+            font-weight: var(--theadweight);
+            font-size: var(--smallsize);
+            text-transform: uppercase;
+            color: rgba(#2c1929, 0.6);
+            padding: 0px 17px;
+          }
+          tbody tr {
+            background: var(--beige);
+          }
+          tr td:first-of-type {
+            border-top-left-radius: 9999px;
+            border-bottom-left-radius: 9999px;
+            padding-right: 0;
+          }
+          tr td:last-of-type {
+            border-top-right-radius: 9999px;
+            border-bottom-right-radius: 9999px;
+            padding-right: 0;
+          }
+        `}</style>
+      </table>
+    </AnimatePresence>
   )
 }
 
