@@ -111,28 +111,28 @@ const Variables = (): JSX.Element => (
       --activelinkborder: 4px solid var(--activelink);
     }
 
-    @media (min-width: ${BreakPoint.SM}px) {
+    @media (min-width: ${BreakPoint.sm}px) {
       :root {
         --rootfontsize: var(--rootfontsize-md);
         --boxpadding: var(--boxpadding-md);
       }
     }
 
-    @media (min-width: ${BreakPoint.MD}px) {
+    @media (min-width: ${BreakPoint.md}px) {
       :root {
         --rootfontsize: var(--rootfontsize-lg);
         --boxpadding: var(--boxpadding-lg);
       }
     }
 
-    @media (min-width: ${BreakPoint.LG}px) {
+    @media (min-width: ${BreakPoint.lg}px) {
       :root {
         --rootfontsize: var(--rootfontsize-xl);
         --boxpadding: var(--boxpadding-xl);
       }
     }
 
-    @media (min-width: ${BreakPoint.XL}px) {
+    @media (min-width: ${BreakPoint.xl}px) {
       :root {
         --rootfontsize: var(--rootfontsize-xxl);
       }
