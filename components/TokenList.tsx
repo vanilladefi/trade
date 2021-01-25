@@ -48,11 +48,11 @@ const TokenList = ({ data, columns }: Props): JSX.Element => {
   } = useTable({ columns, data })
 
   const breakpoint = useWindowWidthBreakpoints({
-    xs: BreakPoint.XS,
-    sm: BreakPoint.SM,
-    md: BreakPoint.MD,
-    lg: BreakPoint.LG,
-    xl: BreakPoint.XL,
+    xs: BreakPoint.xs,
+    sm: BreakPoint.sm,
+    md: BreakPoint.md,
+    lg: BreakPoint.lg,
+    xl: BreakPoint.xl,
   })
 
   const getRowProps = (row: Row<TokenInfo>) => {
