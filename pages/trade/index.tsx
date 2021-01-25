@@ -1,5 +1,6 @@
 import React, { Dispatch, SetStateAction, useState } from 'react'
 import { useWallet } from 'use-wallet'
+import AvailableTokens from '../../components/AvailableTokens'
 import { TopGradient } from '../../components/backgrounds/gradient'
 import { Column, Row, Width } from '../../components/grid/Flex'
 import { GridItem, GridTemplate } from '../../components/grid/Grid'
@@ -11,7 +12,6 @@ import HugeMonospace from '../../components/typography/HugeMonospace'
 import { SmallTitle, Title } from '../../components/typography/Titles'
 import Wrapper from '../../components/Wrapper'
 import { AppActions, useWalletState } from '../../state/Wallet'
-import AvailableTokens from './AvailableTokens'
 
 type Props = {
   setTradeModalOpen: Dispatch<SetStateAction<boolean>>

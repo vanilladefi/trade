@@ -56,7 +56,12 @@ export const GET_TOKEN_INFO = gql`
 
 export const GET_MOST_LIQUID_TOKENS = gql`
   query mostLiquid {
-    pairs(first: 100, orderBy: reserveUSD, orderDirection: desc) {
+    pairs(
+      first: 100
+      orderBy: reserveETH
+      orderDirection: desc
+      where: { token0: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2" }
+    ) {
       id
       token0 {
         id

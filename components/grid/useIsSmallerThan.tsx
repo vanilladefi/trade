@@ -1,3 +1,4 @@
+import debounce from 'lodash.debounce'
 import { useEffect, useState } from 'react'
 import { BreakPoint, breakPointOptions } from '../GlobalStyles/Breakpoints'
 
@@ -23,7 +24,7 @@ const useIsSmallerThan = (): breakPointOptions => {
   )
 
   useEffect(() => {
-    const updateSize = () => {
+    const updateSize = () =>
       setSmallerThan({
         xs: window.innerWidth < BreakPoint.xs,
         sm: window.innerWidth < BreakPoint.sm,
@@ -31,10 +32,10 @@ const useIsSmallerThan = (): breakPointOptions => {
         lg: window.innerWidth < BreakPoint.lg,
         xl: window.innerWidth < BreakPoint.xl,
       })
-    }
     if (isWindowClient) {
-      window.addEventListener('resize', updateSize)
-      return () => window.removeEventListener('resize', updateSize)
+      window.addEventListener('resize', debounce(updateSize, 300))
+      return () =>
+        window.removeEventListener('resize', debounce(updateSize, 300))
     }
   }, [isWindowClient, setSmallerThan])
 

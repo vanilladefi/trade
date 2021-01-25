@@ -10,12 +10,9 @@ import {
   useState
 } from 'react'
 import { Cell } from 'react-table'
-import Button, { ButtonColor } from '../../components/input/Button'
-import TokenList, {
-  ColumnWithHide,
-  TokenInfo
-} from '../../components/TokenList'
-import { GET_TOKEN_INFO, TokenQueryResponse } from '../../state/graphql/queries'
+import { GET_TOKEN_INFO, TokenQueryResponse } from '../state/graphql/queries'
+import Button, { ButtonColor } from './input/Button'
+import TokenList, { ColumnWithHide, TokenInfo } from './TokenList'
 
 type Props = {
   setTradeModalOpen: Dispatch<SetStateAction<boolean>>
