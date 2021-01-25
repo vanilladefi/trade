@@ -1,8 +1,8 @@
 import { AnimatePresence } from 'framer-motion'
 import React, { useEffect } from 'react'
 import { ColumnWithStrictAccessor, Row, useTable } from 'react-table'
+import { useIsSmallerThan } from '../hooks/breakpoints'
 import { breakPointOptions } from './GlobalStyles/Breakpoints'
-import { useIsSmallerThan } from './grid/breakpointHooks'
 
 export type TokenInfo = {
   imageUrl: string

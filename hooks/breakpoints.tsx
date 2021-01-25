@@ -1,6 +1,9 @@
 import debounce from 'lodash.debounce'
 import { useEffect, useState } from 'react'
-import { BreakPoint, breakPointOptions } from '../GlobalStyles/Breakpoints'
+import {
+  BreakPoint,
+  breakPointOptions
+} from '../components/GlobalStyles/Breakpoints'
 
 export const useIsSmallerThan = (): breakPointOptions => {
   const isWindowClient = typeof window === 'object'

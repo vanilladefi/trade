@@ -1,6 +1,6 @@
 import cx from 'classnames'
+import { useCurrentBreakPoint } from '../hooks/breakpoints'
 import { StaticPageType } from '../lib/staticPage'
-import { useCurrentBreakPoint } from './grid/breakpointHooks'
 import Layout from './Layout'
 import Wrapper from './Wrapper'
 
