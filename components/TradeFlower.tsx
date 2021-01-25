@@ -65,6 +65,9 @@ const TradeFlower = ({
           minSize='28rem'
           maxSize='100%'
           seed={tradeURL.transactionHash}
+          particleCount={
+            received ? received.amount * 100 : reward ? reward.amount * 100 : 0
+          }
           topLeft={receivedData}
           topRight={rewardData}
           bottomLeft={tradeURLData}

@@ -3,7 +3,7 @@ import HandFlower from '../components/backgrounds/handflower'
 import BoxSection, { Color, SeriousBox } from '../components/BoxSection'
 import { Column, Row, Width } from '../components/grid/Flex'
 import { GridItem, GridTemplate } from '../components/grid/Grid'
-import Button, { ButtonSize } from '../components/input/Button'
+import Button from '../components/input/Button'
 import Layout from '../components/Layout'
 import Timeline from '../components/Timeline'
 import HugeMonospace from '../components/typography/HugeMonospace'
@@ -170,11 +170,7 @@ const IndexPage = (): JSX.Element => (
                 your rewards by ~5%
               </p>
             </Column>
-            <Column
-              width={Width.SIX}
-              className='stakingInfo'
-              style={{ mixBlendMode: 'darken' }}
-            >
+            <Column width={Width.SIX} className='stakingInfo'>
               <Image
                 src='/images/stakinginfo.png'
                 alt='Staking Infographic'
@@ -200,7 +196,7 @@ const IndexPage = (): JSX.Element => (
               incentive changes, system upgrades and treasury allocations.
             </Highlight>
             <br />
-            <Button size={ButtonSize.LARGE}>Learn more</Button>
+            <Button>Learn more</Button>
           </Column>
         </Row>
       </BoxSection>

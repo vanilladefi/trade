@@ -11,7 +11,7 @@ import { calcMap, calcClamp } from '../../utils/Calc'
 
 extend({ MeshLine, MeshLineMaterial })
 
-function easeOutQuint(t) {
+function easeInOutQuint(t) {
   return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t
 }
 
@@ -21,19 +21,32 @@ function Fatline({ curve, width, rotation, color, duration, animate }) {
   const offsetAmount = dashArray / duration
   let progress = 0
   let time = 0
+  const points = curve.length
+  let pointprogress = 0
+
+  // This makes the "brush effect"
+  const increaseSize = () => {
+    const p = pointprogress / points
+    pointprogress += 1
+    return 0.8 + 2 * Math.sin(18 * p)
+  }
 
   useFrame(() => {
     if (material.current.uniforms.dashOffset.value > -1.43 && animate) {
       progress += offsetAmount
       time = progress / 1.45
-      material.current.uniforms.dashOffset.value = easeOutQuint(time) * -1
-      material.current.uniforms.opacity.value = easeOutQuint(time) * 1
+      material.current.uniforms.dashOffset.value = easeInOutQuint(time) * -1
+      material.current.uniforms.opacity.value = easeInOutQuint(time) * 1
     }
   })
 
   return (
     <mesh raycast={MeshLineRaycast} rotation={rotation}>
-      <meshLine attach='geometry' points={curve} />
+      <meshLine
+        attach='geometry'
+        widthCallback={(pointWidth) => increaseSize()}
+        points={curve}
+      />
       <meshLineMaterial
         attach='material'
         ref={material}

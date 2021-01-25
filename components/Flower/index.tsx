@@ -3,6 +3,7 @@ import { Canvas } from 'react-three-fiber' // https://github.com/pmndrs/react-th
 import router from 'next/router'
 import { InView } from 'react-intersection-observer'
 
+import Particles from './Particles'
 import Petals from './Petals'
 
 function useHasMounted() {
@@ -17,6 +18,7 @@ type Props = {
   stems?: string | number | string[]
   iterations?: string | number | string[]
   color?: Array<string>
+  particleCount?: string | number | string[]
   maxSize: string
   minSize: string
   seed: string | number | string[]
@@ -31,6 +33,7 @@ type Props = {
 const Flower = ({
   stems,
   iterations,
+  particleCount,
   color,
   maxSize,
   minSize,
@@ -46,7 +49,7 @@ const Flower = ({
   const onMouseMove = useCallback(
     ({ clientX: x, clientY: y }) =>
       (mouse.current = [x - window.innerWidth / 2, y - window.innerHeight / 2]),
-    []
+    [],
   )
 
   // set defaults if nothing is in url
@@ -111,7 +114,7 @@ const Flower = ({
                 <Canvas
                   pixelRatio={Math.min(
                     2,
-                    isMobile ? window.devicePixelRatio : 1
+                    isMobile ? window.devicePixelRatio : 1,
                   )}
                   camera={{ fov: 80, position: [0, 0, 19] }}
                   onMouseMove={onMouseMove}
@@ -126,6 +129,7 @@ const Flower = ({
                     animate={inView}
                     asBackground={false}
                   />
+                  <Particles count={particleCount} mouse={mouse} />
                 </Canvas>
               </div>
               {topLeft && (
