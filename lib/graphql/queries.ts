@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from 'graphql-request'
 import tokenList from '@uniswap/default-token-list'
 
 export const WETH = tokenList.tokens.find(

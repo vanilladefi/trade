@@ -15,8 +15,11 @@ import HugeMonospace from '../../components/typography/HugeMonospace'
 import { SmallTitle, Title } from '../../components/typography/Titles'
 import Wrapper from '../../components/Wrapper'
 import { AppActions, useWalletState } from '../../state/Wallet'
-import { client } from '../../state/graphql'
-import { GET_TOKEN_INFO, TokenQueryResponse } from '../../state/graphql/queries'
+import {
+  uniswapClient,
+  GET_TOKEN_INFO,
+  TokenQueryResponse,
+} from '../../lib/graphql'
 import { TokenInfo } from '../../components/TokenList'
 import { HandleTradeClick } from 'types/Trade'
 
@@ -162,13 +165,10 @@ export default function TradePage({ tokenPairs }: PageProps): JSX.Element {
 export async function getStaticProps(): Promise<
   GetStaticPropsResult<PageProps>
 > {
-  const { data = null } = await client.query({
-    query: GET_TOKEN_INFO,
-    variables: {
-      tokenList: uniswapTokens?.tokens
-        .filter((token) => token.symbol !== 'WETH')
-        .map((token) => token.address),
-    },
+  const data = await uniswapClient.request(GET_TOKEN_INFO, {
+    tokenList: uniswapTokens?.tokens
+      .filter((token) => token.symbol !== 'WETH')
+      .map((token) => token.address),
   })
 
   if (!data) {

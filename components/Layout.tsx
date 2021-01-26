@@ -1,8 +1,6 @@
-import { ApolloProvider } from '@apollo/client/react/context'
 import Head from 'next/head'
 import React, { ReactNode } from 'react'
 import { UseWalletProvider } from 'use-wallet'
-import { client } from '../state/graphql'
 import { WalletStateProvider, WalletConnector } from '../state/Wallet'
 import Footer from './Footer'
 import GlobalStyles from './GlobalStyles'
@@ -35,33 +33,31 @@ const Layout = ({
       }}
     >
       <WalletStateProvider>
-        <ApolloProvider client={client}>
-          <WalletConnector />
+        <WalletConnector />
 
-          {/* HTML <head> */}
-          <Head>
-            <title>{title}</title>
-            <meta charSet='utf-8' />
-            <meta
-              name='viewport'
-              content='initial-scale=1.0, width=device-width'
-            />
-          </Head>
+        {/* HTML <head> */}
+        <Head>
+          <title>{title}</title>
+          <meta charSet='utf-8' />
+          <meta
+            name='viewport'
+            content='initial-scale=1.0, width=device-width'
+          />
+        </Head>
 
-          <WalletModal />
+        <WalletModal />
 
-          {/* Header, nav */}
-          <Header children={hero} renderChildren={heroRenderer} />
+        {/* Header, nav */}
+        <Header children={hero} renderChildren={heroRenderer} />
 
-          {/* Site content */}
-          {children}
+        {/* Site content */}
+        {children}
 
-          {/* Footer */}
-          <Footer />
+        {/* Footer */}
+        <Footer />
 
-          {/* Global CSS, like variables & fonts */}
-          <GlobalStyles />
-        </ApolloProvider>
+        {/* Global CSS, like variables & fonts */}
+        <GlobalStyles />
       </WalletStateProvider>
     </UseWalletProvider>
   )
