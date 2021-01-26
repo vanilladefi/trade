@@ -124,12 +124,9 @@ const AvailableTokens = ({ setTradeModalOpen }: Props): JSX.Element => {
             )
         )
         .map((pair: TokenQueryResponse) => {
-          const uniswapSDKMatch =
-            uniswapTokens &&
-            uniswapTokens.tokens &&
-            uniswapTokens.tokens.find(
-              (token) => token.symbol === pair.token1.symbol
-            )
+          const uniswapSDKMatch = uniswapTokens?.tokens.find(
+            (token) => token.symbol === pair.token1.symbol
+          )
 
           return {
             imageUrl: uniswapSDKMatch ? uniswapSDKMatch.logoURI : '',
