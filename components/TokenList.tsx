@@ -11,7 +11,7 @@ export type TokenInfo = {
   price: string
   token0: string
   token1: string
-  marketCap: string
+  marketCap?: string
   liquidity: string
   priceChange: string
   gradient?: string
@@ -25,25 +25,13 @@ export type ColumnWithHide<
   align?: string
 }
 
-export type Props = {
+type Props = {
   data: TokenInfo[]
   columns: ColumnWithHide<TokenInfo>[]
 }
 
-const TokenList = ({ data, columns }: Props): JSX.Element => {
+export default function TokenList({ data, columns }: Props): JSX.Element {
   const isSmallerThan = useIsSmallerThan()
-
-  const getHiddenColumns = (): string[] => {
-    const hidden = columns
-      .filter(
-        (column) =>
-          column.id &&
-          column.hideBelow &&
-          isSmallerThan[column.hideBelow as keyof breakPointOptions]
-      )
-      .map((column) => column?.id ?? '')
-    return hidden && hidden.length ? hidden : []
-  }
 
   const {
     getTableProps,
@@ -56,25 +44,13 @@ const TokenList = ({ data, columns }: Props): JSX.Element => {
     columns,
     data,
     initialState: {
-      hiddenColumns: getHiddenColumns(),
+      hiddenColumns: getHiddenColumns(columns, isSmallerThan),
     },
   })
 
   useEffect(() => {
-    setHiddenColumns(getHiddenColumns())
-  }, [columns, isSmallerThan])
-
-  const getRowProps = (row: Row<TokenInfo>) => {
-    if (row.original.gradient) {
-      return {
-        style: {
-          background: row.original.gradient,
-        },
-      }
-    } else {
-      return {}
-    }
-  }
+    setHiddenColumns(getHiddenColumns(columns, isSmallerThan))
+  }, [columns, isSmallerThan, setHiddenColumns])
 
   return (
     <AnimatePresence>
@@ -157,4 +133,27 @@ const TokenList = ({ data, columns }: Props): JSX.Element => {
   )
 }
 
-export default TokenList
+const getHiddenColumns = (
+  columns: ColumnWithHide<TokenInfo>[],
+  isSmallerThan: breakPointOptions
+): string[] =>
+  columns
+    .filter(
+      (column) =>
+        column.id &&
+        column.hideBelow &&
+        isSmallerThan[column.hideBelow as keyof breakPointOptions]
+    )
+    .map((column) => column?.id ?? '')
+
+const getRowProps = (row: Row<TokenInfo>) => {
+  if (row.original.gradient) {
+    return {
+      style: {
+        background: row.original.gradient,
+      },
+    }
+  } else {
+    return {}
+  }
+}

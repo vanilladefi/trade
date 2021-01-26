@@ -1,5 +1,8 @@
-import React, { Dispatch, SetStateAction, useState } from 'react'
+import React, { useCallback, useState } from 'react'
+import { GetStaticPropsResult } from 'next'
 import { useWallet } from 'use-wallet'
+import uniswapTokens from '@uniswap/default-token-list'
+import Vibrant from 'node-vibrant'
 import AvailableTokens from '../../components/AvailableTokens'
 import { TopGradient } from '../../components/backgrounds/gradient'
 import { Column, Row, Width } from '../../components/grid/Flex'
@@ -12,13 +15,21 @@ import HugeMonospace from '../../components/typography/HugeMonospace'
 import { SmallTitle, Title } from '../../components/typography/Titles'
 import Wrapper from '../../components/Wrapper'
 import { AppActions, useWalletState } from '../../state/Wallet'
+import { client } from '../../state/graphql'
+import { GET_TOKEN_INFO, TokenQueryResponse } from '../../state/graphql/queries'
+import { TokenInfo } from '../../components/TokenList'
+import { HandleTradeClick } from 'types/Trade'
 
-type Props = {
-  onTradeModalOpen: Dispatch<SetStateAction<boolean>>
-  tradeModalOpen: boolean
+type PageProps = {
+  tokenPairs: TokenInfo[]
 }
 
-export const HeaderContent = (): JSX.Element => {
+type BodyProps = {
+  tokenPairs: TokenInfo[]
+  onTradeClick: HandleTradeClick
+}
+
+const HeaderContent = (): JSX.Element => {
   const [, dispatch] = useWalletState()
   const wallet = useWallet()
   return (
@@ -108,10 +119,7 @@ const ModalContent = (): JSX.Element => (
   </Column>
 )
 
-export const BodyContent = ({
-  tradeModalOpen,
-  onTradeModalOpen,
-}: Props): JSX.Element => {
+const BodyContent = ({ tokenPairs, onTradeClick }: BodyProps): JSX.Element => {
   return (
     <Wrapper>
       <Row>
@@ -122,8 +130,8 @@ export const BodyContent = ({
             tradeModalOpen={tradeModalOpen}
           /> */}
           <AvailableTokens
-            onTradeModalOpen={onTradeModalOpen}
-            tradeModalOpen={tradeModalOpen}
+            tokenPairs={tokenPairs}
+            onTradeClick={onTradeClick}
           />
         </Column>
       </Row>
@@ -131,21 +139,90 @@ export const BodyContent = ({
   )
 }
 
-const TradePage = (): JSX.Element => {
+export default function TradePage({ tokenPairs }: PageProps): JSX.Element {
   const [modalOpen, setModalOpen] = useState(false)
+
+  const handleTradeClick = useCallback((pairInfo) => {
+    console.log(pairInfo)
+    setModalOpen(true)
+  }, [])
+
   return (
     <>
       <Modal open={modalOpen} onRequestClose={() => setModalOpen(false)}>
         <ModalContent />
       </Modal>
       <Layout title='Trade | Vanilla' heroRenderer={HeaderContent}>
-        <BodyContent
-          onTradeModalOpen={setModalOpen}
-          tradeModalOpen={modalOpen}
-        />
+        <BodyContent tokenPairs={tokenPairs} onTradeClick={handleTradeClick} />
       </Layout>
     </>
   )
 }
 
-export default TradePage
+export async function getStaticProps(): Promise<
+  GetStaticPropsResult<PageProps>
+> {
+  const { data = null } = await client.query({
+    query: GET_TOKEN_INFO,
+    variables: {
+      tokenList: uniswapTokens?.tokens
+        .filter((token) => token.symbol !== 'WETH')
+        .map((token) => token.address),
+    },
+  })
+
+  if (!data) {
+    throw new Error('Unable to fetch token listing')
+  }
+
+  const parsedPairs = parsePairs(data?.pairs || [])
+  const pairsWithGradients = await calculateGradients(parsedPairs)
+
+  return {
+    props: {
+      tokenPairs: pairsWithGradients,
+    },
+    revalidate: 60,
+  }
+}
+
+function parsePairs(pairs: TokenQueryResponse[]): TokenInfo[] {
+  return pairs
+    .filter((pair: TokenQueryResponse) =>
+      uniswapTokens?.tokens.find((token) => token.symbol === pair.token1.symbol)
+    )
+    .map((pair: TokenQueryResponse) => {
+      const uniswapSDKMatch = uniswapTokens?.tokens.find(
+        (token) => token.symbol === pair.token1.symbol
+      )
+      return {
+        imageUrl: uniswapSDKMatch ? uniswapSDKMatch.logoURI : '',
+        name: pair.token1.name,
+        ticker: pair.token1.symbol,
+        price: parseFloat(pair.token0Price).toFixed(3),
+        liquidity: parseFloat(pair.reserveUSD).toFixed(0),
+        priceChange: '0',
+        token0: pair.token0.id,
+        token1: pair.token1.id,
+      }
+    })
+}
+
+const yellowBackground = '#FBF3DB'
+
+async function calculateGradients(pairs: TokenInfo[]) {
+  const pairsWithGradients = await Promise.all(
+    pairs.map(async (pair) => {
+      if (pair.imageUrl && pair.imageUrl !== '') {
+        const palette = await Vibrant.from(pair.imageUrl).getPalette()
+        const highlightColor =
+          palette && palette.LightVibrant
+            ? palette.LightVibrant.getHex()
+            : yellowBackground
+        pair.gradient = `linear-gradient(271.82deg, ${yellowBackground} 78.9%, ${highlightColor} 120%`
+      }
+      return pair
+    })
+  )
+  return pairsWithGradients
+}
