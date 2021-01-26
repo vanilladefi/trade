@@ -18,7 +18,7 @@ const yellowBackground = '#FBF3DB'
 const AvailableTokens = ({ setTradeModalOpen }: Props): JSX.Element => {
   const { loading, data: tokenList } = useQuery(GET_TOKEN_INFO, {
     variables: {
-      tokenList: uniswapTokens.tokens
+      tokenList: uniswapTokens?.tokens
         .filter((token) => token.symbol !== 'WETH')
         .map((token) => token.address),
     },
