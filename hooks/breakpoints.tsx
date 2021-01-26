@@ -36,9 +36,9 @@ export const useIsSmallerThan = (): breakPointOptions => {
         xl: window.innerWidth < BreakPoint.xl,
       })
     if (isWindowClient) {
-      window.addEventListener('resize', debounce(updateSize, 300))
-      return () =>
-        window.removeEventListener('resize', debounce(updateSize, 300))
+      const update = debounce(updateSize, 300)
+      window.addEventListener('resize', update)
+      return () => window.removeEventListener('resize', update)
     }
   }, [isWindowClient, setSmallerThan])
 

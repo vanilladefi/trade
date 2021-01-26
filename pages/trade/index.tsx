@@ -110,7 +110,7 @@ const ModalContent = (): JSX.Element => (
 
 export const BodyContent = ({
   tradeModalOpen,
-  setTradeModalOpen,
+  onTradeModalOpen,
 }: Props): JSX.Element => {
   return (
     <Wrapper>

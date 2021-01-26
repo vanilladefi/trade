@@ -107,8 +107,7 @@ const AvailableTokens = ({ setTradeModalOpen }: Props): JSX.Element => {
               palette && palette.LightVibrant
                 ? palette.LightVibrant.getHex()
                 : yellowBackground
-            const gradient = `linear-gradient(271.82deg, ${yellowBackground} 78.9%, ${highlightColor} 120%`
-            pair = Object.assign(pair, { gradient: gradient })
+            pair.gradient = `linear-gradient(271.82deg, ${yellowBackground} 78.9%, ${highlightColor} 120%`
           }
           return pair
         })
