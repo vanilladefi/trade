@@ -125,9 +125,7 @@ const AvailableTokens = ({ setTradeModalOpen }: Props): JSX.Element => {
       const parsedPairs: TokenInfo[] = tokenList.pairs
         .filter(
           (pair: TokenQueryResponse) =>
-            uniswapTokens &&
-            uniswapTokens.tokens &&
-            uniswapTokens.tokens.find(
+            uniswapTokens?.tokens.find(
               (token) => token.symbol === pair.token1.symbol
             )
         )
