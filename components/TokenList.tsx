@@ -41,7 +41,7 @@ const TokenList = ({ data, columns }: Props): JSX.Element => {
           column.hideBelow &&
           isSmallerThan[column.hideBelow as keyof breakPointOptions]
       )
-      .map((column) => (column?.id ?? ''))
+      .map((column) => column?.id ?? '')
     return hidden && hidden.length ? hidden : []
   }
 

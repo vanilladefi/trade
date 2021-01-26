@@ -9,13 +9,13 @@ import Button, { ButtonColor } from './input/Button'
 import TokenList, { ColumnWithHide, TokenInfo } from './TokenList'
 
 type Props = {
-  setTradeModalOpen: Dispatch<SetStateAction<boolean>>
+  onTradeModalOpen: Dispatch<SetStateAction<boolean>>
   tradeModalOpen: boolean
 }
 
 const yellowBackground = '#FBF3DB'
 
-const AvailableTokens = ({ setTradeModalOpen }: Props): JSX.Element => {
+const AvailableTokens = ({ onTradeModalOpen }: Props): JSX.Element => {
   const { loading, data: tokenList } = useQuery(GET_TOKEN_INFO, {
     variables: {
       tokenList: uniswapTokens?.tokens
@@ -116,11 +116,10 @@ const AvailableTokens = ({ setTradeModalOpen }: Props): JSX.Element => {
     }
     if (tokenList) {
       const parsedPairs: TokenInfo[] = tokenList.pairs
-        .filter(
-          (pair: TokenQueryResponse) =>
-            uniswapTokens?.tokens.find(
-              (token) => token.symbol === pair.token1.symbol
-            )
+        .filter((pair: TokenQueryResponse) =>
+          uniswapTokens?.tokens.find(
+            (token) => token.symbol === pair.token1.symbol
+          )
         )
         .map((pair: TokenQueryResponse) => {
           const uniswapSDKMatch = uniswapTokens?.tokens.find(
@@ -144,13 +143,13 @@ const AvailableTokens = ({ setTradeModalOpen }: Props): JSX.Element => {
 
   const trade = (pairInfo: { token0: string; token1: string }) => {
     console.log(pairInfo)
-    setTradeModalOpen(true)
+    onTradeModalOpen(true)
   }
 
   return (
     <>
       <h2>AVAILABLE TOKENS</h2>
-      {/* <span onClick={() => setTradeModalOpen(true)}>Open latest trade</span> */}
+      {/* <span onClick={() => onTradeModalOpen(true)}>Open latest trade</span> */}
       {!loading && <TokenList data={data} columns={columns} />}
     </>
   )

@@ -1,8 +1,8 @@
 import cx from 'classnames'
-import { useCurrentBreakPoint } from '../hooks/breakpoints'
-import { StaticPageType } from '../lib/staticPage'
-import Layout from './Layout'
-import Wrapper from './Wrapper'
+import { useCurrentBreakPoint } from 'hooks/breakpoints'
+import { StaticPageType } from 'lib/staticPage'
+import Layout from 'components/Layout'
+import Wrapper from 'components/Wrapper'
 
 export default function StaticPage(page: StaticPageType): JSX.Element {
   const breakpoint = useCurrentBreakPoint()

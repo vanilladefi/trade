@@ -14,7 +14,7 @@ import Wrapper from '../../components/Wrapper'
 import { AppActions, useWalletState } from '../../state/Wallet'
 
 type Props = {
-  setTradeModalOpen: Dispatch<SetStateAction<boolean>>
+  onTradeModalOpen: Dispatch<SetStateAction<boolean>>
   tradeModalOpen: boolean
 }
 
@@ -116,13 +116,13 @@ export const BodyContent = ({
     <Wrapper>
       <Row>
         <Column width={Width.TWELVE}>
-          {/* <span onClick={() => setTradeModalOpen(true)}>Open latest trade</span> */}
+          {/* <span onClick={() => onTradeModalOpen(true)}>Open latest trade</span> */}
           {/* <OwnedTokens
-            setTradeModalOpen={setTradeModalOpen}
+            onTradeModalOpen={onTradeModalOpen}
             tradeModalOpen={tradeModalOpen}
           /> */}
           <AvailableTokens
-            setTradeModalOpen={setTradeModalOpen}
+            onTradeModalOpen={onTradeModalOpen}
             tradeModalOpen={tradeModalOpen}
           />
         </Column>
@@ -140,7 +140,7 @@ const TradePage = (): JSX.Element => {
       </Modal>
       <Layout title='Trade | Vanilla' heroRenderer={HeaderContent}>
         <BodyContent
-          setTradeModalOpen={setModalOpen}
+          onTradeModalOpen={setModalOpen}
           tradeModalOpen={modalOpen}
         />
       </Layout>
