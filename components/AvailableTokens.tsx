@@ -2,13 +2,7 @@ import { useQuery } from '@apollo/client'
 import uniswapTokens from '@uniswap/default-token-list'
 import Image from 'next/image'
 import Vibrant from 'node-vibrant'
-import {
-  default as React,
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useState
-} from 'react'
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { Cell } from 'react-table'
 import { GET_TOKEN_INFO, TokenQueryResponse } from '../state/graphql/queries'
 import Button, { ButtonColor } from './input/Button'
