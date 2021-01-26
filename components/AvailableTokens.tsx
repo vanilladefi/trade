@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client'
 import uniswapTokens from '@uniswap/default-token-list'
 import Image from 'next/image'
-import { default as Vibrant } from 'node-vibrant'
+import Vibrant from 'node-vibrant'
 import {
   default as React,
   Dispatch,
