@@ -53,6 +53,10 @@ export default function StaticPage(page: StaticPageType): JSX.Element {
             padding: 0 0 4rem;
           }
         }
+
+        .faq .content > img {
+          max-width: 100%;
+        }
       `}</style>
     </Layout>
   )
