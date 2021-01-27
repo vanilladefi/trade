@@ -1,16 +1,14 @@
 import cx from 'classnames'
-import useWindowWidthBreakpoints from 'use-window-width-breakpoints'
-import { BreakPoint } from 'components/GlobalStyles/Breakpoints'
 import { StaticPageType } from 'lib/staticPage'
+import { BreakPoint } from 'components/GlobalStyles/Breakpoints'
 import Layout from 'components/Layout'
 import Wrapper from 'components/Wrapper'
 
 export default function StaticPage(page: StaticPageType): JSX.Element {
-  const breakpoint = useWindowWidthBreakpoints(BreakPoint)
   return (
     <Layout title={`${page.title} | Vanilla`}>
       <Wrapper>
-        <div className={cx('staticPage', page.layout, breakpoint.only)}>
+        <div className={cx('staticPage', page.layout)}>
           <h1 className='title'>{page.title}</h1>
           {page.excerpt && <p className='excerpt'>{page.excerpt}</p>}
           <div
@@ -23,12 +21,6 @@ export default function StaticPage(page: StaticPageType): JSX.Element {
       <style global jsx>{`
         .faq {
           padding: 4rem;
-        }
-        .faq.sm {
-          padding: 2rem 2rem 4rem;
-        }
-        .faq.xs {
-          padding: 0 0 4rem;
         }
 
         .faq .content ul {
@@ -46,9 +38,20 @@ export default function StaticPage(page: StaticPageType): JSX.Element {
           grid-template-columns: 1fr 1fr;
           grid-gap: 2rem;
         }
-        .faq.xs .content > ul,
-        .faq.sm .content > ul {
-          grid-template-columns: 1fr;
+
+        @media (max-width: ${BreakPoint.sm}px) {
+          .faq {
+            padding: 2rem 2rem 4rem;
+          }
+          .faq .content > ul {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: ${BreakPoint.xs}px) {
+          .faq {
+            padding: 0 0 4rem;
+          }
         }
       `}</style>
     </Layout>

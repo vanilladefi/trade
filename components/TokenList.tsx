@@ -1,9 +1,20 @@
-import Vibrant from 'node-vibrant'
-import { Palette } from 'node-vibrant/lib/color'
-import React from 'react'
-import { Column, Row, useTable } from 'react-table'
-import useWindowWidthBreakpoints from 'use-window-width-breakpoints'
-import { BreakPoint } from './GlobalStyles/Breakpoints'
+import Image from 'next/image'
+import React, { useMemo, useEffect } from 'react'
+import {
+  Cell,
+  CellPropGetter,
+  Column,
+  ColumnInstance,
+  HeaderPropGetter,
+  RowPropGetter,
+  TableKeyedProps,
+  useTable,
+  useFlexLayout,
+} from 'react-table'
+import { useIsSmallerThan } from '../hooks/breakpoints'
+import { breakPointOptions } from './GlobalStyles/Breakpoints'
+import { HandleTradeClick } from 'types/Trade'
+import Button, { ButtonColor } from './input/Button'
 
 export type TokenInfo = {
   imageUrl: string
@@ -12,127 +23,251 @@ export type TokenInfo = {
   price: string
   token0: string
   token1: string
-  marketCap: string
+  marketCap?: string
   liquidity: string
   priceChange: string
-  buy?: boolean
+  gradient?: string
 }
 
-export type Props = {
-  data: TokenInfo[]
-  columns: Column<TokenInfo>[]
+type ExtraColumnFields = {
+  hideBelow?: string
+  align?: string
 }
 
-//const beigeBackground = '#f3f1ea'
-const yellowBackground = '#FBF3DB'
+type TokenInfoColumn = Column<TokenInfo & { buy?: string }> & ExtraColumnFields
 
-const calculateBackgroundColor = (imageUrl?: string | undefined): string => {
-  let color: string = yellowBackground
-  const bgCallback = (_: undefined | Error, result: Palette | undefined) => {
-    color =
-      result && result.Vibrant ? result.Vibrant.getHex() : yellowBackground
-  }
-  if (imageUrl && imageUrl !== '') {
-    Vibrant.from(imageUrl).getPalette(bgCallback)
-  }
-  return color
+type TokenListProps = {
+  tokenPairs: TokenInfo[]
+  onTradeClick: HandleTradeClick
 }
 
-const TokenList = ({ data, columns }: Props): JSX.Element => {
+const headerProps: HeaderPropGetter<TokenInfo> = (props, { column }) =>
+  getStyles(props, column)
+
+const cellProps: CellPropGetter<TokenInfo> = (props, { cell }) =>
+  getStyles(props, cell.column)
+
+const getStyles = (
+  props: Partial<TableKeyedProps>,
+  column: ColumnInstance<TokenInfo> & ExtraColumnFields
+) => [
+  props,
+  {
+    style: {
+      justifyContent: column?.align === 'right' ? 'flex-end' : 'flex-start',
+      alignItems: 'center',
+      display: 'flex',
+    },
+  },
+]
+
+const rowProps: RowPropGetter<TokenInfo> = (props, { row }) => [
+  props,
+  {
+    style: {
+      background: row?.original?.gradient || '',
+      backgroundRepeat: 'no-repeat',
+      backgroundAttachment: 'local',
+    },
+  },
+]
+
+export default function TokenList({
+  tokenPairs,
+  onTradeClick,
+}: TokenListProps): JSX.Element {
+  const isSmallerThan = useIsSmallerThan()
+
+  const defaultColumn = React.useMemo(
+    () => ({
+      // When using the useFlexLayout:
+      minWidth: 1, // minWidth is only used as a limit for resizing
+      width: 2, // width is used for both the flex-basis and flex-grow
+      maxWidth: 200, // maxWidth is only used as a limit for resizing
+    }),
+    []
+  )
+
+  const columns = useMemo(() => getColumns(onTradeClick), [onTradeClick])
+
   const {
     getTableProps,
     getTableBodyProps,
     headerGroups,
     rows,
     prepareRow,
-  } = useTable({ columns, data })
+    setHiddenColumns,
+  } = useTable(
+    {
+      columns,
+      data: tokenPairs,
+      defaultColumn,
+    },
+    useFlexLayout
+  )
 
-  const breakpoint = useWindowWidthBreakpoints({
-    xs: BreakPoint.xs,
-    sm: BreakPoint.sm,
-    md: BreakPoint.md,
-    lg: BreakPoint.lg,
-    xl: BreakPoint.xl,
-  })
-
-  const getRowProps = (row: Row<TokenInfo>) => {
-    const highlightColor = calculateBackgroundColor(row.original.imageUrl)
-    const gradient = `linear-gradient(271.82deg, ${highlightColor} 78.9%, ${yellowBackground} 96.91%)`
-    console.log(gradient)
-    return {
-      style: {
-        background: gradient,
-      },
-    }
-  }
-
-  /* const showColumn = (column) =>  */
-  console.log(breakpoint)
+  useEffect(() => {
+    const hiddenColumns = getHiddenColumns(columns, isSmallerThan)
+    setHiddenColumns(hiddenColumns)
+  }, [columns, isSmallerThan, setHiddenColumns])
 
   return (
-    <table {...getTableProps()}>
-      <thead>
-        {headerGroups.map((headerGroup) => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map((column) => (
-              <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-            ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody {...getTableBodyProps()}>
-        {rows.map((row) => {
-          prepareRow(row)
-          return (
-            <tr {...row.getRowProps(() => getRowProps(row))}>
-              {row.cells.map((cell) => {
-                return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-              })}
-            </tr>
-          )
-        })}
-      </tbody>
+    <>
+      <div {...getTableProps()} className='table'>
+        <div>
+          {headerGroups.map((headerGroup) => (
+            <div
+              className='tr'
+              {...headerGroup.getHeaderGroupProps()}
+              key={`headerGroup-${headerGroup.id}`}
+            >
+              {headerGroup.headers.map((column) => (
+                <div
+                  className='th'
+                  {...column.getHeaderProps(headerProps)}
+                  key={`th-${column.id}`}
+                >
+                  {column.render('Header')}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div className='tbody' {...getTableBodyProps()}>
+          {rows.map((row) => {
+            prepareRow(row)
+            return (
+              <div
+                className='tr'
+                {...row.getRowProps(rowProps)}
+                key={`tr-${row.id}`}
+              >
+                {row.cells.map((cell) => (
+                  <div
+                    className='td'
+                    {...cell.getCellProps(cellProps)}
+                    key={`td-${cell.column.id}`}
+                  >
+                    {cell.render('Cell')}
+                  </div>
+                ))}
+              </div>
+            )
+          })}
+        </div>
+      </div>
       <style jsx>{`
-        table {
-          border-collapse: separate;
-          table-layout: auto;
-          width: calc(100% + 34px);
+        .table {
+          width: calc(100% + 2rem);
           margin-left: -1rem;
           margin-right: -1rem;
           font-family: var(--bodyfont);
           font-size: var(--bodysize);
-          border-spacing: 0 13px;
-          margin-top: -13px;
+          --buttonmargin: 0;
         }
-        td,
-        th {
-          text-align: left;
+        .td,
+        .th {
           padding: var(--tablepadding);
-          border-spacing: 13px 0;
         }
-        th {
+        .th {
           font-weight: var(--theadweight);
           font-size: var(--smallsize);
           text-transform: uppercase;
           color: rgba(#2c1929, 0.6);
-          padding: 0px 17px;
         }
-        tbody tr {
+        .tr {
+          margin-bottom: 1rem;
+          border-radius: 60px;
+        }
+        .tbody .tr {
           background: var(--beige);
         }
-        tr td:first-of-type {
-          border-top-left-radius: 9999px;
-          border-bottom-left-radius: 9999px;
-          padding-right: 0;
-        }
-        tr td:last-of-type {
-          border-top-right-radius: 9999px;
-          border-bottom-right-radius: 9999px;
-          padding-right: 0;
-        }
       `}</style>
-    </table>
+    </>
   )
 }
 
-export default TokenList
+function getHiddenColumns(
+  columns: TokenInfoColumn[],
+  isSmallerThan: breakPointOptions
+): string[] {
+  return columns
+    .filter(
+      (column) =>
+        column.hideBelow &&
+        isSmallerThan[column.hideBelow as keyof breakPointOptions]
+    )
+    .map((column) => column?.id ?? '')
+}
+
+function getColumns(onTradeClick: HandleTradeClick): TokenInfoColumn[] {
+  return [
+    {
+      id: 'imageUrl',
+      Header: '',
+      accessor: 'imageUrl',
+      width: 1,
+      Cell: ({ row }: Cell<TokenInfo>) => {
+        return (
+          <Image
+            src={row.original.imageUrl}
+            height='30px'
+            width='30px'
+            layout='intrinsic'
+          />
+        )
+      },
+    },
+    {
+      id: 'name',
+      Header: 'Name',
+      accessor: 'name',
+      hideBelow: 'md',
+      width: 3,
+    },
+    {
+      id: 'ticker',
+      Header: 'Ticker',
+      accessor: 'ticker',
+    },
+    {
+      id: 'price',
+      Header: 'Price',
+      accessor: 'price',
+    },
+    {
+      id: 'liquidity',
+      Header: 'Liquidity',
+      accessor: 'liquidity',
+      hideBelow: 'md',
+      Cell: ({ row }: Cell<TokenInfo>) => {
+        return '$' + row.original.liquidity
+      },
+    },
+    {
+      id: 'priceChange',
+      Header: 'Change',
+      accessor: 'priceChange',
+    },
+    {
+      id: 'buy',
+      Header: '',
+      accessor: 'buy',
+      align: 'right',
+      width: 1,
+      Cell: ({ row }: Cell<TokenInfo>) => (
+        <Button
+          color={ButtonColor.DARK}
+          onClick={() =>
+            onTradeClick({
+              token0: row.original.token0,
+              token1: row.original.token1,
+            })
+          }
+        >
+          Buy
+        </Button>
+      ),
+    },
+  ]
+}

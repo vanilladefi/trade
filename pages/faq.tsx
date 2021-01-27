@@ -1,6 +1,6 @@
 import { GetStaticProps } from 'next'
-import { getStaticBySlugRendered } from 'lib/staticPage'
 import StaticPage from 'components/StaticPage'
+import { getStaticBySlugRendered } from 'lib/staticPage'
 
 export default StaticPage
 

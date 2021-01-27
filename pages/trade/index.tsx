@@ -1,29 +1,38 @@
-import { useQuery } from '@apollo/client'
-import uniswapTokens from '@uniswap/default-token-list'
-import Image from 'next/image'
-import React, { Dispatch, SetStateAction, useState } from 'react'
-import { Cell, Column as TableColumn } from 'react-table'
+import React, { useCallback, useState } from 'react'
+import { GetStaticPropsResult } from 'next'
 import { useWallet } from 'use-wallet'
+import uniswapTokens from '@uniswap/default-token-list'
+import Vibrant from 'node-vibrant'
+import TokenList from '../../components/TokenList'
 import { TopGradient } from '../../components/backgrounds/gradient'
 import { Column, Row, Width } from '../../components/grid/Flex'
 import { GridItem, GridTemplate } from '../../components/grid/Grid'
-import Button, { ButtonColor, ButtonSize } from '../../components/input/Button'
+import Button, { ButtonSize } from '../../components/input/Button'
 import Layout from '../../components/Layout'
 import Modal from '../../components/Modal'
-import TokenList, { TokenInfo } from '../../components/TokenList'
 import TradeFlower from '../../components/TradeFlower'
 import HugeMonospace from '../../components/typography/HugeMonospace'
 import { SmallTitle, Title } from '../../components/typography/Titles'
 import Wrapper from '../../components/Wrapper'
-import { GET_TOKEN_INFO, TokenQueryResponse } from '../../state/graphql/queries'
 import { AppActions, useWalletState } from '../../state/Wallet'
+import {
+  uniswapClient,
+  GET_TOKEN_INFO,
+  TokenQueryResponse,
+} from '../../lib/graphql'
+import { TokenInfo } from '../../components/TokenList'
+import { HandleTradeClick } from 'types/Trade'
 
-type Props = {
-  setTradeModalOpen: Dispatch<SetStateAction<boolean>>
-  tradeModalOpen: boolean
+type PageProps = {
+  tokenPairs: TokenInfo[]
 }
 
-export const HeaderContent = (): JSX.Element => {
+type BodyProps = {
+  tokenPairs: TokenInfo[]
+  onTradeClick: HandleTradeClick
+}
+
+const HeaderContent = (): JSX.Element => {
   const [, dispatch] = useWalletState()
   const wallet = useWallet()
   return (
@@ -113,142 +122,100 @@ const ModalContent = (): JSX.Element => (
   </Column>
 )
 
-export const BodyContent = ({ setTradeModalOpen }: Props): JSX.Element => {
-  const { loading, data: tokenList } = useQuery(GET_TOKEN_INFO, {
-    variables: {
-      tokenList: uniswapTokens.tokens
-        .filter((token) => token.symbol !== 'WETH')
-        .map((token) => token.address),
-    },
-  })
-
-  const data: TokenInfo[] = React.useMemo(() => {
-    return tokenList
-      ? tokenList.pairs
-          .filter(
-            (pair: TokenQueryResponse) =>
-              uniswapTokens &&
-              uniswapTokens.tokens &&
-              uniswapTokens.tokens.find(
-                (token) => token.symbol === pair.token1.symbol
-              )
-          )
-          .map((pair: TokenQueryResponse) => {
-            const uniswapSDKMatch =
-              uniswapTokens &&
-              uniswapTokens.tokens &&
-              uniswapTokens.tokens.find(
-                (token) => token.symbol === pair.token1.symbol
-              )
-            return {
-              imageUrl: uniswapSDKMatch ? uniswapSDKMatch.logoURI : '',
-              name: pair.token1.name,
-              ticker: pair.token1.symbol,
-              price: parseFloat(pair.token0Price).toFixed(3),
-              liquidity: parseFloat(pair.reserveUSD).toFixed(0),
-              priceChange: '0',
-              token0: pair.token0.id,
-              token1: pair.token1.id,
-            }
-          })
-      : []
-  }, [tokenList])
-
-  const columns: TableColumn<TokenInfo>[] = React.useMemo<
-    TableColumn<TokenInfo>[]
-  >(
-    () => [
-      {
-        Header: () => null,
-        accessor: 'imageUrl',
-        Cell: ({ row }: Cell<TokenInfo>) => {
-          return (
-            <Image
-              src={row.original.imageUrl}
-              height='30px'
-              width='30px'
-              layout={'fixed'}
-            />
-          )
-        },
-      },
-      {
-        Header: 'Name',
-        accessor: 'name',
-      },
-      {
-        Header: 'Ticker',
-        accessor: 'ticker',
-      },
-      {
-        Header: 'Price',
-        accessor: 'price',
-      },
-      {
-        Header: 'Liquidity',
-        accessor: 'liquidity',
-        Cell: ({ row }: Cell<TokenInfo>) => {
-          return '$' + row.original.liquidity
-        },
-      },
-      {
-        Header: 'Change',
-        accessor: 'priceChange',
-      },
-      {
-        Header: () => null,
-        accessor: 'buy',
-        Cell: ({ row }: Cell<TokenInfo>) => (
-          <Button
-            color={ButtonColor.DARK}
-            onClick={() =>
-              trade({
-                token0: row.original.token0,
-                token1: row.original.token1,
-              })
-            }
-          >
-            Buy
-          </Button>
-        ),
-      },
-    ],
-    []
-  )
-
-  const trade = (pairInfo: { token0: string; token1: string }) => {
-    console.log(pairInfo)
-    setTradeModalOpen(true)
-  }
-
+const BodyContent = ({ tokenPairs, onTradeClick }: BodyProps): JSX.Element => {
   return (
     <Wrapper>
       <Row>
         <Column width={Width.TWELVE}>
+          {/* <span onClick={() => onTradeModalOpen(true)}>Open latest trade</span> */}
+          {/* <OwnedTokens
+            onTradeModalOpen={onTradeModalOpen}
+            tradeModalOpen={tradeModalOpen}
+          /> */}
           <h2>AVAILABLE TOKENS</h2>
-          {/* <span onClick={() => setTradeModalOpen(true)}>Open latest trade</span> */}
-          {!loading && <TokenList data={data} columns={columns} />}
+          <TokenList tokenPairs={tokenPairs} onTradeClick={onTradeClick} />
         </Column>
       </Row>
     </Wrapper>
   )
 }
 
-const TradePage = (): JSX.Element => {
+export default function TradePage({ tokenPairs }: PageProps): JSX.Element {
   const [modalOpen, setModalOpen] = useState(false)
+
+  const handleTradeClick = useCallback((pairInfo) => {
+    console.log(pairInfo)
+    setModalOpen(true)
+  }, [])
+
   return (
     <>
       <Modal open={modalOpen} onRequestClose={() => setModalOpen(false)}>
         <ModalContent />
       </Modal>
       <Layout title='Trade | Vanilla' heroRenderer={HeaderContent}>
-        <BodyContent
-          setTradeModalOpen={setModalOpen}
-          tradeModalOpen={modalOpen}
-        />
+        <BodyContent tokenPairs={tokenPairs} onTradeClick={handleTradeClick} />
       </Layout>
     </>
   )
 }
 
-export default TradePage
+export async function getStaticProps(): Promise<
+  GetStaticPropsResult<PageProps>
+> {
+  const data = await uniswapClient.request(GET_TOKEN_INFO, {
+    tokenList: uniswapTokens?.tokens
+      .filter((token) => token.symbol !== 'WETH')
+      .map((token) => token.address),
+  })
+
+  if (!data) {
+    throw new Error('Unable to fetch token listing')
+  }
+
+  let tokenPairs = parsePairs(data?.pairs || [])
+  tokenPairs = await addGradients(tokenPairs)
+
+  return {
+    props: {
+      tokenPairs,
+    },
+    revalidate: 60,
+  }
+}
+
+// TODO: Figure out an idiomatic position for these 2 functions
+function parsePairs(pairs: TokenQueryResponse[]): TokenInfo[] {
+  const getUniswapToken = (pair: TokenQueryResponse) =>
+    uniswapTokens?.tokens.find((token) => token.symbol === pair.token1.symbol)
+
+  return pairs.filter(getUniswapToken).map((pair: TokenQueryResponse) => {
+    const uniswapToken = getUniswapToken(pair)
+    return {
+      imageUrl: uniswapToken ? uniswapToken.logoURI : '',
+      name: pair.token1.name,
+      ticker: pair.token1.symbol,
+      price: parseFloat(pair.token0Price).toFixed(3),
+      liquidity: parseFloat(pair.reserveUSD).toFixed(0),
+      priceChange: '0',
+      token0: pair.token0.id,
+      token1: pair.token1.id,
+    }
+  })
+}
+
+const yellowBackground = '#FBF3DB'
+
+function addGradients(pairs: TokenInfo[]) {
+  return Promise.all(
+    pairs.map(async (pair) => {
+      let gradient
+      if (pair?.imageUrl) {
+        const palette = await Vibrant.from(pair.imageUrl).getPalette()
+        const tokenColor = palette?.LightVibrant?.getHex() ?? yellowBackground
+        gradient = `linear-gradient(to right, ${tokenColor} -20%, ${yellowBackground} 20%)`
+      }
+      return { ...pair, gradient }
+    })
+  )
+}
