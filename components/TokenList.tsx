@@ -2,12 +2,12 @@ import Image from 'next/image'
 import React, { useMemo, useEffect } from 'react'
 import {
   Cell,
-  Row,
-  HeaderPropGetter,
   CellPropGetter,
+  Column,
+  ColumnInstance,
+  HeaderPropGetter,
   RowPropGetter,
-  ColumnWithStrictAccessor,
-  TableRowProps,
+  TableKeyedProps,
   useTable,
   useFlexLayout,
 } from 'react-table'
@@ -27,13 +27,14 @@ export type TokenInfo = {
   liquidity: string
   priceChange: string
   gradient?: string
-  buy?: boolean
 }
 
-type Column<T extends TokenInfo> = ColumnWithStrictAccessor<T> & {
+type ExtraColumnFields = {
   hideBelow?: string
   align?: string
 }
+
+type TokenInfoColumn = Column<TokenInfo & { buy?: string }> & ExtraColumnFields
 
 type TokenListProps = {
   tokenPairs: TokenInfo[]
@@ -41,16 +42,19 @@ type TokenListProps = {
 }
 
 const headerProps: HeaderPropGetter<TokenInfo> = (props, { column }) =>
-  getStyles(props, column.align)
+  getStyles(props, column)
 
 const cellProps: CellPropGetter<TokenInfo> = (props, { cell }) =>
-  getStyles(props, cell.column.align)
+  getStyles(props, cell.column)
 
-const getStyles = (props: Partial<TableRowProps>, align = 'left') => [
+const getStyles = (
+  props: Partial<TableKeyedProps>,
+  column: ColumnInstance<TokenInfo> & ExtraColumnFields
+) => [
   props,
   {
     style: {
-      justifyContent: align === 'right' ? 'flex-end' : 'flex-start',
+      justifyContent: column?.align === 'right' ? 'flex-end' : 'flex-start',
       alignItems: 'center',
       display: 'flex',
     },
@@ -184,7 +188,7 @@ export default function TokenList({
 }
 
 function getHiddenColumns(
-  columns: Column<TokenInfo>[],
+  columns: TokenInfoColumn[],
   isSmallerThan: breakPointOptions
 ): string[] {
   return columns
@@ -196,7 +200,7 @@ function getHiddenColumns(
     .map((column) => column?.id ?? '')
 }
 
-function getColumns(onTradeClick: HandleTradeClick): Column<TokenInfo>[] {
+function getColumns(onTradeClick: HandleTradeClick): TokenInfoColumn[] {
   return [
     {
       id: 'imageUrl',
