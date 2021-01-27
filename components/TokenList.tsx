@@ -2,10 +2,14 @@ import Image from 'next/image'
 import React, { useMemo, useEffect } from 'react'
 import {
   Cell,
+  Row,
+  HeaderPropGetter,
+  CellPropGetter,
+  RowPropGetter,
   ColumnWithStrictAccessor,
   TableRowProps,
-  Row,
   useTable,
+  useFlexLayout,
 } from 'react-table'
 import { useIsSmallerThan } from '../hooks/breakpoints'
 import { breakPointOptions } from './GlobalStyles/Breakpoints'
@@ -26,9 +30,7 @@ export type TokenInfo = {
   buy?: boolean
 }
 
-export type ColumnWithHide<
-  T extends TokenInfo
-> = ColumnWithStrictAccessor<T> & {
+type Column<T extends TokenInfo> = ColumnWithStrictAccessor<T> & {
   hideBelow?: string
   align?: string
 }
@@ -38,10 +40,24 @@ type TokenListProps = {
   onTradeClick: HandleTradeClick
 }
 
-const rowProps = (
-  props: Partial<TableRowProps>,
-  { row }: { row: Row<TokenInfo> }
-) => [
+const headerProps: HeaderPropGetter<TokenInfo> = (props, { column }) =>
+  getStyles(props, column.align)
+
+const cellProps: CellPropGetter<TokenInfo> = (props, { cell }) =>
+  getStyles(props, cell.column.align)
+
+const getStyles = (props: Partial<TableRowProps>, align = 'left') => [
+  props,
+  {
+    style: {
+      justifyContent: align === 'right' ? 'flex-end' : 'flex-start',
+      alignItems: 'center',
+      display: 'flex',
+    },
+  },
+]
+
+const rowProps: RowPropGetter<TokenInfo> = (props, { row }) => [
   props,
   {
     style: {
@@ -58,6 +74,16 @@ export default function TokenList({
 }: TokenListProps): JSX.Element {
   const isSmallerThan = useIsSmallerThan()
 
+  const defaultColumn = React.useMemo(
+    () => ({
+      // When using the useFlexLayout:
+      minWidth: 1, // minWidth is only used as a limit for resizing
+      width: 2, // width is used for both the flex-basis and flex-grow
+      maxWidth: 200, // maxWidth is only used as a limit for resizing
+    }),
+    []
+  )
+
   const columns = useMemo(() => getColumns(onTradeClick), [onTradeClick])
 
   const {
@@ -67,10 +93,14 @@ export default function TokenList({
     rows,
     prepareRow,
     setHiddenColumns,
-  } = useTable({
-    columns,
-    data: tokenPairs,
-  })
+  } = useTable(
+    {
+      columns,
+      data: tokenPairs,
+      defaultColumn,
+    },
+    useFlexLayout
+  )
 
   useEffect(() => {
     const hiddenColumns = getHiddenColumns(columns, isSmallerThan)
@@ -79,74 +109,74 @@ export default function TokenList({
 
   return (
     <>
-      <table {...getTableProps()}>
-        <thead>
+      <div {...getTableProps()} className='table'>
+        <div>
           {headerGroups.map((headerGroup) => (
-            <tr
+            <div
+              className='tr'
               {...headerGroup.getHeaderGroupProps()}
               key={`headerGroup-${headerGroup.id}`}
             >
               {headerGroup.headers.map((column) => (
-                <th {...column.getHeaderProps()} key={`th-${column.id}`}>
+                <div
+                  className='th'
+                  {...column.getHeaderProps(headerProps)}
+                  key={`th-${column.id}`}
+                >
                   {column.render('Header')}
-                </th>
+                </div>
               ))}
-            </tr>
+            </div>
           ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
+        </div>
+        <div className='tbody' {...getTableBodyProps()}>
           {rows.map((row) => {
             prepareRow(row)
             return (
-              <tr {...row.getRowProps(rowProps)} key={`tr-${row.id}`}>
+              <div
+                className='tr'
+                {...row.getRowProps(rowProps)}
+                key={`tr-${row.id}`}
+              >
                 {row.cells.map((cell) => (
-                  <td {...cell.getCellProps()} key={`td-${cell.column.id}`}>
+                  <div
+                    className='td'
+                    {...cell.getCellProps(cellProps)}
+                    key={`td-${cell.column.id}`}
+                  >
                     {cell.render('Cell')}
-                  </td>
+                  </div>
                 ))}
-              </tr>
+              </div>
             )
           })}
-        </tbody>
-      </table>
+        </div>
+      </div>
       <style jsx>{`
-        table {
-          border-collapse: separate;
-          table-layout: auto;
+        .table {
           width: calc(100% + 2rem);
           margin-left: -1rem;
           margin-right: -1rem;
           font-family: var(--bodyfont);
           font-size: var(--bodysize);
-          border-spacing: 0 13px;
-          margin-top: -13px;
           --buttonmargin: 0;
         }
-        td,
-        th {
-          text-align: left;
+        .td,
+        .th {
           padding: var(--tablepadding);
-          border-spacing: 13px 0;
         }
-        th {
+        .th {
           font-weight: var(--theadweight);
           font-size: var(--smallsize);
           text-transform: uppercase;
           color: rgba(#2c1929, 0.6);
-          padding: 0px 17px;
         }
-        tbody tr {
+        .tr {
+          margin-bottom: 1rem;
+          border-radius: 60px;
+        }
+        .tbody .tr {
           background: var(--beige);
-        }
-        tr td:first-of-type {
-          border-top-left-radius: 9999px;
-          border-bottom-left-radius: 9999px;
-          padding-right: 0;
-        }
-        tr td:last-of-type {
-          border-top-right-radius: 9999px;
-          border-bottom-right-radius: 9999px;
-          padding-right: 0;
         }
       `}</style>
     </>
@@ -154,7 +184,7 @@ export default function TokenList({
 }
 
 function getHiddenColumns(
-  columns: ColumnWithHide<TokenInfo>[],
+  columns: Column<TokenInfo>[],
   isSmallerThan: breakPointOptions
 ): string[] {
   return columns
@@ -166,21 +196,20 @@ function getHiddenColumns(
     .map((column) => column?.id ?? '')
 }
 
-function getColumns(
-  onTradeClick: HandleTradeClick
-): ColumnWithHide<TokenInfo>[] {
+function getColumns(onTradeClick: HandleTradeClick): Column<TokenInfo>[] {
   return [
     {
       id: 'imageUrl',
       Header: '',
       accessor: 'imageUrl',
+      width: 1,
       Cell: ({ row }: Cell<TokenInfo>) => {
         return (
           <Image
             src={row.original.imageUrl}
             height='30px'
             width='30px'
-            layout={'fixed'}
+            layout='intrinsic'
           />
         )
       },
@@ -190,6 +219,7 @@ function getColumns(
       Header: 'Name',
       accessor: 'name',
       hideBelow: 'md',
+      width: 3,
     },
     {
       id: 'ticker',
@@ -205,10 +235,10 @@ function getColumns(
       id: 'liquidity',
       Header: 'Liquidity',
       accessor: 'liquidity',
+      hideBelow: 'md',
       Cell: ({ row }: Cell<TokenInfo>) => {
         return '$' + row.original.liquidity
       },
-      hideBelow: 'md',
     },
     {
       id: 'priceChange',
@@ -219,6 +249,8 @@ function getColumns(
       id: 'buy',
       Header: '',
       accessor: 'buy',
+      align: 'right',
+      width: 1,
       Cell: ({ row }: Cell<TokenInfo>) => (
         <Button
           color={ButtonColor.DARK}
