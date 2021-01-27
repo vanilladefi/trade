@@ -10,6 +10,8 @@
     "lint": "eslint --ignore-pattern node_modules --ignore-pattern build --ignore-pattern out ."
   },
   "dependencies": {
+    "@mdx-js/loader": "^1.6.22",
+    "@next/mdx": "^10.0.5",
     "@types/react-table": "^7.0.27",
     "@uniswap/default-token-list": "^1.5.0",
     "@uniswap/sdk": "^3.0.3",
@@ -20,6 +22,7 @@
     "graphql": "^15.4.0",
     "graphql-request": "^3.4.0",
     "gray-matter": "^4.0.2",
+    "image-size": "^0.9.3",
     "lerp": "^1.0.3",
     "lodash.debounce": "^4.0.8",
     "next": "^10.0.3",
