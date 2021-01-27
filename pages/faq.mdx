@@ -1,7 +1,9 @@
----
-title: 'Frequently Asked Questions'
-layout: faq
----
+import ResponsiveImage from 'components/typography/ResponsiveImage'
+import StaticPage from 'components/StaticPage'
+
+<StaticPage title='FAQ'>
+
+# Frequently Asked Questions
 
 ## What is Vanilla?
 
@@ -76,15 +78,15 @@ For each token you trade, Vanilla maintains two key measures:
 
 Weighted Average Exchange Rate of purchases is defined as: 
 
-<img src="/images/faq/average_fx_formula.png"/>
+<ResponsiveImage src="/images/faq/average_fx_formula.png"/>
 
 Likewise, weighted average purchase block number is defined as:
 
-<img src="/images/faq/average_block_formula.png"/>
+<ResponsiveImage src="/images/faq/average_block_formula.png"/>
 
 When a trader makes profit her profit mining reward amount is calculated according to the *VNL Reward Formula:*
 
-<img src="/images/faq/profit_mining_equation_with_expl.png"/>
+<ResponsiveImage src="/images/faq/profit_mining_equation_with_expl.png"/>
 
 Let's go through the formula component by component:
 
@@ -92,7 +94,7 @@ Let's go through the formula component by component:
 
 T_i is the amount of profit in ETH made in the trade. Technically, the profit is calculated in WEI and then divided by 1*10^15 to obtain a 1000-fold profit component from each ETH made. The profit is calculated as sell price minus the Weighted Average Exchange Rate.
 
-<img src="/images/faq/profit.png"/>
+<ResponsiveImage src="/images/faq/profit.png"/>
 
 Whenever sell price exceeds the weighted average exchange rate, the profit is positive and VNL rewards will be attributed to the investor if she closes her position.
 
@@ -102,7 +104,7 @@ Profit is calculated in nominal ETH rather than relative, meaning that a larger 
 
 The duration ratio component is in place to bootstrap usage by incentivizing early participation and longer holding periods.
 
-<img src="/images/faq/trade_duration_ratio.png"/>
+<ResponsiveImage src="/images/faq/trade_duration_ratio.png"/>
 
 The nominator describes the number of blocks the trade has been open. Keeping the trade open longer will yield higher rewards. If the duration is zero, i.e. the trade is closed in the same block it was initiated, the profit will be zero. This ensures that no flash loan attacks can be carried out.
 
@@ -116,20 +118,21 @@ The following charts and tables depict simple heuristics of the incentive mechan
 
 The first case observes the VNL attribution as a function of profits. We keep the trade duration ratios constant and inspect what happens to the attributed VNL. As we increase the sell price of the trade, while keeping the WAER constant, our profits increase. As profits increase 5-fold from 2 ETH to 10 ETH or 10-fold from 2 ETH to 20 ETH, there is a linear relationship with the increase associated with the VNL reward. 
 
-<img src="/images/faq/VNL_as_profit.jpg"/>
+<ResponsiveImage src="/images/faq/VNL_as_profit.jpg"/>
 
 The second case observes the VNL attribution when we keep profits constant, but vary the trade duration ratio. The duration ratio is determined by how early the trader is participating in the Vanilla ecosystem and how long they are keeping their positions before closing them. The following chart depicts a case in which we keep the sell block number constant but vary the weighted average block, in which the trader has opened her position.
 
-<img src="/images/faq/VNL_as_duration_ratio2.jpg"/>
+<ResponsiveImage src="/images/faq/VNL_as_duration_ratio2.jpg"/>
 
 We can easily see that when the duration ratio drops from 50 % to 10 % (factor of 0.2) also the VNL rewards decrease accordingly. 
 
 The same relationship can be seen if we keep the average opening blocks constant, but increase the closing block further into the future.
 
-<img src="/images/faq/VNL_as_duration_ratio.jpg"/>
+<ResponsiveImage src="/images/faq/VNL_as_duration_ratio.jpg"/>
 
 ## How will governance work in Vanilla?
 
 Once the governance structures are in place, VNL holders will be able to determine the direction of Vanilla by voting on a variety of things such as new features, token whitelisting, treasury grant allocations and other ecosystem efforts.
 
 Governance is planned to be implemented in Q4 2021 at which time we expect a reasonable amount of VNL token to have been mined and distributed around the ecosystem.
+</StaticPage>
