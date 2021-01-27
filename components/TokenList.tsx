@@ -149,6 +149,7 @@ const getRowProps = (row: Row<TokenInfo>) => {
       style: {
         background: row.original.gradient,
         backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'local',
       },
     }
   } else {

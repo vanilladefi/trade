@@ -176,7 +176,7 @@ export async function getStaticProps(): Promise<
   }
 
   const parsedPairs = parsePairs(data?.pairs || [])
-  const pairsWithGradients = await calculateGradients(parsedPairs)
+  const pairsWithGradients = await addGradients(parsedPairs)
 
   return {
     props: {
@@ -188,42 +188,36 @@ export async function getStaticProps(): Promise<
 
 // TODO: Figure out an idiomatic position for these 2 functions
 function parsePairs(pairs: TokenQueryResponse[]): TokenInfo[] {
-  return pairs
-    .filter((pair: TokenQueryResponse) =>
-      uniswapTokens?.tokens.find((token) => token.symbol === pair.token1.symbol)
-    )
-    .map((pair: TokenQueryResponse) => {
-      const uniswapSDKMatch = uniswapTokens?.tokens.find(
-        (token) => token.symbol === pair.token1.symbol
-      )
-      return {
-        imageUrl: uniswapSDKMatch ? uniswapSDKMatch.logoURI : '',
-        name: pair.token1.name,
-        ticker: pair.token1.symbol,
-        price: parseFloat(pair.token0Price).toFixed(3),
-        liquidity: parseFloat(pair.reserveUSD).toFixed(0),
-        priceChange: '0',
-        token0: pair.token0.id,
-        token1: pair.token1.id,
-      }
-    })
+  const getUniswapToken = (pair: TokenQueryResponse) =>
+    uniswapTokens?.tokens.find((token) => token.symbol === pair.token1.symbol)
+
+  return pairs.filter(getUniswapToken).map((pair: TokenQueryResponse) => {
+    const uniswapToken = getUniswapToken(pair)
+    return {
+      imageUrl: uniswapToken ? uniswapToken.logoURI : '',
+      name: pair.token1.name,
+      ticker: pair.token1.symbol,
+      price: parseFloat(pair.token0Price).toFixed(3),
+      liquidity: parseFloat(pair.reserveUSD).toFixed(0),
+      priceChange: '0',
+      token0: pair.token0.id,
+      token1: pair.token1.id,
+    }
+  })
 }
 
 const yellowBackground = '#FBF3DB'
 
-async function calculateGradients(pairs: TokenInfo[]) {
-  const pairsWithGradients = await Promise.all(
+function addGradients(pairs: TokenInfo[]) {
+  return Promise.all(
     pairs.map(async (pair) => {
-      if (pair.imageUrl && pair.imageUrl !== '') {
+      let gradient
+      if (pair?.imageUrl) {
         const palette = await Vibrant.from(pair.imageUrl).getPalette()
-        const highlightColor =
-          palette && palette.LightVibrant
-            ? palette.LightVibrant.getHex()
-            : yellowBackground
-        pair.gradient = `linear-gradient(271.82deg, ${yellowBackground} 78.9%, ${highlightColor} 120%)`
+        const tokenColor = palette?.LightVibrant?.getHex() ?? yellowBackground
+        gradient = `linear-gradient(to right, ${tokenColor} -20%, ${yellowBackground} 20%)`
       }
-      return pair
+      return { ...pair, gradient }
     })
   )
-  return pairsWithGradients
 }
