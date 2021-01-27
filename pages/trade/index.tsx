@@ -3,7 +3,7 @@ import { GetStaticPropsResult } from 'next'
 import { useWallet } from 'use-wallet'
 import uniswapTokens from '@uniswap/default-token-list'
 import Vibrant from 'node-vibrant'
-import AvailableTokens from '../../components/AvailableTokens'
+import TokenList from '../../components/TokenList'
 import { TopGradient } from '../../components/backgrounds/gradient'
 import { Column, Row, Width } from '../../components/grid/Flex'
 import { GridItem, GridTemplate } from '../../components/grid/Grid'
@@ -132,10 +132,8 @@ const BodyContent = ({ tokenPairs, onTradeClick }: BodyProps): JSX.Element => {
             onTradeModalOpen={onTradeModalOpen}
             tradeModalOpen={tradeModalOpen}
           /> */}
-          <AvailableTokens
-            tokenPairs={tokenPairs}
-            onTradeClick={onTradeClick}
-          />
+          <h2>AVAILABLE TOKENS</h2>
+          <TokenList tokenPairs={tokenPairs} onTradeClick={onTradeClick} />
         </Column>
       </Row>
     </Wrapper>
@@ -175,12 +173,12 @@ export async function getStaticProps(): Promise<
     throw new Error('Unable to fetch token listing')
   }
 
-  const parsedPairs = parsePairs(data?.pairs || [])
-  const pairsWithGradients = await addGradients(parsedPairs)
+  let tokenPairs = parsePairs(data?.pairs || [])
+  tokenPairs = await addGradients(tokenPairs)
 
   return {
     props: {
-      tokenPairs: pairsWithGradients,
+      tokenPairs,
     },
     revalidate: 60,
   }
