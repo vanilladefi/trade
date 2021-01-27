@@ -219,7 +219,7 @@ async function calculateGradients(pairs: TokenInfo[]) {
           palette && palette.LightVibrant
             ? palette.LightVibrant.getHex()
             : yellowBackground
-        pair.gradient = `linear-gradient(271.82deg, ${yellowBackground} 78.9%, ${highlightColor} 120%`
+        pair.gradient = `linear-gradient(271.82deg, ${yellowBackground} 78.9%, ${highlightColor} 120%)`
       }
       return pair
     })
