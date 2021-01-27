@@ -43,9 +43,6 @@ export default function TokenList({ data, columns }: Props): JSX.Element {
   } = useTable({
     columns,
     data,
-    initialState: {
-      hiddenColumns: getHiddenColumns(columns, isSmallerThan),
-    },
   })
 
   useEffect(() => {

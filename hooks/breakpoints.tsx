@@ -28,17 +28,6 @@ function parseSmallerThan(): breakPointOptions {
       }
 }
 
-function matchSizeToBreakPoint(): keyof breakPointOptions {
-  const width = isWindowClient() ? window.innerWidth : null
-  if (width) {
-    if (width <= BreakPoint.xs) return 'xs' as keyof breakPointOptions
-    if (width <= BreakPoint.sm) return 'sm' as keyof breakPointOptions
-    if (width <= BreakPoint.md) return 'md' as keyof breakPointOptions
-    if (width <= BreakPoint.lg) return 'lg' as keyof breakPointOptions
-  }
-  return 'xl' as keyof breakPointOptions
-}
-
 export const useIsSmallerThan = (): breakPointOptions => {
   const [smallerThan, setSmallerThan] = useState<breakPointOptions>(
     parseSmallerThan
@@ -46,30 +35,12 @@ export const useIsSmallerThan = (): breakPointOptions => {
 
   useEffect(() => {
     const update = debounce(() => setSmallerThan(parseSmallerThan()), 300)
+    update()
     if (isWindowClient()) window.addEventListener('resize', update)
     return () => {
       if (isWindowClient()) window.removeEventListener('resize', update)
     }
-  }, [setSmallerThan])
+  }, [])
 
   return smallerThan
-}
-
-export const useCurrentBreakPoint = (): keyof breakPointOptions => {
-  const [currentBreakPoint, setCurrentBreakPoint] = useState<
-    keyof breakPointOptions
-  >(matchSizeToBreakPoint)
-
-  useEffect(() => {
-    const update = debounce(
-      () => setCurrentBreakPoint(matchSizeToBreakPoint()),
-      300
-    )
-    if (isWindowClient()) window.addEventListener('resize', update)
-    return () => {
-      if (isWindowClient()) window.removeEventListener('resize', update)
-    }
-  }, [setCurrentBreakPoint])
-
-  return currentBreakPoint
 }

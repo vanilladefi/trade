@@ -186,6 +186,7 @@ export async function getStaticProps(): Promise<
   }
 }
 
+// TODO: Figure out an idiomatic position for these 2 functions
 function parsePairs(pairs: TokenQueryResponse[]): TokenInfo[] {
   return pairs
     .filter((pair: TokenQueryResponse) =>
