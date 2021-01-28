@@ -1,4 +1,3 @@
-import cx from 'classnames'
 import Layout from 'components/Layout'
 import Wrapper from 'components/Wrapper'
 
@@ -11,10 +10,8 @@ export default function StaticPage({ children, title }: Props): JSX.Element {
   return (
     <Layout title={`${title} | Vanilla`}>
       <Wrapper>
-        <div className={cx('staticPage')}>
-          <div
-            className='content'
-          >{children}</div>
+        <div className='staticPage'>
+          <div className='content'>{children}</div>
         </div>
       </Wrapper>
       <style jsx>{`

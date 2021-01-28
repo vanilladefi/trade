@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /*
   ------------------------------------------
   | rand:float - returns random float
@@ -27,19 +28,14 @@ export const calcRand = (min, max, ease) => {
   |
   | min:number - minimum value
   | max:number - maximum value
-  | ease:function - easing function to apply to the random value
   |
   | Get a random integer between two values,
   | with the option of easing bias.
   ------------------------------------------ */
-export const calcRandInt = (min, max, ease) => {
+export const calcRandInt = (min, max) => {
   if (max === undefined) {
     max = min
     min = 0
-  }
-  let random = Math.random()
-  if (ease) {
-    random = ease(Math.random(), 0, 1, 1)
   }
   return Math.floor(Math.random() * (max - min + 1)) + min
 }

@@ -48,7 +48,7 @@ const Layout = ({
         <WalletModal />
 
         {/* Header, nav */}
-        <Header children={hero} renderChildren={heroRenderer} />
+        <Header renderChildren={heroRenderer}>{hero}</Header>
 
         {/* Site content */}
         {children}
