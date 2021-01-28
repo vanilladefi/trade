@@ -16,19 +16,18 @@ import { SmallTitle, Title } from '../../components/typography/Titles'
 import Wrapper from '../../components/Wrapper'
 import { AppActions, useWalletState } from '../../state/Wallet'
 import {
-  uniswapClient,
-  GET_TOKEN_INFO,
-  TokenQueryResponse,
+  thegraphClient,
+  TokenInfoQuery,
+  TokenInfoQueryResponse,
 } from '../../lib/graphql'
-import { TokenInfo } from '../../components/TokenList'
-import { HandleTradeClick } from 'types/Trade'
+import { HandleTradeClick, Token } from 'types/Trade'
 
 type PageProps = {
-  tokenPairs: TokenInfo[]
+  tokens: Token[]
 }
 
 type BodyProps = {
-  tokenPairs: TokenInfo[]
+  tokens: Token[]
   onTradeClick: HandleTradeClick
 }
 
@@ -122,7 +121,7 @@ const ModalContent = (): JSX.Element => (
   </Column>
 )
 
-const BodyContent = ({ tokenPairs, onTradeClick }: BodyProps): JSX.Element => {
+const BodyContent = ({ tokens, onTradeClick }: BodyProps): JSX.Element => {
   return (
     <Wrapper>
       <Row>
@@ -133,14 +132,14 @@ const BodyContent = ({ tokenPairs, onTradeClick }: BodyProps): JSX.Element => {
             tradeModalOpen={tradeModalOpen}
           /> */}
           <h2>AVAILABLE TOKENS</h2>
-          <TokenList tokenPairs={tokenPairs} onTradeClick={onTradeClick} />
+          <TokenList tokens={tokens} onTradeClick={onTradeClick} />
         </Column>
       </Row>
     </Wrapper>
   )
 }
 
-export default function TradePage({ tokenPairs }: PageProps): JSX.Element {
+export default function TradePage({ tokens }: PageProps): JSX.Element {
   const [modalOpen, setModalOpen] = useState(false)
 
   const handleTradeClick = useCallback((pairInfo) => {
@@ -154,7 +153,7 @@ export default function TradePage({ tokenPairs }: PageProps): JSX.Element {
         <ModalContent />
       </Modal>
       <Layout title='Trade | Vanilla' heroRenderer={HeaderContent}>
-        <BodyContent tokenPairs={tokenPairs} onTradeClick={handleTradeClick} />
+        <BodyContent tokens={tokens} onTradeClick={handleTradeClick} />
       </Layout>
     </>
   )
@@ -163,59 +162,64 @@ export default function TradePage({ tokenPairs }: PageProps): JSX.Element {
 export async function getStaticProps(): Promise<
   GetStaticPropsResult<PageProps>
 > {
-  const data = await uniswapClient.request(GET_TOKEN_INFO, {
-    tokenList: uniswapTokens?.tokens
-      .filter((token) => token.symbol !== 'WETH')
-      .map((token) => token.address),
-  })
+  // TODO: Should this be configurable?
+  const chainId = 1
 
-  if (!data) {
-    throw new Error('Unable to fetch token listing')
+  // TODO: Should this be configurable?
+  const weth = {
+    symbol: 'WETH',
+    address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   }
 
-  let tokenPairs = parsePairs(data?.pairs || [])
-  tokenPairs = await addGradients(tokenPairs)
+  // Get tokens from Uniswap default-list
+  // include only tokens with specified 'chainId' and exclude WETH
+  const tokens: Token[] = uniswapTokens?.tokens.filter(
+    (token) => token.chainId === chainId && token.symbol !== weth.symbol
+  )
+
+  // Retrieve more info from The Graph's API
+  const data = await thegraphClient.request(TokenInfoQuery, {
+    weth: weth.address,
+    tokenAddresses: tokens.map(({ address }) => address.toLowerCase()),
+  })
 
   return {
     props: {
-      tokenPairs,
+      tokens: await enrichTokens(tokens, data?.tokens),
     },
     revalidate: 60,
   }
 }
 
-// TODO: Figure out an idiomatic position for these 2 functions
-function parsePairs(pairs: TokenQueryResponse[]): TokenInfo[] {
-  const getUniswapToken = (pair: TokenQueryResponse) =>
-    uniswapTokens?.tokens.find((token) => token.symbol === pair.token1.symbol)
-
-  return pairs.filter(getUniswapToken).map((pair: TokenQueryResponse) => {
-    const uniswapToken = getUniswapToken(pair)
-    return {
-      imageUrl: uniswapToken ? uniswapToken.logoURI : '',
-      name: pair.token1.name,
-      ticker: pair.token1.symbol,
-      price: parseFloat(pair.token0Price).toFixed(3),
-      liquidity: parseFloat(pair.reserveUSD).toFixed(0),
-      priceChange: '0',
-      token0: pair.token0.id,
-      token1: pair.token1.id,
-    }
-  })
-}
-
-const yellowBackground = '#FBF3DB'
-
-function addGradients(pairs: TokenInfo[]) {
+function enrichTokens(
+  tokens: Token[],
+  data: TokenInfoQueryResponse[] | undefined = [],
+  defaultColor = '#FBF3DB'
+): Promise<Token[]> {
   return Promise.all(
-    pairs.map(async (pair) => {
-      let gradient
-      if (pair?.imageUrl) {
-        const palette = await Vibrant.from(pair.imageUrl).getPalette()
-        const tokenColor = palette?.LightVibrant?.getHex() ?? yellowBackground
-        gradient = `linear-gradient(to right, ${tokenColor} -20%, ${yellowBackground} 20%)`
+    tokens.map(async (t) => {
+      // Add data from API
+      const fromAPI = data.find((d) => d?.token.id === t.address)
+      const price = fromAPI?.token0Price
+        ? parseFloat(fromAPI.token0Price)
+        : undefined
+
+      const liquidity = fromAPI?.reserveUSD
+        ? parseFloat(fromAPI.reserveUSD)
+        : undefined
+
+      // Add a gradient color based tokens logo
+      const palette = await Vibrant.from(t.logoURI).getPalette()
+      const color = palette?.LightVibrant?.getHex() ?? defaultColor
+      const gradient = `linear-gradient(to right, ${color} -20%, ${defaultColor} 20%)`
+
+      return {
+        ...t,
+        price,
+        priceChange: 0,
+        liquidity,
+        gradient,
       }
-      return { ...pair, gradient }
     })
   )
 }

@@ -13,43 +13,30 @@ import {
 } from 'react-table'
 import { useIsSmallerThan } from '../hooks/breakpoints'
 import { breakPointOptions } from './GlobalStyles/Breakpoints'
-import { HandleTradeClick } from 'types/Trade'
+import { HandleTradeClick, Token } from 'types/Trade'
 import Button, { ButtonColor } from './input/Button'
-
-export type TokenInfo = {
-  imageUrl: string
-  name: string
-  ticker: string
-  price: string
-  token0: string
-  token1: string
-  marketCap?: string
-  liquidity: string
-  priceChange: string
-  gradient?: string
-}
 
 type ExtraColumnFields = {
   hideBelow?: string
   align?: string
 }
 
-type TokenInfoColumn = Column<TokenInfo & { buy?: string }> & ExtraColumnFields
+type TokenColumn = Column<Token & { buy?: string }> & ExtraColumnFields
 
 type TokenListProps = {
-  tokenPairs: TokenInfo[]
+  tokens: Token[]
   onTradeClick: HandleTradeClick
 }
 
-const headerProps: HeaderPropGetter<TokenInfo> = (props, { column }) =>
+const headerProps: HeaderPropGetter<Token> = (props, { column }) =>
   getStyles(props, column)
 
-const cellProps: CellPropGetter<TokenInfo> = (props, { cell }) =>
+const cellProps: CellPropGetter<Token> = (props, { cell }) =>
   getStyles(props, cell.column)
 
 const getStyles = (
   props: Partial<TableKeyedProps>,
-  column: ColumnInstance<TokenInfo> & ExtraColumnFields
+  column: ColumnInstance<Token> & ExtraColumnFields
 ) => [
   props,
   {
@@ -61,7 +48,7 @@ const getStyles = (
   },
 ]
 
-const rowProps: RowPropGetter<TokenInfo> = (props, { row }) => [
+const rowProps: RowPropGetter<Token> = (props, { row }) => [
   props,
   {
     style: {
@@ -73,7 +60,7 @@ const rowProps: RowPropGetter<TokenInfo> = (props, { row }) => [
 ]
 
 export default function TokenList({
-  tokenPairs,
+  tokens,
   onTradeClick,
 }: TokenListProps): JSX.Element {
   const isSmallerThan = useIsSmallerThan()
@@ -100,7 +87,7 @@ export default function TokenList({
   } = useTable(
     {
       columns,
-      data: tokenPairs,
+      data: tokens,
       defaultColumn,
     },
     useFlexLayout
@@ -188,7 +175,7 @@ export default function TokenList({
 }
 
 function getHiddenColumns(
-  columns: TokenInfoColumn[],
+  columns: TokenColumn[],
   isSmallerThan: breakPointOptions
 ): string[] {
   return columns
@@ -200,21 +187,23 @@ function getHiddenColumns(
     .map((column) => column?.id ?? '')
 }
 
-function getColumns(onTradeClick: HandleTradeClick): TokenInfoColumn[] {
+function getColumns(onTradeClick: HandleTradeClick): TokenColumn[] {
   return [
     {
       id: 'imageUrl',
       Header: '',
-      accessor: 'imageUrl',
+      accessor: 'logoURI',
       width: 1,
-      Cell: ({ row }: Cell<TokenInfo>) => {
+      Cell: ({ row }: Cell<Token>) => {
         return (
-          <Image
-            src={row.original.imageUrl}
-            height='30px'
-            width='30px'
-            layout='intrinsic'
-          />
+          row.original.logoURI && (
+            <Image
+              src={row.original.logoURI}
+              height='30px'
+              width='30px'
+              layout='intrinsic'
+            />
+          )
         )
       },
     },
@@ -228,7 +217,7 @@ function getColumns(onTradeClick: HandleTradeClick): TokenInfoColumn[] {
     {
       id: 'ticker',
       Header: 'Ticker',
-      accessor: 'ticker',
+      accessor: 'symbol',
     },
     {
       id: 'price',
@@ -240,9 +229,8 @@ function getColumns(onTradeClick: HandleTradeClick): TokenInfoColumn[] {
       Header: 'Liquidity',
       accessor: 'liquidity',
       hideBelow: 'md',
-      Cell: ({ row }: Cell<TokenInfo>) => {
-        return '$' + row.original.liquidity
-      },
+      Cell: ({ row }: Cell<Token>) =>
+        '$' + (row.original?.liquidity ?? 0).toFixed(3),
     },
     {
       id: 'priceChange',
@@ -255,13 +243,13 @@ function getColumns(onTradeClick: HandleTradeClick): TokenInfoColumn[] {
       accessor: 'buy',
       align: 'right',
       width: 1,
-      Cell: ({ row }: Cell<TokenInfo>) => (
+      Cell: ({ row }: Cell<Token>) => (
         <Button
           color={ButtonColor.DARK}
           onClick={() =>
             onTradeClick({
-              token0: row.original.token0,
-              token1: row.original.token1,
+              token0: 'WETH',
+              token1: row.original.symbol,
             })
           }
         >
