@@ -123,22 +123,22 @@ const WalletStateProvider = ({ children }: ProviderProps): JSX.Element => {
 }
 
 const WalletConnector = (): null => {
-  const wallet = useWallet()
+  const { status, connect, reset } = useWallet()
   const [{ walletType }, dispatch] = useWalletState()
 
   useEffect(() => {
     if (
       walletType !== initialState.walletType &&
-      !['error', 'connected', 'connecting'].includes(wallet.status)
+      !['error', 'connected', 'connecting'].includes(status)
     ) {
       // This should only handle cases where we just loaded a page for
       // the first time
-      wallet.connect(walletType)
-    } else if (wallet.status === 'error') {
-      wallet.reset()
+      connect(walletType)
+    } else if (status === 'error') {
+      reset()
       dispatch({ type: AppActions.RESET_WALLET_TYPE })
     }
-  }, [walletType, wallet.status, wallet.connect, wallet.reset])
+  }, [dispatch, walletType, status, connect, reset])
 
   return null
 }
