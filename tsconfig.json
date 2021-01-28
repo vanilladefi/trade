@@ -21,10 +21,5 @@
     "target": "esnext"
   },
   "exclude": ["node_modules"],
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "components/Flower/Particles.js",
-    "components/Flower.js"
-  ]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"]
 }
