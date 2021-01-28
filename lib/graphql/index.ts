@@ -1,7 +1,7 @@
 import { GraphQLClient } from 'graphql-request'
 
-export * from './queries'
+export * from './queries/tokens'
 
-export const uniswapClient = new GraphQLClient(
+export const thegraphClient = new GraphQLClient(
   'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2'
 )

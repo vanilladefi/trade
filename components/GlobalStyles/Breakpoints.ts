@@ -1,9 +1,14 @@
-export type breakPointOptions = {
+export interface BreakPointOptions {
   xs: boolean
   sm: boolean
   md: boolean
   lg: boolean
   xl: boolean
+}
+
+export interface BreakPoints {
+  isSmaller: BreakPointOptions
+  isBigger: BreakPointOptions
 }
 
 export enum BreakPoint {
