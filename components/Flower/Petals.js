@@ -1,3 +1,6 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+
 import * as THREE from 'three'
 import React, { useRef, useMemo } from 'react'
 import { extend, useFrame, useThree } from 'react-three-fiber'
@@ -12,7 +15,7 @@ function easeOutQuint(t) {
   return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t
 }
 
-function Fatline({ curve, width, rotation, index, color, duration, animate }) {
+function Fatline({ curve, width, rotation, color, duration, animate }) {
   const material = useRef()
   const dashArray = 9.2
   const offsetAmount = dashArray / duration
@@ -56,11 +59,11 @@ export default function Petals({
   animate,
   asBackground,
 }) {
-  const simplex = new SimplexNoise(seed)
   const angleRange = 9
   const depthRange = 0.058
   stems = parseInt(stems)
   iterations = parseInt(iterations)
+  const simplex = useMemo(() => new SimplexNoise(seed), [seed])
   const lines = useMemo(
     () =>
       new Array(stems).fill().map((_, index) => {
@@ -110,7 +113,7 @@ export default function Petals({
           index,
         }
       }),
-    [stems]
+    [color, duration, iterations, simplex, stems]
   )
 
   const ref = useRef()

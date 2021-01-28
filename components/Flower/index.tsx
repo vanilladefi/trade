@@ -14,18 +14,18 @@ function useHasMounted() {
 }
 
 type Props = {
-  stems?: any
-  iterations?: any
-  color?: Array<String>
+  stems?: string | number | string[]
+  iterations?: string | number | string[]
+  color?: Array<string>
   maxSize: string
   minSize: string
-  seed: any
-  asBackground?: Boolean
+  seed: string | number | string[]
+  asBackground?: boolean
   className?: string
-  topLeft?: any
-  topRight?: any
-  bottomLeft?: any
-  bottomRight?: any
+  topLeft?: React.ReactNode
+  topRight?: React.ReactNode
+  bottomLeft?: React.ReactNode
+  bottomRight?: React.ReactNode
 }
 
 const Flower = ({
@@ -51,9 +51,9 @@ const Flower = ({
 
   // set defaults if nothing is in url
   let isMobile = false
-  seed ? seed : (seed = 123456)
-  stems ? stems : (stems = 10)
-  iterations ? iterations : (iterations = 34)
+  seed = seed ?? 123456
+  stems = stems ?? 10
+  iterations = iterations ?? 34
 
   const hasMounted = useHasMounted()
   if (hasMounted) {
