@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { GetStaticPropsResult } from 'next'
 import { useWallet } from 'use-wallet'
 import uniswapTokens from '@uniswap/default-token-list'
@@ -19,6 +19,8 @@ import {
   thegraphClient,
   TokenInfoQuery,
   TokenInfoQueryResponse,
+  PairByIdQuery,
+  PairByIdQueryResponse,
 } from 'lib/graphql'
 import { HandleTradeClick, UniSwapToken, Token } from 'types/Trade'
 
@@ -141,11 +143,37 @@ const BodyContent = ({ tokens, onTradeClick }: BodyProps): JSX.Element => {
 
 export default function TradePage({ tokens }: PageProps): JSX.Element {
   const [modalOpen, setModalOpen] = useState(false)
+  const [selectedPairId, setSelectedPairId] = useState('')
+  const [loadingPair, setLoadingPair] = useState(false)
+  const [
+    selectedPair,
+    setSelectedPair,
+  ] = useState<PairByIdQueryResponse | null>(null)
 
-  const handleTradeClick = useCallback((pairInfo) => {
-    console.log(pairInfo)
+  const handleTradeClick: HandleTradeClick = useCallback((pairInfo) => {
+    setSelectedPairId(pairInfo?.pairId ?? '')
     setModalOpen(true)
   }, [])
+
+  useEffect(() => {
+    let mounted = true
+    const getPairData = async () => {
+      if (mounted) setLoadingPair(true)
+      // Retrieve pair info from The Graph
+      const response = await thegraphClient.request(PairByIdQuery, {
+        pairId: selectedPairId,
+      })
+      const pair: PairByIdQueryResponse | null = response?.pairs?.[0] || null
+      if (mounted) {
+        setLoadingPair(false)
+        setSelectedPair(pair)
+      }
+    }
+    getPairData()
+    return () => {
+      mounted = false
+    }
+  }, [selectedPairId])
 
   return (
     <>
@@ -178,14 +206,18 @@ export async function getStaticProps(): Promise<
   )
 
   // Retrieve more info from The Graph's API
-  const data = await thegraphClient.request(TokenInfoQuery, {
+  const response = await thegraphClient.request(TokenInfoQuery, {
     weth: weth.address,
     tokenAddresses: tokens.map(({ address }) => address.toLowerCase()),
   })
 
   return {
     props: {
-      tokens: await enrichTokens(tokens, data?.tokens),
+      tokens: await enrichTokens(tokens, [
+        // Merge response arrays
+        ...response?.tokensAB,
+        ...response?.tokensBA,
+      ]),
     },
     revalidate: 60,
   }
@@ -194,22 +226,14 @@ export async function getStaticProps(): Promise<
 function enrichTokens(
   tokens: UniSwapToken[],
   data: TokenInfoQueryResponse[] | undefined = [],
-  defaultColor = '#FBF3DB'
+  defaultColor = 'var(--yellow)'
 ): Promise<Token[]> {
   return Promise.all(
     tokens.map(async (t) => {
       // Add data from API
-      const fromAPI = data.find(
+      const pair = data.find(
         (d) => d?.token.id.toLowerCase() === t.address.toLowerCase()
       )
-
-      const price = fromAPI?.token0Price
-        ? parseFloat(fromAPI.token0Price)
-        : null
-
-      const liquidity = fromAPI?.reserveUSD
-        ? parseFloat(fromAPI.reserveUSD)
-        : null
 
       const logoURI = ipfsToHttp(t.logoURI)
 
@@ -223,9 +247,10 @@ function enrichTokens(
 
       return {
         ...t,
-        price,
+        pairId: pair?.id ?? null,
+        price: pair?.price ? parseFloat(pair.price) : null,
+        liquidity: pair?.reserveUSD ? parseFloat(pair.reserveUSD) : null,
         priceChange: 0,
-        liquidity,
         logoURI,
         gradient,
       }
