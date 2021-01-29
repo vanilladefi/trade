@@ -32,3 +32,10 @@ export type TokenGradient = {
 }
 
 export type Token = UniSwapToken & TokenPair & TokenPriced & TokenGradient
+
+export type TokenNumberFields =
+  | 'decimals'
+  | 'chainId'
+  | 'price'
+  | 'liquidity'
+  | 'priceChange'

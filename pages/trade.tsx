@@ -155,11 +155,11 @@ export default function TradePage({ tokens }: PageProps): JSX.Element {
     setModalOpen(true)
   }, [])
 
+  // Retrieve pair info from The Graph when 'selectedPairId' changes
   useEffect(() => {
     let mounted = true
     const getPairData = async () => {
       if (mounted) setLoadingPair(true)
-      // Retrieve pair info from The Graph
       const response = await thegraphClient.request(PairByIdQuery, {
         pairId: selectedPairId,
       })

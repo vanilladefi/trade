@@ -1,3 +1,6 @@
+/* tslint:disable */
+// TODO: tslint
+
 import Image from 'next/image'
 import React, { useMemo, useEffect } from 'react'
 import {
@@ -6,13 +9,16 @@ import {
   ColumnInstance,
   HeaderPropGetter,
   RowPropGetter,
+  Row,
   TableKeyedProps,
   useTable,
   useFlexLayout,
+  useSortBy,
+  usePagination,
 } from 'react-table'
 import { useIsSmallerThan } from 'hooks/breakpoints'
 import { breakPointOptions } from 'components/GlobalStyles/Breakpoints'
-import { HandleTradeClick, Token } from 'types/Trade'
+import { HandleTradeClick, Token, TokenNumberFields } from 'types/Trade'
 import Button, { ButtonColor } from 'components/input/Button'
 
 type TokenListItem = Token & {
@@ -27,7 +33,7 @@ type ExtraColumnFields = {
   align?: string
 }
 
-type TokenColumn = Column<TokenListItem> & ExtraColumnFields
+type TokenColumn = Column & ExtraColumnFields
 
 type TokenListProps = {
   tokens: Token[]
@@ -91,16 +97,29 @@ export default function TokenList({
     getTableProps,
     getTableBodyProps,
     headerGroups,
-    rows,
     prepareRow,
     setHiddenColumns,
+    page,
+    canPreviousPage,
+    canNextPage,
+    pageOptions,
+    pageCount,
+    gotoPage,
+    nextPage,
+    previousPage,
+    setPageSize,
+    state: { pageIndex, pageSize },
   } = useTable(
     {
       columns,
       data,
       defaultColumn,
+      initialState: { sortBy: [{ id: 'liquidity', desc: true }] },
+      disableSortRemove: true,
     },
-    useFlexLayout
+    useFlexLayout,
+    useSortBy,
+    usePagination
   )
 
   useEffect(() => {
@@ -108,8 +127,56 @@ export default function TokenList({
     setHiddenColumns(hiddenColumns)
   }, [columns, isSmallerThan, setHiddenColumns])
 
+  const PageControl = () => (
+    <div className='pagination'>
+      <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+        {'<<'}
+      </button>{' '}
+      <button onClick={() => previousPage()} disabled={!canPreviousPage}>
+        {'←'}
+      </button>{' '}
+      <button onClick={() => nextPage()} disabled={!canNextPage}>
+        {'→'}
+      </button>{' '}
+      <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
+        {'>>'}
+      </button>{' '}
+      <span>
+        Page{' '}
+        <strong>
+          {pageIndex + 1} of {pageOptions.length}
+        </strong>{' '}
+      </span>
+      <span>
+        | Go to page:{' '}
+        <input
+          type='number'
+          defaultValue={pageIndex + 1}
+          onChange={(e) => {
+            const page = e.target.value ? Number(e.target.value) - 1 : 0
+            gotoPage(page)
+          }}
+          style={{ width: '100px' }}
+        />
+      </span>{' '}
+      <select
+        value={pageSize}
+        onChange={(e) => {
+          setPageSize(Number(e.target.value))
+        }}
+      >
+        {[10, 20, 30, 40, 50].map((pageSize) => (
+          <option key={pageSize} value={pageSize}>
+            Show {pageSize}
+          </option>
+        ))}
+      </select>
+    </div>
+  )
+
   return (
     <>
+      <PageControl />
       <div {...getTableProps()} className='table'>
         <div>
           {headerGroups.map((headerGroup) => (
@@ -121,17 +188,21 @@ export default function TokenList({
               {headerGroup.headers.map((column) => (
                 <div
                   className='th'
-                  {...column.getHeaderProps(headerProps)}
+                  // {...column.getHeaderProps(headerProps)}
+                  {...column.getHeaderProps(column.getSortByToggleProps())}
                   key={`th-${column.id}`}
                 >
                   {column.render('Header')}
+                  <span>
+                    {column.isSorted ? (column.isSortedDesc ? ' ↓' : ' ↑') : ''}
+                  </span>
                 </div>
               ))}
             </div>
           ))}
         </div>
         <div className='tbody' {...getTableBodyProps()}>
-          {rows.map((row) => {
+          {page.map((row: Row<TokenListItem>) => {
             prepareRow(row)
             return (
               <div
@@ -153,6 +224,7 @@ export default function TokenList({
           })}
         </div>
       </div>
+      <PageControl />
       <style jsx>{`
         .table {
           width: calc(100% + 2rem);
@@ -226,6 +298,24 @@ function getData(
   })
 }
 
+/*
+ * Used to get the original number value from row
+ *
+ * Some fields are converted to string representation (price => priceStr for example)
+ * or a ReactNode in the data layer. This function helps to sort the rows
+ * according to the original value.
+ */
+function sortByOriginalNumber(
+  { original: originalA }: Row<TokenListItem>,
+  { original: originalB }: Row<TokenListItem>,
+  columnId: string
+) {
+  const valA = originalA[columnId as TokenNumberFields] || 0
+  const valB = originalB[columnId as TokenNumberFields] || 0
+  if (valA > valB) return 1
+  if (valA < valB) return -1
+}
+
 function getColumns(): TokenColumn[] {
   return [
     {
@@ -233,6 +323,7 @@ function getColumns(): TokenColumn[] {
       Header: '',
       accessor: 'logoElement',
       width: 1,
+      disableSortBy: true,
     },
     {
       id: 'name',
@@ -250,17 +341,23 @@ function getColumns(): TokenColumn[] {
       id: 'price',
       Header: 'Price',
       accessor: 'priceStr',
+      sortDescFirst: true,
+      sortType: sortByOriginalNumber,
     },
     {
       id: 'liquidity',
       Header: 'Liquidity',
       accessor: 'liquidityStr',
       hideBelow: 'md',
+      sortDescFirst: true,
+      sortType: sortByOriginalNumber,
     },
     {
       id: 'priceChange',
       Header: 'Change',
       accessor: 'priceChange',
+      sortDescFirst: true,
+      sortType: sortByOriginalNumber,
     },
     {
       id: 'trade',
@@ -268,6 +365,7 @@ function getColumns(): TokenColumn[] {
       accessor: 'tradeElement',
       align: 'right',
       width: 1,
+      disableSortBy: true,
     },
   ]
 }
