@@ -18,7 +18,7 @@ import Button, { ButtonColor } from 'components/input/Button'
 type TokenListItem = Token & {
   priceStr: string
   liquidityStr: string
-  buyElement: React.ReactNode
+  tradeElement: React.ReactNode
   logoElement: React.ReactNode
 }
 
@@ -177,7 +177,7 @@ export default function TokenList({
           border-radius: 60px;
         }
         .tbody .tr {
-          background: var(--beige);
+          background: var(--yellow);
         }
       `}</style>
     </>
@@ -204,23 +204,23 @@ function getData(
   return tokens.map((t) => {
     return {
       ...t,
-      buyElement: (
+      tradeElement: (
         <Button
           color={ButtonColor.DARK}
           onClick={() =>
             onTradeClick({
-              token0: 'WETH',
-              token1: t.symbol,
+              pairId: t.pairId,
+              token: { address: t.address, symbol: t.symbol },
             })
           }
         >
-          Buy
+          Trade
         </Button>
       ),
       logoElement: t.logoURI && (
         <Image src={t.logoURI} height='30px' width='30px' layout='intrinsic' />
       ),
-      priceStr: '$' + (t.price ?? 0).toFixed(3),
+      priceStr: (t.price ?? 0).toFixed(8) + ' ETH',
       liquidityStr: '$' + (t.liquidity ?? 0).toFixed(3),
     }
   })
@@ -263,9 +263,9 @@ function getColumns(): TokenColumn[] {
       accessor: 'priceChange',
     },
     {
-      id: 'buy',
+      id: 'trade',
       Header: '',
-      accessor: 'buyElement',
+      accessor: 'tradeElement',
       align: 'right',
       width: 1,
     },
