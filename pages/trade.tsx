@@ -199,7 +199,9 @@ function enrichTokens(
   return Promise.all(
     tokens.map(async (t) => {
       // Add data from API
-      const fromAPI = data.find((d) => d?.token.id === t.address)
+      const fromAPI = data.find(
+        (d) => d?.token.id.toLowerCase() === t.address.toLowerCase()
+      )
 
       const price = fromAPI?.token0Price
         ? parseFloat(fromAPI.token0Price)
