@@ -11,17 +11,17 @@ export type UniSwapToken = {
   symbol: string
   decimals: number
   chainId: number
-  logoURI: string
+  logoURI?: string
 }
 
 export type TokenPriced = {
-  price: number
-  priceChange: number
-  liquidity: number
+  price: number | null
+  priceChange: number | null
+  liquidity: number | null
 }
 
 export type TokenGradient = {
-  gradient: string
+  gradient: string | null
 }
 
-export type Token = UniSwapToken & Partial<TokenPriced> & Partial<TokenGradient>
+export type Token = UniSwapToken & TokenPriced & TokenGradient

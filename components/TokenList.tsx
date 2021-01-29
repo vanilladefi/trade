@@ -1,7 +1,6 @@
 import Image from 'next/image'
 import React, { useMemo, useEffect } from 'react'
 import {
-  Cell,
   CellPropGetter,
   Column,
   ColumnInstance,
@@ -11,32 +10,39 @@ import {
   useTable,
   useFlexLayout,
 } from 'react-table'
-import { useIsSmallerThan } from '../hooks/breakpoints'
-import { breakPointOptions } from './GlobalStyles/Breakpoints'
+import { useIsSmallerThan } from 'hooks/breakpoints'
+import { breakPointOptions } from 'components/GlobalStyles/Breakpoints'
 import { HandleTradeClick, Token } from 'types/Trade'
-import Button, { ButtonColor } from './input/Button'
+import Button, { ButtonColor } from 'components/input/Button'
+
+type TokenListItem = Token & {
+  priceStr: string
+  liquidityStr: string
+  buyElement: React.ReactNode
+  logoElement: React.ReactNode
+}
 
 type ExtraColumnFields = {
   hideBelow?: string
   align?: string
 }
 
-type TokenColumn = Column<Token & { buy?: string }> & ExtraColumnFields
+type TokenColumn = Column<TokenListItem> & ExtraColumnFields
 
 type TokenListProps = {
   tokens: Token[]
   onTradeClick: HandleTradeClick
 }
 
-const headerProps: HeaderPropGetter<Token> = (props, { column }) =>
+const headerProps: HeaderPropGetter<TokenListItem> = (props, { column }) =>
   getStyles(props, column)
 
-const cellProps: CellPropGetter<Token> = (props, { cell }) =>
+const cellProps: CellPropGetter<TokenListItem> = (props, { cell }) =>
   getStyles(props, cell.column)
 
 const getStyles = (
   props: Partial<TableKeyedProps>,
-  column: ColumnInstance<Token> & ExtraColumnFields
+  column: ColumnInstance<TokenListItem> & ExtraColumnFields
 ) => [
   props,
   {
@@ -48,7 +54,7 @@ const getStyles = (
   },
 ]
 
-const rowProps: RowPropGetter<Token> = (props, { row }) => [
+const rowProps: RowPropGetter<TokenListItem> = (props, { row }) => [
   props,
   {
     style: {
@@ -75,7 +81,11 @@ export default function TokenList({
     []
   )
 
-  const columns = useMemo(() => getColumns(onTradeClick), [onTradeClick])
+  const columns = useMemo(() => getColumns(), [])
+  const data = useMemo(() => getData(tokens, onTradeClick), [
+    tokens,
+    onTradeClick,
+  ])
 
   const {
     getTableProps,
@@ -87,7 +97,7 @@ export default function TokenList({
   } = useTable(
     {
       columns,
-      data: tokens,
+      data,
       defaultColumn,
     },
     useFlexLayout
@@ -187,25 +197,42 @@ function getHiddenColumns(
     .map((column) => column?.id ?? '')
 }
 
-function getColumns(onTradeClick: HandleTradeClick): TokenColumn[] {
+function getData(
+  tokens: Token[],
+  onTradeClick: HandleTradeClick
+): TokenListItem[] {
+  return tokens.map((t) => {
+    return {
+      ...t,
+      buyElement: (
+        <Button
+          color={ButtonColor.DARK}
+          onClick={() =>
+            onTradeClick({
+              token0: 'WETH',
+              token1: t.symbol,
+            })
+          }
+        >
+          Buy
+        </Button>
+      ),
+      logoElement: t.logoURI && (
+        <Image src={t.logoURI} height='30px' width='30px' layout='intrinsic' />
+      ),
+      priceStr: '$' + (t.price ?? 0).toFixed(3),
+      liquidityStr: '$' + (t.liquidity ?? 0).toFixed(3),
+    }
+  })
+}
+
+function getColumns(): TokenColumn[] {
   return [
     {
-      id: 'imageUrl',
+      id: 'logo',
       Header: '',
-      accessor: 'logoURI',
+      accessor: 'logoElement',
       width: 1,
-      Cell: ({ row }: Cell<Token>) => {
-        return (
-          row.original.logoURI && (
-            <Image
-              src={row.original.logoURI}
-              height='30px'
-              width='30px'
-              layout='intrinsic'
-            />
-          )
-        )
-      },
     },
     {
       id: 'name',
@@ -222,15 +249,13 @@ function getColumns(onTradeClick: HandleTradeClick): TokenColumn[] {
     {
       id: 'price',
       Header: 'Price',
-      accessor: 'price',
+      accessor: 'priceStr',
     },
     {
       id: 'liquidity',
       Header: 'Liquidity',
-      accessor: 'liquidity',
+      accessor: 'liquidityStr',
       hideBelow: 'md',
-      Cell: ({ row }: Cell<Token>) =>
-        '$' + (row.original?.liquidity ?? 0).toFixed(3),
     },
     {
       id: 'priceChange',
@@ -240,22 +265,9 @@ function getColumns(onTradeClick: HandleTradeClick): TokenColumn[] {
     {
       id: 'buy',
       Header: '',
-      accessor: 'buy',
+      accessor: 'buyElement',
       align: 'right',
       width: 1,
-      Cell: ({ row }: Cell<Token>) => (
-        <Button
-          color={ButtonColor.DARK}
-          onClick={() =>
-            onTradeClick({
-              token0: 'WETH',
-              token1: row.original.symbol,
-            })
-          }
-        >
-          Buy
-        </Button>
-      ),
     },
   ]
 }

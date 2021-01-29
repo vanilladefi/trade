@@ -20,7 +20,7 @@ import {
   TokenInfoQuery,
   TokenInfoQueryResponse,
 } from 'lib/graphql'
-import { HandleTradeClick, Token } from 'types/Trade'
+import { HandleTradeClick, UniSwapToken, Token } from 'types/Trade'
 
 type PageProps = {
   tokens: Token[]
@@ -173,7 +173,7 @@ export async function getStaticProps(): Promise<
 
   // Get tokens from Uniswap default-list
   // include only tokens with specified 'chainId' and exclude WETH
-  const tokens: Token[] = uniswapTokens?.tokens.filter(
+  const tokens: UniSwapToken[] = uniswapTokens?.tokens.filter(
     (token) => token.chainId === chainId && token.symbol !== weth.symbol
   )
 
@@ -192,7 +192,7 @@ export async function getStaticProps(): Promise<
 }
 
 function enrichTokens(
-  tokens: Token[],
+  tokens: UniSwapToken[],
   data: TokenInfoQueryResponse[] | undefined = [],
   defaultColor = '#FBF3DB'
 ): Promise<Token[]> {
@@ -200,26 +200,38 @@ function enrichTokens(
     tokens.map(async (t) => {
       // Add data from API
       const fromAPI = data.find((d) => d?.token.id === t.address)
+
       const price = fromAPI?.token0Price
         ? parseFloat(fromAPI.token0Price)
-        : undefined
+        : null
 
       const liquidity = fromAPI?.reserveUSD
         ? parseFloat(fromAPI.reserveUSD)
-        : undefined
+        : null
+
+      const logoURI = ipfsToHttp(t.logoURI)
 
       // Add a gradient color based tokens logo
-      const palette = await Vibrant.from(t.logoURI).getPalette()
-      const color = palette?.LightVibrant?.getHex() ?? defaultColor
-      const gradient = `linear-gradient(to right, ${color} -20%, ${defaultColor} 20%)`
+      let gradient = null
+      try {
+        const palette = await Vibrant.from(logoURI).getPalette()
+        const color = palette?.LightVibrant?.getHex() ?? defaultColor
+        gradient = `linear-gradient(to right, ${color} -20%, ${defaultColor} 20%)`
+      } catch (e) {}
 
       return {
         ...t,
         price,
         priceChange: 0,
         liquidity,
+        logoURI,
         gradient,
       }
     })
   )
+}
+
+function ipfsToHttp(src: string | undefined, gateway = 'ipfs.io/ipfs') {
+  if (!src) return ''
+  return src.replace('ipfs://', `https://${gateway}/`)
 }
