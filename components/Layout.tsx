@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import React, { ReactNode } from 'react'
 import { UseWalletProvider } from 'use-wallet'
-import { WalletStateProvider, WalletConnector } from '../state/Wallet'
+import { WalletConnector, WalletStateProvider } from '../state/Wallet'
 import Footer from './Footer'
 import GlobalStyles from './GlobalStyles'
 import Header from './Header'
@@ -24,10 +24,11 @@ const Layout = ({
 }: Props): JSX.Element => {
   return (
     <UseWalletProvider
-      chainId={1}
+      chainId={parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || '1')}
       connectors={{
         walletconnect: {
           rpcUrl:
+            process.env.NEXT_PUBLIC_RPC_URL ||
             'https://mainnet.infura.io/v3/2b58be24601f4086baef24488838c239',
         },
       }}
