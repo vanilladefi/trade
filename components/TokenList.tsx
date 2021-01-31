@@ -1,54 +1,29 @@
-/* tslint:disable */
-// TODO: tslint
-
 import Image from 'next/image'
 import React, { useMemo, useEffect } from 'react'
 import {
-  CellPropGetter,
-  Column,
   ColumnInstance,
-  HeaderPropGetter,
-  RowPropGetter,
   Row,
+  Meta,
+  Cell,
   TableKeyedProps,
-  useTable,
   useFlexLayout,
-  useSortBy,
   usePagination,
+  useSortBy,
+  useTable,
 } from 'react-table'
 import { useIsSmallerThan } from 'hooks/breakpoints'
 import { breakPointOptions } from 'components/GlobalStyles/Breakpoints'
-import { HandleTradeClick, Token, TokenNumberFields } from 'types/Trade'
+import { HandleTradeClick, Token } from 'types/Trade'
 import Button, { ButtonColor } from 'components/input/Button'
 
-type TokenListItem = Token & {
-  priceStr: string
-  liquidityStr: string
-  tradeElement: React.ReactNode
-  logoElement: React.ReactNode
-}
-
-type ExtraColumnFields = {
-  hideBelow?: string
-  align?: string
-}
-
-type TokenColumn = Column & ExtraColumnFields
-
-type TokenListProps = {
+interface TokenListProps {
   tokens: Token[]
   onTradeClick: HandleTradeClick
 }
 
-const headerProps: HeaderPropGetter<TokenListItem> = (props, { column }) =>
-  getStyles(props, column)
-
-const cellProps: CellPropGetter<TokenListItem> = (props, { cell }) =>
-  getStyles(props, cell.column)
-
 const getStyles = (
   props: Partial<TableKeyedProps>,
-  column: ColumnInstance<TokenListItem> & ExtraColumnFields
+  column: ColumnInstance<Token> & { align?: 'left' | 'right' }
 ) => [
   props,
   {
@@ -60,16 +35,32 @@ const getStyles = (
   },
 ]
 
-const rowProps: RowPropGetter<TokenListItem> = (props, { row }) => [
-  props,
-  {
-    style: {
-      background: row?.original?.gradient || '',
-      backgroundRepeat: 'no-repeat',
-      backgroundAttachment: 'local',
+const cellProps = (
+  props: Partial<TableKeyedProps>,
+  { cell }: Meta<Token, { cell: Cell<Token> }>
+) => getStyles(props, cell.column)
+
+const rowProps = (
+  props: Partial<TableKeyedProps>,
+  { row }: Meta<Token, { row: Row<Token> }>
+) => {
+  const defaultColor = 'var(--yellow)'
+
+  const background = row.original?.logoColor
+    ? `linear-gradient(to right, ${row.original.logoColor} -20%, ${defaultColor} 20%)`
+    : defaultColor
+
+  return [
+    props,
+    {
+      style: {
+        background,
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'local',
+      },
     },
-  },
-]
+  ]
+}
 
 export default function TokenList({
   tokens,
@@ -87,11 +78,20 @@ export default function TokenList({
     []
   )
 
-  const columns = useMemo(() => getColumns(), [])
-  const data = useMemo(() => getData(tokens, onTradeClick), [
-    tokens,
-    onTradeClick,
-  ])
+  const columns = useMemo(() => getColumns(onTradeClick), [onTradeClick])
+
+  const tableInstance = useTable(
+    {
+      data: tokens,
+      columns,
+      defaultColumn,
+      initialState: { sortBy: [{ id: 'liquidity', desc: true }] },
+      disableSortRemove: true,
+    },
+    useSortBy,
+    useFlexLayout,
+    usePagination
+  )
 
   const {
     getTableProps,
@@ -109,18 +109,7 @@ export default function TokenList({
     previousPage,
     setPageSize,
     state: { pageIndex, pageSize },
-  } = useTable(
-    {
-      columns,
-      data,
-      defaultColumn,
-      initialState: { sortBy: [{ id: 'liquidity', desc: true }] },
-      disableSortRemove: true,
-    },
-    useFlexLayout,
-    useSortBy,
-    usePagination
-  )
+  } = tableInstance
 
   useEffect(() => {
     const hiddenColumns = getHiddenColumns(columns, isSmallerThan)
@@ -188,7 +177,6 @@ export default function TokenList({
               {headerGroup.headers.map((column) => (
                 <div
                   className='th'
-                  // {...column.getHeaderProps(headerProps)}
                   {...column.getHeaderProps(column.getSortByToggleProps())}
                   key={`th-${column.id}`}
                 >
@@ -202,7 +190,7 @@ export default function TokenList({
           ))}
         </div>
         <div className='tbody' {...getTableBodyProps()}>
-          {page.map((row: Row<TokenListItem>) => {
+          {page.map((row) => {
             prepareRow(row)
             return (
               <div
@@ -257,7 +245,7 @@ export default function TokenList({
 }
 
 function getHiddenColumns(
-  columns: TokenColumn[],
+  columns: { hideBelow?: string; id: string }[],
   isSmallerThan: breakPointOptions
 ): string[] {
   return columns
@@ -266,64 +254,21 @@ function getHiddenColumns(
         column.hideBelow &&
         isSmallerThan[column.hideBelow as keyof breakPointOptions]
     )
-    .map((column) => column?.id ?? '')
+    .map(({ id }) => id)
 }
 
-function getData(
-  tokens: Token[],
-  onTradeClick: HandleTradeClick
-): TokenListItem[] {
-  return tokens.map((t) => {
-    return {
-      ...t,
-      tradeElement: (
-        <Button
-          color={ButtonColor.DARK}
-          onClick={() =>
-            onTradeClick({
-              pairId: t.pairId,
-              token: { address: t.address, symbol: t.symbol },
-            })
-          }
-        >
-          Trade
-        </Button>
-      ),
-      logoElement: t.logoURI && (
-        <Image src={t.logoURI} height='30px' width='30px' layout='intrinsic' />
-      ),
-      priceStr: (t.price ?? 0).toFixed(8) + ' ETH',
-      liquidityStr: '$' + (t.liquidity ?? 0).toFixed(3),
-    }
-  })
-}
-
-/*
- * Used to get the original number value from row
- *
- * Some fields are converted to string representation (price => priceStr for example)
- * or a ReactNode in the data layer. This function helps to sort the rows
- * according to the original value.
- */
-function sortByOriginalNumber(
-  { original: originalA }: Row<TokenListItem>,
-  { original: originalB }: Row<TokenListItem>,
-  columnId: string
-) {
-  const valA = originalA[columnId as TokenNumberFields] || 0
-  const valB = originalB[columnId as TokenNumberFields] || 0
-  if (valA > valB) return 1
-  if (valA < valB) return -1
-}
-
-function getColumns(): TokenColumn[] {
+function getColumns(onTradeClick: HandleTradeClick) {
   return [
     {
       id: 'logo',
       Header: '',
-      accessor: 'logoElement',
+      accessor: 'logoURI',
       width: 1,
       disableSortBy: true,
+      Cell: ({ value }: { value?: string }) =>
+        value ? (
+          <Image src={value} height='30px' width='30px' layout='intrinsic' />
+        ) : null,
     },
     {
       id: 'name',
@@ -340,32 +285,49 @@ function getColumns(): TokenColumn[] {
     {
       id: 'price',
       Header: 'Price',
-      accessor: 'priceStr',
+      accessor: 'price',
       sortDescFirst: true,
-      sortType: sortByOriginalNumber,
+      sortType: 'basic',
+      Cell: ({ value }: { value?: number }) => (value ?? 0).toFixed(8) + ' ETH',
     },
     {
       id: 'liquidity',
       Header: 'Liquidity',
-      accessor: 'liquidityStr',
+      accessor: 'liquidity',
       hideBelow: 'md',
       sortDescFirst: true,
-      sortType: sortByOriginalNumber,
+      sortType: 'basic',
+      Cell: ({ value }: { value?: number }) => '$' + (value ?? 0).toFixed(3),
     },
     {
       id: 'priceChange',
       Header: 'Change',
       accessor: 'priceChange',
       sortDescFirst: true,
-      sortType: sortByOriginalNumber,
+      sortType: 'basic',
     },
     {
       id: 'trade',
       Header: '',
-      accessor: 'tradeElement',
       align: 'right',
       width: 1,
       disableSortBy: true,
+      Cell: ({ row }: { row: Row<Token> }) => (
+        <Button
+          color={ButtonColor.DARK}
+          onClick={() =>
+            onTradeClick({
+              pairId: row.original.pairId,
+              token: {
+                address: row.original.address,
+                symbol: row.original.symbol,
+              },
+            })
+          }
+        >
+          Trade
+        </Button>
+      ),
     },
   ]
 }

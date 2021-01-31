@@ -201,7 +201,7 @@ export async function getStaticProps(): Promise<
 
   // Get tokens from Uniswap default-list
   // include only tokens with specified 'chainId' and exclude WETH
-  const tokens: UniSwapToken[] = uniswapTokens?.tokens.filter(
+  const tokens = uniswapTokens?.tokens.filter(
     (token) => token.chainId === chainId && token.symbol !== weth.symbol
   )
 
@@ -225,8 +225,7 @@ export async function getStaticProps(): Promise<
 
 function enrichTokens(
   tokens: UniSwapToken[],
-  data: TokenInfoQueryResponse[] | undefined = [],
-  defaultColor = 'var(--yellow)'
+  data: TokenInfoQueryResponse[] | undefined = []
 ): Promise<Token[]> {
   return Promise.all(
     tokens.map(async (t) => {
@@ -237,12 +236,11 @@ function enrichTokens(
 
       const logoURI = ipfsToHttp(t.logoURI)
 
-      // Add a gradient color based tokens logo
-      let gradient = null
+      // Add a color based on tokens logo
+      let logoColor = null
       try {
         const palette = await Vibrant.from(logoURI).getPalette()
-        const color = palette?.LightVibrant?.getHex() ?? defaultColor
-        gradient = `linear-gradient(to right, ${color} -20%, ${defaultColor} 20%)`
+        logoColor = palette?.LightVibrant?.getHex() || null
       } catch (e) {}
 
       return {
@@ -252,7 +250,7 @@ function enrichTokens(
         liquidity: pair?.reserveUSD ? parseFloat(pair.reserveUSD) : null,
         priceChange: 0,
         logoURI,
-        gradient,
+        logoColor,
       }
     })
   )

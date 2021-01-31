@@ -8,34 +8,19 @@ export type PairInfo = {
 
 export type HandleTradeClick = (pairInfo: PairInfo) => void
 
-export type UniSwapToken = {
+export interface UniSwapToken {
   name: string
   address: string
   symbol: string
   decimals: number
   chainId: number
-  logoURI?: string
+  logoURI: string
 }
 
-export type TokenPair = {
+export interface Token extends UniSwapToken {
   pairId: string | null
-}
-
-export type TokenPriced = {
   price: number | null
   priceChange: number | null
   liquidity: number | null
+  logoColor: string | null
 }
-
-export type TokenGradient = {
-  gradient: string | null
-}
-
-export type Token = UniSwapToken & TokenPair & TokenPriced & TokenGradient
-
-export type TokenNumberFields =
-  | 'decimals'
-  | 'chainId'
-  | 'price'
-  | 'liquidity'
-  | 'priceChange'
