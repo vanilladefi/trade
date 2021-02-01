@@ -180,8 +180,7 @@ export default function TradePage({ tokens }: PageProps): JSX.Element {
 export async function getStaticProps(): Promise<
   GetStaticPropsResult<PageProps>
 > {
-  // TODO: Should this be configurable?
-  const chainId = 1
+  const chainId = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || '1')
 
   // TODO: Should this be configurable?
   const weth = {
