@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { GetStaticPropsResult } from 'next'
+import type { GetStaticPropsResult } from 'next'
 import { useWallet } from 'use-wallet'
 import uniswapTokens from '@uniswap/default-token-list'
 import Vibrant from 'node-vibrant'
@@ -15,14 +15,7 @@ import HugeMonospace from 'components/typography/HugeMonospace'
 import { SmallTitle, Title } from 'components/typography/Titles'
 import Wrapper from 'components/Wrapper'
 import { AppActions, useWalletState } from 'state/Wallet'
-import {
-  thegraphClient,
-  TokenInfoQuery,
-  TokenInfoQueryResponse,
-  PairByIdQuery,
-  PairByIdQueryResponse,
-} from 'lib/graphql'
-import { HandleTradeClick, UniSwapToken, Token } from 'types/Trade'
+import { thegraphClient, TokenInfoQuery, PairByIdQuery } from 'lib/graphql'
 
 type PageProps = {
   tokens: Token[]
@@ -144,11 +137,8 @@ const BodyContent = ({ tokens, onTradeClick }: BodyProps): JSX.Element => {
 export default function TradePage({ tokens }: PageProps): JSX.Element {
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedPairId, setSelectedPairId] = useState('')
-  const [loadingPair, setLoadingPair] = useState(false)
-  const [
-    selectedPair,
-    setSelectedPair,
-  ] = useState<PairByIdQueryResponse | null>(null)
+  const [, setLoadingPair] = useState(false)
+  const [, setSelectedPair] = useState<PairByIdQueryResponse | null>(null)
 
   const handleTradeClick: HandleTradeClick = useCallback((pairInfo) => {
     setSelectedPairId(pairInfo?.pairId ?? '')

@@ -1,19 +1,17 @@
 import Image from 'next/image'
 import React, { useMemo, useEffect } from 'react'
-import {
+import { useFlexLayout, usePagination, useSortBy, useTable } from 'react-table'
+import type {
+  CellProps,
+  Column,
   ColumnInstance,
   Row,
   Meta,
   Cell,
   TableKeyedProps,
-  useFlexLayout,
-  usePagination,
-  useSortBy,
-  useTable,
 } from 'react-table'
 import { useIsSmallerThan } from 'hooks/breakpoints'
 import { breakPointOptions } from 'components/GlobalStyles/Breakpoints'
-import { HandleTradeClick, Token } from 'types/Trade'
 import Button, { ButtonColor } from 'components/input/Button'
 
 interface TokenListProps {
@@ -21,9 +19,16 @@ interface TokenListProps {
   onTradeClick: HandleTradeClick
 }
 
+type LeftOrRightAlignable = { align?: 'left' | 'right' }
+type ResponsivelyHidable = { hideBelow?: keyof breakPointOptions }
+
+type CustomColumn<T extends Record<string, unknown>> = Column<T> &
+  LeftOrRightAlignable &
+  ResponsivelyHidable
+
 const getStyles = (
   props: Partial<TableKeyedProps>,
-  column: ColumnInstance<Token> & { align?: 'left' | 'right' }
+  column: ColumnInstance<Token> & LeftOrRightAlignable
 ) => [
   props,
   {
@@ -245,19 +250,15 @@ export default function TokenList({
 }
 
 function getHiddenColumns(
-  columns: { hideBelow?: string; id: string }[],
+  columns: CustomColumn<Token>[],
   isSmallerThan: breakPointOptions
 ): string[] {
   return columns
-    .filter(
-      (column) =>
-        column.hideBelow &&
-        isSmallerThan[column.hideBelow as keyof breakPointOptions]
-    )
-    .map(({ id }) => id)
+    .filter(({ id, hideBelow }) => id && hideBelow && isSmallerThan[hideBelow])
+    .map(({ id }) => id ?? '')
 }
 
-function getColumns(onTradeClick: HandleTradeClick) {
+function getColumns(onTradeClick: HandleTradeClick): CustomColumn<Token>[] {
   return [
     {
       id: 'logo',
@@ -265,7 +266,7 @@ function getColumns(onTradeClick: HandleTradeClick) {
       accessor: 'logoURI',
       width: 1,
       disableSortBy: true,
-      Cell: ({ value }: { value?: string }) =>
+      Cell: ({ value }: CellProps<Token>) =>
         value ? (
           <Image src={value} height='30px' width='30px' layout='intrinsic' />
         ) : null,
@@ -288,7 +289,7 @@ function getColumns(onTradeClick: HandleTradeClick) {
       accessor: 'price',
       sortDescFirst: true,
       sortType: 'basic',
-      Cell: ({ value }: { value?: number }) => (value ?? 0).toFixed(8) + ' ETH',
+      Cell: ({ value }: CellProps<Token>) => (value ?? 0).toFixed(8) + ' ETH',
     },
     {
       id: 'liquidity',
@@ -297,7 +298,7 @@ function getColumns(onTradeClick: HandleTradeClick) {
       hideBelow: 'md',
       sortDescFirst: true,
       sortType: 'basic',
-      Cell: ({ value }: { value?: number }) => '$' + (value ?? 0).toFixed(3),
+      Cell: ({ value }: CellProps<Token>) => '$' + (value ?? 0).toFixed(3),
     },
     {
       id: 'priceChange',

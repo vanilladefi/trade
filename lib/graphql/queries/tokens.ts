@@ -1,26 +1,5 @@
 import { gql } from 'graphql-request'
 
-export type TokenInfoQueryResponse = {
-  id: string
-  token: {
-    id: string
-  }
-  price: string
-  reserveUSD: string
-}
-
-export type PairByIdQueryResponse = {
-  id: string
-  token0: {
-    id: string
-    symbol: string
-  }
-  token1: {
-    id: string
-    symbol: string
-  }
-}
-
 export const TokenInfoQuery = gql`
   query tokenInfo($weth: String, $tokenAddresses: [String]) {
     tokensAB: pairs(where: { token0: $weth, token1_in: $tokenAddresses }) {
