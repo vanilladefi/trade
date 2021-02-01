@@ -6,6 +6,7 @@ import Footer from './Footer'
 import GlobalStyles from './GlobalStyles'
 import Header from './Header'
 import WalletModal from './WalletModal'
+import { MobileWalletFloater } from './SmallWalletInfo'
 
 type RenderFunction = () => ReactNode
 
@@ -56,6 +57,9 @@ const Layout = ({
 
         {/* Footer */}
         <Footer />
+
+        {/* Mobile Wallet Floater */}
+        <MobileWalletFloater />
 
         {/* Global CSS, like variables & fonts */}
         <GlobalStyles />
