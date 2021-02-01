@@ -1,10 +1,18 @@
 import Image from 'next/image'
 import React, { useMemo, useEffect } from 'react'
-import { useFlexLayout, usePagination, useSortBy, useTable } from 'react-table'
+import {
+  useFlexLayout,
+  usePagination,
+  useSortBy,
+  useTable,
+  useGlobalFilter,
+  useAsyncDebounce,
+} from 'react-table'
 import type {
   CellProps,
   Column,
   ColumnInstance,
+  FilterValue,
   Row,
   Meta,
   Cell,
@@ -25,47 +33,6 @@ type ResponsivelyHidable = { hideBelow?: keyof breakPointOptions }
 type CustomColumn<T extends Record<string, unknown>> = Column<T> &
   LeftOrRightAlignable &
   ResponsivelyHidable
-
-const getStyles = (
-  props: Partial<TableKeyedProps>,
-  column: ColumnInstance<Token> & LeftOrRightAlignable
-) => [
-  props,
-  {
-    style: {
-      justifyContent: column?.align === 'right' ? 'flex-end' : 'flex-start',
-      alignItems: 'center',
-      display: 'flex',
-    },
-  },
-]
-
-const cellProps = (
-  props: Partial<TableKeyedProps>,
-  { cell }: Meta<Token, { cell: Cell<Token> }>
-) => getStyles(props, cell.column)
-
-const rowProps = (
-  props: Partial<TableKeyedProps>,
-  { row }: Meta<Token, { row: Row<Token> }>
-) => {
-  const defaultColor = 'var(--yellow)'
-
-  const background = row.original?.logoColor
-    ? `linear-gradient(to right, ${row.original.logoColor} -20%, ${defaultColor} 20%)`
-    : defaultColor
-
-  return [
-    props,
-    {
-      style: {
-        background,
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'local',
-      },
-    },
-  ]
-}
 
 export default function TokenList({
   tokens,
@@ -93,8 +60,9 @@ export default function TokenList({
       initialState: { sortBy: [{ id: 'liquidity', desc: true }] },
       disableSortRemove: true,
     },
-    useSortBy,
+    useGlobalFilter,
     useFlexLayout,
+    useSortBy,
     usePagination
   )
 
@@ -113,7 +81,9 @@ export default function TokenList({
     nextPage,
     previousPage,
     setPageSize,
-    state: { pageIndex, pageSize },
+    preGlobalFilteredRows,
+    setGlobalFilter,
+    state,
   } = tableInstance
 
   useEffect(() => {
@@ -121,56 +91,27 @@ export default function TokenList({
     setHiddenColumns(hiddenColumns)
   }, [columns, isSmallerThan, setHiddenColumns])
 
-  const PageControl = () => (
-    <div className='pagination'>
-      <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
-        {'<<'}
-      </button>{' '}
-      <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-        {'←'}
-      </button>{' '}
-      <button onClick={() => nextPage()} disabled={!canNextPage}>
-        {'→'}
-      </button>{' '}
-      <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
-        {'>>'}
-      </button>{' '}
-      <span>
-        Page{' '}
-        <strong>
-          {pageIndex + 1} of {pageOptions.length}
-        </strong>{' '}
-      </span>
-      <span>
-        | Go to page:{' '}
-        <input
-          type='number'
-          defaultValue={pageIndex + 1}
-          onChange={(e) => {
-            const page = e.target.value ? Number(e.target.value) - 1 : 0
-            gotoPage(page)
-          }}
-          style={{ width: '100px' }}
-        />
-      </span>{' '}
-      <select
-        value={pageSize}
-        onChange={(e) => {
-          setPageSize(Number(e.target.value))
-        }}
-      >
-        {[10, 20, 30, 40, 50].map((pageSize) => (
-          <option key={pageSize} value={pageSize}>
-            Show {pageSize}
-          </option>
-        ))}
-      </select>
-    </div>
-  )
-
   return (
     <>
-      <PageControl />
+      <GlobalFilter
+        preGlobalFilteredRows={preGlobalFilteredRows}
+        globalFilter={state.globalFilter}
+        setGlobalFilter={setGlobalFilter}
+      />
+      <PageControl
+        {...{
+          gotoPage,
+          canPreviousPage,
+          previousPage,
+          nextPage,
+          canNextPage,
+          pageCount,
+          pageIndex: state.pageIndex,
+          pageOptions,
+          pageSize: state.pageSize,
+          setPageSize,
+        }}
+      />
       <div {...getTableProps()} className='table'>
         <div>
           {headerGroups.map((headerGroup) => (
@@ -217,7 +158,20 @@ export default function TokenList({
           })}
         </div>
       </div>
-      <PageControl />
+      <PageControl
+        {...{
+          gotoPage,
+          canPreviousPage,
+          previousPage,
+          nextPage,
+          canNextPage,
+          pageCount,
+          pageIndex: state.pageIndex,
+          pageOptions,
+          pageSize: state.pageSize,
+          setPageSize,
+        }}
+      />
       <style jsx>{`
         .table {
           width: calc(100% + 2rem);
@@ -249,6 +203,147 @@ export default function TokenList({
   )
 }
 
+function PageControl({
+  gotoPage,
+  canPreviousPage,
+  previousPage,
+  nextPage,
+  canNextPage,
+  pageCount,
+  pageIndex,
+  pageOptions,
+  pageSize,
+  setPageSize,
+}: {
+  gotoPage: (updater: number | ((pageIndex: number) => number)) => void
+  canPreviousPage: boolean
+  previousPage: () => void
+  nextPage: () => void
+  canNextPage: boolean
+  pageCount: number
+  pageIndex: number
+  pageOptions: number[]
+  pageSize: number
+  setPageSize: (pageSize: number) => void
+}) {
+  return (
+    <div className='pagination'>
+      <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+        {'<<'}
+      </button>{' '}
+      <button onClick={() => previousPage()} disabled={!canPreviousPage}>
+        {'←'}
+      </button>{' '}
+      <button onClick={() => nextPage()} disabled={!canNextPage}>
+        {'→'}
+      </button>{' '}
+      <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
+        {'>>'}
+      </button>{' '}
+      <span>
+        Page{' '}
+        <strong>
+          {pageIndex + 1} of {pageOptions.length}
+        </strong>{' '}
+      </span>
+      <span>
+        | Go to page:{' '}
+        <input
+          type='number'
+          defaultValue={pageIndex + 1}
+          onChange={(e) => {
+            const page = e.target.value ? Number(e.target.value) - 1 : 0
+            gotoPage(page)
+          }}
+          style={{ width: '100px' }}
+        />
+      </span>{' '}
+      <select
+        value={pageSize}
+        onChange={(e) => {
+          setPageSize(Number(e.target.value))
+        }}
+      >
+        {[10, 20, 30, 40, 50].map((pageSize) => (
+          <option key={pageSize} value={pageSize}>
+            Show {pageSize}
+          </option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
+function GlobalFilter({
+  preGlobalFilteredRows,
+  globalFilter,
+  setGlobalFilter,
+}: {
+  preGlobalFilteredRows: Row<Token>[]
+  globalFilter: string
+  setGlobalFilter: (filterValue: FilterValue) => void
+}) {
+  const [value, setValue] = React.useState(globalFilter)
+  const onChange = useAsyncDebounce((value) => {
+    setGlobalFilter(value || undefined)
+  }, 200)
+
+  return (
+    <span>
+      Search:{' '}
+      <input
+        value={value || ''}
+        onChange={(e) => {
+          setValue(e.target.value)
+          onChange(e.target.value)
+        }}
+        placeholder={`${preGlobalFilteredRows.length} records...`}
+      />
+    </span>
+  )
+}
+
+const getStyles = (
+  props: Partial<TableKeyedProps>,
+  column: ColumnInstance<Token> & LeftOrRightAlignable
+) => [
+  props,
+  {
+    style: {
+      justifyContent: column?.align === 'right' ? 'flex-end' : 'flex-start',
+      alignItems: 'center',
+      display: 'flex',
+    },
+  },
+]
+
+const cellProps = (
+  props: Partial<TableKeyedProps>,
+  { cell }: Meta<Token, { cell: Cell<Token> }>
+) => getStyles(props, cell.column)
+
+const rowProps = (
+  props: Partial<TableKeyedProps>,
+  { row }: Meta<Token, { row: Row<Token> }>
+) => {
+  const defaultColor = 'var(--yellow)'
+
+  const background = row.original?.logoColor
+    ? `linear-gradient(to right, ${row.original.logoColor} -20%, ${defaultColor} 20%)`
+    : defaultColor
+
+  return [
+    props,
+    {
+      style: {
+        background,
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'local',
+      },
+    },
+  ]
+}
+
 function getHiddenColumns(
   columns: CustomColumn<Token>[],
   isSmallerThan: breakPointOptions
@@ -266,6 +361,7 @@ function getColumns(onTradeClick: HandleTradeClick): CustomColumn<Token>[] {
       accessor: 'logoURI',
       width: 1,
       disableSortBy: true,
+      disableGlobalFilter: true,
       Cell: ({ value }: CellProps<Token>) =>
         value ? (
           <Image src={value} height='30px' width='30px' layout='intrinsic' />
@@ -289,6 +385,7 @@ function getColumns(onTradeClick: HandleTradeClick): CustomColumn<Token>[] {
       accessor: 'price',
       sortDescFirst: true,
       sortType: 'basic',
+      disableGlobalFilter: true,
       Cell: ({ value }: CellProps<Token>) => (value ?? 0).toFixed(8) + ' ETH',
     },
     {
@@ -298,6 +395,7 @@ function getColumns(onTradeClick: HandleTradeClick): CustomColumn<Token>[] {
       hideBelow: 'md',
       sortDescFirst: true,
       sortType: 'basic',
+      disableGlobalFilter: true,
       Cell: ({ value }: CellProps<Token>) => '$' + (value ?? 0).toFixed(3),
     },
     {
@@ -305,6 +403,7 @@ function getColumns(onTradeClick: HandleTradeClick): CustomColumn<Token>[] {
       Header: 'Change',
       accessor: 'priceChange',
       sortDescFirst: true,
+      disableGlobalFilter: true,
       sortType: 'basic',
     },
     {
@@ -313,6 +412,7 @@ function getColumns(onTradeClick: HandleTradeClick): CustomColumn<Token>[] {
       align: 'right',
       width: 1,
       disableSortBy: true,
+      disableGlobalFilter: true,
       Cell: ({ row }: { row: Row<Token> }) => (
         <Button
           color={ButtonColor.DARK}
