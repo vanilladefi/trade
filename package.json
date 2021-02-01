@@ -16,9 +16,6 @@
     }
   },
   "lint-staged": {
-    "*.ts,*.tsx": [
-      "tsc"
-    ],
     "*": [
       "eslint",
       "prettier -c"
