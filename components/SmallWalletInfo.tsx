@@ -13,6 +13,7 @@ import Button, {
 import Spacer from './typography/Spacer'
 import WalletAddress from './typography/WalletAddress'
 import WalletIcon from './typography/WalletIcon'
+import { useIsSmallerThan } from '../hooks/breakpoints'
 
 type Props = {
   grow?: boolean
@@ -39,7 +40,7 @@ const SmallWalletInfo = ({ grow }: Props): JSX.Element => {
   }, [wallet.account])
 
   return (
-    <ButtonGroup grow={grow ? grow : undefined}>
+    <ButtonGroup grow={grow ?? undefined}>
       {wallet.account && (
         <>
           <Button
@@ -88,12 +89,15 @@ const SmallWalletInfo = ({ grow }: Props): JSX.Element => {
 
 export const MobileWalletFloater = (): JSX.Element => {
   const wallet = useWallet()
+  const smallerThan = useIsSmallerThan()
   return (
-    <BottomFloater>
-      {wallet.account && (
-        <div className='walletInfoWrapper'>
-          <SmallWalletInfo grow />
-        </div>
+    <>
+      {wallet.account && smallerThan.sm && (
+        <BottomFloater>
+          <div className='walletInfoWrapper'>
+            <SmallWalletInfo grow />
+          </div>
+        </BottomFloater>
       )}
       <style jsx>{`
         .walletInfoWrapper {
@@ -110,7 +114,7 @@ export const MobileWalletFloater = (): JSX.Element => {
           width: 100%;
         }
       `}</style>
-    </BottomFloater>
+    </>
   )
 }
 
