@@ -21,6 +21,16 @@ const ProviderOptions = (): JSX.Element => {
     dispatch({ type: AppActions.SAVE_WALLET_TYPE, payload: walletType })
   }
 
+  const [errorMessage, setErrorMessage] = React.useState('')
+
+  React.useEffect(() => {
+    if (wallet.status === 'error') {
+      setErrorMessage(
+        'Wallet connection failed. Check that you are using the Ethereum mainnet.',
+      )
+    }
+  }, [wallet.status, wallet.error, wallet.connector])
+
   return (
     <Column>
       <div className='modalTitle'>
@@ -30,6 +40,14 @@ const ProviderOptions = (): JSX.Element => {
         <Column width={Width.TWELVE}>
           <ModalGradient />
           <div className='buttons'>
+            {errorMessage !== '' && (
+              <Button
+                onClick={() => setErrorMessage('')}
+                color={ButtonColor.TRANSPARENT}
+              >
+                {errorMessage}
+              </Button>
+            )}
             <Button
               color={ButtonColor.WHITE}
               onClick={() => connectWallet('injected')}
@@ -119,32 +137,40 @@ const WalletView = (): JSX.Element => {
         <div className='mainWrapper'>
           <div className='innerBox'>
             <div className='topRow'>
-              Connected with{' '}
+              {wallet.account ? 'Connected with ' : 'Connecting with '}
               {wallet.connector === 'injected' ? 'Metamask' : wallet.connector}
               <Button onClick={() => resetWallet()} size={ButtonSize.SMALL}>
-                Change
+                Disconnect
               </Button>
             </div>
             <div className='middleSection'>
-              <WalletIcon walletType={wallet.connector} />
-              <Spacer />
-              <WalletAddress wallet={wallet} />
+              {wallet.account ? (
+                <>
+                  <WalletIcon walletType={wallet.connector} />
+                  <Spacer />
+                  <WalletAddress wallet={wallet} />
+                </>
+              ) : (
+                'Connecting...'
+              )}
             </div>
-            <div className='bottomSection'>
-              <button
-                onClick={() =>
-                  wallet.account &&
-                  navigator.clipboard.writeText(wallet.account)
-                }
-              >
-                <Icon src={IconUrls.COPY} />
-                Copy address
-              </button>
-              <a href={`https://etherscan.io/address/${wallet.account}`}>
-                <Icon src={IconUrls.ARROW_UP_RIGHT} />
-                View on Etherscan
-              </a>
-            </div>
+            {wallet.account && (
+              <div className='bottomSection'>
+                <button
+                  onClick={() =>
+                    wallet.account &&
+                    navigator.clipboard.writeText(wallet.account)
+                  }
+                >
+                  <Icon src={IconUrls.COPY} />
+                  Copy address
+                </button>
+                <a href={`https://etherscan.io/address/${wallet.account}`}>
+                  <Icon src={IconUrls.ARROW_UP_RIGHT} />
+                  View on Etherscan
+                </a>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -246,6 +272,9 @@ const WalletView = (): JSX.Element => {
         .modalFooter {
           font-style: italic;
         }
+        a {
+          pointer-events: all !important;
+        }
       `}</style>
     </>
   )
@@ -259,8 +288,8 @@ const WalletModal = (): JSX.Element => {
       open={WalletState.modalOpen}
       onRequestClose={() => dispatch({ type: AppActions.CLOSE_MODAL })}
     >
-      {wallet.status === 'disconnected' && <ProviderOptions />}
-      {wallet.status === 'connected' && <WalletView />}
+      {['disconnected', 'error'].includes(wallet.status) && <ProviderOptions />}
+      {['connected', 'connecting'].includes(wallet.status) && <WalletView />}
     </Modal>
   )
 }

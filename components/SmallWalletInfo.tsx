@@ -75,7 +75,10 @@ const SmallWalletInfo = ({ grow }: Props): JSX.Element => {
             grow={grow}
             justifyContent={Justification.CENTER}
           >
-            <Row alignItems={Alignment.CENTER}>
+            <Row
+              alignItems={Alignment.CENTER}
+              justifyContent={Justification.SPACE_AROUND}
+            >
               <WalletAddress wallet={wallet} />
               <Spacer />
               <WalletIcon walletType={wallet.connector} />
