@@ -87,11 +87,14 @@ const SmallWalletInfo = ({ grow }: Props): JSX.Element => {
 }
 
 export const MobileWalletFloater = (): JSX.Element => {
+  const wallet = useWallet()
   return (
     <BottomFloater>
-      <div className='walletInfoWrapper'>
-        <SmallWalletInfo grow />
-      </div>
+      {wallet.account && (
+        <div className='walletInfoWrapper'>
+          <SmallWalletInfo grow />
+        </div>
+      )}
       <style jsx>{`
         .walletInfoWrapper {
           width: 100vw;
