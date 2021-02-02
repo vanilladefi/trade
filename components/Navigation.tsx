@@ -43,7 +43,7 @@ const Navigation = (): JSX.Element => {
       <NavLink href='/'>Home</NavLink>
       <NavLink href='/trade'>Trade</NavLink>
       <NavLink href='/faq'>FAQ</NavLink>
-      {wallet.status === 'disconnected' ? (
+      {wallet.status !== 'connected' ? (
         <ConnectWalletButton />
       ) : (
         !smallerThan.sm && <SmallWalletInfo />
