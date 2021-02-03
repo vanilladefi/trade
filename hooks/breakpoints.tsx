@@ -30,7 +30,7 @@ function parseSmallerThan(): breakPointOptions {
 
 export const useIsSmallerThan = (): breakPointOptions => {
   const [smallerThan, setSmallerThan] = useState<breakPointOptions>(
-    parseSmallerThan
+    parseSmallerThan,
   )
 
   useEffect(() => {

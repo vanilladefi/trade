@@ -65,6 +65,7 @@ const Modal = ({
           cursor: default;
           opacity: ${isOpen ? 1 : 0};
           transition: 0.1s ease opacity;
+          pointer-events: all;
         }
         .closed {
           display: none;

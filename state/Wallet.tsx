@@ -1,11 +1,11 @@
 import { Token } from '@uniswap/sdk'
 import {
   createContext,
+  Dispatch,
+  ReactNode,
   useContext,
   useEffect,
   useReducer,
-  Dispatch,
-  ReactNode,
 } from 'react'
 import { Connectors, useWallet } from 'use-wallet'
 

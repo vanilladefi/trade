@@ -2,7 +2,7 @@ import { gql } from 'graphql-request'
 import tokenList from '@uniswap/default-token-list'
 
 export const WETH = tokenList.tokens.find(
-  (token) => token.symbol === 'WETH'
+  (token) => token.symbol === 'WETH',
 ) || {
   symbol: 'WETH',
   address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',

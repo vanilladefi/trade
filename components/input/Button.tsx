@@ -1,5 +1,6 @@
 import classNames from 'classnames'
 import React, { ReactNode } from 'react'
+import { Justification, Alignment } from '../grid/Flex'
 
 export enum ButtonColor {
   GRADIENT,
@@ -51,6 +52,9 @@ type Props = {
   injectedStyles?: string
   onClick?: Callback
   title?: string
+  grow?: boolean
+  justifyContent?: Justification
+  alignItems?: Alignment
 }
 
 const Button = ({
@@ -66,6 +70,9 @@ const Button = ({
   injectedStyles,
   onClick,
   title,
+  grow,
+  alignItems = Alignment.CENTER,
+  justifyContent = Justification.CENTER,
 }: Props): JSX.Element => {
   const buttonClass = classNames({
     [`${size}`]: true,
@@ -90,8 +97,6 @@ const Button = ({
       <style jsx>{`
         button {
           display: flex;
-          justify-content: center;
-          align-items: center;
           padding: var(--buttonpadding);
           margin: var(--buttonmargin);
           border: 0;
@@ -104,6 +109,9 @@ const Button = ({
           ${width ? 'width: ' + width : ''}
           ${height ? 'height: ' + height : ''}
           ${overflow ? overflow : ''}
+          ${grow ? 'flex-grow: 1;' : 'flex-grow: 0;'}
+          align-items: ${alignItems};
+          justify-content: ${justifyContent};
         }
         button.large {
           padding: var(--largebuttonpadding);
@@ -151,13 +159,14 @@ const Button = ({
   )
 }
 
-export const ButtonGroup = ({ children }: Props): JSX.Element => (
+export const ButtonGroup = ({ children, grow }: Props): JSX.Element => (
   <>
     <div className='buttonGroup'>{children}</div>
     <style jsx>{`
       .buttonGroup {
         display: flex;
         flex-direction: row;
+        ${grow ? 'flex-grow: 1;' : 'flex-grow: 0;'}
       }
     `}</style>
   </>

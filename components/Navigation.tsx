@@ -1,94 +1,51 @@
-import { utils } from 'ethers'
-import React, { useMemo } from 'react'
 import { useWallet } from 'use-wallet'
 import { AppActions, useWalletState } from '../state/Wallet'
-import { Alignment, Row } from './grid/Flex'
-import Button, {
-  ButtonColor,
-  ButtonGroup,
-  Overflow,
-  Rounding,
-} from './input/Button'
+import Button from './input/Button'
 import NavLink from './NavLink'
-import Spacer from './typography/Spacer'
-import WalletAddress from './typography/WalletAddress'
-import WalletIcon from './typography/WalletIcon'
+import SmallWalletInfo from './SmallWalletInfo'
+import { useIsSmallerThan } from '../hooks/breakpoints'
+
+const ConnectWalletButton = (): JSX.Element => {
+  const [WalletState, dispatch] = useWalletState()
+  return (
+    <>
+      <Button
+        onClick={() =>
+          dispatch({
+            type: WalletState.modalOpen
+              ? AppActions.CLOSE_MODAL
+              : AppActions.OPEN_MODAL,
+          })
+        }
+      >
+        Connect Wallet
+      </Button>
+      <style jsx>{`
+        .connectButton {
+          margin: 2rem 0;
+        }
+        @media (min-width: 680px) {
+          .connectButton {
+            margin: 0;
+          }
+        }
+      `}</style>
+    </>
+  )
+}
 
 const Navigation = (): JSX.Element => {
   const wallet = useWallet()
-  const [WalletState, dispatch] = useWalletState()
-
-  const walletBalance = useMemo(() => {
-    return Number.parseFloat(
-      utils.formatUnits(wallet.balance, 'ether')
-    ).toFixed(3)
-  }, [wallet.balance])
-
-  const walletAddress = useMemo(() => {
-    const long = wallet.account || ''
-    const short = wallet.account
-      ? `${wallet.account.substring(0, 6)}...${wallet.account.substring(
-          wallet.account.length - 4
-        )}`
-      : ''
-    return { long, short }
-  }, [wallet.account])
-
+  const smallerThan = useIsSmallerThan()
   return (
     <nav>
       <NavLink href='/'>Home</NavLink>
       <NavLink href='/trade'>Trade</NavLink>
       <NavLink href='/faq'>FAQ</NavLink>
-      {wallet.status === 'disconnected' ? (
-        <Button
-          onClick={() =>
-            dispatch({
-              type: WalletState.modalOpen
-                ? AppActions.CLOSE_MODAL
-                : AppActions.OPEN_MODAL,
-            })
-          }
-        >
-          Connect Wallet
-        </Button>
+      {wallet.status !== 'connected' ? (
+        <ConnectWalletButton />
       ) : (
-        <ButtonGroup>
-          <Button
-            onClick={() =>
-              dispatch({
-                type: WalletState.modalOpen
-                  ? AppActions.CLOSE_MODAL
-                  : AppActions.OPEN_MODAL,
-              })
-            }
-            rounded={Rounding.LEFT}
-            color={ButtonColor.TRANSPARENT}
-            bordered
-            noRightBorder
-          >
-            {walletBalance} ETH
-          </Button>
-          <Button
-            onClick={() =>
-              dispatch({
-                type: WalletState.modalOpen
-                  ? AppActions.CLOSE_MODAL
-                  : AppActions.OPEN_MODAL,
-              })
-            }
-            color={ButtonColor.TRANSPARENT}
-            bordered
-            rounded={Rounding.RIGHT}
-            overflow={Overflow.ELLIPSIS}
-            title={walletAddress.long}
-          >
-            <Row alignItems={Alignment.CENTER}>
-              <WalletAddress wallet={wallet} />
-              <Spacer />
-              <WalletIcon walletType={wallet.connector} />
-            </Row>
-          </Button>
-        </ButtonGroup>
+        !smallerThan.sm && <SmallWalletInfo />
       )}
       <style jsx>{`
         nav {
@@ -100,9 +57,6 @@ const Navigation = (): JSX.Element => {
           align-items: left;
           line-height: 1rem;
         }
-        .connectButton {
-          margin: 2rem 0;
-        }
         @media (min-width: 680px) {
           nav {
             display: flex;
@@ -111,9 +65,6 @@ const Navigation = (): JSX.Element => {
             height: 100%;
             justify-content: center;
             align-items: center;
-          }
-          .connectButton {
-            margin: 0;
           }
         }
       `}</style>
