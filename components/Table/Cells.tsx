@@ -27,33 +27,31 @@ export function TokenLogo({ value, row }: CellProps<Token>): JSX.Element {
   )
 }
 
-export function ValueETH({ value }: CellProps<Token>): React.ReactNode {
-  return (
-    (value ?? 0).toLocaleString('en-US', {
-      maximumFractionDigits: 10,
-    }) + ' ETH'
-  )
+export function ValueETH(props: CellProps<Token>): React.ReactNode {
+  return ValueDecimal(props) + ' ETH'
 }
 
 export function ValueUSD({ value }: CellProps<Token>): React.ReactNode {
   return (value ?? 0).toLocaleString('en-US', {
     style: 'currency',
     currency: 'USD',
+    notation: 'compact',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })
 }
 
-export function ValueFloat({ value }: CellProps<Token>): React.ReactNode {
+export function ValueDecimal({ value }: CellProps<Token>): React.ReactNode {
   return (value ?? 0).toLocaleString('en-US', {
-    maximumFractionDigits: 10,
+    style: 'decimal',
+    maximumFractionDigits: 10, // TODO
   })
 }
 
 export function ValuePercent({ value }: CellProps<Token>): React.ReactNode {
-  return (
-    (value ?? 0).toLocaleString('en-US', {
-      maximumFractionDigits: 2,
-    }) + '%'
-  )
+  return (value ?? 0).toLocaleString('en-US', {
+    style: 'percent',
+    maximumFractionDigits: 2,
+    signDisplay: 'always',
+  })
 }

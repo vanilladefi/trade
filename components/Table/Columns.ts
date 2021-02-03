@@ -72,7 +72,7 @@ export const OwnedAmount: ListColumn<Token> = {
   sortType: 'basic',
   disableGlobalFilter: true,
   align: 'right',
-  Cell: Cells.ValueFloat,
+  Cell: Cells.ValueDecimal,
 }
 
 export const MarketValue: ListColumn<Token> = {
@@ -109,5 +109,5 @@ export const UnrealizedVNL: ListColumn<Token> = {
   disableGlobalFilter: true,
   align: 'right',
   hideBelow: 'md',
-  Cell: Cells.ValueFloat,
+  Cell: Cells.ValueDecimal,
 }
