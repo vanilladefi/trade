@@ -3,7 +3,7 @@ import { AppActions, useWalletState } from '../state/Wallet'
 import Button from './input/Button'
 import NavLink from './NavLink'
 import SmallWalletInfo from './SmallWalletInfo'
-import { useIsSmallerThan } from '../hooks/breakpoints'
+import { useBreakpoints } from '../hooks/breakpoints'
 
 const ConnectWalletButton = (): JSX.Element => {
   const [WalletState, dispatch] = useWalletState()
@@ -36,7 +36,7 @@ const ConnectWalletButton = (): JSX.Element => {
 
 const Navigation = (): JSX.Element => {
   const wallet = useWallet()
-  const smallerThan = useIsSmallerThan()
+  const { isSmaller } = useBreakpoints()
   return (
     <nav>
       <NavLink href='/'>Home</NavLink>
@@ -45,7 +45,7 @@ const Navigation = (): JSX.Element => {
       {wallet.status !== 'connected' ? (
         <ConnectWalletButton />
       ) : (
-        !smallerThan.sm && <SmallWalletInfo />
+        !isSmaller.sm && <SmallWalletInfo />
       )}
       <style jsx>{`
         nav {

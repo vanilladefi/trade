@@ -1,0 +1,45 @@
+import { useRecoilState } from 'recoil'
+import { tokenSearchQuery } from 'state/tokenSearch'
+import { Search } from 'react-feather'
+
+interface Props {
+  placeholder: string
+}
+
+export default function TokenSearch({ placeholder }: Props): JSX.Element {
+  const [value, setValue] = useRecoilState(tokenSearchQuery)
+
+  return (
+    <div className='container'>
+      <Search />
+      <input
+        type='text'
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => {
+          setValue(e.target.value)
+        }}
+      />
+      <style jsx>{`
+        .container {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+        }
+        input {
+          flex: 1;
+          height: 2rem;
+          margin-left: 1rem;
+          border: none;
+          outline: none;
+          font-size: 1.2rem;
+          line-height: 118%;
+          color: #1c1c1c;
+        }
+        input::placeholder {
+          opacity: 50%;
+        }
+      `}</style>
+    </div>
+  )
+}
