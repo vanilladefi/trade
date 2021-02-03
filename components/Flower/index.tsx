@@ -5,6 +5,7 @@ import { InView } from 'react-intersection-observer'
 
 import Particles from './Particles'
 import Petals from './Petals'
+import ProfitCurve from './ProfitCurve'
 
 function useHasMounted() {
   const [hasMounted, setHasMounted] = React.useState(false)
@@ -28,6 +29,7 @@ type Props = {
   topRight?: React.ReactNode
   bottomLeft?: React.ReactNode
   bottomRight?: React.ReactNode
+  hasProfitCurve?: Boolean
 }
 
 const Flower = ({
@@ -39,6 +41,7 @@ const Flower = ({
   minSize,
   seed,
   asBackground,
+  hasProfitCurve,
   topLeft,
   topRight,
   bottomLeft,
@@ -55,8 +58,8 @@ const Flower = ({
   // set defaults if nothing is in url
   let isMobile = false
   seed = seed ?? 123456
-  stems = stems ?? 10
-  iterations = iterations ?? 34
+  stems = stems ?? 14
+  iterations = iterations ?? 11
 
   const hasMounted = useHasMounted()
   if (hasMounted) {
@@ -86,6 +89,7 @@ const Flower = ({
               <Canvas
                 pixelRatio={Math.min(2, isMobile ? window.devicePixelRatio : 1)}
                 camera={{ fov: 80, position: [0, 0, 12] }}
+                resize={{ scroll: false }}
               >
                 <Petals
                   stems={stems}
@@ -97,6 +101,7 @@ const Flower = ({
                   animate={inView}
                   asBackground
                 />
+                {hasProfitCurve && <ProfitCurve />}
               </Canvas>
             </div>
           ) : (
@@ -118,6 +123,7 @@ const Flower = ({
                   )}
                   camera={{ fov: 80, position: [0, 0, 19] }}
                   onMouseMove={onMouseMove}
+                  resize={{ scroll: false }}
                 >
                   <Petals
                     stems={stems}

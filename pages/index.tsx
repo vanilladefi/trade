@@ -25,18 +25,17 @@ const HeaderContent = (
     </Column>
     <Flower
       asBackground
-      stems={12}
-      iterations={10}
       color={['#2C1929']}
-      maxSize='400px'
+      maxSize='500px'
       minSize='100vw'
       seed={Math.random() * 1337}
+      hasProfitCurve
       className='heroFlower'
     />
     <style jsx>{`
       .heroFlower {
         right: 0;
-        bottom: 0;
+        bottom: -20px;
       }
       .heroContainer {
         position: relative;
@@ -67,25 +66,10 @@ const IndexPage = (): JSX.Element => (
           <div className='whiteFlowers'>
             <Flower
               asBackground
-              stems={12}
-              iterations={12}
-              color={[
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-              ]}
+              color={['#FFFFFF']}
               maxSize='400px'
               minSize='80vw'
-              seed={Math.random() * 1256666}
+              seed={Math.random() * 12566}
               className='whiteFlowers'
             />
           </div>
@@ -93,25 +77,10 @@ const IndexPage = (): JSX.Element => (
           <div className='whiteFlowers2'>
             <Flower
               asBackground
-              stems={7}
-              iterations={12}
-              color={[
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-              ]}
+              color={['#FFFFFF']}
               maxSize='400px'
               minSize='80vw'
-              seed={Math.random() * 1256666}
+              seed={Math.random() * 12566}
               className='whiteFlowers'
             />
           </div>
@@ -138,15 +107,18 @@ const IndexPage = (): JSX.Element => (
         .whiteFlowers,
         .whiteFlowers2 {
           position: absolute;
-          left: -180px;
+
           width: 400px;
           height: 400px;
+        }
+        .whiteFlowers {
+          left: -180px;
           bottom: -40px;
         }
         .whiteFlowers2 {
           bottom: auto;
-          top: -80px;
-          left: 20px;
+          top: 0px;
+          left: 0px;
         }
         .miningWrapper {
           position: relative;
@@ -156,30 +128,76 @@ const IndexPage = (): JSX.Element => (
     </Wrapper>
     <Wrapper>
       <BoxSection color={Color.GRADIENT}>
-        <Row>
-          <Column>
-            <Title>
-              VNL can be staked to increase rewards and direct capital flows.
-            </Title>
-          </Column>
-          <Row>
+        <div style={{ width: '100%' }}>
+          <div
+            style={{
+              display: 'flex',
+              width: '100%',
+              alignItems: 'center',
+              borderBottom: '1px solid #2C1929',
+              padding: '0 0 3vw 0',
+            }}
+          >
             <Column width={Width.SIX}>
-              <p>
-                Anyone can stake VNL on themselves to increase their personal
-                rewards. E.g. By staking 10 VNL on yourself, you can increase
-                your rewards by ~5%
-              </p>
+              <Title>Trade</Title>
+              <p>Trade tokens through decentralised exchanges.</p>
             </Column>
-            <Column width={Width.SIX} className='stakingInfo'>
+            <Column width={Width.SIX} style={{ alignItems: 'center' }}>
               <Image
-                src='/images/stakinginfo.png'
+                src='/images/illustration_trade.svg'
                 alt='Staking Infographic'
-                height='337px'
-                width='393px'
+                height='240px'
+                width='260px'
               />
             </Column>
-          </Row>
-        </Row>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              borderBottom: '1px solid #2C1929',
+              padding: '3vw 0',
+            }}
+          >
+            <Column width={Width.SIX} style={{ alignItems: 'center' }}>
+              <Image
+                src='/images/illustration_lend.svg'
+                alt='Staking Infographic'
+                height='240px'
+                width='260px'
+              />
+            </Column>
+            <Column width={Width.SIX}>
+              <Title>Lend</Title>
+              <p>
+                Earn interest on your tokens using decentralised lending
+                protocols.
+              </p>
+            </Column>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '3vw 0 0 0',
+            }}
+          >
+            <Column width={Width.SIX}>
+              <Title>Automate</Title>
+              <p>
+                Optimize your portfolio with decentralised automation systems.
+              </p>
+            </Column>
+            <Column width={Width.SIX} style={{ alignItems: 'center' }}>
+              <Image
+                src='/images/illustration_automate.svg'
+                alt='Staking Infographic'
+                height='240px'
+                width='260px'
+              />
+            </Column>
+          </div>
+        </div>
       </BoxSection>
     </Wrapper>
 

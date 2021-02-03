@@ -59,8 +59,6 @@ const TradeFlower = ({
     <>
       <div className='tradeWrapper'>
         <Flower
-          stems={14}
-          iterations={20}
           color={['#000000']}
           minSize='28rem'
           maxSize='100%'
