@@ -1,5 +1,5 @@
 import { utils } from 'ethers'
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { useWallet } from 'use-wallet'
 import { AppActions, useWalletState } from '../state/Wallet'
 import { Alignment, Justification, Row } from './grid/Flex'
@@ -40,7 +40,7 @@ const SmallWalletInfo = ({ grow }: Props): JSX.Element => {
   }, [wallet.account])
 
   return (
-    <ButtonGroup grow={grow ?? undefined}>
+    <ButtonGroup grow={grow}>
       {wallet.account && (
         <>
           <Button

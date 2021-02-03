@@ -1,4 +1,3 @@
-import React from 'react'
 import { useWallet } from 'use-wallet'
 import { AppActions, useWalletState } from '../state/Wallet'
 import Button from './input/Button'
