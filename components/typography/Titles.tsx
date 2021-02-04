@@ -1,5 +1,4 @@
 import React, { ReactNode } from 'react'
-import { BreakPoint } from '../GlobalStyles/Breakpoints'
 
 type Props = {
   children?: ReactNode
@@ -15,17 +14,6 @@ export const Title = ({ children }: Props): JSX.Element => (
         line-height: 0.89;
         padding: 0;
         margin: var(--titlemargin);
-      }
-      @media (min-width: ${BreakPoint.sm}px) {
-      }
-
-      @media (min-width: ${BreakPoint.md}px) {
-      }
-
-      @media (min-width: ${BreakPoint.lg}px) {
-      }
-
-      @media (min-width: ${BreakPoint.xl}px) {
       }
     `}</style>
   </>
