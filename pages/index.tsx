@@ -1,9 +1,8 @@
 import Image from 'next/image'
-import HandFlower from '../components/backgrounds/handflower'
 import BoxSection, { Color, SeriousBox } from '../components/BoxSection'
 import { Column, Row, Width } from '../components/grid/Flex'
 import { GridItem, GridTemplate } from '../components/grid/Grid'
-import Button, { ButtonSize } from '../components/input/Button'
+import Button from '../components/input/Button'
 import Layout from '../components/Layout'
 import Timeline from '../components/Timeline'
 import HugeMonospace from '../components/typography/HugeMonospace'
@@ -11,12 +10,13 @@ import { Highlight } from '../components/typography/Text'
 import { Title } from '../components/typography/Titles'
 import Wrapper from '../components/Wrapper'
 import Flower from '../components/Flower'
+import { BreakPoint } from '../components/GlobalStyles/Breakpoints'
 
 const HeaderContent = (
   <div className='heroContainer'>
     <Column className='landingHero'>
       <Row>
-        <Column width={Width.TEN}>
+        <Column width={Width.TWELVE}>
           <Title>Vanilla Rewards You For Making a Profit In DeFi</Title>
           <HugeMonospace>Trade, lend, profit.</HugeMonospace>
           <Button>Start trading</Button>
@@ -25,28 +25,42 @@ const HeaderContent = (
     </Column>
     <Flower
       asBackground
-      stems={12}
-      iterations={10}
       color={['#2C1929']}
-      maxSize='400px'
-      minSize='100vw'
+      maxSize='380px'
+      minSize='80vw'
       seed={Math.random() * 1337}
+      hasProfitCurve
       className='heroFlower'
     />
     <style jsx>{`
       .heroFlower {
-        right: 0;
-        bottom: 0;
+        right: -10rem;
+        bottom: -1.2rem;
       }
       .heroContainer {
         position: relative;
       }
       .landingHero {
-        --titlesize: var(--landing-hugetitlesize);
-        --titlemargin: var(--landing-titlemargin);
-        --buttonmargin: var(--landing-buttonmargin);
-        --titlecolor: var(--dark);
-        max-width: 45rem;
+        --titlesize: 3rem;
+        --titlemargin: 4vh 0 1.4rem 0;
+        --buttonmargin: 0.5rem 0 10vh 0;
+        padding-bottom: 0vh;
+        max-width: 35rem;
+      }
+      @media (min-width: ${BreakPoint.sm}px) {
+        .landingHero {
+          --titlesize: 4rem;
+          --titlemargin: 10vh 0 1.4rem;
+          --buttonmargin: 0.5rem 0 10vh 0;
+          --titlecolor: var(--dark);
+          max-width: 40rem;
+        }
+      }
+
+      @media (min-width: ${BreakPoint.md}px) {
+        .heroFlower {
+          right: 6rem;
+        }
       }
     `}</style>
   </div>
@@ -54,71 +68,46 @@ const HeaderContent = (
 
 const milestones = [
   { name: 'Profit Mining', time: 'Live' },
-  { name: 'Staking', time: 'Q2' },
+  { name: 'Lending', time: 'Q2' },
   { name: 'Governance', time: 'Q4' },
-  { name: 'Funds', time: 'Q1' },
+  { name: 'Automation + Funds', time: 'Q1' },
 ]
 
 const IndexPage = (): JSX.Element => (
-  <Layout title='Vanilla' hero={HeaderContent}>
+  <Layout
+    title='Start #ProfitMining'
+    description='Vanilla Rewards You For Making a Profit In DeFi'
+    hero={HeaderContent}
+  >
     <Wrapper>
       <div className='miningWrapper'>
         <BoxSection color={Color.DARK}>
-          <div className='whiteFlowers'>
-            <Flower
-              asBackground
-              stems={12}
-              iterations={12}
-              color={[
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-              ]}
-              maxSize='400px'
-              minSize='80vw'
-              seed={Math.random() * 1256666}
-              className='whiteFlowers'
-            />
+          <div className='flowerWrapper'>
+            <div className='whiteFlower'>
+              <Flower
+                asBackground
+                color={['#FFFFFF']}
+                maxSize='400px'
+                minSize='80vw'
+                seed={Math.random() * 12566}
+                className='whiteFlowers'
+              />
+            </div>
+
+            <div className='whiteFlower2'>
+              <Flower
+                asBackground
+                color={['#FFFFFF']}
+                maxSize='400px'
+                minSize='80vw'
+                seed={Math.random() * 12566}
+                className='whiteFlowers'
+              />
+            </div>
           </div>
 
-          <div className='whiteFlowers2'>
-            <Flower
-              asBackground
-              stems={7}
-              iterations={12}
-              color={[
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-                '#ECA842',
-                '#E2553B',
-              ]}
-              maxSize='400px'
-              minSize='80vw'
-              seed={Math.random() * 1256666}
-              className='whiteFlowers'
-            />
-          </div>
-
-          <Row>
-            <Column width={Width.FOUR}></Column>
-            <Column width={Width.EIGHT} className='profitMiningHeader'>
+          <div className='contentWrapper'>
+            <Column width={Width.TWELVE} className='profitMiningHeader'>
               <Title>#ProfitMining</Title>
               <HugeMonospace>
                 Mine VNL by making a profit trading tokens through Vanilla
@@ -131,65 +120,253 @@ const IndexPage = (): JSX.Element => (
               <br />
               <Button>Learn more</Button>
             </Column>
-          </Row>
+          </div>
         </BoxSection>
       </div>
       <style jsx>{`
-        .whiteFlowers,
-        .whiteFlowers2 {
+        .whiteFlower,
+        .whiteFlower2 {
           position: absolute;
-          left: -180px;
+          display: none;
           width: 400px;
           height: 400px;
-          bottom: -40px;
         }
-        .whiteFlowers2 {
-          bottom: auto;
-          top: -80px;
-          left: 20px;
+        .flowerWrapper {
+          display: none;
+          position: relative;
         }
         .miningWrapper {
           position: relative;
           overflow: hidden;
         }
+        @media (min-width: ${BreakPoint.sm}px) {
+        }
+
+        @media (min-width: ${BreakPoint.md}px) {
+          .whiteFlower {
+            left: -210px;
+            bottom: -130px;
+            display: block;
+          }
+          .whiteFlower2 {
+            top: -40px;
+            left: -20px;
+            display: block;
+          }
+          .flowerWrapper {
+            width: 40%;
+            display: block;
+          }
+          .contentWrapper {
+            width: 60%;
+          }
+        }
       `}</style>
     </Wrapper>
     <Wrapper>
       <BoxSection color={Color.GRADIENT}>
-        <Row>
-          <Column>
-            <Title>
-              VNL can be staked to increase rewards and direct capital flows.
-            </Title>
-          </Column>
-          <Row>
-            <Column width={Width.SIX}>
-              <p>
-                Anyone can stake VNL on themselves to increase their personal
-                rewards. E.g. By staking 10 VNL on yourself, you can increase
-                your rewards by ~5%
-              </p>
-            </Column>
-            <Column
-              width={Width.SIX}
-              className='stakingInfo'
-              style={{ mixBlendMode: 'darken' }}
-            >
+        <div style={{ width: '100%' }}>
+          <div
+            style={{
+              display: 'flex',
+              width: '100%',
+              alignItems: 'stretch',
+              borderBottom: '1px solid #2C1929',
+              flexWrap: 'wrap',
+              padding: '0 0 3rem 0',
+            }}
+          >
+            <div className='tradeLendAutomateContent'>
+              <div className='titleStatus'>
+                <Title>Trade</Title>
+                <div className='tokenStatus'>
+                  <div>
+                    <Image
+                      src='/images/tokens/uniswap.png'
+                      width='48'
+                      height='48'
+                      alt='Uniswap'
+                    />
+                  </div>
+                  <div className='tokenStatusContent'>
+                    <span className='tokenStatus-token'>Uniswap</span>
+                    <span className='tokenStatus-status'>
+                      <strong>Live</strong>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <p>Trade tokens through decentralised exchanges.</p>
+            </div>
+            <div className='tradeLendAutomateImage'>
               <Image
-                src='/images/stakinginfo.png'
+                src='/images/illustration_trade.svg'
                 alt='Staking Infographic'
-                height='337px'
-                width='393px'
+                height='240px'
+                width='260px'
               />
-            </Column>
-          </Row>
-        </Row>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'stretch',
+              borderBottom: '1px solid #2C1929',
+              flexWrap: 'wrap',
+              padding: '3rem 0',
+            }}
+          >
+            <div className='tradeLendAutomateImage'>
+              <Image
+                src='/images/illustration_lend.svg'
+                alt='Staking Infographic'
+                height='240px'
+                width='260px'
+              />
+            </div>
+            <div className='tradeLendAutomateContent'>
+              <div className='titleStatus'>
+                <Title>Lend</Title>
+                <div style={{ display: 'flex' }}>
+                  <div className='tokenStatus tokenComingSoon'>
+                    <div>
+                      <Image
+                        src='/images/tokens/aave.png'
+                        width='48'
+                        height='48'
+                        alt='Aave'
+                      />
+                    </div>
+                    <div className='tokenStatusContent'>
+                      <span className='tokenStatus-token'>Aave</span>
+                      <span className='tokenStatus-status'>Soon</span>
+                    </div>
+                  </div>
+                  <div className='tokenStatus tokenComingSoon'>
+                    <div>
+                      <Image
+                        src='/images/tokens/compound.png'
+                        width='48'
+                        height='48'
+                        alt='Compound'
+                      />
+                    </div>
+                    <div className='tokenStatusContent'>
+                      <span className='tokenStatus-token'>Compound</span>
+                      <span className='tokenStatus-status'>Soon</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p>
+                Earn interest on your tokens using decentralised lending
+                protocols.
+              </p>
+            </div>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'stretch',
+              padding: '3rem 0 0 0',
+              flexWrap: 'wrap',
+            }}
+          >
+            <div className='tradeLendAutomateContent'>
+              <div className='titleStatus'>
+                <Title>Automate</Title>
+                <div className='tokenStatus tokenComingSoon'>
+                  <div>
+                    <Image
+                      src='/images/tokens/yearn.png'
+                      width='48'
+                      height='48'
+                      alt='Yearn'
+                    />
+                  </div>
+                  <div className='tokenStatusContent'>
+                    <span className='tokenStatus-token'>Yearn</span>
+                    <span className='tokenStatus-status'>
+                      <strong>Soon</strong>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <p>
+                Optimize your portfolio with decentralised automation systems.
+              </p>
+            </div>
+            <div className='tradeLendAutomateImage'>
+              <Image
+                src='/images/illustration_automate.svg'
+                alt='Staking Infographic'
+                height='240px'
+                width='260px'
+              />
+            </div>
+          </div>
+        </div>
       </BoxSection>
+      <style jsx>{`
+        .tradeLendAutomateImage {
+          order: 1;
+          width: 30%;
+          display: flex;
+          align-items: flex-start;
+          padding: 0 1.8rem 0 0;
+        }
+        .tradeLendAutomateContent {
+          order: 2;
+          width: 70%;
+          display: flex;
+          flex-direction: column;
+        }
+        .titleStatus {
+          display: flex;
+          margin-bottom: -1rem;
+          flex-direction: column;
+        }
+        .tokenStatus {
+          display: flex;
+          margin-right: 1rem;
+        }
+        .tokenStatusContent {
+          display: flex;
+          flex-direction: column;
+          text-transform: uppercase;
+          align-items: left;
+          justify-content: center;
+          height: 48px;
+          line-height: 1.15rem;
+          font-size: 0.8rem;
+          padding: 0.2rem 0.5rem;
+        }
+        @media (min-width: ${BreakPoint.md}px) {
+          .tradeLendAutomateImage,
+          .tradeLendAutomateContent {
+            order: 0;
+            width: 50%;
+            justify-content: center;
+          }
+          .tradeLendAutomateImage {
+            align-items: center;
+          }
+
+          .titleStatus {
+            flex-direction: row;
+          }
+          .tokenStatus {
+            display: flex;
+            margin-left: 1.5rem;
+            margin-right: 0;
+          }
+        }
+      `}</style>
     </Wrapper>
 
     <Wrapper>
       <BoxSection color={Color.DARK}>
-        <HandFlower />
         <Row>
           <Column>
             <Title>
@@ -200,7 +377,7 @@ const IndexPage = (): JSX.Element => (
               incentive changes, system upgrades and treasury allocations.
             </Highlight>
             <br />
-            <Button size={ButtonSize.LARGE}>Learn more</Button>
+            <Button>Learn more</Button>
           </Column>
         </Row>
       </BoxSection>

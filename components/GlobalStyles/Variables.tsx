@@ -54,7 +54,8 @@ const Variables = (): JSX.Element => (
 
       --headerpadding: var(--outermargin);
 
-      --buttonpadding: 0.6rem 1rem;
+      --smallbuttonpadding: 0.8rem 1rem 0.95rem;
+      --buttonpadding: 1rem 1.4rem 1.15rem;
       --buttonmargin: 0;
       --largebuttonpadding: 1.3rem 1.5rem 1.4rem;
 
@@ -64,11 +65,9 @@ const Variables = (): JSX.Element => (
       --titlemargin: 0;
       --hugemonomargin: 0 0 1.8rem 0;
       --subpage-titlemargin: 56px 0 1.5rem 0;
-      --landing-titlemargin: 6rem 0 1.5rem 0;
       --box-titlemargin: 0 0 32px 0;
       --box-hugemonomargin: 0 0 20px 0;
       --subpage-buttonmargin: 0 0 76px 0;
-      --landing-buttonmargin: 0 0 7rem 0;
 
       /* Fonts */
       --rootfontsize: 12px;
@@ -82,7 +81,6 @@ const Variables = (): JSX.Element => (
       --titlesize: 2.4rem;
       --hugetitlesize: 2.8rem;
       --boxtitlesize: 3rem;
-      --landing-hugetitlesize: 4rem;
 
       --monofont: 'Fira Code', monospace;
       --monoweight: 400;
@@ -104,7 +102,7 @@ const Variables = (): JSX.Element => (
       --theadweight: 500;
       --buttonweight: 600;
 
-      --buttonsize: 1rem;
+      --buttonsize: 1.2rem;
       --largebuttonsize: 1.2rem;
       --mobilebuttonsize: 1.2rem;
 

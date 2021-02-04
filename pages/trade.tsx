@@ -221,7 +221,12 @@ export default function TradePage({
       <Modal open={modalOpen} onRequestClose={() => setModalOpen(false)}>
         <ModalContent />
       </Modal>
-      <Layout title='Trade | Vanilla' heroRenderer={HeaderContent}>
+      <Layout
+        title='Start trading'
+        description='Make trades, see your profits blossom and mine VNL.'
+        shareImg='/social/social-share-trade.png'
+        heroRenderer={HeaderContent}
+      >
         <BodyContent
           availableTokens={availableTokens}
           myTokens={myTokens}
@@ -239,19 +244,19 @@ export async function getStaticProps(): Promise<
   const WETH = 'WETH'
   const chainId = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || '1')
   const weth = uniswapTokens?.tokens.find(
-    (token) => token.chainId === chainId && token.symbol === WETH
+    (token) => token.chainId === chainId && token.symbol === WETH,
   )
 
   if (!weth) {
     throw new Error(
-      `Unable to find ${WETH} in uniswap list with "chainId": ${chainId}`
+      `Unable to find ${WETH} in uniswap list with "chainId": ${chainId}`,
     )
   }
 
   // Get tokens from Uniswap default-list
   // include only tokens with specified 'chainId' and exclude WETH
   const tokens = uniswapTokens?.tokens.filter(
-    (token) => token.chainId === chainId && token.symbol !== weth.symbol
+    (token) => token.chainId === chainId && token.symbol !== weth.symbol,
   )
 
   // Retrieve more info from The Graph's API
@@ -279,13 +284,13 @@ export async function getStaticProps(): Promise<
 
 function enrichTokens(
   tokens: UniSwapToken[],
-  data: TokenInfoQueryResponse[] | undefined = []
+  data: TokenInfoQueryResponse[] | undefined = [],
 ): Promise<Token[]> {
   return Promise.all(
     tokens.map(async (t) => {
       // Add data from API
       const pair = data.find(
-        (d) => d?.token.id.toLowerCase() === t.address.toLowerCase()
+        (d) => d?.token.id.toLowerCase() === t.address.toLowerCase(),
       )
 
       const logoURI = ipfsToHttp(t.logoURI)
@@ -306,6 +311,6 @@ function enrichTokens(
         logoURI,
         logoColor,
       }
-    })
+    }),
   )
 }

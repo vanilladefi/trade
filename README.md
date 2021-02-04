@@ -18,4 +18,8 @@ npm install
 npm run dev
 ```
 
+### Running the app locally without testnet (UI dev purposes)
+1. Create a `env.local` with `NEXT_PUBLIC_CHAIN_ID=1`
+2. `npm run dev`
+
 The app should be now accessible at `localhost:3000`.

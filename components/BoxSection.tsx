@@ -50,6 +50,8 @@ const BoxSection = ({
         section {
           display: flex;
           position: relative;
+          flex-wrap: wrap;
+          align-items: stretch;
           width: 100%;
           margin-bottom: var(--layoutmargin);
           font-size: var(--boxbodysize);

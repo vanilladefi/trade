@@ -1,6 +1,6 @@
 import { useWallet } from 'use-wallet'
 import { AppActions, useWalletState } from '../state/Wallet'
-import Button from './input/Button'
+import Button, { ButtonSize } from './input/Button'
 import NavLink from './NavLink'
 import SmallWalletInfo from './SmallWalletInfo'
 import { useBreakpoints } from '../hooks/breakpoints'
@@ -10,6 +10,7 @@ const ConnectWalletButton = (): JSX.Element => {
   return (
     <>
       <Button
+        size={ButtonSize.SMALL}
         onClick={() =>
           dispatch({
             type: WalletState.modalOpen

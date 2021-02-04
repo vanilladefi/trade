@@ -1,22 +1,16 @@
 import React, { useCallback, useRef } from 'react'
 import { Canvas } from 'react-three-fiber' // https://github.com/pmndrs/react-three-fiber
-import router from 'next/router'
 import { InView } from 'react-intersection-observer'
 
+import Particles from './Particles'
 import Petals from './Petals'
-
-function useHasMounted() {
-  const [hasMounted, setHasMounted] = React.useState(false)
-  React.useEffect(() => {
-    setHasMounted(true)
-  }, [])
-  return hasMounted
-}
+import ProfitCurve from './ProfitCurve'
 
 type Props = {
   stems?: string | number | string[]
   iterations?: string | number | string[]
   color?: Array<string>
+  particleCount?: string | number | string[]
   maxSize: string
   minSize: string
   seed: string | number | string[]
@@ -26,16 +20,19 @@ type Props = {
   topRight?: React.ReactNode
   bottomLeft?: React.ReactNode
   bottomRight?: React.ReactNode
+  hasProfitCurve?: boolean
 }
 
 const Flower = ({
   stems,
   iterations,
+  particleCount,
   color,
   maxSize,
   minSize,
   seed,
   asBackground,
+  hasProfitCurve,
   topLeft,
   topRight,
   bottomLeft,
@@ -46,25 +43,20 @@ const Flower = ({
   const onMouseMove = useCallback(
     ({ clientX: x, clientY: y }) =>
       (mouse.current = [x - window.innerWidth / 2, y - window.innerHeight / 2]),
-    []
+    [],
   )
 
-  // set defaults if nothing is in url
   let isMobile = false
   seed = seed ?? 123456
-  stems = stems ?? 10
-  iterations = iterations ?? 34
+  stems = stems ?? 14
+  iterations = iterations ?? 11
 
-  const hasMounted = useHasMounted()
-  if (hasMounted) {
+  React.useEffect(() => {
     isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-    seed = router.query.seed ? router.query.seed : seed
-    iterations = router.query.iterations ? router.query.iterations : iterations
-    stems = router.query.stems ? router.query.stems : stems
-  }
+  }, [])
 
   return (
-    <InView rootMargin='0px 0px' triggerOnce>
+    <InView rootMargin='0px' triggerOnce>
       {({ inView, ref }) => (
         <div ref={ref}>
           {asBackground ? (
@@ -83,6 +75,7 @@ const Flower = ({
               <Canvas
                 pixelRatio={Math.min(2, isMobile ? window.devicePixelRatio : 1)}
                 camera={{ fov: 80, position: [0, 0, 12] }}
+                resize={{ scroll: false }}
               >
                 <Petals
                   stems={stems}
@@ -94,6 +87,7 @@ const Flower = ({
                   animate={inView}
                   asBackground
                 />
+                {hasProfitCurve && <ProfitCurve />}
               </Canvas>
             </div>
           ) : (
@@ -111,10 +105,11 @@ const Flower = ({
                 <Canvas
                   pixelRatio={Math.min(
                     2,
-                    isMobile ? window.devicePixelRatio : 1
+                    isMobile ? window.devicePixelRatio : 1,
                   )}
                   camera={{ fov: 80, position: [0, 0, 19] }}
                   onMouseMove={onMouseMove}
+                  resize={{ scroll: false }}
                 >
                   <Petals
                     stems={stems}
@@ -126,6 +121,7 @@ const Flower = ({
                     animate={inView}
                     asBackground={false}
                   />
+                  <Particles count={particleCount} mouse={mouse} />
                 </Canvas>
               </div>
               {topLeft && (

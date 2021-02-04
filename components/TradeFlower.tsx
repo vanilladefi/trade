@@ -59,12 +59,13 @@ const TradeFlower = ({
     <>
       <div className='tradeWrapper'>
         <Flower
-          stems={14}
-          iterations={20}
           color={['#000000']}
           minSize='28rem'
           maxSize='100%'
           seed={tradeURL.transactionHash}
+          particleCount={
+            received ? received.amount * 100 : reward ? reward.amount * 100 : 0
+          }
           topLeft={receivedData}
           topRight={rewardData}
           bottomLeft={tradeURLData}

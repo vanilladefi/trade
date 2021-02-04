@@ -107,7 +107,7 @@ export default function PageControl({
         }
 
         .page-size {
-          font-size: 1.2rem;
+          font-size: 1.1rem;
         }
 
         .page-size > * {
@@ -122,14 +122,14 @@ export default function PageControl({
           padding: 0.4rem 0.3rem;
           border: 1px solid #dedede;
           border-radius: 9px;
-          font-size: 1.2rem;
+          font-size: 1.1rem;
           outline: none;
         }
 
         .page-control {
           justify-content: flex-end;
           flex: 1;
-          font-size: 1.2rem;
+          font-size: 1.1rem;
         }
 
         .page-control > * {
