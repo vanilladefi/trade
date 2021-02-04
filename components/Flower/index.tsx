@@ -6,14 +6,6 @@ import Particles from './Particles'
 import Petals from './Petals'
 import ProfitCurve from './ProfitCurve'
 
-function useHasMounted() {
-  const [hasMounted, setHasMounted] = React.useState(false)
-  React.useEffect(() => {
-    setHasMounted(true)
-  }, [])
-  return hasMounted
-}
-
 type Props = {
   stems?: string | number | string[]
   iterations?: string | number | string[]
@@ -60,7 +52,11 @@ const Flower = ({
   stems = stems ?? 14
   iterations = iterations ?? 11
 
-  const hasMounted = useHasMounted()
+  const [hasMounted, setHasMounted] = React.useState(false)
+  React.useEffect(() => {
+    setHasMounted(true)
+  }, [])
+
   if (hasMounted) {
     isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
   }

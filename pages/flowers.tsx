@@ -5,20 +5,16 @@ import Layout from '../components/Layout'
 import Wrapper from '../components/Wrapper'
 import Flower from '../components/Flower'
 
-function useHasMounted() {
-  const [hasMounted, setHasMounted] = React.useState(false)
-  React.useEffect(() => {
-    setHasMounted(true)
-  }, [])
-  return hasMounted
-}
-
 const FlowerPage = (): JSX.Element => {
   let seed = 123456
   let stems = 14
   let iterations = 11
 
-  const hasMounted = useHasMounted()
+  const [hasMounted, setHasMounted] = React.useState(false)
+  React.useEffect(() => {
+    setHasMounted(true)
+  }, [])
+
   if (hasMounted) {
     seed = router.query.seed ? Math.floor(Number(router.query.seed)) : seed
     iterations = router.query.iterations
