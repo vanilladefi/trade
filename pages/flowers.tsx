@@ -10,18 +10,14 @@ const FlowerPage = (): JSX.Element => {
   let stems = 14
   let iterations = 11
 
-  const [hasMounted, setHasMounted] = React.useState(false)
   React.useEffect(() => {
-    setHasMounted(true)
-  }, [])
-
-  if (hasMounted) {
     seed = router.query.seed ? Math.floor(Number(router.query.seed)) : seed
     iterations = router.query.iterations
       ? Math.floor(Number(router.query.iterations))
       : iterations
     stems = router.query.stems ? Math.floor(Number(router.query.stems)) : stems
-  }
+  }, [])
+
   return (
     <Layout title='VNL Flower playground' hideFromSearch>
       <Wrapper>

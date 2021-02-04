@@ -46,20 +46,14 @@ const Flower = ({
     [],
   )
 
-  // set defaults if nothing is in url
   let isMobile = false
   seed = seed ?? 123456
   stems = stems ?? 14
   iterations = iterations ?? 11
 
-  const [hasMounted, setHasMounted] = React.useState(false)
   React.useEffect(() => {
-    setHasMounted(true)
-  }, [])
-
-  if (hasMounted) {
     isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-  }
+  }, [])
 
   return (
     <InView rootMargin='0px' triggerOnce>
