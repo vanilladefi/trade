@@ -12,6 +12,7 @@ import { Table, Columns } from 'components/Table'
 import Button, {
   ButtonColor,
   ButtonGroup,
+  ButtonSize,
   Rounding,
 } from 'components/input/Button'
 
@@ -76,6 +77,7 @@ function getColumns({
           <Button
             color={ButtonColor.DARK}
             rounded={Rounding.LEFT}
+            size={ButtonSize.SMALL}
             title='Sell'
             onClick={() =>
               onSellClick({
@@ -97,6 +99,7 @@ function getColumns({
           <Button
             color={ButtonColor.DARK}
             rounded={Rounding.RIGHT}
+            size={ButtonSize.SMALL}
             title='Buy'
             onClick={() =>
               onBuyClick({

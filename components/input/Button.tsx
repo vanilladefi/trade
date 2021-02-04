@@ -118,9 +118,9 @@ const Button = ({
           font-size: var(--largebuttonsize);
         }
         button.small {
-          padding: var(--minisize);
-          font-size: var(--minisize);
-          line-height: 5px;
+          padding: var(--smallbuttonpadding);
+          font-size: var(--smallbuttonpadding);
+          line-height: 0.4rem;
         }
         button.gradient {
           background: var(--buttongradient);

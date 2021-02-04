@@ -1,6 +1,5 @@
 import React, { useCallback, useRef } from 'react'
 import { Canvas } from 'react-three-fiber' // https://github.com/pmndrs/react-three-fiber
-import router from 'next/router'
 import { InView } from 'react-intersection-observer'
 
 import Particles from './Particles'
@@ -29,7 +28,7 @@ type Props = {
   topRight?: React.ReactNode
   bottomLeft?: React.ReactNode
   bottomRight?: React.ReactNode
-  hasProfitCurve?: Boolean
+  hasProfitCurve?: boolean
 }
 
 const Flower = ({
@@ -64,13 +63,10 @@ const Flower = ({
   const hasMounted = useHasMounted()
   if (hasMounted) {
     isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-    seed = router.query.seed ? router.query.seed : seed
-    iterations = router.query.iterations ? router.query.iterations : iterations
-    stems = router.query.stems ? router.query.stems : stems
   }
 
   return (
-    <InView rootMargin='0px 0px' triggerOnce>
+    <InView rootMargin='0px' triggerOnce>
       {({ inView, ref }) => (
         <div ref={ref}>
           {asBackground ? (

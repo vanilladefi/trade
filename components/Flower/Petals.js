@@ -72,7 +72,6 @@ export default function Petals({
   animate,
   asBackground,
 }) {
-  const simplex = new SimplexNoise(seed)
   const angleRange = 10
   const depthRange = 0.025
   stems = parseInt(stems)

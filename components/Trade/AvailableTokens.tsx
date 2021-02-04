@@ -4,7 +4,7 @@ import { useRecoilState } from 'recoil'
 import type { HandleBuyClick, Token, ListColumn } from 'types/trade'
 import { tokenSearchQuery } from 'state/tokenSearch'
 import { Table, Columns } from 'components/Table'
-import Button, { ButtonColor } from 'components/input/Button'
+import Button, { ButtonColor, ButtonSize } from 'components/input/Button'
 
 interface Props {
   tokens: Token[]
@@ -52,6 +52,7 @@ function getColumns(onBuyClick: HandleBuyClick): ListColumn<Token>[] {
       Cell: ({ row }: CellProps<Token>) => (
         <Button
           color={ButtonColor.DARK}
+          size={ButtonSize.SMALL}
           onClick={() =>
             onBuyClick({
               pairId: row.original.pairId,

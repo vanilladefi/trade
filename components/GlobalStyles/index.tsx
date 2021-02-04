@@ -48,6 +48,9 @@ const GlobalStyles = (): JSX.Element => (
         font-family: var(--bodyfont);
         font-weight: var(--bodyweight);
       }
+      .tokenComingSoon {
+        filter: grayscale(100%);
+      }
     `}</style>
   </>
 )
