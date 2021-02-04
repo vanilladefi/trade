@@ -7,6 +7,7 @@ import BottomFloater from './BottomFloater'
 import Button, {
   ButtonColor,
   ButtonGroup,
+  ButtonSize,
   Overflow,
   Rounding,
 } from './input/Button'
@@ -51,6 +52,7 @@ const SmallWalletInfo = ({ grow }: Props): JSX.Element => {
                   : AppActions.OPEN_MODAL,
               })
             }
+            size={ButtonSize.SMALL}
             rounded={Rounding.LEFT}
             color={ButtonColor.TRANSPARENT}
             bordered
