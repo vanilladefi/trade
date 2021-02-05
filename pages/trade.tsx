@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import type { GetStaticPropsResult } from 'next'
 import { useWallet } from 'use-wallet'
 import { useSetRecoilState } from 'recoil'
+import { walletModalOpenState } from 'state/wallet'
 import { AvailableTokens, MyPositions } from 'components/Trade'
 import TokenSearch from 'components/TokenSearch'
 import { TopGradient } from 'components/backgrounds/gradient'
@@ -14,7 +15,6 @@ import TradeFlower from 'components/TradeFlower'
 import HugeMonospace from 'components/typography/HugeMonospace'
 import { SmallTitle, Title } from 'components/typography/Titles'
 import Wrapper from 'components/Wrapper'
-import { AppActions, useWalletState } from 'state/Wallet'
 import { thegraphClient, PairByIdQuery } from 'lib/graphql'
 import type {
   HandleBuyClick,
@@ -37,8 +37,9 @@ type BodyProps = {
 }
 
 const HeaderContent = (): JSX.Element => {
-  const [, dispatch] = useWalletState()
   const wallet = useWallet()
+  const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
+
   return (
     <>
       <TopGradient />
@@ -51,7 +52,9 @@ const HeaderContent = (): JSX.Element => {
             </HugeMonospace>
             <Button
               size={ButtonSize.LARGE}
-              onClick={() => dispatch({ type: AppActions.OPEN_MODAL })}
+              onClick={() => {
+                setWalletModalOpen(true)
+              }}
             >
               Connect wallet
             </Button>

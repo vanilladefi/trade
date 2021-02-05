@@ -1,23 +1,23 @@
 import { useWallet } from 'use-wallet'
-import { AppActions, useWalletState } from '../state/Wallet'
+import { useRecoilState } from 'recoil'
+import { walletModalOpenState } from 'state/wallet'
 import Button, { ButtonSize } from './input/Button'
 import NavLink from './NavLink'
 import SmallWalletInfo from './SmallWalletInfo'
 import { useBreakpoints } from '../hooks/breakpoints'
 
 const ConnectWalletButton = (): JSX.Element => {
-  const [WalletState, dispatch] = useWalletState()
+  const [walletModalOpen, setWalletModalOpen] = useRecoilState(
+    walletModalOpenState,
+  )
+
   return (
     <>
       <Button
         size={ButtonSize.SMALL}
-        onClick={() =>
-          dispatch({
-            type: WalletState.modalOpen
-              ? AppActions.CLOSE_MODAL
-              : AppActions.OPEN_MODAL,
-          })
-        }
+        onClick={() => {
+          setWalletModalOpen(!walletModalOpen)
+        }}
       >
         Connect Wallet
       </Button>
