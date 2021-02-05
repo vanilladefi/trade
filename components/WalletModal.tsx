@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import React from 'react'
 import { Connectors, useWallet } from 'use-wallet'
-import { AppActions, useWalletState } from '../state/Wallet'
+import { useRecoilState } from 'recoil'
+import { walletModalOpenState } from 'state/wallet'
 import { ModalGradient } from './backgrounds/gradient'
 import { Alignment, Column, Justification, Row, Width } from './grid/Flex'
 import Button, { ButtonColor, ButtonSize } from './input/Button'
@@ -14,11 +15,9 @@ import WalletIcon from './typography/WalletIcon'
 
 const ProviderOptions = (): JSX.Element => {
   const wallet = useWallet()
-  const [, dispatch] = useWalletState()
 
-  const connectWallet = (walletType: keyof Connectors): void => {
-    wallet.connect(walletType)
-    dispatch({ type: AppActions.SAVE_WALLET_TYPE, payload: walletType })
+  const connectWallet = async (connector: keyof Connectors) => {
+    await wallet.connect(connector)
   }
 
   const [errorMessage, setErrorMessage] = React.useState('')
@@ -29,7 +28,7 @@ const ProviderOptions = (): JSX.Element => {
         'Wallet connection failed. Check that you are using the Ethereum mainnet.',
       )
     }
-  }, [wallet.status, wallet.error, wallet.connector])
+  }, [wallet.status])
 
   return (
     <Column>
@@ -120,11 +119,9 @@ const ProviderOptions = (): JSX.Element => {
 
 const WalletView = (): JSX.Element => {
   const wallet = useWallet()
-  const [, dispatch] = useWalletState()
 
   const resetWallet = (): void => {
     wallet.reset()
-    dispatch({ type: AppActions.RESET_WALLET_TYPE })
   }
 
   return (
@@ -281,12 +278,18 @@ const WalletView = (): JSX.Element => {
 }
 
 const WalletModal = (): JSX.Element => {
-  const [WalletState, dispatch] = useWalletState()
   const wallet = useWallet()
+
+  const [walletModalOpen, setWalletModalOpen] = useRecoilState(
+    walletModalOpenState,
+  )
+
   return (
     <Modal
-      open={WalletState.modalOpen}
-      onRequestClose={() => dispatch({ type: AppActions.CLOSE_MODAL })}
+      open={walletModalOpen}
+      onRequestClose={() => {
+        setWalletModalOpen(false)
+      }}
     >
       {['disconnected', 'error'].includes(wallet.status) && <ProviderOptions />}
       {['connected', 'connecting'].includes(wallet.status) && <WalletView />}

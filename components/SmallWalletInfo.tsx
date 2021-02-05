@@ -1,7 +1,8 @@
 import { utils } from 'ethers'
 import { useMemo } from 'react'
 import { useWallet } from 'use-wallet'
-import { AppActions, useWalletState } from '../state/Wallet'
+import { useRecoilState } from 'recoil'
+import { walletModalOpenState } from 'state/wallet'
 import { Alignment, Justification, Row } from './grid/Flex'
 import BottomFloater from './BottomFloater'
 import Button, {
@@ -22,7 +23,9 @@ type Props = {
 
 const SmallWalletInfo = ({ grow }: Props): JSX.Element => {
   const wallet = useWallet()
-  const [WalletState, dispatch] = useWalletState()
+  const [walletModalOpen, setWalletModalOpen] = useRecoilState(
+    walletModalOpenState,
+  )
 
   const walletBalance = useMemo(() => {
     return Number.parseFloat(
@@ -42,52 +45,40 @@ const SmallWalletInfo = ({ grow }: Props): JSX.Element => {
 
   return (
     <ButtonGroup grow={grow}>
-      {wallet.account && (
-        <>
-          <Button
-            onClick={() =>
-              dispatch({
-                type: WalletState.modalOpen
-                  ? AppActions.CLOSE_MODAL
-                  : AppActions.OPEN_MODAL,
-              })
-            }
-            size={ButtonSize.SMALL}
-            rounded={Rounding.LEFT}
-            color={ButtonColor.TRANSPARENT}
-            bordered
-            noRightBorder
-            grow={grow}
-          >
-            {walletBalance} ETH
-          </Button>
-          <Button
-            onClick={() =>
-              dispatch({
-                type: WalletState.modalOpen
-                  ? AppActions.CLOSE_MODAL
-                  : AppActions.OPEN_MODAL,
-              })
-            }
-            color={ButtonColor.TRANSPARENT}
-            bordered
-            rounded={Rounding.RIGHT}
-            overflow={Overflow.ELLIPSIS}
-            title={walletAddress.long}
-            grow={grow}
-            justifyContent={Justification.CENTER}
-          >
-            <Row
-              alignItems={Alignment.CENTER}
-              justifyContent={Justification.SPACE_AROUND}
-            >
-              <WalletAddress wallet={wallet} />
-              <Spacer />
-              <WalletIcon walletType={wallet.connector} />
-            </Row>
-          </Button>
-        </>
-      )}
+      <Button
+        onClick={() => {
+          setWalletModalOpen(!walletModalOpen)
+        }}
+        size={ButtonSize.SMALL}
+        rounded={Rounding.LEFT}
+        color={ButtonColor.TRANSPARENT}
+        bordered
+        noRightBorder
+        grow={grow}
+      >
+        {walletBalance} ETH
+      </Button>
+      <Button
+        onClick={() => {
+          setWalletModalOpen(!walletModalOpen)
+        }}
+        color={ButtonColor.TRANSPARENT}
+        bordered
+        rounded={Rounding.RIGHT}
+        overflow={Overflow.ELLIPSIS}
+        title={walletAddress.long}
+        grow={grow}
+        justifyContent={Justification.CENTER}
+      >
+        <Row
+          alignItems={Alignment.CENTER}
+          justifyContent={Justification.SPACE_AROUND}
+        >
+          <WalletAddress wallet={wallet} />
+          <Spacer />
+          <WalletIcon walletType={wallet.connector} />
+        </Row>
+      </Button>
     </ButtonGroup>
   )
 }
