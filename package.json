@@ -32,6 +32,7 @@
     "framer-motion": "^3.2.1",
     "graphql": "^15.4.0",
     "graphql-request": "^3.4.0",
+    "graphql-subscriptions-client": "github:lunchboxer/graphql-subscriptions-client#isomorphic",
     "gray-matter": "^4.0.2",
     "i": "^0.3.6",
     "image-size": "^0.9.3",

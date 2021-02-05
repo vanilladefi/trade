@@ -50,7 +50,7 @@ export default function Table<D extends Record<string, unknown>>({
       width: 2, // width is used for both the flex-basis and flex-grow
       maxWidth: 200, // maxWidth is only used as a limit for resizing
     }),
-    []
+    [],
   )
 
   const tableInstance = useTable(
@@ -59,6 +59,7 @@ export default function Table<D extends Record<string, unknown>>({
       columns,
       defaultColumn,
       initialState: {
+        globalFilter: query,
         pageSize: pageSizes[0],
         sortBy: initialSortBy,
       },
@@ -68,7 +69,7 @@ export default function Table<D extends Record<string, unknown>>({
     useGlobalFilter,
     useFlexLayout,
     useSortBy,
-    usePagination
+    usePagination,
   )
 
   const {
@@ -100,7 +101,7 @@ export default function Table<D extends Record<string, unknown>>({
     debounce((val) => {
       setGlobalFilter(val)
     }, 200),
-    [setGlobalFilter]
+    [setGlobalFilter],
   )
 
   useEffect(() => {
@@ -227,7 +228,7 @@ export default function Table<D extends Record<string, unknown>>({
 }
 
 const getStyles = <D extends Record<string, unknown>>(
-  column: ColumnInstance<D> & LeftOrRightAlignable
+  column: ColumnInstance<D> & LeftOrRightAlignable,
 ) => {
   return {
     style: {
@@ -239,7 +240,7 @@ const getStyles = <D extends Record<string, unknown>>(
 }
 
 const getHeaderSpecificStyles = <D extends Record<string, unknown>>(
-  column: ColumnInstance<D> & LeftOrRightAlignable
+  column: ColumnInstance<D> & LeftOrRightAlignable,
 ) => {
   return {
     style: {
@@ -250,7 +251,7 @@ const getHeaderSpecificStyles = <D extends Record<string, unknown>>(
 
 const headerProps = <D extends Record<string, unknown>>(
   props: Partial<TableKeyedProps>,
-  { column }: Meta<D, { column: HeaderGroup<D> }>
+  { column }: Meta<D, { column: HeaderGroup<D> }>,
 ) => [
   props,
   column.getSortByToggleProps(),
@@ -260,13 +261,13 @@ const headerProps = <D extends Record<string, unknown>>(
 
 const cellProps = <D extends Record<string, unknown>>(
   props: Partial<TableKeyedProps>,
-  { cell }: Meta<D, { cell: Cell<D> }>
+  { cell }: Meta<D, { cell: Cell<D> }>,
 ) => [props, getStyles(cell.column)]
 
 const rowProps = <D extends Record<string, unknown>>(
   props: Partial<TableKeyedProps>,
   { row }: Meta<D, { row: Row<D> }>,
-  { colorize } = { colorize: false }
+  { colorize } = { colorize: false },
 ) => {
   const defaultColor = colorize ? 'var(--yellow)' : 'var(--beige)'
 
@@ -280,8 +281,6 @@ const rowProps = <D extends Record<string, unknown>>(
     {
       style: {
         background,
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'local',
       },
     },
   ]
@@ -289,13 +288,13 @@ const rowProps = <D extends Record<string, unknown>>(
 
 function getHiddenColumns<D extends Record<string, unknown>>(
   columns: ListColumn<D>[],
-  { isSmaller, isBigger }: BreakPoints
+  { isSmaller, isBigger }: BreakPoints,
 ): string[] {
   return columns
     .filter(
       ({ hideBelow, hideAbove }) =>
         (hideBelow && isSmaller[hideBelow]) ||
-        (hideAbove && isBigger[hideAbove])
+        (hideAbove && isBigger[hideAbove]),
     )
     .map(({ id }) => id ?? '')
 }

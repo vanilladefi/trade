@@ -28,7 +28,7 @@ export interface Token extends UniSwapToken {
 }
 
 export interface TokenInfoQueryResponse {
-  id: string
+  pairId: string
   token: {
     id: string
   }

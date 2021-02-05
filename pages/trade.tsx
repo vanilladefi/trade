@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import type { GetStaticPropsResult } from 'next'
 import { useWallet } from 'use-wallet'
-import uniswapTokens from '@uniswap/default-token-list'
-import Vibrant from 'node-vibrant'
+import { useSetRecoilState } from 'recoil'
 import { AvailableTokens, MyPositions } from 'components/Trade'
 import TokenSearch from 'components/TokenSearch'
 import { TopGradient } from 'components/backgrounds/gradient'
@@ -16,25 +15,23 @@ import HugeMonospace from 'components/typography/HugeMonospace'
 import { SmallTitle, Title } from 'components/typography/Titles'
 import Wrapper from 'components/Wrapper'
 import { AppActions, useWalletState } from 'state/Wallet'
-import { thegraphClient, TokenInfoQuery, PairByIdQuery } from 'lib/graphql'
-import { ipfsToHttp } from 'lib/ipfs'
+import { thegraphClient, PairByIdQuery } from 'lib/graphql'
 import type {
   HandleBuyClick,
   HandleSellClick,
   PairByIdQueryResponse,
   Token,
-  TokenInfoQueryResponse,
-  UniSwapToken,
 } from 'types/trade'
+import { allTokensStoreState } from 'state/tokens'
+import { addGraphInfo, addLogoColor, getAllTokens } from 'lib/tokens'
+import useTokenSubscription from 'hooks/useTokenSubscription'
 
 type PageProps = {
-  availableTokens: Token[]
-  myTokens: Token[]
+  allTokens: Token[]
 }
 
 type BodyProps = {
-  availableTokens: Token[]
-  myTokens: Token[]
+  allTokens: Token[]
   onBuyClick: HandleBuyClick
   onSellClick: HandleSellClick
 }
@@ -130,11 +127,17 @@ const ModalContent = (): JSX.Element => (
 )
 
 const BodyContent = ({
-  availableTokens,
-  myTokens,
+  allTokens,
   onBuyClick,
   onSellClick,
 }: BodyProps): JSX.Element => {
+  useTokenSubscription()
+  const setTokens = useSetRecoilState(allTokensStoreState)
+
+  useEffect(() => {
+    setTokens(allTokens)
+  }, [setTokens, allTokens])
+
   return (
     <Wrapper>
       <Row>
@@ -143,26 +146,11 @@ const BodyContent = ({
             <TokenSearch placeholder='Search tokens by name or ticker' />
           </div>
 
-          {myTokens.length && (
-            <>
-              <h2>MY POSITIONS</h2>
-              <MyPositions
-                tokens={myTokens}
-                onBuyClick={onBuyClick}
-                onSellClick={onSellClick}
-              />
-            </>
-          )}
+          <h2>MY POSITIONS</h2>
+          <MyPositions onBuyClick={onBuyClick} onSellClick={onSellClick} />
 
-          {availableTokens.length && (
-            <>
-              <h2>AVAILABLE TOKENS</h2>
-              <AvailableTokens
-                tokens={availableTokens}
-                onBuyClick={onBuyClick}
-              />
-            </>
-          )}
+          <h2>AVAILABLE TOKENS</h2>
+          <AvailableTokens onBuyClick={onBuyClick} />
         </Column>
       </Row>
       <style jsx>{`
@@ -177,10 +165,13 @@ const BodyContent = ({
   )
 }
 
-export default function TradePage({
-  availableTokens,
-  myTokens,
-}: PageProps): JSX.Element {
+export default function TradePage({ allTokens }: PageProps): JSX.Element {
+  // NOTE: allTokens here will be stale after a while
+  // allTokens here is only used to populate the state on first render (static)
+  // Updates to allTokens happen in recoil
+  // Recoil can not be used here as this is outside of recoilRoot
+  // because this is a page component
+
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedPairId, setSelectedPairId] = useState('')
   const [, setLoadingPair] = useState(false)
@@ -201,116 +192,56 @@ export default function TradePage({
     let mounted = true
     const getPairData = async () => {
       if (mounted) setLoadingPair(true)
-      const response = await thegraphClient.request(PairByIdQuery, {
-        pairId: selectedPairId,
-      })
-      const pair: PairByIdQueryResponse | null = response?.pairs?.[0] || null
-      if (mounted) {
-        setLoadingPair(false)
-        setSelectedPair(pair)
+      let pair: PairByIdQueryResponse | null = null
+      try {
+        const response = await thegraphClient.request(PairByIdQuery, {
+          pairId: selectedPairId,
+        })
+        pair = response?.pairs?.[0] || null
+      } catch (e) {
+      } finally {
+        if (mounted) {
+          setLoadingPair(false)
+          setSelectedPair(pair)
+        }
       }
     }
-    getPairData()
+    if (selectedPairId) getPairData()
     return () => {
       mounted = false
     }
   }, [selectedPairId])
 
   return (
-    <>
+    <Layout
+      title='Start trading'
+      description='Make trades, see your profits blossom and mine VNL.'
+      shareImg='/social/social-share-trade.png'
+      heroRenderer={HeaderContent}
+    >
       <Modal open={modalOpen} onRequestClose={() => setModalOpen(false)}>
         <ModalContent />
       </Modal>
-      <Layout
-        title='Start trading'
-        description='Make trades, see your profits blossom and mine VNL.'
-        shareImg='/social/social-share-trade.png'
-        heroRenderer={HeaderContent}
-      >
-        <BodyContent
-          availableTokens={availableTokens}
-          myTokens={myTokens}
-          onBuyClick={handleBuyClick}
-          onSellClick={handleSellClick}
-        />
-      </Layout>
-    </>
+      <BodyContent
+        allTokens={allTokens}
+        onBuyClick={handleBuyClick}
+        onSellClick={handleSellClick}
+      />
+    </Layout>
   )
 }
 
 export async function getStaticProps(): Promise<
   GetStaticPropsResult<PageProps>
 > {
-  const WETH = 'WETH'
-  const chainId = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || '1')
-  const weth = uniswapTokens?.tokens.find(
-    (token) => token.chainId === chainId && token.symbol === WETH,
-  )
-
-  if (!weth) {
-    throw new Error(
-      `Unable to find ${WETH} in uniswap list with "chainId": ${chainId}`,
-    )
-  }
-
-  // Get tokens from Uniswap default-list
-  // include only tokens with specified 'chainId' and exclude WETH
-  const tokens = uniswapTokens?.tokens.filter(
-    (token) => token.chainId === chainId && token.symbol !== weth.symbol,
-  )
-
-  // Retrieve more info from The Graph's API
-  const response = await thegraphClient.request(TokenInfoQuery, {
-    weth: weth.address.toLowerCase(),
-    tokenAddresses: tokens.map(({ address }) => address.toLowerCase()),
-  })
-
-  const availableTokens = await enrichTokens(tokens, [
-    // Merge response arrays
-    ...response?.tokensAB,
-    ...response?.tokensBA,
-  ])
-
-  const myTokens = availableTokens.slice(0, 5)
+  let tokens = getAllTokens()
+  tokens = await addLogoColor(tokens)
+  tokens = await addGraphInfo(tokens)
 
   return {
     props: {
-      availableTokens,
-      myTokens,
+      allTokens: tokens,
     },
     revalidate: 60,
   }
-}
-
-function enrichTokens(
-  tokens: UniSwapToken[],
-  data: TokenInfoQueryResponse[] | undefined = [],
-): Promise<Token[]> {
-  return Promise.all(
-    tokens.map(async (t) => {
-      // Add data from API
-      const pair = data.find(
-        (d) => d?.token.id.toLowerCase() === t.address.toLowerCase(),
-      )
-
-      const logoURI = ipfsToHttp(t.logoURI)
-
-      // Add a color based on tokens logo
-      let logoColor = null
-      try {
-        const palette = await Vibrant.from(logoURI).getPalette()
-        logoColor = palette?.LightVibrant?.getHex() || null
-      } catch (e) {}
-
-      return {
-        ...t,
-        pairId: pair?.id ?? null,
-        price: pair?.price ? parseFloat(pair.price) : null,
-        liquidity: pair?.reserveUSD ? parseFloat(pair.reserveUSD) : null,
-        priceChange: 0,
-        logoURI,
-        logoColor,
-      }
-    }),
-  )
 }
