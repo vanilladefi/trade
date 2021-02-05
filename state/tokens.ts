@@ -24,6 +24,6 @@ export const userTokensState = selector<Token[]>({
 })
 
 export const allTokensStoreState = atom<Token[]>({
-  key: 'allTokensStoreStateallTokensState',
+  key: 'allTokensStoreState',
   default: [],
 })
