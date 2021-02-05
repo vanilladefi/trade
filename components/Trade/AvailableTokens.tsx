@@ -1,27 +1,24 @@
 import type { CellProps } from 'react-table'
-import { useCallback, useMemo } from 'react'
-import { useRecoilState } from 'recoil'
+import { useMemo } from 'react'
+import { useRecoilValue } from 'recoil'
 import type { HandleBuyClick, Token, ListColumn } from 'types/trade'
-import { tokenSearchQuery } from 'state/tokenSearch'
+import { allTokensStoreState } from 'state/tokens'
+import useTokenSearch from 'hooks/useTokenSearch'
 import { Table, Columns } from 'components/Table'
 import Button, { ButtonColor, ButtonSize } from 'components/input/Button'
 
 interface Props {
-  tokens: Token[]
   onBuyClick: HandleBuyClick
 }
 
-export default function AvailableTokens({
-  tokens,
-  onBuyClick,
-}: Props): JSX.Element {
-  const columns = useMemo(() => getColumns(onBuyClick), [onBuyClick])
-  const initialSortBy = useMemo(() => [{ id: 'liquidity', desc: true }], [])
-  const [query, setQuery] = useRecoilState(tokenSearchQuery)
+export default function AvailableTokens({ onBuyClick }: Props): JSX.Element {
+  const tokens = useRecoilValue(allTokensStoreState)
 
-  const clearQuery = useCallback(() => {
-    setQuery('')
-  }, [setQuery])
+  const [query, clearQuery] = useTokenSearch()
+
+  const columns = useMemo(() => getColumns(onBuyClick), [onBuyClick])
+
+  const initialSortBy = useMemo(() => [{ id: 'liquidity', desc: true }], [])
 
   return (
     <Table

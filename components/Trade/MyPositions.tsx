@@ -1,13 +1,14 @@
 import type { CellProps } from 'react-table'
-import { useCallback, useMemo } from 'react'
-import { useRecoilState } from 'recoil'
+import { useMemo } from 'react'
+import { useRecoilValue } from 'recoil'
 import type {
   HandleBuyClick,
   HandleSellClick,
   Token,
   ListColumn,
 } from 'types/trade'
-import { tokenSearchQuery } from 'state/tokenSearch'
+import { userTokensState } from 'state/tokens'
+import useTokenSearch from 'hooks/useTokenSearch'
 import { Table, Columns } from 'components/Table'
 import Button, {
   ButtonColor,
@@ -17,30 +18,28 @@ import Button, {
 } from 'components/input/Button'
 
 interface Props {
-  tokens: Token[]
   onBuyClick: HandleBuyClick
   onSellClick: HandleSellClick
 }
 
 export default function MyPositions({
-  tokens,
   onBuyClick,
   onSellClick,
 }: Props): JSX.Element {
+  const userTokens = useRecoilValue(userTokensState)
+
+  const [query, clearQuery] = useTokenSearch()
+
   const columns = useMemo(() => getColumns({ onBuyClick, onSellClick }), [
     onBuyClick,
     onSellClick,
   ])
-  const initialSortBy = useMemo(() => [{ id: 'logoName', desc: false }], [])
-  const [query, setQuery] = useRecoilState(tokenSearchQuery)
 
-  const clearQuery = useCallback(() => {
-    setQuery('')
-  }, [setQuery])
+  const initialSortBy = useMemo(() => [{ id: 'logoName', desc: false }], [])
 
   return (
     <Table
-      data={tokens}
+      data={userTokens}
       columns={columns}
       initialSortBy={initialSortBy}
       query={query}
