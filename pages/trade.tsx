@@ -10,8 +10,6 @@ import { Column, Row, Width } from 'components/grid/Flex'
 import { GridItem, GridTemplate } from 'components/grid/Grid'
 import Button, { ButtonSize } from 'components/input/Button'
 import Layout from 'components/Layout'
-import Modal from 'components/Modal'
-import TradeFlower from 'components/TradeFlower'
 import HugeMonospace from 'components/typography/HugeMonospace'
 import { SmallTitle, Title } from 'components/typography/Titles'
 import Wrapper from 'components/Wrapper'
@@ -25,6 +23,8 @@ import type {
 import { allTokensStoreState } from 'state/tokens'
 import { addGraphInfo, addLogoColor, getAllTokens } from 'lib/tokens'
 import useTokenSubscription from 'hooks/useTokenSubscription'
+import { chainId } from 'utils/config'
+import TradeModal from 'components/Trade/TradeModal'
 
 type PageProps = {
   allTokens: Token[]
@@ -96,38 +96,6 @@ const HeaderContent = (): JSX.Element => {
     </>
   )
 }
-
-const ModalContent = (): JSX.Element => (
-  <Column>
-    <div>
-      <SmallTitle>TRADE SUCCESSFUL!</SmallTitle>
-    </div>
-    <TradeFlower
-      received={{ ticker: 'DAI', amount: 2.5 }}
-      paid={{ ticker: 'ETH', amount: 0.0056572 }}
-      tradeURL={{
-        domain: 'vnl.com',
-        transactionHash:
-          '0x05c7cedb4b6a234a92fcc9e396661cbed6d89e301899af6569dae3ff32a48acb',
-      }}
-    />
-    <div>
-      <Column>
-        <SmallTitle>Share for more VNL</SmallTitle>
-        <span>Learn more</span>
-      </Column>
-      <span>links here</span>
-    </div>
-    <style jsx>{`
-      div {
-        display: flex;
-        flex-direction: row;
-        padding: 1.1rem 1.2rem;
-        justify-content: space-between;
-      }
-    `}</style>
-  </Column>
-)
 
 const BodyContent = ({
   allTokens,
@@ -222,11 +190,10 @@ export default function TradePage({ allTokens }: PageProps): JSX.Element {
       shareImg='/social/social-share-trade.png'
       heroRenderer={HeaderContent}
     >
-      <Modal open={modalOpen} onRequestClose={() => setModalOpen(false)}>
-        <ModalContent />
-      </Modal>
+      <TradeModal open={modalOpen} onRequestClose={() => setModalOpen(false)} />
       <BodyContent
-        allTokens={allTokens}
+        availableTokens={availableTokens}
+        myTokens={myTokens}
         onBuyClick={handleBuyClick}
         onSellClick={handleSellClick}
       />
@@ -240,11 +207,43 @@ export async function getStaticProps(): Promise<
   let tokens = getAllTokens()
   tokens = await addLogoColor(tokens)
   tokens = await addGraphInfo(tokens)
-
   return {
     props: {
       allTokens: tokens,
     },
     revalidate: 60,
   }
+}
+
+function enrichTokens(
+  tokens: UniSwapToken[],
+  data: TokenInfoQueryResponse[] | undefined = [],
+): Promise<Token[]> {
+  return Promise.all(
+    tokens.map(async (t) => {
+      // Add data from API
+      const pair = data.find(
+        (d) => d?.token.id.toLowerCase() === t.address.toLowerCase(),
+      )
+
+      const logoURI = ipfsToHttp(t.logoURI)
+
+      // Add a color based on tokens logo
+      let logoColor = null
+      try {
+        const palette = await Vibrant.from(logoURI).getPalette()
+        logoColor = palette?.LightVibrant?.getHex() || null
+      } catch (e) {}
+
+      return {
+        ...t,
+        pairId: pair?.id ?? null,
+        price: pair?.price ? parseFloat(pair.price) : null,
+        liquidity: pair?.reserveUSD ? parseFloat(pair.reserveUSD) : null,
+        priceChange: 0,
+        logoURI,
+        logoColor,
+      }
+    }),
+  )
 }
