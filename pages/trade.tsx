@@ -143,9 +143,12 @@ export default function TradePage({ allTokens }: PageProps): JSX.Element {
   // because this is a page component
 
   const [modalOpen, setModalOpen] = useState(false)
-  const [selectedPairId, setSelectedPairId] = useState('')
+  const [selectedPairId, setSelectedPairId] = useState<string>('')
   const [, setLoadingPair] = useState(false)
-  const [, setSelectedPair] = useState<PairByIdQueryResponse | null>(null)
+  const [
+    selectedPair,
+    setSelectedPair,
+  ] = useState<PairByIdQueryResponse | null>(null)
 
   const handleBuyClick: HandleBuyClick = useCallback((pairInfo) => {
     setSelectedPairId(pairInfo?.pairId ?? '')
@@ -189,7 +192,12 @@ export default function TradePage({ allTokens }: PageProps): JSX.Element {
       shareImg='/social/social-share-trade.png'
       heroRenderer={HeaderContent}
     >
-      <TradeModal open={modalOpen} onRequestClose={() => setModalOpen(false)} />
+      <TradeModal
+        open={modalOpen}
+        onRequestClose={() => setModalOpen(false)}
+        selectedPair={selectedPair}
+        selectedPairId={selectedPairId}
+      />
       <BodyContent
         allTokens={allTokens}
         onBuyClick={handleBuyClick}

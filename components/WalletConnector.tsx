@@ -1,7 +1,11 @@
 import { providers } from 'ethers'
 import { useEffect } from 'react'
 import { useRecoilCallback, useSetRecoilState } from 'recoil'
-import { signerState, storedWalletConnectorState } from 'state/wallet'
+import {
+  providerState,
+  signerState,
+  storedWalletConnectorState,
+} from 'state/wallet'
 import { useWallet, Wallet } from 'use-wallet'
 
 type JsonRpcWallet = Wallet<providers.JsonRpcProvider>
@@ -18,6 +22,7 @@ const WalletConnector = (): null => {
   } = useWallet<JsonRpcWallet>()
   const setStoredWalletConnector = useSetRecoilState(storedWalletConnectorState)
   const setSigner = useSetRecoilState(signerState)
+  const setProvider = useSetRecoilState(providerState)
 
   const initialLoad = useRecoilCallback(
     ({ snapshot }) => async () => {
@@ -29,16 +34,15 @@ const WalletConnector = (): null => {
 
   useEffect(() => {
     if (ethereum) {
-      setSigner(() => {
-        const ethersProvider: providers.Web3Provider = new providers.Web3Provider(
-          ethereum as providers.ExternalProvider,
-        )
-        return ethersProvider.getSigner()
-      })
+      const ethersProvider: providers.Web3Provider = new providers.Web3Provider(
+        ethereum as providers.ExternalProvider,
+      )
+      setProvider(ethersProvider)
+      setSigner(ethersProvider.getSigner())
     } else {
       setSigner(null)
     }
-  }, [ethereum, setSigner])
+  }, [ethereum, setSigner, setProvider])
 
   useEffect(() => {
     initialLoad()

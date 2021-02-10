@@ -1,12 +1,12 @@
 import uniswapTokens from '@uniswap/default-token-list'
-import Vibrant from 'node-vibrant'
 import { thegraphClient, TokenInfoQuery } from 'lib/graphql'
 import { ipfsToHttp } from 'lib/ipfs'
-import { chainId } from 'utils/config'
+import Vibrant from 'node-vibrant'
 import type { Token, TokenInfoQueryResponse } from 'types/trade'
+import { chainId } from 'utils/config'
 
 // This is just for compatibility of local testnet with "use-wallet"
-const tokenListChainId = chainId === 1337 ? 1 : chainId
+export const tokenListChainId = chainId === 1337 ? 1 : chainId
 
 export const WETH = 'WETH'
 export const weth = uniswapTokens?.tokens.find(

@@ -27,3 +27,9 @@ export const signerState = atom<providers.JsonRpcSigner | null>({
   default: null,
   dangerouslyAllowMutability: true, // If it works without, that'd be awesome. Here for now.
 })
+
+export const providerState = atom<providers.JsonRpcProvider | null>({
+  key: 'providerState',
+  default: null,
+  dangerouslyAllowMutability: true, // If it works without, that'd be awesome. Here for now.
+})

@@ -1,29 +1,86 @@
+import { Fetcher, Price, Route, Token, WETH } from '@uniswap/sdk'
 import { Column } from 'components/grid/Flex'
 import Button from 'components/input/Button'
 import Modal from 'components/Modal'
 import TradeFlower from 'components/TradeFlower'
 import { SmallTitle } from 'components/typography/Titles'
+import { providers } from 'ethers'
+import { tokenListChainId } from 'lib/tokens'
 import { buy } from 'lib/trade'
+import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
-import { signerState } from 'state/wallet'
+import { providerState, signerState } from 'state/wallet'
+import { PairByIdQueryResponse } from 'types/trade'
 
-const ModalContent = (): JSX.Element => {
+type WETHChainOptions = {
+  1: Token
+  3: Token
+  4: Token
+  5: Token
+  42: Token
+}
+
+async function getMidPrice(
+  selectedPair: PairByIdQueryResponse,
+  provider: providers.JsonRpcProvider,
+): Promise<Price> {
+  try {
+    const tokenA = new Token(
+      tokenListChainId,
+      selectedPair.token0.id,
+      parseInt(selectedPair.token0.decimals),
+    )
+    const pair = await Fetcher.fetchPairData(
+      tokenA,
+      WETH[tokenListChainId as keyof WETHChainOptions],
+      provider,
+    )
+    const route = new Route(
+      [pair],
+      WETH[tokenListChainId as keyof WETHChainOptions],
+    )
+    return route.midPrice
+  } catch (error) {
+    return error
+  }
+}
+
+type ContentProps = {
+  selectedPair: PairByIdQueryResponse | null
+  selectedPairId: string
+}
+
+const ModalContent = ({
+  selectedPair,
+  selectedPairId,
+}: ContentProps): JSX.Element => {
   const signer = useRecoilValue(signerState)
+  const provider = useRecoilValue(providerState)
+  const [midPrice, setMidPrice] = useState<Price>()
+  const [amount, setAmount] = useState(0)
+
+  useEffect(() => {
+    selectedPair &&
+      provider &&
+      getMidPrice(selectedPair, provider).then((price) => setMidPrice(price))
+  }, [selectedPair, provider])
+
   return (
     <Column>
       <div>
         <SmallTitle>TRADE SUCCESSFUL!</SmallTitle>
-        {signer && (
+        {signer && selectedPair && (
           <Button
             onClick={() =>
               buy({
-                tokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-                amountETH: 12390421,
+                tokenAddress: selectedPair.token1.id,
+                amountETH: amount,
                 signer: signer,
               })
             }
           >
-            Buyings
+            Buyings for price{' '}
+            {midPrice?.toSignificant && midPrice?.toSignificant()}
           </Button>
         )}
       </div>
@@ -57,13 +114,23 @@ const ModalContent = (): JSX.Element => {
 
 type Props = {
   open: boolean
+  selectedPair: PairByIdQueryResponse | null
+  selectedPairId: string
   onRequestClose: () => void
 }
 
-const TradeModal = ({ open, onRequestClose }: Props): JSX.Element => {
+const TradeModal = ({
+  open,
+  onRequestClose,
+  selectedPair,
+  selectedPairId,
+}: Props): JSX.Element => {
   return (
     <Modal open={open} onRequestClose={onRequestClose}>
-      <ModalContent />
+      <ModalContent
+        selectedPair={selectedPair}
+        selectedPairId={selectedPairId}
+      />
     </Modal>
   )
 }
