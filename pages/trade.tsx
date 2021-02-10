@@ -1,29 +1,29 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import type { GetStaticPropsResult } from 'next'
-import { useWallet } from 'use-wallet'
-import { useSetRecoilState } from 'recoil'
-import { walletModalOpenState } from 'state/wallet'
-import { AvailableTokens, MyPositions } from 'components/Trade'
-import TokenSearch from 'components/TokenSearch'
 import { TopGradient } from 'components/backgrounds/gradient'
 import { Column, Row, Width } from 'components/grid/Flex'
 import { GridItem, GridTemplate } from 'components/grid/Grid'
 import Button, { ButtonSize } from 'components/input/Button'
 import Layout from 'components/Layout'
+import TokenSearch from 'components/TokenSearch'
+import { AvailableTokens, MyPositions } from 'components/Trade'
+import TradeModal from 'components/Trade/TradeModal'
 import HugeMonospace from 'components/typography/HugeMonospace'
 import { SmallTitle, Title } from 'components/typography/Titles'
 import Wrapper from 'components/Wrapper'
-import { thegraphClient, PairByIdQuery } from 'lib/graphql'
+import useTokenSubscription from 'hooks/useTokenSubscription'
+import { PairByIdQuery, thegraphClient } from 'lib/graphql'
+import { addGraphInfo, addLogoColor, getAllTokens } from 'lib/tokens'
+import type { GetStaticPropsResult } from 'next'
+import React, { useCallback, useEffect, useState } from 'react'
+import { useSetRecoilState } from 'recoil'
+import { allTokensStoreState } from 'state/tokens'
+import { walletModalOpenState } from 'state/wallet'
 import type {
   HandleBuyClick,
   HandleSellClick,
   PairByIdQueryResponse,
   Token,
 } from 'types/trade'
-import { allTokensStoreState } from 'state/tokens'
-import { addGraphInfo, addLogoColor, getAllTokens } from 'lib/tokens'
-import useTokenSubscription from 'hooks/useTokenSubscription'
-import TradeModal from 'components/Trade/TradeModal'
+import { useWallet } from 'use-wallet'
 
 type PageProps = {
   allTokens: Token[]
