@@ -1,13 +1,25 @@
+import { providers } from 'ethers'
 import { useEffect } from 'react'
-import { useSetRecoilState, useRecoilCallback } from 'recoil'
-import { useWallet } from 'use-wallet'
-import { storedWalletConnectorState } from 'state/wallet'
+import { useRecoilCallback, useSetRecoilState } from 'recoil'
+import { signerState, storedWalletConnectorState } from 'state/wallet'
+import { useWallet, Wallet } from 'use-wallet'
+
+type JsonRpcWallet = Wallet<providers.JsonRpcProvider>
 
 const WalletConnector = (): null => {
-  const { status, connect, reset, type: walletType, connector } = useWallet()
+  const {
+    status,
+    error,
+    connect,
+    reset,
+    type: walletType,
+    connector,
+    ethereum,
+  } = useWallet<JsonRpcWallet>()
   const setStoredWalletConnector = useSetRecoilState(storedWalletConnectorState)
+  const setSigner = useSetRecoilState(signerState)
 
-  const intialLoad = useRecoilCallback(
+  const initialLoad = useRecoilCallback(
     ({ snapshot }) => async () => {
       const stored = await snapshot.getPromise(storedWalletConnectorState)
       if (!walletType && status === 'disconnected' && stored) connect(stored)
@@ -16,8 +28,21 @@ const WalletConnector = (): null => {
   )
 
   useEffect(() => {
-    intialLoad()
-  }, [intialLoad])
+    if (ethereum) {
+      setSigner(() => {
+        const ethersProvider: providers.Web3Provider = new providers.Web3Provider(
+          ethereum as providers.ExternalProvider,
+        )
+        return ethersProvider.getSigner()
+      })
+    } else {
+      setSigner(null)
+    }
+  }, [ethereum, setSigner])
+
+  useEffect(() => {
+    initialLoad()
+  }, [initialLoad])
 
   useEffect(() => {
     setStoredWalletConnector(connector)
@@ -25,7 +50,7 @@ const WalletConnector = (): null => {
 
   useEffect(() => {
     if (status === 'error') reset()
-  }, [status, reset])
+  }, [status, reset, error])
 
   return null
 }

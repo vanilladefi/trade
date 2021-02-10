@@ -1,29 +1,31 @@
-import Modal from 'components/Modal'
 import { Column } from 'components/grid/Flex'
-import { useWallet } from 'use-wallet'
-import TradeFlower from 'components/TradeFlower'
-import { buy, sell } from 'lib/trade'
-import { providers } from 'ethers'
-import { SmallTitle } from 'components/typography/Titles'
 import Button from 'components/input/Button'
+import Modal from 'components/Modal'
+import TradeFlower from 'components/TradeFlower'
+import { SmallTitle } from 'components/typography/Titles'
+import { buy } from 'lib/trade'
+import { useRecoilValue } from 'recoil'
+import { signerState } from 'state/wallet'
 
 const ModalContent = (): JSX.Element => {
-  const wallet = useWallet()
+  const signer = useRecoilValue(signerState)
   return (
     <Column>
       <div>
         <SmallTitle>TRADE SUCCESSFUL!</SmallTitle>
-        <Button
-          onClick={() =>
-            buy({
-              tokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-              amountETH: 0.01,
-              provider: wallet.ethereum as providers.JsonRpcProvider,
-            })
-          }
-        >
-          Buyings
-        </Button>
+        {signer && (
+          <Button
+            onClick={() =>
+              buy({
+                tokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+                amountETH: 12390421,
+                signer: signer,
+              })
+            }
+          >
+            Buyings
+          </Button>
+        )}
       </div>
       <TradeFlower
         received={{ ticker: 'DAI', amount: 2.5 }}

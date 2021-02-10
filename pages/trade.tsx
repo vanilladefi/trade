@@ -23,7 +23,6 @@ import type {
 import { allTokensStoreState } from 'state/tokens'
 import { addGraphInfo, addLogoColor, getAllTokens } from 'lib/tokens'
 import useTokenSubscription from 'hooks/useTokenSubscription'
-import { chainId } from 'utils/config'
 import TradeModal from 'components/Trade/TradeModal'
 
 type PageProps = {
@@ -192,8 +191,7 @@ export default function TradePage({ allTokens }: PageProps): JSX.Element {
     >
       <TradeModal open={modalOpen} onRequestClose={() => setModalOpen(false)} />
       <BodyContent
-        availableTokens={availableTokens}
-        myTokens={myTokens}
+        allTokens={allTokens}
         onBuyClick={handleBuyClick}
         onSellClick={handleSellClick}
       />
@@ -213,37 +211,4 @@ export async function getStaticProps(): Promise<
     },
     revalidate: 60,
   }
-}
-
-function enrichTokens(
-  tokens: UniSwapToken[],
-  data: TokenInfoQueryResponse[] | undefined = [],
-): Promise<Token[]> {
-  return Promise.all(
-    tokens.map(async (t) => {
-      // Add data from API
-      const pair = data.find(
-        (d) => d?.token.id.toLowerCase() === t.address.toLowerCase(),
-      )
-
-      const logoURI = ipfsToHttp(t.logoURI)
-
-      // Add a color based on tokens logo
-      let logoColor = null
-      try {
-        const palette = await Vibrant.from(logoURI).getPalette()
-        logoColor = palette?.LightVibrant?.getHex() || null
-      } catch (e) {}
-
-      return {
-        ...t,
-        pairId: pair?.id ?? null,
-        price: pair?.price ? parseFloat(pair.price) : null,
-        liquidity: pair?.reserveUSD ? parseFloat(pair.reserveUSD) : null,
-        priceChange: 0,
-        logoURI,
-        logoColor,
-      }
-    }),
-  )
 }

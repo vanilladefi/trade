@@ -2,12 +2,15 @@ import uniswapTokens from '@uniswap/default-token-list'
 import Vibrant from 'node-vibrant'
 import { thegraphClient, TokenInfoQuery } from 'lib/graphql'
 import { ipfsToHttp } from 'lib/ipfs'
+import { chainId } from 'utils/config'
 import type { Token, TokenInfoQueryResponse } from 'types/trade'
 
+// This is just for compatibility of local testnet with "use-wallet"
+const tokenListChainId = chainId === 1337 ? 1 : chainId
+
 export const WETH = 'WETH'
-export const chainId = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || '1')
 export const weth = uniswapTokens?.tokens.find(
-  (token) => token.chainId === chainId && token.symbol === WETH,
+  (token) => token.chainId === tokenListChainId && token.symbol === WETH,
 )
 
 export function getAllTokens(): Token[] {
@@ -21,7 +24,8 @@ export function getAllTokens(): Token[] {
   // include only tokens with specified 'chainId' and exclude WETH
   return uniswapTokens?.tokens
     .filter(
-      (token) => token.chainId === chainId && token.symbol !== weth.symbol,
+      (token) =>
+        token.chainId === tokenListChainId && token.symbol !== weth.symbol,
     )
     .map((t) => ({
       ...t,

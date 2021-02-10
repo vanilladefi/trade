@@ -1,6 +1,6 @@
-import { UniSwapToken } from 'types/trade'
 import uniswapTokens from '@uniswap/default-token-list'
-import { ethers, providers, constants } from 'ethers'
+import { constants, ethers, providers } from 'ethers'
+import { UniSwapToken } from 'types/trade'
 import vanillaABI from 'types/vanillaRouter'
 import { chainId, vanillaRouterAddress } from 'utils/config'
 
@@ -8,7 +8,8 @@ type TradeProps = {
   tokenAddress: string
   amountETH: number
   amount?: number
-  provider: providers.JsonRpcProvider
+  provider?: providers.JsonRpcProvider
+  signer?: providers.JsonRpcSigner
 }
 
 export const WETH: UniSwapToken = uniswapTokens?.tokens.find(
@@ -26,16 +27,16 @@ export const WETH: UniSwapToken = uniswapTokens?.tokens.find(
 export const buy = async ({
   tokenAddress,
   amountETH,
-  provider,
+  signer,
 }: TradeProps): Promise<string> => {
   const vanillaRouter = new ethers.Contract(
     vanillaRouterAddress,
     JSON.stringify(vanillaABI),
-    provider,
+    signer,
   )
   const receipt = await vanillaRouter.buy(
     tokenAddress,
-    493,
+    12,
     constants.MaxUint256,
     { value: amountETH },
   )

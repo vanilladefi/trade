@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
 import { useRecoilCallback } from 'recoil'
 import { thegraphClientSub, TokenInfoSubAB, TokenInfoSubBA } from 'lib/graphql'
-import { getAllTokens, addData, WETH, weth, chainId } from 'lib/tokens'
+import { getAllTokens, addData, WETH, weth } from 'lib/tokens'
+import { chainId } from 'utils/config'
 import { allTokensStoreState } from 'state/tokens'
 import type { TokenInfoQueryResponse } from 'types/trade'
 
