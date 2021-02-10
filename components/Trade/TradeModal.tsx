@@ -1,4 +1,4 @@
-import { Fetcher, Price, Route, Token, WETH } from '@uniswap/sdk'
+import { Fetcher, Price, Route, Token } from '@uniswap/sdk'
 import { Column } from 'components/grid/Flex'
 import Button from 'components/input/Button'
 import Modal from 'components/Modal'
@@ -7,7 +7,8 @@ import { SmallTitle } from 'components/typography/Titles'
 import { providers } from 'ethers'
 import { tokenListChainId } from 'lib/tokens'
 import { buy } from 'lib/trade'
-import { useEffect, useState } from 'react'
+import debounce from 'lodash.debounce'
+import { useCallback, useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState, signerState } from 'state/wallet'
 import { PairByIdQueryResponse } from 'types/trade'
@@ -30,15 +31,13 @@ async function getMidPrice(
       selectedPair.token0.id,
       parseInt(selectedPair.token0.decimals),
     )
-    const pair = await Fetcher.fetchPairData(
-      tokenA,
-      WETH[tokenListChainId as keyof WETHChainOptions],
-      provider,
+    const tokenB = new Token(
+      tokenListChainId,
+      selectedPair.token1.id,
+      parseInt(selectedPair.token1.decimals),
     )
-    const route = new Route(
-      [pair],
-      WETH[tokenListChainId as keyof WETHChainOptions],
-    )
+    const pair = await Fetcher.fetchPairData(tokenA, tokenB, provider)
+    const route = new Route([pair], tokenB)
     return route.midPrice
   } catch (error) {
     return error
@@ -63,30 +62,63 @@ const ModalContent = ({
     selectedPair &&
       provider &&
       getMidPrice(selectedPair, provider).then((price) => setMidPrice(price))
-  }, [selectedPair, provider])
+    console.log(
+      midPrice,
+      midPrice && parseFloat(midPrice?.toSignificant()),
+      amount,
+    )
+  }, [selectedPair, provider, amount])
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleAmountChanged = useCallback(
+    debounce((value: string) => {
+      setAmount(parseFloat(value))
+    }, 200),
+    [setAmount],
+  )
+
+  const token1Out = useCallback(
+    () => (midPrice ? amount * parseFloat(midPrice?.toSignificant()) : 0),
+    [amount, midPrice],
+  )
 
   return (
     <Column>
       <div>
         <SmallTitle>TRADE SUCCESSFUL!</SmallTitle>
         {signer && selectedPair && (
-          <Button
-            onClick={() =>
-              buy({
-                tokenAddress: selectedPair.token1.id,
-                amountETH: amount,
-                signer: signer,
-              })
-            }
-          >
-            Buyings for price{' '}
-            {midPrice?.toSignificant && midPrice?.toSignificant()}
-          </Button>
+          <>
+            <Button
+              onClick={() =>
+                buy({
+                  tokenAddress: selectedPair.token1.id,
+                  amountETH: amount,
+                  signer: signer,
+                })
+              }
+            >
+              Buyings for price{' '}
+              {midPrice?.toSignificant && midPrice?.toSignificant()}
+            </Button>
+            <input
+              type='number'
+              onInput={(e) => handleAmountChanged(e.currentTarget.value)}
+            />
+          </>
         )}
       </div>
       <TradeFlower
-        received={{ ticker: 'DAI', amount: 2.5 }}
-        paid={{ ticker: 'ETH', amount: 0.0056572 }}
+        received={{
+          ticker: selectedPair?.token1.symbol || '',
+          amount: token1Out(),
+        }}
+        paid={{
+          ticker:
+            (selectedPair?.token0.symbol === 'WETH'
+              ? 'ETH'
+              : selectedPair?.token0.symbol) || '',
+          amount: amount,
+        }}
         tradeURL={{
           domain: 'vnl.com',
           transactionHash:
@@ -124,15 +156,10 @@ const TradeModal = ({
   onRequestClose,
   selectedPair,
   selectedPairId,
-}: Props): JSX.Element => {
-  return (
-    <Modal open={open} onRequestClose={onRequestClose}>
-      <ModalContent
-        selectedPair={selectedPair}
-        selectedPairId={selectedPairId}
-      />
-    </Modal>
-  )
-}
+}: Props): JSX.Element => (
+  <Modal open={open} onRequestClose={onRequestClose}>
+    <ModalContent selectedPair={selectedPair} selectedPairId={selectedPairId} />
+  </Modal>
+)
 
 export default TradeModal

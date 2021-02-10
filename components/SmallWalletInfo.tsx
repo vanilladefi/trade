@@ -1,10 +1,11 @@
 import { utils } from 'ethers'
 import { useMemo } from 'react'
-import { useWallet } from 'use-wallet'
 import { useRecoilState } from 'recoil'
 import { walletModalOpenState } from 'state/wallet'
-import { Alignment, Justification, Row } from './grid/Flex'
+import { useWallet } from 'use-wallet'
+import { useBreakpoints } from '../hooks/breakpoints'
 import BottomFloater from './BottomFloater'
+import { Alignment, Justification, Row } from './grid/Flex'
 import Button, {
   ButtonColor,
   ButtonGroup,
@@ -15,7 +16,6 @@ import Button, {
 import Spacer from './typography/Spacer'
 import WalletAddress from './typography/WalletAddress'
 import WalletIcon from './typography/WalletIcon'
-import { useBreakpoints } from '../hooks/breakpoints'
 
 type Props = {
   grow?: boolean
@@ -64,6 +64,7 @@ const SmallWalletInfo = ({ grow }: Props): JSX.Element => {
         }}
         color={ButtonColor.TRANSPARENT}
         bordered
+        size={ButtonSize.SMALL}
         rounded={Rounding.RIGHT}
         overflow={Overflow.ELLIPSIS}
         title={walletAddress.long}
