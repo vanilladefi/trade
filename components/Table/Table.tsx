@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import {
   useFlexLayout,
   usePagination,
@@ -43,6 +43,8 @@ export default function Table<D extends Record<string, unknown>>({
 }: Props<D>): JSX.Element {
   const { isSmaller, isBigger } = useBreakpoints()
 
+  const autoResetPageRef = useRef(false)
+
   const defaultColumn = React.useMemo(
     () => ({
       // When using the useFlexLayout:
@@ -64,6 +66,7 @@ export default function Table<D extends Record<string, unknown>>({
         sortBy: initialSortBy,
       },
       disableSortRemove: true,
+      autoResetPage: autoResetPageRef.current,
       autoResetSortBy: false,
     },
     useGlobalFilter,
@@ -92,6 +95,11 @@ export default function Table<D extends Record<string, unknown>>({
   } = tableInstance
 
   useEffect(() => {
+    // Disable auto reset page
+    autoResetPageRef.current = false
+  })
+
+  useEffect(() => {
     const hiddenColumns = getHiddenColumns(columns, { isSmaller, isBigger })
     setHiddenColumns(hiddenColumns)
   }, [setHiddenColumns, columns, isSmaller, isBigger])
@@ -99,6 +107,9 @@ export default function Table<D extends Record<string, unknown>>({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleQueryChanged = useCallback(
     debounce((val) => {
+      // Enable auto reset page when search query changes
+      // so the user is forced back to page 1
+      autoResetPageRef.current = true
       setGlobalFilter(val)
     }, 200),
     [setGlobalFilter],
