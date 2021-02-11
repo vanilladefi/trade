@@ -24,12 +24,13 @@ function Fatline({ curve, width, rotation, color, duration, animate }) {
   const points = curve.length
   let pointprogress = 0
 
-  // This makes the "brush effect" of the stroke
-  const increaseSize = () => {
+  // This makes the "brush effect" of the stroke -- disabled for now
+  // add widthCallback={(pointWidth) => increaseSize()} to <meshLine>
+  /*const increaseSize = () => {
     const p = pointprogress / points
     pointprogress += 1
     return 0.1 + 1 * Math.sin(1.5 * p)
-  }
+  }*/
 
   useFrame(() => {
     if (material.current.uniforms.dashOffset.value > -1.43 && animate) {
@@ -42,11 +43,7 @@ function Fatline({ curve, width, rotation, color, duration, animate }) {
 
   return (
     <mesh raycast={MeshLineRaycast} rotation={rotation}>
-      <meshLine
-        attach='geometry'
-        widthCallback={(pointWidth) => increaseSize()}
-        points={curve}
-      />
+      <meshLine attach='geometry' points={curve} />
       <meshLineMaterial
         attach='material'
         ref={material}
@@ -72,10 +69,14 @@ export default function Petals({
   animate,
   asBackground,
 }) {
-  const angleRange = 10
-  const depthRange = 0.025
+  const { size, viewport } = useThree()
+  const canvasSize = size.width
+  const angleRange = 20
+  const depthRange = 0.02
+
   stems = parseInt(stems)
   iterations = parseInt(iterations)
+
   const simplex = useMemo(() => new SimplexNoise(seed), [seed])
   const lines = useMemo(
     () =>
@@ -83,7 +84,7 @@ export default function Petals({
         const pos = new THREE.Vector3(0, 0, 0)
         let increment = 0.3
         let pointX = 0.1
-        let pointY = 0.1
+        let pointY = 0
 
         const points = new Array(iterations).fill().map((_, index) => {
           const angle = calcMap(
@@ -95,20 +96,19 @@ export default function Petals({
           )
 
           const angleX = Math.cos(angle)
-          const angleY = Math.sin(angle) / 10
+          const newY = canvasSize / iterations / 100
 
           const newX = pointX + calcClamp(angleX, -1, 1)
-          const newY = pointY + calcClamp(angleY, pointY, 4)
 
           pointX += newX / 100
-          pointY += newY / 100
+          pointY += newY
 
           increment += calcMap(simplex.noise2D(increment, 0), 1, -1, 0, 1)
           return pos
             .add(
               new THREE.Vector3(
-                index == iterations - 1 ? -2.8 * newX : newX, // force last points to offset
-                index == iterations - 1 ? 0.8 * newY : newY, // force last points to offset
+                newX, // force last points to offset
+                newY,
                 calcMap(index, 0, 1, -depthRange, depthRange),
               ),
             )
@@ -119,8 +119,8 @@ export default function Petals({
           points,
           true,
           'centripetal',
-          0.2,
-        ).getPoints(100)
+          1.5,
+        ).getPoints(600)
         return {
           color: color[index] ? color[index] : color[0],
           width: 0.06,
@@ -138,7 +138,6 @@ export default function Petals({
   )
 
   const ref = useRef()
-  const { size, viewport } = useThree()
   const aspect = size.width / viewport.width
   useFrame(() => {
     if (ref.current) {
@@ -149,13 +148,13 @@ export default function Petals({
       } else {
         ref.current.rotation.x = lerp(
           ref.current.rotation.x,
-          0 + mouse.current[1] / aspect / -200,
-          0.8,
+          0 + mouse.current[1] / aspect / -50,
+          1,
         )
         ref.current.rotation.y = lerp(
           ref.current.rotation.y,
-          0 + mouse.current[0] / aspect / -400,
-          0.8,
+          0 + mouse.current[0] / aspect / -50,
+          1,
         )
       }
     }

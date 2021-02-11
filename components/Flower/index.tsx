@@ -1,6 +1,7 @@
 import React, { useCallback, useRef } from 'react'
 import { Canvas } from 'react-three-fiber' // https://github.com/pmndrs/react-three-fiber
 import { InView } from 'react-intersection-observer'
+import domtoimage from 'dom-to-image'
 
 import Particles from './Particles'
 import Petals from './Petals'
@@ -21,6 +22,7 @@ type Props = {
   bottomLeft?: React.ReactNode
   bottomRight?: React.ReactNode
   hasProfitCurve?: boolean
+  allowExport?: boolean
 }
 
 const Flower = ({
@@ -37,6 +39,7 @@ const Flower = ({
   topRight,
   bottomLeft,
   bottomRight,
+  allowExport,
   ...rest
 }: Props): JSX.Element => {
   const mouse = useRef([0, 0])
@@ -46,14 +49,25 @@ const Flower = ({
     [],
   )
 
-  let isMobile = false
+  const flowerRef = React.createRef<HTMLDivElement>()
+
+  const downloadImage = () => {
+    const node = flowerRef.current
+    if (node) {
+      domtoimage.toPng(node).then(function (dataUrl) {
+        const link = document.createElement('a')
+        link.download = `profitblossom-${
+          new Date().toISOString().split('T')[0]
+        }.png`
+        link.href = dataUrl
+        link.click()
+      })
+    }
+  }
+
   seed = seed ?? 123456
   stems = stems ?? 14
-  iterations = iterations ?? 11
-
-  React.useEffect(() => {
-    isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-  }, [])
+  iterations = iterations ?? 12
 
   return (
     <InView rootMargin='0px' triggerOnce>
@@ -73,8 +87,14 @@ const Flower = ({
               }}
             >
               <Canvas
-                pixelRatio={Math.min(2, isMobile ? window.devicePixelRatio : 1)}
-                camera={{ fov: 80, position: [0, 0, 12] }}
+                pixelRatio={
+                  typeof window !== 'undefined'
+                    ? window.devicePixelRatio
+                      ? window.devicePixelRatio
+                      : 1
+                    : 1
+                }
+                camera={{ fov: 75, position: [0, 0, 12] }}
                 resize={{ scroll: false }}
               >
                 <Petals
@@ -91,54 +111,67 @@ const Flower = ({
               </Canvas>
             </div>
           ) : (
-            <div style={{ position: 'relative' }}>
-              <div
-                style={{
-                  width: minSize,
-                  height: minSize,
-                  maxWidth: maxSize,
-                  maxHeight: maxSize,
-                  background: 'var(--tradeflowergradient)',
-                  borderRadius: '16px',
-                }}
-              >
-                <Canvas
-                  pixelRatio={Math.min(
-                    2,
-                    isMobile ? window.devicePixelRatio : 1,
-                  )}
-                  camera={{ fov: 80, position: [0, 0, 19] }}
-                  onMouseMove={onMouseMove}
-                  resize={{ scroll: false }}
+            <div>
+              <div style={{ position: 'relative' }} ref={flowerRef}>
+                <div
+                  style={{
+                    width: minSize,
+                    height: minSize,
+                    maxWidth: maxSize,
+                    maxHeight: maxSize,
+                    background: 'var(--tradeflowergradient)',
+                    borderRadius: '16px',
+                  }}
                 >
-                  <Petals
-                    stems={stems}
-                    iterations={iterations}
-                    mouse={mouse}
-                    color={color}
-                    seed={seed}
-                    duration={800}
-                    animate={inView}
-                    asBackground={false}
-                  />
-                  <Particles count={particleCount} mouse={mouse} />
-                </Canvas>
+                  <Canvas
+                    pixelRatio={
+                      typeof window !== 'undefined'
+                        ? window.devicePixelRatio
+                          ? window.devicePixelRatio
+                          : 1
+                        : 1
+                    }
+                    camera={{ fov: 75, position: [0, 0, 19] }}
+                    onMouseMove={onMouseMove}
+                    resize={{ scroll: false }}
+                    gl={{ preserveDrawingBuffer: true }}
+                  >
+                    <Petals
+                      stems={stems}
+                      iterations={iterations}
+                      mouse={mouse}
+                      color={color}
+                      seed={seed}
+                      duration={800}
+                      animate={inView}
+                      asBackground={false}
+                    />
+                    <Particles count={particleCount} mouse={mouse} />
+                  </Canvas>
+                </div>
+                {topLeft && (
+                  <div className='data-text top-left-data-text'>{topLeft}</div>
+                )}
+                {topRight && (
+                  <div className='data-text top-right-data-text'>
+                    {topRight}
+                  </div>
+                )}
+                {bottomLeft && (
+                  <div className='data-text bottom-left-data-text'>
+                    {bottomLeft}
+                  </div>
+                )}
+                {bottomRight && (
+                  <div className='data-text bottom-right-data-text'>
+                    {bottomRight}
+                  </div>
+                )}
               </div>
-              {topLeft && (
-                <div className='data-text top-left-data-text'>{topLeft}</div>
-              )}
-              {topRight && (
-                <div className='data-text top-right-data-text'>{topRight}</div>
-              )}
-              {bottomLeft && (
-                <div className='data-text bottom-left-data-text'>
-                  {bottomLeft}
-                </div>
-              )}
-              {bottomRight && (
-                <div className='data-text bottom-right-data-text'>
-                  {bottomRight}
-                </div>
+              {allowExport && (
+                <button style={{ marginTop: '1rem' }} onClick={downloadImage}>
+                  Download as png
+                </button>
               )}
             </div>
           )}

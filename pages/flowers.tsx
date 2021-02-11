@@ -1,22 +1,25 @@
 import React from 'react'
-import router from 'next/router'
+import { useRouter } from 'next/router'
 
 import Layout from '../components/Layout'
 import Wrapper from '../components/Wrapper'
 import Flower from '../components/Flower'
 
 const FlowerPage = (): JSX.Element => {
-  let seed = 123456
-  let stems = 14
-  let iterations = 11
+  const router = useRouter()
 
-  React.useEffect(() => {
-    seed = router.query.seed ? Math.floor(Number(router.query.seed)) : seed
-    iterations = router.query.iterations
-      ? Math.floor(Number(router.query.iterations))
-      : iterations
-    stems = router.query.stems ? Math.floor(Number(router.query.stems)) : stems
-  }, [])
+  const seed = router.query.seed
+    ? Math.floor(Number(router.query.seed))
+    : 123456
+  const stems = router.query.stems ? Math.floor(Number(router.query.stems)) : 11
+
+  const iterations = router.query.iterations
+    ? Math.floor(Number(router.query.iterations))
+    : 14
+
+  const particleCount = router.query.particleCount
+    ? Math.floor(Number(router.query.particleCount))
+    : 100
 
   return (
     <Layout title='VNL Flower playground' hideFromSearch>
@@ -29,10 +32,12 @@ const FlowerPage = (): JSX.Element => {
             minSize='80vw'
             maxSize='600px'
             seed={seed}
+            particleCount={particleCount}
             topLeft={`Seed ${seed}`}
             topRight={`Iterations ${iterations}`}
             bottomLeft={`Stems ${stems}`}
             bottomRight='Flower dev'
+            allowExport
           />
         </div>
       </Wrapper>
