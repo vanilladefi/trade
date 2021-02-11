@@ -65,14 +65,9 @@ const Flower = ({
     }
   }
 
-  let isMobile = false
   seed = seed ?? 123456
   stems = stems ?? 14
   iterations = iterations ?? 12
-
-  React.useEffect(() => {
-    isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-  }, [])
 
   return (
     <InView rootMargin='0px' triggerOnce>
@@ -92,7 +87,13 @@ const Flower = ({
               }}
             >
               <Canvas
-                pixelRatio={Math.min(2, isMobile ? window.devicePixelRatio : 1)}
+                pixelRatio={
+                  typeof window !== 'undefined'
+                    ? window.devicePixelRatio
+                      ? window.devicePixelRatio
+                      : 1
+                    : 1
+                }
                 camera={{ fov: 75, position: [0, 0, 12] }}
                 resize={{ scroll: false }}
               >
@@ -123,10 +124,13 @@ const Flower = ({
                   }}
                 >
                   <Canvas
-                    pixelRatio={Math.min(
-                      2,
-                      isMobile ? window.devicePixelRatio : 1,
-                    )}
+                    pixelRatio={
+                      typeof window !== 'undefined'
+                        ? window.devicePixelRatio
+                          ? window.devicePixelRatio
+                          : 1
+                        : 1
+                    }
                     camera={{ fov: 75, position: [0, 0, 19] }}
                     onMouseMove={onMouseMove}
                     resize={{ scroll: false }}
