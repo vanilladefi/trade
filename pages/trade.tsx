@@ -24,7 +24,9 @@ import type {
 } from 'types/trade'
 import { allTokensStoreState } from 'state/tokens'
 import { addGraphInfo, addLogoColor, getAllTokens } from 'lib/tokens'
+import { getCurrentBlockNumber, getAverageBlockCountPerHour } from 'lib/block'
 import useTokenSubscription from 'hooks/useTokenSubscription'
+import useMetaSubscription from 'hooks/useMetaSubscription'
 
 type PageProps = {
   allTokens: Token[]
@@ -134,6 +136,7 @@ const BodyContent = ({
   onBuyClick,
   onSellClick,
 }: BodyProps): JSX.Element => {
+  useMetaSubscription()
   useTokenSubscription()
   const setTokens = useSetRecoilState(allTokensStoreState)
 
@@ -239,7 +242,22 @@ export async function getStaticProps(): Promise<
 > {
   let tokens = getAllTokens()
   tokens = await addLogoColor(tokens)
-  tokens = await addGraphInfo(tokens)
+
+  // Fetch these simultaneously
+  const [blocksPerHour, currentBlockNumber, _tokens] = await Promise.all([
+    getAverageBlockCountPerHour(),
+    getCurrentBlockNumber(),
+    addGraphInfo(tokens),
+  ])
+
+  const block24hAgo = currentBlockNumber - 24 * blocksPerHour
+
+  // Add historical data (price change)
+  if (block24hAgo > 0) {
+    tokens = await addGraphInfo(_tokens, block24hAgo)
+  } else {
+    tokens = _tokens
+  }
 
   return {
     props: {

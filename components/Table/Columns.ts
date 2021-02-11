@@ -60,6 +60,7 @@ export const PriceChange: ListColumn<Token> = {
   disableGlobalFilter: true,
   sortType: 'basic',
   align: 'right',
+  colorBasedOnValue: true,
   Cell: Cells.ValuePercent,
 }
 
