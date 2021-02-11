@@ -13,14 +13,6 @@ import { useRecoilValue } from 'recoil'
 import { providerState, signerState } from 'state/wallet'
 import { PairByIdQueryResponse } from 'types/trade'
 
-type WETHChainOptions = {
-  1: Token
-  3: Token
-  4: Token
-  5: Token
-  42: Token
-}
-
 async function getMidPrice(
   selectedPair: PairByIdQueryResponse,
   provider: providers.JsonRpcProvider,
