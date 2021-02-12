@@ -7,6 +7,7 @@ import {
 } from 'lib/graphql'
 import { ipfsToHttp } from 'lib/ipfs'
 import type { Token, TokenInfoQueryResponse } from 'types/trade'
+import additionalTokens from 'data/tokens.json'
 
 export const WETH = 'WETH'
 export const chainId = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || '1')
@@ -23,7 +24,7 @@ export function getAllTokens(): Token[] {
 
   // Get tokens from Uniswap default-list
   // include only tokens with specified 'chainId' and exclude WETH
-  return uniswapTokens?.tokens
+  return [...uniswapTokens?.tokens, ...additionalTokens]
     .filter(
       (token) => token.chainId === chainId && token.symbol !== weth.symbol,
     )
