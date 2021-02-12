@@ -179,8 +179,14 @@ export default function Table<D extends Record<string, unknown>>({
           ) : (
             <div className='tr list-empty'>
               <div className='td'>
-                No results matching &quot;{query}&quot;.{' '}
-                {clearQuery && <a onClick={clearQuery}>Clear search</a>}
+                {query ? (
+                  <>
+                    No results matching &quot;{query}&quot;.{' '}
+                    {clearQuery && <a onClick={clearQuery}>Clear search</a>}
+                  </>
+                ) : (
+                  <>No tokens</>
+                )}
               </div>
             </div>
           )}

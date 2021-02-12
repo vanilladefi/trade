@@ -9,9 +9,13 @@ import Button, { ButtonColor, ButtonSize } from 'components/input/Button'
 
 interface Props {
   onBuyClick: HandleBuyClick
+  initialTokens?: Token[]
 }
 
-export default function AvailableTokens({ onBuyClick }: Props): JSX.Element {
+export default function AvailableTokens({
+  onBuyClick,
+  initialTokens = [],
+}: Props): JSX.Element {
   const tokens = useRecoilValue(allTokensStoreState)
 
   const [query, clearQuery] = useTokenSearch()
@@ -22,7 +26,7 @@ export default function AvailableTokens({ onBuyClick }: Props): JSX.Element {
 
   return (
     <Table
-      data={tokens}
+      data={tokens.length ? tokens : initialTokens}
       columns={columns}
       initialSortBy={initialSortBy}
       query={query}

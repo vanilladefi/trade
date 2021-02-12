@@ -156,7 +156,8 @@ const BodyContent = ({
           <MyPositions onBuyClick={onBuyClick} onSellClick={onSellClick} />
 
           <h2>AVAILABLE TOKENS</h2>
-          <AvailableTokens onBuyClick={onBuyClick} />
+          {/* Pass "initialTokens" so this page is statically rendered with tokens */}
+          <AvailableTokens initialTokens={allTokens} onBuyClick={onBuyClick} />
         </Column>
       </Row>
       <style jsx>{`
