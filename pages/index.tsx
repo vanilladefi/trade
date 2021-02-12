@@ -26,16 +26,21 @@ const HeaderContent = (
     <Flower
       asBackground
       color={['#2C1929']}
-      maxSize='380px'
-      minSize='80vw'
+      minWidth='1000px'
+      minHeight='450px'
+      maxWidth='1000px'
+      maxHeight='450px'
       seed={Math.random() * 1337}
       hasProfitCurve
+      positionRight
       className='heroFlower'
     />
     <style jsx>{`
       .heroFlower {
-        right: -10rem;
-        bottom: -1.2rem;
+        right: -40rem;
+        bottom: -6.5rem;
+        transform: scale(0.9);
+        transform-origin: bottom center;
       }
       .heroContainer {
         position: relative;
@@ -46,11 +51,17 @@ const HeaderContent = (
         --buttonmargin: 0.5rem 0 10vh 0;
         padding-bottom: 0vh;
         max-width: 35rem;
+        width: 70%;
       }
       @media (min-width: ${BreakPoint.sm}px) {
+        .heroFlower {
+          right: -30rem;
+          bottom: -0.95rem;
+          transform: scale(1);
+        }
         .landingHero {
           --titlesize: 4rem;
-          --titlemargin: 10vh 0 1.4rem;
+          --titlemargin: 6vh 0 1.4rem;
           --buttonmargin: 0.5rem 0 10vh 0;
           --titlecolor: var(--dark);
           max-width: 40rem;
@@ -59,7 +70,13 @@ const HeaderContent = (
 
       @media (min-width: ${BreakPoint.md}px) {
         .heroFlower {
-          right: 6rem;
+          right: -13%;
+        }
+      }
+
+      @media (min-width: ${BreakPoint.lg}px) {
+        .heroFlower {
+          right: -15%;
         }
       }
     `}</style>
@@ -87,8 +104,10 @@ const IndexPage = (): JSX.Element => (
               <Flower
                 asBackground
                 color={['#FFFFFF']}
-                maxSize='400px'
-                minSize='80vw'
+                minWidth='80vw'
+                minHeight='80vw'
+                maxWidth='400px'
+                maxHeight='400px'
                 seed={Math.random() * 12566}
                 className='whiteFlowers'
               />
@@ -98,8 +117,10 @@ const IndexPage = (): JSX.Element => (
               <Flower
                 asBackground
                 color={['#FFFFFF']}
-                maxSize='400px'
-                minSize='80vw'
+                minWidth='80vw'
+                minHeight='80vw'
+                maxWidth='400px'
+                maxHeight='400px'
                 seed={Math.random() * 12566}
                 className='whiteFlowers'
               />

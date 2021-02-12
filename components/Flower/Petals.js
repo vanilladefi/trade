@@ -68,9 +68,9 @@ export default function Petals({
   duration,
   animate,
   asBackground,
+  flowerSize,
 }) {
   const { size, viewport } = useThree()
-  const canvasSize = size.width
   const angleRange = 20
   const depthRange = 0.02
 
@@ -96,7 +96,7 @@ export default function Petals({
           )
 
           const angleX = Math.cos(angle)
-          const newY = canvasSize / iterations / 100
+          const newY = flowerSize / iterations
 
           const newX = pointX + calcClamp(angleX, -1, 1)
 

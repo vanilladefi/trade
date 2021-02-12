@@ -1,3 +1,6 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+
 import * as THREE from 'three'
 import React, { useRef, useMemo } from 'react'
 import { extend, useFrame, useThree } from 'react-three-fiber'
@@ -46,8 +49,9 @@ function Fatline({ curve, width, color, duration, animate }) {
 export default function ProfitCurve() {
   // Curve points adjusted by hand, so it lands nicely on the left corner of the square canvas
   const curve = [
-    new THREE.Vector3(-12, -10.45, 0),
-    new THREE.Vector3(-2, -8, 0),
+    new THREE.Vector3(-23, -14, 0),
+    new THREE.Vector3(-19, -8.5, 0),
+    new THREE.Vector3(-2, -6.2, 0),
     new THREE.Vector3(0, 0, 0),
   ]
   const points = new THREE.CatmullRomCurve3(curve).getPoints(200)
