@@ -16,7 +16,7 @@ type Props = {
   maxHeight: string
   minWidth: string
   minHeight: string
-  flowerSize: string | number | string[]
+  flowerSize?: string | number | string[]
   seed: string | number | string[]
   asBackground?: boolean
   className?: string
