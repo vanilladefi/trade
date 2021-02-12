@@ -35,7 +35,6 @@
     "graphql-request": "^3.4.0",
     "graphql-subscriptions-client": "github:lunchboxer/graphql-subscriptions-client#isomorphic",
     "gray-matter": "^4.0.2",
-    "i": "^0.3.6",
     "image-size": "^0.9.3",
     "lerp": "^1.0.3",
     "lodash.debounce": "^4.0.8",
