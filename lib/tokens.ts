@@ -1,6 +1,10 @@
 import uniswapTokens from '@uniswap/default-token-list'
 import Vibrant from 'node-vibrant'
-import { thegraphClient, TokenInfoQuery } from 'lib/graphql'
+import {
+  thegraphClient,
+  TokenInfoQuery,
+  TokenInfoQueryHistorical,
+} from 'lib/graphql'
 import { ipfsToHttp } from 'lib/ipfs'
 import type { Token, TokenInfoQueryResponse } from 'types/trade'
 
@@ -29,6 +33,7 @@ export function getAllTokens(): Token[] {
       logoColor: null,
       pairId: null,
       price: null,
+      priceHistorical: null,
       liquidity: null,
       priceChange: null,
     }))
@@ -56,9 +61,15 @@ export function addLogoColor(tokens: Token[]): Promise<Token[]> {
   )
 }
 
+function calcPriceChange(newPrice: number, oldPrice: number): number {
+  if (oldPrice === 0) return 0
+  return (newPrice - oldPrice) / oldPrice
+}
+
 export function addData(
   tokens: Token[],
   data: TokenInfoQueryResponse[],
+  historical = false,
 ): Token[] {
   return tokens.map((t) => {
     const d = data.find(
@@ -67,29 +78,47 @@ export function addData(
 
     if (!d) return t
 
+    const price = !historical ? parseFloat(d.price) : t.price ?? 0
+    const liquidity = !historical ? parseFloat(d.reserveUSD) : t.liquidity
+    const priceHistorical = historical ? parseFloat(d.price) : t.priceHistorical
+    const priceChange = priceHistorical
+      ? calcPriceChange(price, priceHistorical)
+      : 0
+
     return {
       ...t,
-      pairId: d.pairId,
-      price: parseFloat(d.price),
-      liquidity: parseFloat(d.reserveUSD),
-      priceChange: 0,
+      pairId: d.pairId ?? t.pairId,
+      price,
+      priceHistorical,
+      priceChange,
+      liquidity,
     }
   })
 }
 
-export async function addGraphInfo(tokens: Token[]): Promise<Token[]> {
+export async function addGraphInfo(
+  tokens: Token[],
+  blockNumber = 0,
+): Promise<Token[]> {
   if (!weth) {
     throw new Error(
       `Unable to find ${WETH} in uniswap list with "chainId": ${chainId}`,
     )
   }
 
+  const historical = blockNumber > 0
+
+  const query = !historical ? TokenInfoQuery : TokenInfoQueryHistorical
+
+  const variables = {
+    blockNumber,
+    weth: weth.address.toLowerCase(),
+    tokenAddresses: tokens.map(({ address }) => address.toLowerCase()),
+  }
+
   try {
     // Retrieve more info from The Graph's API
-    const response = await thegraphClient.request(TokenInfoQuery, {
-      weth: weth.address.toLowerCase(),
-      tokenAddresses: tokens.map(({ address }) => address.toLowerCase()),
-    })
+    const response = await thegraphClient.request(query, variables)
 
     const data = [
       // Merge response arrays
@@ -97,8 +126,9 @@ export async function addGraphInfo(tokens: Token[]): Promise<Token[]> {
       ...response?.tokensBA,
     ]
 
-    return addData(tokens, data)
+    return addData(tokens, data, historical)
   } catch (e) {
+    console.error(e)
     return tokens
   }
 }

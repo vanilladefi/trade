@@ -22,6 +22,7 @@ export interface UniSwapToken {
 export interface Token extends UniSwapToken {
   pairId: string | null
   price: number | null
+  priceHistorical: number | null
   priceChange: number | null
   liquidity: number | null
   logoColor: string | null
@@ -48,6 +49,16 @@ export interface PairByIdQueryResponse {
   }
 }
 
+export interface MetaQueryResponse {
+  _meta: {
+    block: {
+      hash: string
+      number: number
+    }
+    deployment: string
+  }
+}
+
 export type HandleBuyClick = (pairInfo: PairInfo) => void
 
 export type HandleSellClick = (pairInfo: PairInfo) => void
@@ -59,6 +70,9 @@ export type ResponsivelyHidable = {
   hideAbove?: keyof BreakPointOptions
 }
 
+export type ColorBasedOnValue = { colorBasedOnValue?: boolean }
+
 export type ListColumn<T extends Record<string, unknown>> = Column<T> &
   LeftOrRightAlignable &
-  ResponsivelyHidable
+  ResponsivelyHidable &
+  ColorBasedOnValue

@@ -17,7 +17,11 @@ import type {
 import debounce from 'lodash.debounce'
 import { useBreakpoints } from 'hooks/breakpoints'
 import type { BreakPoints } from 'components/GlobalStyles/Breakpoints'
-import type { ListColumn, LeftOrRightAlignable } from 'types/trade'
+import type {
+  ListColumn,
+  LeftOrRightAlignable,
+  ColorBasedOnValue,
+} from 'types/trade'
 import PageControl from './PageControl'
 
 interface Props<D extends Record<string, unknown>> {
@@ -29,6 +33,10 @@ interface Props<D extends Record<string, unknown>> {
   pagination?: boolean
   colorize?: boolean
 }
+
+type CustomColumnInstance<
+  D extends Record<string, unknown>
+> = ColumnInstance<D> & LeftOrRightAlignable & ColorBasedOnValue
 
 const pageSizes = [20, 50, 100]
 
@@ -201,6 +209,8 @@ export default function Table<D extends Record<string, unknown>>({
           font-size: var(--bodysize);
           --buttonmargin: 0;
           margin-bottom: 2rem;
+          --negativeValue: red;
+          --positiveValue: green;
         }
         .td,
         .th {
@@ -239,7 +249,7 @@ export default function Table<D extends Record<string, unknown>>({
 }
 
 const getStyles = <D extends Record<string, unknown>>(
-  column: ColumnInstance<D> & LeftOrRightAlignable,
+  column: CustomColumnInstance<D>,
 ) => {
   return {
     style: {
@@ -250,12 +260,34 @@ const getStyles = <D extends Record<string, unknown>>(
   }
 }
 
-const getHeaderSpecificStyles = <D extends Record<string, unknown>>(
-  column: ColumnInstance<D> & LeftOrRightAlignable,
+const getHeaderStyles = <D extends Record<string, unknown>>(
+  column: CustomColumnInstance<D>,
 ) => {
   return {
     style: {
       textAlign: column?.align === 'right' ? 'right' : 'inherit',
+    },
+  }
+}
+
+const getColor = (value: string | number) => {
+  const val = value ? parseFloat(value.toString()) : 0
+  return val < 0
+    ? 'var(--negativeValue)'
+    : val > 0
+    ? 'var(--positiveValue)'
+    : 'inherit'
+}
+
+const getCellStyles = <D extends Record<string, unknown>>(
+  column: CustomColumnInstance<D>,
+  value?: number | string,
+) => {
+  const color = value && column?.colorBasedOnValue ? getColor(value) : 'inherit'
+
+  return {
+    style: {
+      color,
     },
   }
 }
@@ -267,13 +299,13 @@ const headerProps = <D extends Record<string, unknown>>(
   props,
   column.getSortByToggleProps(),
   getStyles(column),
-  getHeaderSpecificStyles(column),
+  getHeaderStyles(column),
 ]
 
 const cellProps = <D extends Record<string, unknown>>(
   props: Partial<TableKeyedProps>,
   { cell }: Meta<D, { cell: Cell<D> }>,
-) => [props, getStyles(cell.column)]
+) => [props, getStyles(cell.column), getCellStyles(cell.column, cell.value)]
 
 const rowProps = <D extends Record<string, unknown>>(
   props: Partial<TableKeyedProps>,

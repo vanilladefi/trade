@@ -1,8 +1,17 @@
 import { useEffect } from 'react'
-import { useRecoilCallback } from 'recoil'
+import { useRecoilCallback, useRecoilValue } from 'recoil'
 import { thegraphClientSub, TokenInfoSubAB, TokenInfoSubBA } from 'lib/graphql'
-import { getAllTokens, addData, WETH, weth, chainId } from 'lib/tokens'
+import {
+  getAllTokens,
+  addData,
+  addGraphInfo,
+  WETH,
+  weth,
+  chainId,
+} from 'lib/tokens'
+import { getAverageBlockCountPerHour } from 'lib/block'
 import { allTokensStoreState } from 'state/tokens'
+import { currentBlockNumberState } from 'state/meta'
 import type { TokenInfoQueryResponse } from 'types/trade'
 
 if (!weth) {
@@ -21,11 +30,22 @@ interface subReturnValue {
 }
 
 export default function useTokenSubscription(): void {
+  const currentBlockNumber = useRecoilValue(currentBlockNumberState)
+
   const handleNewData = useRecoilCallback(
-    ({ snapshot, set }) => async ({ data }: subReturnValue) => {
+    ({ set }) => ({ data }: subReturnValue) => {
       if (data?.tokens?.length) {
-        const tokens = await snapshot.getPromise(allTokensStoreState)
-        set(allTokensStoreState, addData(tokens, data.tokens))
+        set(allTokensStoreState, (tokens) => addData(tokens, data.tokens))
+      }
+    },
+    [],
+  )
+
+  const addHistoricalData = useRecoilCallback(
+    ({ snapshot, set }) => async (blockNumber: number) => {
+      const tokens = await snapshot.getPromise(allTokensStoreState)
+      if (blockNumber > 0 && tokens?.length) {
+        set(allTokensStoreState, await addGraphInfo(tokens, blockNumber))
       }
     },
     [],
@@ -55,4 +75,11 @@ export default function useTokenSubscription(): void {
       subBA.unsubscribe()
     }
   }, [handleNewData])
+
+  // Handle price change fetching
+  useEffect(() => {
+    getAverageBlockCountPerHour().then((blocksPerHour) => {
+      addHistoricalData(currentBlockNumber - 24 * blocksPerHour)
+    })
+  }, [addHistoricalData, currentBlockNumber])
 }
