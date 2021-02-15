@@ -3,7 +3,7 @@ import Flower from '../components/Flower'
 
 export type Token = {
   ticker: string
-  amount: number
+  amount: string
 }
 
 export type TradeURL = {
@@ -64,7 +64,11 @@ const TradeFlower = ({
           maxSize='100%'
           seed={tradeURL.transactionHash}
           particleCount={
-            received ? received.amount * 100 : reward ? reward.amount * 100 : 0
+            received
+              ? parseFloat(received.amount.toString()) * 100
+              : reward
+              ? parseFloat(reward.amount.toString()) * 100
+              : 0
           }
           topLeft={receivedData}
           topRight={rewardData}

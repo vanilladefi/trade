@@ -5,7 +5,7 @@ import Button, { ButtonSize } from 'components/input/Button'
 import Layout from 'components/Layout'
 import TokenSearch from 'components/TokenSearch'
 import { AvailableTokens, MyPositions } from 'components/Trade'
-import TradeModal from 'components/Trade/TradeModal'
+import TradeModal from 'components/Trade/Modal'
 import HugeMonospace from 'components/typography/HugeMonospace'
 import { SmallTitle, Title } from 'components/typography/Titles'
 import Wrapper from 'components/Wrapper'
@@ -196,7 +196,6 @@ export default function TradePage({ allTokens }: PageProps): JSX.Element {
         open={modalOpen}
         onRequestClose={() => setModalOpen(false)}
         selectedPair={selectedPair}
-        selectedPairId={selectedPairId}
       />
       <BodyContent
         allTokens={allTokens}

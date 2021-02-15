@@ -145,7 +145,7 @@ export const calcIntersectSphere = (a, b) => {
   let distance = Math.sqrt(
     (a.x - b.x) * (a.x - b.x) +
       (a.y - b.y) * (a.y - b.y) +
-      (a.z - b.z) * (a.z - b.z)
+      (a.z - b.z) * (a.z - b.z),
   )
   return distance < a.radius + b.radius
 }

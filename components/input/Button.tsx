@@ -1,6 +1,6 @@
 import classNames from 'classnames'
 import React, { ReactNode } from 'react'
-import { Justification, Alignment } from '../grid/Flex'
+import { Alignment, Justification } from '../grid/Flex'
 
 export enum ButtonColor {
   GRADIENT,
@@ -136,7 +136,9 @@ const Button = ({
           background: transparent;
         }
         button.bordered {
-          border: 3px solid var(--dark);
+          border-width: 3px;
+          border-style: solid;
+          border-image: var(--bordercolor);
         }
         button.roundedTopLeft {
           border-top-left-radius: 9999px;

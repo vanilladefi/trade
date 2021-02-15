@@ -14,6 +14,7 @@ const Variables = (): JSX.Element => (
       --curtain-background: rgba(44, 21, 45, 0.83);
       --curtain-backdropfilter: blur(40px);
       --roadmapcolor: #ffd866;
+      --bordercolor: var(--dark);
 
       /* Gradients */
       --topgradient: radial-gradient(
@@ -35,6 +36,11 @@ const Variables = (): JSX.Element => (
         326deg,
         #ffedab 8.09%,
         #ededed 89.18%
+      );
+      --toggleWrapperGradient: radial-gradient(
+        59.84% 223.83% at 50% 50%,
+        #ffedab 0%,
+        #ededed 100%
       );
 
       /* Dimensions */

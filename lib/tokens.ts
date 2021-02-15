@@ -1,4 +1,6 @@
 import uniswapTokens from '@uniswap/default-token-list'
+import { Token as UniswapToken } from '@uniswap/sdk'
+import { Contract, providers, utils } from 'ethers'
 import { thegraphClient, TokenInfoQuery } from 'lib/graphql'
 import { ipfsToHttp } from 'lib/ipfs'
 import Vibrant from 'node-vibrant'
@@ -105,4 +107,34 @@ export async function addGraphInfo(tokens: Token[]): Promise<Token[]> {
   } catch (e) {
     return tokens
   }
+}
+
+export async function getERC20TokenBalance(
+  address: string,
+  token: UniswapToken,
+  provider: providers.JsonRpcProvider,
+): Promise<number> {
+  const ERCBalanceQueryABI = [
+    {
+      name: 'balanceOf',
+      type: 'function',
+      inputs: [
+        {
+          name: '_owner',
+          type: 'address',
+        },
+      ],
+      outputs: [
+        {
+          name: 'balance',
+          type: 'uint256',
+        },
+      ],
+      constant: true,
+      payable: false,
+    },
+  ]
+  const contract = new Contract(token.address, ERCBalanceQueryABI, provider)
+  const balance = await contract.balanceOf(address)
+  return parseFloat(utils.formatUnits(balance, token.decimals))
 }
