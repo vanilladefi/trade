@@ -32,6 +32,7 @@ const GlobalStyles = (): JSX.Element => (
         align-items: center;
         width: 100%;
         min-height: 100vh;
+        overflow-x: hidden;
       }
       h1,
       h2,

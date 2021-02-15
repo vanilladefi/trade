@@ -12,8 +12,11 @@ type Props = {
   iterations?: string | number | string[]
   color?: Array<string>
   particleCount?: string | number | string[]
-  maxSize: string
-  minSize: string
+  maxWidth: string
+  maxHeight: string
+  minWidth: string
+  minHeight: string
+  flowerSize?: string | number | string[]
   seed: string | number | string[]
   asBackground?: boolean
   className?: string
@@ -23,6 +26,7 @@ type Props = {
   bottomRight?: React.ReactNode
   hasProfitCurve?: boolean
   allowExport?: boolean
+  positionRight?: boolean
 }
 
 const Flower = ({
@@ -30,8 +34,11 @@ const Flower = ({
   iterations,
   particleCount,
   color,
-  maxSize,
-  minSize,
+  maxWidth,
+  minWidth,
+  maxHeight,
+  minHeight,
+  flowerSize,
   seed,
   asBackground,
   hasProfitCurve,
@@ -40,6 +47,7 @@ const Flower = ({
   bottomLeft,
   bottomRight,
   allowExport,
+  positionRight,
   ...rest
 }: Props): JSX.Element => {
   const mouse = useRef([0, 0])
@@ -68,6 +76,7 @@ const Flower = ({
   seed = seed ?? 123456
   stems = stems ?? 14
   iterations = iterations ?? 12
+  flowerSize = flowerSize ?? 3.4
 
   return (
     <InView rootMargin='0px' triggerOnce>
@@ -77,10 +86,10 @@ const Flower = ({
             <div
               {...rest}
               style={{
-                width: minSize,
-                height: minSize,
-                maxWidth: maxSize,
-                maxHeight: maxSize,
+                width: minWidth,
+                height: minHeight,
+                maxWidth: maxWidth,
+                maxHeight: maxHeight,
                 position: 'absolute',
                 zIndex: 0,
                 pointerEvents: 'none',
@@ -100,6 +109,7 @@ const Flower = ({
                 <Petals
                   stems={stems}
                   iterations={iterations}
+                  flowerSize={flowerSize}
                   mouse={mouse}
                   color={color}
                   seed={seed}
@@ -115,10 +125,10 @@ const Flower = ({
               <div style={{ position: 'relative' }} ref={flowerRef}>
                 <div
                   style={{
-                    width: minSize,
-                    height: minSize,
-                    maxWidth: maxSize,
-                    maxHeight: maxSize,
+                    width: minWidth,
+                    height: minHeight,
+                    maxWidth: maxWidth,
+                    maxHeight: maxHeight,
                     background: 'var(--tradeflowergradient)',
                     borderRadius: '16px',
                   }}
@@ -139,6 +149,7 @@ const Flower = ({
                     <Petals
                       stems={stems}
                       iterations={iterations}
+                      flowerSize={flowerSize}
                       mouse={mouse}
                       color={color}
                       seed={seed}

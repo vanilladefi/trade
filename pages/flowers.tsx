@@ -29,8 +29,10 @@ const FlowerPage = (): JSX.Element => {
             stems={stems}
             iterations={iterations}
             color={['#000000']}
-            minSize='80vw'
-            maxSize='600px'
+            minWidth='80vw'
+            minHeight='80vw'
+            maxWidth='600px'
+            maxHeight='600px'
             seed={seed}
             particleCount={particleCount}
             topLeft={`Seed ${seed}`}
