@@ -1,10 +1,11 @@
 import { utils as ethersUtils } from 'ethers'
 import { useMemo } from 'react'
-import { useWallet } from 'use-wallet'
 import { useRecoilState } from 'recoil'
 import { walletModalOpenState } from 'state/wallet'
-import { Alignment, Justification, Row } from './grid/Flex'
+import { useWallet } from 'use-wallet'
 import BottomFloater from './BottomFloater'
+import { BreakPoint } from './GlobalStyles/Breakpoints'
+import { Alignment, Justification, Row } from './grid/Flex'
 import Button, {
   ButtonColor,
   ButtonGroup,
@@ -15,7 +16,6 @@ import Button, {
 import Spacer from './typography/Spacer'
 import WalletAddress from './typography/WalletAddress'
 import WalletIcon from './typography/WalletIcon'
-import { BreakPoint } from './GlobalStyles/Breakpoints'
 import WalletConnectButton from './WalletConnectButton'
 
 interface SmallWalletInfoProps {

@@ -1,17 +1,17 @@
-import { useEffect } from 'react'
-import { useRecoilCallback, useRecoilValue } from 'recoil'
+import { getAverageBlockCountPerHour } from 'lib/block'
 import { thegraphClientSub, TokenInfoSubAB, TokenInfoSubBA } from 'lib/graphql'
 import {
-  getAllTokens,
   addData,
   addGraphInfo,
+  chainId,
+  getAllTokens,
   WETH,
   weth,
-  chainId,
 } from 'lib/tokens'
-import { getAverageBlockCountPerHour } from 'lib/block'
-import { allTokensStoreState } from 'state/tokens'
+import { useEffect } from 'react'
+import { useRecoilCallback, useRecoilValue } from 'recoil'
 import { currentBlockNumberState } from 'state/meta'
+import { allTokensStoreState } from 'state/tokens'
 import type { TokenInfoQueryResponse } from 'types/trade'
 
 if (!weth) {

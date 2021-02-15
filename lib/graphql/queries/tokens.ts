@@ -40,6 +40,7 @@ export const TokenInfoQuery = gql`
   ${TokenABFragment}
   ${TokenBAFragment}
 `
+
 export const TokenInfoQueryHistorical = gql`
   query tokenInfo($blockNumber: Int, $weth: String, $tokenAddresses: [String]) {
     tokensAB: pairs(
@@ -91,10 +92,12 @@ export const PairByIdQuery = gql`
       token0 {
         id
         symbol
+        decimals
       }
       token1 {
         id
         symbol
+        decimals
       }
     }
   }

@@ -1,18 +1,24 @@
 import uniswapTokens from '@uniswap/default-token-list'
-import Vibrant from 'node-vibrant'
+import { Token as UniswapToken } from '@uniswap/sdk'
+import additionalTokens from 'data/tokens.json'
+import { Contract, providers, utils } from 'ethers'
 import {
   thegraphClient,
   TokenInfoQuery,
   TokenInfoQueryHistorical,
 } from 'lib/graphql'
 import { ipfsToHttp } from 'lib/ipfs'
+import Vibrant from 'node-vibrant'
 import type { Token, TokenInfoQueryResponse } from 'types/trade'
-import additionalTokens from 'data/tokens.json'
+import { chainId } from 'utils/config'
 
+export { chainId }
+
+// This is just for compatibility of local testnet with "use-wallet"
+export const tokenListChainId = chainId === 1337 ? 1 : chainId
 export const WETH = 'WETH'
-export const chainId = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || '1')
 export const weth = uniswapTokens?.tokens.find(
-  (token) => token.chainId === chainId && token.symbol === WETH,
+  (token) => token.chainId === tokenListChainId && token.symbol === WETH,
 )
 
 export function getAllTokens(): Token[] {
@@ -26,7 +32,8 @@ export function getAllTokens(): Token[] {
   // include only tokens with specified 'chainId' and exclude WETH
   return [...uniswapTokens?.tokens, ...additionalTokens]
     .filter(
-      (token) => token.chainId === chainId && token.symbol !== weth.symbol,
+      (token) =>
+        token.chainId === tokenListChainId && token.symbol !== weth.symbol,
     )
     .map((t) => ({
       ...t,
@@ -132,4 +139,34 @@ export async function addGraphInfo(
     console.error(e)
     return tokens
   }
+}
+
+export async function getERC20TokenBalance(
+  address: string,
+  token: UniswapToken,
+  provider: providers.JsonRpcProvider,
+): Promise<number> {
+  const ERCBalanceQueryABI = [
+    {
+      name: 'balanceOf',
+      type: 'function',
+      inputs: [
+        {
+          name: '_owner',
+          type: 'address',
+        },
+      ],
+      outputs: [
+        {
+          name: 'balance',
+          type: 'uint256',
+        },
+      ],
+      constant: true,
+      payable: false,
+    },
+  ]
+  const contract = new Contract(token.address, ERCBalanceQueryABI, provider)
+  const balance = await contract.balanceOf(address)
+  return parseFloat(utils.formatUnits(balance, token.decimals))
 }

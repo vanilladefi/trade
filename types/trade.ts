@@ -1,5 +1,5 @@
-import type { Column } from 'react-table'
 import type { BreakPointOptions } from 'components/GlobalStyles/Breakpoints'
+import type { Column } from 'react-table'
 
 export interface PairInfo {
   pairId: string | null
@@ -42,10 +42,12 @@ export interface PairByIdQueryResponse {
   token0: {
     id: string
     symbol: string
+    decimals: string
   }
   token1: {
     id: string
     symbol: string
+    decimals: string
   }
 }
 

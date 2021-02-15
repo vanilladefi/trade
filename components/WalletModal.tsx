@@ -1,7 +1,7 @@
 import React from 'react'
-import { Connectors, useWallet } from 'use-wallet'
 import { useRecoilState } from 'recoil'
 import { walletModalOpenState } from 'state/wallet'
+import { Connectors, useWallet } from 'use-wallet'
 import { ModalGradient } from './backgrounds/gradient'
 import { Alignment, Column, Justification, Row, Width } from './grid/Flex'
 import Button, { ButtonColor, ButtonSize } from './input/Button'

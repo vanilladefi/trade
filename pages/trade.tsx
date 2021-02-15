@@ -1,31 +1,30 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import type { GetStaticPropsResult } from 'next'
-import { useWallet } from 'use-wallet'
-import { useSetRecoilState } from 'recoil'
-import { walletModalOpenState } from 'state/wallet'
-import { AvailableTokens, MyPositions } from 'components/Trade'
-import TokenSearch from 'components/TokenSearch'
 import { TopGradient } from 'components/backgrounds/gradient'
 import { Column, Row, Width } from 'components/grid/Flex'
 import Button, { ButtonSize } from 'components/input/Button'
 import Layout from 'components/Layout'
-import Modal from 'components/Modal'
-import TradeFlower from 'components/TradeFlower'
+import TokenSearch from 'components/TokenSearch'
+import { AvailableTokens, MyPositions } from 'components/Trade'
+import TradeModal from 'components/Trade/Modal'
 import HugeMonospace from 'components/typography/HugeMonospace'
 import { SmallTitle, Title } from 'components/typography/Titles'
 import Wrapper from 'components/Wrapper'
-import { thegraphClient, PairByIdQuery } from 'lib/graphql'
+import useMetaSubscription from 'hooks/useMetaSubscription'
+import useTokenSubscription from 'hooks/useTokenSubscription'
+import { getAverageBlockCountPerHour, getCurrentBlockNumber } from 'lib/block'
+import { PairByIdQuery, thegraphClient } from 'lib/graphql'
+import { addGraphInfo, addLogoColor, getAllTokens } from 'lib/tokens'
+import type { GetStaticPropsResult } from 'next'
+import React, { useCallback, useEffect, useState } from 'react'
+import { useSetRecoilState } from 'recoil'
+import { allTokensStoreState } from 'state/tokens'
+import { walletModalOpenState } from 'state/wallet'
 import type {
   HandleBuyClick,
   HandleSellClick,
   PairByIdQueryResponse,
   Token,
 } from 'types/trade'
-import { allTokensStoreState } from 'state/tokens'
-import { addGraphInfo, addLogoColor, getAllTokens } from 'lib/tokens'
-import { getCurrentBlockNumber, getAverageBlockCountPerHour } from 'lib/block'
-import useTokenSubscription from 'hooks/useTokenSubscription'
-import useMetaSubscription from 'hooks/useMetaSubscription'
+import { useWallet } from 'use-wallet'
 
 type PageProps = {
   allTokens: Token[]
@@ -174,38 +173,6 @@ const HeaderContent = (): JSX.Element => {
   )
 }
 
-const ModalContent = (): JSX.Element => (
-  <Column>
-    <div>
-      <SmallTitle>TRADE SUCCESSFUL!</SmallTitle>
-    </div>
-    <TradeFlower
-      received={{ ticker: 'DAI', amount: 2.5 }}
-      paid={{ ticker: 'ETH', amount: 0.0056572 }}
-      tradeURL={{
-        domain: 'vnl.com',
-        transactionHash:
-          '0x05c7cedb4b6a234a92fcc9e396661cbed6d89e301899af6569dae3ff32a48acb',
-      }}
-    />
-    <div>
-      <Column>
-        <SmallTitle>Share for more VNL</SmallTitle>
-        <span>Learn more</span>
-      </Column>
-      <span>links here</span>
-    </div>
-    <style jsx>{`
-      div {
-        display: flex;
-        flex-direction: row;
-        padding: 1.1rem 1.2rem;
-        justify-content: space-between;
-      }
-    `}</style>
-  </Column>
-)
-
 const BodyContent = ({
   allTokens,
   onBuyClick,
@@ -257,7 +224,10 @@ export default function TradePage({ allTokens }: PageProps): JSX.Element {
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedPairId, setSelectedPairId] = useState('')
   const [, setLoadingPair] = useState(false)
-  const [, setSelectedPair] = useState<PairByIdQueryResponse | null>(null)
+  const [
+    selectedPair,
+    setSelectedPair,
+  ] = useState<PairByIdQueryResponse | null>(null)
 
   const handleBuyClick: HandleBuyClick = useCallback((pairInfo) => {
     setSelectedPairId(pairInfo?.pairId ?? '')
@@ -281,6 +251,7 @@ export default function TradePage({ allTokens }: PageProps): JSX.Element {
         })
         pair = response?.pairs?.[0] || null
       } catch (e) {
+        console.error(e)
       } finally {
         if (mounted) {
           setLoadingPair(false)
@@ -301,9 +272,11 @@ export default function TradePage({ allTokens }: PageProps): JSX.Element {
       shareImg='/social/social-share-trade.png'
       heroRenderer={HeaderContent}
     >
-      <Modal open={modalOpen} onRequestClose={() => setModalOpen(false)}>
-        <ModalContent />
-      </Modal>
+      <TradeModal
+        open={modalOpen}
+        onRequestClose={() => setModalOpen(false)}
+        selectedPair={selectedPair}
+      />
       <BodyContent
         allTokens={allTokens}
         onBuyClick={handleBuyClick}
