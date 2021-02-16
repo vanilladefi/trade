@@ -1,24 +1,11 @@
 import { getAverageBlockCountPerHour } from 'lib/block'
 import { thegraphClientSub, TokenInfoSubAB, TokenInfoSubBA } from 'lib/graphql'
-import {
-  addData,
-  addGraphInfo,
-  chainId,
-  getAllTokens,
-  WETH,
-  weth,
-} from 'lib/tokens'
+import { addData, addGraphInfo, getAllTokens, weth } from 'lib/tokens'
 import { useEffect } from 'react'
 import { useRecoilCallback, useRecoilValue } from 'recoil'
 import { currentBlockNumberState } from 'state/meta'
 import { allTokensStoreState } from 'state/tokens'
 import type { TokenInfoQueryResponse } from 'types/trade'
-
-if (!weth) {
-  throw new Error(
-    `Unable to find ${WETH} in uniswap list with "chainId": ${chainId}`,
-  )
-}
 
 const variables = {
   weth: weth.address.toLowerCase(),

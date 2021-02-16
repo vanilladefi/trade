@@ -10,13 +10,13 @@ export interface PairInfo {
 }
 
 export interface UniSwapToken {
-  [index: string]: string | number | null
-  name: string
+  [index: string]: string | number | null | undefined
+  name?: string
   address: string
-  symbol: string
+  symbol?: string
   decimals: number
   chainId: number
-  logoURI: string
+  logoURI?: string
 }
 
 export interface Token extends UniSwapToken {

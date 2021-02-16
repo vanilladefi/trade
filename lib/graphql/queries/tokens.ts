@@ -66,23 +66,27 @@ export const TokenInfoQueryHistorical = gql`
 export const TokenInfoSubAB = gql`
   subscription tokenInfoAB($weth: String, $tokenAddresses: [String]) {
     tokens: pairs(where: { token0: $weth, token1_in: $tokenAddresses }) {
-      ...TokenCommonFragment
-      ...TokenABFragment
+      pairId: id
+      reserveUSD
+      token: token1 {
+        id
+      }
+      price: token0Price
     }
   }
-  ${TokenCommonFragment}
-  ${TokenABFragment}
 `
 
 export const TokenInfoSubBA = gql`
   subscription tokenInfoBA($weth: String, $tokenAddresses: [String]) {
     tokens: pairs(where: { token1: $weth, token0_in: $tokenAddresses }) {
-      ...TokenCommonFragment
-      ...TokenBAFragment
+      pairId: id
+      reserveUSD
+      token: token0 {
+        id
+      }
+      price: token1Price
     }
   }
-  ${TokenCommonFragment}
-  ${TokenBAFragment}
 `
 
 export const PairByIdQuery = gql`

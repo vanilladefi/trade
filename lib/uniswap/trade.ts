@@ -1,6 +1,4 @@
 import {
-  BigintIsh,
-  Currency,
   CurrencyAmount,
   Fetcher,
   JSBI,
@@ -13,24 +11,27 @@ import {
 } from '@uniswap/sdk'
 import { constants, ethers, providers } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
-import { tokenListChainId } from 'lib/tokens'
-import { PairByIdQueryResponse } from 'types/trade'
+import type { UniSwapToken } from 'types/trade'
 import vanillaABI from 'types/vanillaRouter'
 import { vanillaRouterAddress } from 'utils/config'
+import { tokenListChainId } from '../tokens'
 
 type TradeProps = {
   tokenAddress: string
-  amountETH: BigintIsh
-  amount?: string
+  amount: string
+  decimals: number
   provider?: providers.JsonRpcProvider
   signer?: providers.JsonRpcSigner
 }
 
 export const buy = async ({
   tokenAddress,
-  amountETH,
+  amount,
+  decimals = 18,
   signer,
 }: TradeProps): Promise<string> => {
+  const amountParsed = parseUnits(amount, decimals)
+
   const vanillaRouter = new ethers.Contract(
     vanillaRouterAddress,
     JSON.stringify(vanillaABI),
@@ -40,7 +41,7 @@ export const buy = async ({
     tokenAddress,
     12,
     constants.MaxUint256,
-    { value: amountETH },
+    { value: amountParsed },
   )
   return receipt
 }
@@ -65,50 +66,60 @@ export const sell = async ({
 }
 
 export async function getExecutionPrice(
-  amountIn: BigintIsh,
-  selectedPair: PairByIdQueryResponse,
+  amountIn: string,
+  token0: UniSwapToken,
+  token1: UniSwapToken,
   provider: providers.JsonRpcProvider,
 ): Promise<Price> {
   try {
-    const tokenA = new Token(
+    const parsedAmount = tryParseAmount(amountIn, token0)
+    if (!parsedAmount)
+      return Promise.reject(`Failed to parse input amount: ${amountIn}`)
+
+    const convertedToken0 = new Token(
       tokenListChainId,
-      selectedPair.token0.id,
-      parseInt(selectedPair.token0.decimals),
+      token0.address,
+      token0.decimals,
     )
-    const tokenB = new Token(
-      tokenListChainId,
-      selectedPair.token1.id,
-      parseInt(selectedPair.token1.decimals),
+    const pair = await Fetcher.fetchPairData(
+      convertedToken0,
+      new Token(tokenListChainId, token1.address, token1.decimals),
+      provider,
     )
 
-    const pair = await Fetcher.fetchPairData(tokenA, tokenB, provider)
-    const route = new Route([pair], tokenB)
+    console.log(pair)
 
-    const trade = new Trade(
-      route,
-      new TokenAmount(tokenA, amountIn),
-      TradeType.EXACT_INPUT,
-    )
+    const route = new Route([pair], token1, token0)
+
+    console.log(route)
+
+    const trade = new Trade(route, parsedAmount, TradeType.EXACT_OUTPUT)
+
+    console.log(trade)
 
     return trade.executionPrice
   } catch (error) {
+    console.log(error)
     return error
   }
 }
 
 export function tryParseAmount(
   value?: string,
-  currency?: Currency,
+  currency?: UniSwapToken,
 ): CurrencyAmount | undefined {
   if (!value || !currency) {
     return undefined
   }
   try {
+    const convertedToken = new Token(
+      tokenListChainId,
+      currency.address,
+      currency.decimals,
+    )
     const typedValueParsed = parseUnits(value, currency.decimals).toString()
     if (typedValueParsed !== '0') {
-      return currency instanceof Token
-        ? new TokenAmount(currency, JSBI.BigInt(typedValueParsed))
-        : CurrencyAmount.ether(JSBI.BigInt(typedValueParsed))
+      return new TokenAmount(convertedToken, JSBI.BigInt(typedValueParsed))
     }
   } catch (error) {
     // should fail if the user specifies too many decimal places of precision (or maybe exceed max uint?)

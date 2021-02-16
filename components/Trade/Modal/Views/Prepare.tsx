@@ -1,4 +1,4 @@
-import { Price, Token } from '@uniswap/sdk'
+import { Price } from '@uniswap/sdk'
 import { Column } from 'components/grid/Flex'
 import Button, {
   ButtonColor,
@@ -6,8 +6,7 @@ import Button, {
   Rounding,
 } from 'components/input/Button'
 import TokenTradeInput from 'components/Trade/TokenInput'
-import { tokenListChainId } from 'lib/tokens'
-import { buy, getExecutionPrice, sell, tryParseAmount } from 'lib/trade'
+import { buy, getExecutionPrice, sell, tryParseAmount } from 'lib/uniswap/trade'
 import debounce from 'lodash.debounce'
 import {
   Dispatch,
@@ -17,6 +16,7 @@ import {
   useState,
 } from 'react'
 import { useRecoilValue } from 'recoil'
+import { token0State, token1State } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
 import { PairByIdQueryResponse } from 'types/trade'
 import { Operation /*, View*/ } from '..'
@@ -37,18 +37,25 @@ ContentProps): JSX.Element => {
   const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
 
+  const token0 = useRecoilValue(token0State)
+  const token1 = useRecoilValue(token1State)
+
   const [executionPrice, setExecutionPrice] = useState<Price>()
   const [amount, setAmount] = useState<string>('0')
 
   useEffect(() => {
-    selectedPair &&
-      provider &&
-      token0InRaw &&
-      getExecutionPrice(token0InRaw, selectedPair, provider).then((price) => {
-        price && setExecutionPrice(price)
-      })
+    provider &&
+      amount &&
+      amount !== '0' &&
+      token0 &&
+      token1 &&
+      getExecutionPrice(amount, token0, token1, provider)
+        .then((price) => {
+          price && setExecutionPrice(price)
+        })
+        .catch(console.error)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedPair, provider, amount])
+  }, [token0, token1, provider, amount])
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleAmountChanged = useCallback(
@@ -58,28 +65,17 @@ ContentProps): JSX.Element => {
     [setAmount],
   )
 
-  const token0In = useCallback(
-    () =>
-      selectedPair?.token0 &&
-      tryParseAmount(
-        amount,
-        new Token(
-          tokenListChainId,
-          selectedPair?.token0.id,
-          parseInt(selectedPair?.token0.decimals),
-        ),
-      ),
-    [amount, selectedPair?.token0],
-  )
-
-  const token0InRaw = token0In()?.raw
+  const token0In = useCallback(() => token0 && tryParseAmount(amount, token0), [
+    amount,
+    token0,
+  ])
 
   const token1Out = useCallback(() => {
     const ep: string = executionPrice?.toSignificant
       ? executionPrice?.toSignificant()
       : '0'
     return ep ? parseFloat(amount) * parseFloat(ep) : 0
-  }, [executionPrice, amount])
+  }, [executionPrice])
 
   return (
     <Column>
@@ -104,9 +100,8 @@ ContentProps): JSX.Element => {
         <TokenTradeInput
           operation={operation}
           onAmountChange={handleAmountChanged}
-          token0In={token0In()}
+          //token0In={token0In()}
           token1Out={token1Out() > 0 ? token1Out() : undefined}
-          selectedPair={selectedPair}
         />
       </div>
 
@@ -114,18 +109,20 @@ ContentProps): JSX.Element => {
         {token0In() ? (
           <Button
             onClick={() => {
-              selectedPair &&
-                token0InRaw &&
+              token0 &&
+                token0In &&
                 signer &&
                 (operation === Operation.Buy
                   ? buy({
-                      tokenAddress: selectedPair.token1.id,
-                      amountETH: token0InRaw,
+                      tokenAddress: token0.address,
+                      amount: amount,
+                      decimals: token0.decimals,
                       signer: signer,
                     })
                   : sell({
-                      tokenAddress: selectedPair.token1.id,
-                      amountETH: token0InRaw,
+                      tokenAddress: token0.address,
+                      amount: amount,
+                      decimals: token0.decimals,
                       signer: signer,
                     }))
             }}

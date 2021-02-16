@@ -1,5 +1,4 @@
 import uniswapTokens from '@uniswap/default-token-list'
-import { Token as UniswapToken } from '@uniswap/sdk'
 import additionalTokens from 'data/tokens.json'
 import { Contract, providers, utils } from 'ethers'
 import {
@@ -9,31 +8,45 @@ import {
 } from 'lib/graphql'
 import { ipfsToHttp } from 'lib/ipfs'
 import Vibrant from 'node-vibrant'
-import type { Token, TokenInfoQueryResponse } from 'types/trade'
+import type { Token, TokenInfoQueryResponse, UniSwapToken } from 'types/trade'
 import { chainId } from 'utils/config'
 
 export { chainId }
 
 // This is just for compatibility of local testnet with "use-wallet"
 export const tokenListChainId = chainId === 1337 ? 1 : chainId
-export const WETH = 'WETH'
-export const weth = uniswapTokens?.tokens.find(
-  (token) => token.chainId === tokenListChainId && token.symbol === WETH,
-)
+
+// WETH stuff
+const defaultWeth = {
+  chainId: 1,
+  address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  decimals: 18,
+  symbol: 'WETH',
+  name: 'Wrapped Ether',
+  logoURI: ipfsToHttp(
+    'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
+  ),
+  logoColor: null,
+  pairId: null,
+  price: null,
+  priceHistorical: null,
+  liquidity: null,
+  priceChange: null,
+}
+export const weth: Token =
+  getAllTokens()?.find(
+    (token) =>
+      token.chainId === tokenListChainId && token.symbol === defaultWeth.symbol,
+  ) || defaultWeth
 
 export function getAllTokens(): Token[] {
-  if (!weth) {
-    throw new Error(
-      `Unable to find ${WETH} in uniswap list with "chainId": ${chainId}`,
-    )
-  }
-
   // Get tokens from Uniswap default-list
   // include only tokens with specified 'chainId' and exclude WETH
   return [...uniswapTokens?.tokens, ...additionalTokens]
     .filter(
       (token) =>
-        token.chainId === tokenListChainId && token.symbol !== weth.symbol,
+        token.chainId === tokenListChainId &&
+        token.symbol !== defaultWeth.symbol,
     )
     .map((t) => ({
       ...t,
@@ -47,23 +60,31 @@ export function getAllTokens(): Token[] {
     }))
 }
 
+export function getLogoUri(token: UniSwapToken): string | undefined {
+  return getAllTokens().find((t) => t.address === token.address)?.logoURI
+}
+
 /**
  * Add color for each token based on its logo
  */
 export function addLogoColor(tokens: Token[]): Promise<Token[]> {
   return Promise.all(
     tokens.map(async (t) => {
-      let logoColor = null
-      try {
-        const palette = await Vibrant.from(t.logoURI).getPalette()
-        logoColor = palette?.LightVibrant?.getHex() || null
-      } catch (e) {}
+      if (t.logoURI) {
+        let logoColor = null
+        try {
+          const palette = await Vibrant.from(t.logoURI).getPalette()
+          logoColor = palette?.LightVibrant?.getHex() || null
+        } catch (e) {}
 
-      if (!logoColor) return t
+        if (!logoColor) return t
 
-      return {
-        ...t,
-        logoColor,
+        return {
+          ...t,
+          logoColor,
+        }
+      } else {
+        return t
       }
     }),
   )
@@ -110,7 +131,7 @@ export async function addGraphInfo(
 ): Promise<Token[]> {
   if (!weth) {
     throw new Error(
-      `Unable to find ${WETH} in uniswap list with "chainId": ${chainId}`,
+      `Unable to find ${weth} in uniswap list with "chainId": ${chainId}`,
     )
   }
 
@@ -143,7 +164,7 @@ export async function addGraphInfo(
 
 export async function getERC20TokenBalance(
   address: string,
-  token: UniswapToken,
+  token: UniSwapToken,
   provider: providers.JsonRpcProvider,
 ): Promise<number> {
   const ERCBalanceQueryABI = [

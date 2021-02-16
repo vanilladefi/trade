@@ -1,9 +1,10 @@
-import { CurrencyAmount, Token } from '@uniswap/sdk'
-import { getERC20TokenBalance, tokenListChainId } from 'lib/tokens'
+import { CurrencyAmount } from '@uniswap/sdk'
+import Icon from 'components/typography/Icon'
+import { getERC20TokenBalance, getLogoUri } from 'lib/tokens'
 import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
+import { token0State, token1State } from 'state/trade'
 import { providerState } from 'state/wallet'
-import { PairByIdQueryResponse } from 'types/trade'
 import { useWallet } from 'use-wallet'
 import { Operation } from './Modal'
 
@@ -12,7 +13,6 @@ type Props = {
   onAmountChange: (value: string) => void | undefined
   token0In?: CurrencyAmount | undefined
   token1Out?: number | undefined
-  selectedPair: PairByIdQueryResponse | null
 }
 
 const TokenInput = ({
@@ -20,30 +20,27 @@ const TokenInput = ({
   onAmountChange,
   //token0In,
   token1Out,
-  selectedPair,
 }: Props): JSX.Element => {
-  const provider = useRecoilValue(providerState)
   const wallet = useWallet()
+
+  const provider = useRecoilValue(providerState)
+  const token0 = useRecoilValue(token0State)
+  const token1 = useRecoilValue(token1State)
 
   const [balance0, setBalance0] = useState(0)
   const [balance1, setBalance1] = useState(0)
+  const [token0Icon, setToken0Icon] = useState<string>()
+  const [token1Icon, setToken1Icon] = useState<string>()
 
   useEffect(() => {
-    if (provider && selectedPair && wallet.account) {
-      const token0 = new Token(
-        tokenListChainId,
-        selectedPair?.token0.id,
-        parseInt(selectedPair.token0.decimals),
-      )
-      const token1 = new Token(
-        tokenListChainId,
-        selectedPair?.token0.id,
-        parseInt(selectedPair.token0.decimals),
-      )
+    if (provider && token0 && token1 && wallet.account) {
+      console.log(token0, token1)
+      setToken0Icon(getLogoUri(token0))
+      setToken1Icon(getLogoUri(token1))
       getERC20TokenBalance(wallet.account, token0, provider).then(setBalance0)
       getERC20TokenBalance(wallet.account, token1, provider).then(setBalance1)
     }
-  }, [provider, selectedPair, wallet.account])
+  }, [provider, token0, token1, wallet.account])
 
   return (
     <>
@@ -60,6 +57,10 @@ const TokenInput = ({
           </div>
           <div className='tokenSelector'>
             <span>Balance: {balance0}</span>
+            <div>
+              {token0Icon && <Icon src={token0Icon}></Icon>}
+              <h2>{token0?.symbol}</h2>
+            </div>
           </div>
         </div>
 
@@ -70,16 +71,25 @@ const TokenInput = ({
               className='input'
               type='number'
               placeholder={'0.0'}
+              disabled
               value={token1Out?.toString()}
             />
           </div>
           <div className='tokenSelector'>
             <span>Balance: {balance1}</span>
+            <div>
+              {token1Icon && <Icon src={token1Icon}></Icon>}
+              <h2>{token1?.symbol}</h2>
+            </div>
           </div>
         </div>
       </div>
 
       <style jsx>{`
+        div,
+        input {
+          box-sizing: border-box;
+        }
         .tokenInputWrapper {
           border-radius: 1.5rem;
           border: 2px solid var(--dark);
@@ -89,10 +99,12 @@ const TokenInput = ({
           flex-direction: column;
         }
         .row {
+          display: flex;
           position: relative;
           width: 100%;
           flex-direction: row;
           border-bottom: 2px solid var(--dark);
+          justify-content: stretch;
         }
         .row:last-of-type {
           border-bottom: 0;
@@ -101,20 +113,26 @@ const TokenInput = ({
         .tokenSelector {
           display: flex;
           flex-direction: column;
-          flex-shrink: 1;
+          position: relative;
           padding: 1rem 1.2rem;
+          width: fit-content;
         }
         .numberInput {
-          flex-grow: 1;
           border-right: 1px solid #332931;
         }
         .input {
+          position: relative;
+          box-sizing: border-box;
+          display: flex;
+          padding: 0;
           border: 0;
           background: transparent;
           outline: 0;
           font-family: var(--monofont);
           font-weight: var(--monoweight);
           font-size: var(--hugemonosize);
+          max-width: 250px;
+          overflow-x: visible;
         }
       `}</style>
     </>

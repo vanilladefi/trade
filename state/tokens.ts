@@ -11,13 +11,15 @@ export const userTokensState = selector<Token[]>({
   get: ({ get }) => {
     const tokens = get(allTokensStoreState)
     const symbols = get(userTokenSymbolsState)
-    return tokens.filter((t) => symbols.includes(t.symbol))
+    return tokens.filter((t) => t.symbol && symbols.includes(t.symbol))
   },
   set: ({ set }, newValue) => {
     if (newValue instanceof DefaultValue) {
       set(userTokenSymbolsState, newValue)
     } else {
-      const symbols = newValue.map((t) => t.symbol)
+      const symbols = newValue
+        .filter((t) => t.symbol !== undefined)
+        .map((t) => t.symbol || '')
       set(userTokenSymbolsState, symbols)
     }
   },
