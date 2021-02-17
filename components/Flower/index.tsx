@@ -17,6 +17,7 @@ type Props = {
   minWidth: string
   minHeight: string
   flowerSize?: string | number | string[]
+  background: string
   seed: string | number | string[]
   asBackground?: boolean
   className?: string
@@ -39,6 +40,7 @@ const Flower = ({
   maxHeight,
   minHeight,
   flowerSize,
+  background,
   seed,
   asBackground,
   hasProfitCurve,
@@ -93,6 +95,10 @@ const Flower = ({
                 position: 'absolute',
                 zIndex: 0,
                 pointerEvents: 'none',
+                background: background ? background : 'none',
+                backgroundSize: '100%',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'bottom',
               }}
             >
               <Canvas
@@ -129,8 +135,13 @@ const Flower = ({
                     height: minHeight,
                     maxWidth: maxWidth,
                     maxHeight: maxHeight,
-                    background: 'var(--tradeflowergradient)',
+                    background: background
+                      ? background
+                      : 'var(--tradeflowergradient)',
                     borderRadius: '16px',
+                    backgroundSize: '100%',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'bottom',
                   }}
                 >
                   <Canvas

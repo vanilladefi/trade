@@ -142,9 +142,9 @@ export default function Petals({
   useFrame(() => {
     if (ref.current) {
       if (asBackground) {
-        ref.current.rotation.z = Math.cos(Date.now() * 0.0001) * -0.1
-        ref.current.rotation.x = Math.cos(Date.now() * 0.0002) * -0.1
-        ref.current.rotation.y = Math.sin(Date.now() * 0.0004) * -0.1
+        ref.current.rotation.z = Math.cos(Date.now() * 0.0001) * -0.25
+        ref.current.rotation.x = Math.cos(Date.now() * 0.0002) * -0.25
+        ref.current.rotation.y = Math.sin(Date.now() * 0.0004) * -0.25
       } else {
         ref.current.rotation.x = lerp(
           ref.current.rotation.x,

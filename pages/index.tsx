@@ -84,10 +84,10 @@ const HeaderContent = (
 )
 
 const milestones = [
-  { name: 'Profit Mining', time: 'Live' },
-  { name: 'Lending', time: 'Q2' },
-  { name: 'Governance', time: 'Q4' },
-  { name: 'Automation + Funds', time: 'Q1' },
+  { name: 'Profit Mining + Trading', time: 'Live' },
+  { name: 'Governance', time: 'Q3' },
+  { name: 'Lending ', time: 'Q4' },
+  { name: 'TBD', time: 'Q1' },
 ]
 
 const IndexPage = (): JSX.Element => (
@@ -216,6 +216,20 @@ const IndexPage = (): JSX.Element => (
                     </span>
                   </div>
                 </div>
+                <div className='tokenStatus tokenComingSoon'>
+                  <div>
+                    <Image
+                      src='/images/tokens/balancer.png'
+                      width='48'
+                      height='48'
+                      alt='Balancer'
+                    />
+                  </div>
+                  <div className='tokenStatusContent'>
+                    <span className='tokenStatus-token'>Balancer</span>
+                    <span className='tokenStatus-status'>Soon</span>
+                  </div>
+                </div>
               </div>
               <p>Trade tokens through decentralised exchanges.</p>
             </div>
@@ -297,25 +311,10 @@ const IndexPage = (): JSX.Element => (
             <div className='tradeLendAutomateContent'>
               <div className='titleStatus'>
                 <Title>Automate</Title>
-                <div className='tokenStatus tokenComingSoon'>
-                  <div>
-                    <Image
-                      src='/images/tokens/yearn.png'
-                      width='48'
-                      height='48'
-                      alt='Yearn'
-                    />
-                  </div>
-                  <div className='tokenStatusContent'>
-                    <span className='tokenStatus-token'>Yearn</span>
-                    <span className='tokenStatus-status'>
-                      <strong>Soon</strong>
-                    </span>
-                  </div>
-                </div>
               </div>
               <p>
-                Optimize your portfolio with decentralised automation systems.
+                Build automated portfolio optimisation systems and decentralised
+                financial instruments.
               </p>
             </div>
             <div className='tradeLendAutomateImage'>
@@ -389,19 +388,65 @@ const IndexPage = (): JSX.Element => (
     <Wrapper>
       <BoxSection color={Color.DARK}>
         <Row>
-          <Column>
+          <div
+            className='governaceColumn governaceBg'
+            style={{
+              height: '480px',
+              textAlign: 'center',
+            }}
+          >
+            <div className='governaceFlowerHolder'>
+              <Flower
+                stems={15}
+                iterations={10}
+                color={['#ffde8e']}
+                minWidth='100%'
+                minHeight='480px'
+                maxWidth='480px'
+                maxHeight='480px'
+                asBackground
+                flowerSize={1.5}
+                seed={Math.random() * 12566}
+                background={`url('images/governace_token_holder.jpg')`}
+              />
+            </div>
+          </div>
+          <div className='governaceColumn'>
             <Title>
               VNL is the governance token of the Vanilla economic system.
             </Title>
             <Highlight>
-              Holders of VNL determine the direction of Vanilla by voting on
-              incentive changes, system upgrades and treasury allocations.
+              Holders of VNL determine the direction of Vanilla by voting on a
+              variety of things such as changes to the profit mining algorithm,
+              new trading and lending venues, treasury grant allocations and
+              other ecosystem efforts.
             </Highlight>
             <br />
             <Button>Learn more</Button>
-          </Column>
+          </div>
         </Row>
       </BoxSection>
+      <style jsx>{`
+        .governaceColumn {
+          position: relative;
+          width: 100%;
+        }
+        .governaceFlowerHolder {
+          position: relative;
+          width: 100%;
+          max-width: 480px;
+          margin: calc(-1 * var(--boxpadding)) auto;
+        }
+        @media (min-width: ${BreakPoint.md}px) {
+          .governaceFlowerHolder {
+            margin: 0 0 0 calc(-0.4 * var(--boxpadding));
+          }
+          .governaceColumn {
+            width: 50%;
+            justify-content: center;
+          
+        }
+      `}</style>
     </Wrapper>
 
     <BoxSection color={Color.WHITE} nosidepadding>
