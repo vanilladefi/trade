@@ -55,7 +55,7 @@ const Header = ({
           position: relative;
           width: 100%;
           justify-content: center;
-          margin-top: 1rem;
+          padding-top: 1rem;
         }
         div.desktopNav {
           display: none;

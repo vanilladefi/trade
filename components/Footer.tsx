@@ -197,7 +197,7 @@ const Footer = (): JSX.Element => (
         margin-top: 3rem;
       }
       @media (min-width: ${BreakPoint.mobileNav}px) {
-        .desktopNav {
+        div.desktopNav {
           display: block;
         }
       }
