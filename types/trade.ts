@@ -3,10 +3,6 @@ import type { Column } from 'react-table'
 
 export interface PairInfo {
   pairId: string | null
-  token: {
-    address: string
-    symbol: string
-  }
 }
 
 export interface UniSwapToken {

@@ -1,9 +1,9 @@
 import { CurrencyAmount } from '@uniswap/sdk'
 import Icon from 'components/typography/Icon'
-import { getERC20TokenBalance, getLogoUri } from 'lib/tokens'
+import { getERC20TokenBalance } from 'lib/tokens'
 import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
-import { token0State, token1State } from 'state/trade'
+import { token0Selector, token1Selector } from 'state/trade'
 import { providerState } from 'state/wallet'
 import { useWallet } from 'use-wallet'
 import { Operation } from './Modal'
@@ -22,21 +22,16 @@ const TokenInput = ({
   token1Out,
 }: Props): JSX.Element => {
   const wallet = useWallet()
-
   const provider = useRecoilValue(providerState)
-  const token0 = useRecoilValue(token0State)
-  const token1 = useRecoilValue(token1State)
+
+  const token0 = useRecoilValue(token0Selector)
+  const token1 = useRecoilValue(token1Selector)
 
   const [balance0, setBalance0] = useState(0)
   const [balance1, setBalance1] = useState(0)
-  const [token0Icon, setToken0Icon] = useState<string>()
-  const [token1Icon, setToken1Icon] = useState<string>()
 
   useEffect(() => {
     if (provider && token0 && token1 && wallet.account) {
-      console.log(token0, token1)
-      setToken0Icon(getLogoUri(token0))
-      setToken1Icon(getLogoUri(token1))
       getERC20TokenBalance(wallet.account, token0, provider).then(setBalance0)
       getERC20TokenBalance(wallet.account, token1, provider).then(setBalance1)
     }
@@ -57,8 +52,8 @@ const TokenInput = ({
           </div>
           <div className='tokenSelector'>
             <span>Balance: {balance0}</span>
-            <div>
-              {token0Icon && <Icon src={token0Icon}></Icon>}
+            <div className='tokenIndicator'>
+              {token0?.logoURI && <Icon src={token0.logoURI}></Icon>}
               <h2>{token0?.symbol}</h2>
             </div>
           </div>
@@ -77,8 +72,8 @@ const TokenInput = ({
           </div>
           <div className='tokenSelector'>
             <span>Balance: {balance1}</span>
-            <div>
-              {token1Icon && <Icon src={token1Icon}></Icon>}
+            <div className='tokenIndicator'>
+              {token1?.logoURI && <Icon src={token1.logoURI}></Icon>}
               <h2>{token1?.symbol}</h2>
             </div>
           </div>
@@ -121,6 +116,7 @@ const TokenInput = ({
           border-right: 1px solid #332931;
         }
         .input {
+          margin-top: 1rem;
           position: relative;
           box-sizing: border-box;
           display: flex;
@@ -133,6 +129,19 @@ const TokenInput = ({
           font-size: var(--hugemonosize);
           max-width: 250px;
           overflow-x: visible;
+        }
+        .tokenSelector h2 {
+          margin: 0;
+          font-family: var(--bodyfont);
+          font-weight: var(--buttonweight);
+          font-size: 1.3rem;
+        }
+        .tokenIndicator {
+          margin: 1rem 0;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          --iconsize: 2.3rem;
         }
       `}</style>
     </>

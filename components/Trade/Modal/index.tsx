@@ -1,14 +1,22 @@
 import Modal from 'components/Modal'
-import { tokenListChainId } from 'lib/tokens'
-import { useEffect, useState } from 'react'
+import dynamic from 'next/dynamic'
+import React, { ReactElement, useEffect, useState } from 'react'
 import { useSetRecoilState } from 'recoil'
-import { token0State, token1State } from 'state/trade'
-import { PairByIdQueryResponse } from 'types/trade'
-import { Prepare, Success } from './Views'
+import { selectedPairIdState } from 'state/trade'
+
+const Loading = (): ReactElement => <div>Loading pair data...</div>
+
+const Prepare = dynamic(() => import('./Views/Prepare'), {
+  loading: () => <Loading />,
+})
+
+const Success = dynamic(() => import('./Views/Success'), {
+  loading: () => <Loading />,
+})
 
 type Props = {
   open: boolean
-  selectedPair: PairByIdQueryResponse | null
+  selectedPairId?: string
   onRequestClose: () => void
 }
 
@@ -25,51 +33,28 @@ export enum Operation {
 const TradeModal = ({
   open,
   onRequestClose,
-  selectedPair,
+  selectedPairId,
 }: Props): JSX.Element => {
   const [currentView] = useState<View>(View.Prepare)
   const [operation, setOperation] = useState<Operation>(Operation.Buy)
 
-  const setToken0 = useSetRecoilState(token0State)
-  const setToken1 = useSetRecoilState(token1State)
+  const setSelectedPairId = useSetRecoilState(selectedPairIdState)
 
+  // Retrieve pair info from The Graph when 'selectedPairId' changes
   useEffect(() => {
-    if (selectedPair) {
-      const token0 = {
-        symbol: selectedPair.token0.symbol,
-        address: selectedPair.token0.id,
-        decimals: parseInt(selectedPair.token0.decimals),
-        pairId: selectedPair.id,
-        chainId: tokenListChainId,
-      }
-      const token1 = {
-        symbol: selectedPair.token1.symbol,
-        address: selectedPair.token1.id,
-        decimals: parseInt(selectedPair.token1.decimals),
-        pairId: selectedPair.id,
-        chainId: tokenListChainId,
-      }
-      if (token0.symbol === 'WETH') {
-        setToken0(token1)
-        setToken1(token0)
-      } else {
-        setToken0(token0)
-        setToken1(token1)
-      }
-    }
-  }, [selectedPair, setToken0, setToken1])
+    setSelectedPairId(selectedPairId ?? null)
+  }, [selectedPairId, setSelectedPairId])
 
   return (
     <Modal open={open} onRequestClose={onRequestClose}>
       {currentView === View.Prepare && (
         <Prepare
-          selectedPair={selectedPair}
           operation={operation}
           setOperation={setOperation}
           //setCurrentView={setCurrentView}
         />
       )}
-      {currentView === View.Success && <Success selectedPair={selectedPair} />}
+      {currentView === View.Success && <Success />}
     </Modal>
   )
 }

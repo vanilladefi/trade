@@ -4,26 +4,20 @@ import Button, { ButtonSize } from 'components/input/Button'
 import Layout from 'components/Layout'
 import TokenSearch from 'components/TokenSearch'
 import { AvailableTokens, MyPositions } from 'components/Trade'
-import TradeModal from 'components/Trade/Modal'
 import HugeMonospace from 'components/typography/HugeMonospace'
 import { SmallTitle, Title } from 'components/typography/Titles'
 import Wrapper from 'components/Wrapper'
 import useMetaSubscription from 'hooks/useMetaSubscription'
 import useTokenSubscription from 'hooks/useTokenSubscription'
 import { getAverageBlockCountPerHour, getCurrentBlockNumber } from 'lib/block'
-import { PairByIdQuery, thegraphClient } from 'lib/graphql'
 import { addGraphInfo, addLogoColor, getAllTokens } from 'lib/tokens'
 import type { GetStaticPropsResult } from 'next'
+import dynamic from 'next/dynamic'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useSetRecoilState } from 'recoil'
 import { allTokensStoreState } from 'state/tokens'
 import { walletModalOpenState } from 'state/wallet'
-import type {
-  HandleBuyClick,
-  HandleSellClick,
-  PairByIdQueryResponse,
-  Token,
-} from 'types/trade'
+import type { HandleBuyClick, HandleSellClick, Token } from 'types/trade'
 import { useWallet } from 'use-wallet'
 
 type PageProps = {
@@ -35,6 +29,10 @@ type BodyProps = {
   onBuyClick: HandleBuyClick
   onSellClick: HandleSellClick
 }
+
+const TradeModal = dynamic(() => import('components/Trade/Modal'), {
+  ssr: false,
+})
 
 const HeaderContent = (): JSX.Element => {
   const wallet = useWallet()
@@ -223,11 +221,6 @@ export default function TradePage({ allTokens }: PageProps): JSX.Element {
 
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedPairId, setSelectedPairId] = useState('')
-  const [, setLoadingPair] = useState(false)
-  const [
-    selectedPair,
-    setSelectedPair,
-  ] = useState<PairByIdQueryResponse | null>(null)
 
   const handleBuyClick: HandleBuyClick = useCallback((pairInfo) => {
     setSelectedPairId(pairInfo?.pairId ?? '')
@@ -239,32 +232,6 @@ export default function TradePage({ allTokens }: PageProps): JSX.Element {
     setModalOpen(true)
   }, [])
 
-  // Retrieve pair info from The Graph when 'selectedPairId' changes
-  useEffect(() => {
-    let mounted = true
-    const getPairData = async () => {
-      if (mounted) setLoadingPair(true)
-      let pair: PairByIdQueryResponse | null = null
-      try {
-        const response = await thegraphClient.request(PairByIdQuery, {
-          pairId: selectedPairId,
-        })
-        pair = response?.pairs?.[0] || null
-      } catch (e) {
-        console.error(e)
-      } finally {
-        if (mounted) {
-          setLoadingPair(false)
-          setSelectedPair(pair)
-        }
-      }
-    }
-    if (selectedPairId) getPairData()
-    return () => {
-      mounted = false
-    }
-  }, [selectedPairId])
-
   return (
     <Layout
       title='Start trading'
@@ -275,7 +242,7 @@ export default function TradePage({ allTokens }: PageProps): JSX.Element {
       <TradeModal
         open={modalOpen}
         onRequestClose={() => setModalOpen(false)}
-        selectedPair={selectedPair}
+        selectedPairId={selectedPairId}
       />
       <BodyContent
         allTokens={allTokens}

@@ -18,8 +18,8 @@ const Icon = ({ src }: Props): JSX.Element => {
           display: flex;
           position: relative;
           flex-shrink: 0;
-          height: 1rem;
-          width: 1rem;
+          height: var(--iconsize);
+          width: var(--iconsize);
           margin-right: 0.33rem;
         }
       `}</style>

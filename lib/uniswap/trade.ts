@@ -87,8 +87,6 @@ export async function getExecutionPrice(
       provider,
     )
 
-    console.log(pair)
-
     const route = new Route([pair], token1, token0)
 
     console.log(route)

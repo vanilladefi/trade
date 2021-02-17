@@ -60,8 +60,8 @@ export function getAllTokens(): Token[] {
     }))
 }
 
-export function getLogoUri(token: UniSwapToken): string | undefined {
-  return getAllTokens().find((t) => t.address === token.address)?.logoURI
+export function getLogoUri(address: string): string | undefined {
+  return getAllTokens().find((t) => t.address === address)?.logoURI
 }
 
 /**
