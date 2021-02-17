@@ -103,6 +103,7 @@ const Button = ({
           font-family: var(--bodyfont);
           font-size: var(--buttonsize);
           font-weight: var(--buttonweight);
+          color: inherit;
           outline: 0;
           cursor: pointer;
           line-height: 1rem;
@@ -119,8 +120,7 @@ const Button = ({
         }
         button.small {
           padding: var(--smallbuttonpadding);
-          font-size: var(--smallbuttonpadding);
-          line-height: 0.4rem;
+          font-size: var(--smallbuttonsize);
         }
         button.gradient {
           background: var(--buttongradient);

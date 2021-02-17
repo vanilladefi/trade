@@ -2,9 +2,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 import { Logo } from './Brand'
-import { Alignment, Column, Justification, Row } from './grid/Flex'
-import Navigation from './Navigation'
+import { DesktopNavigation } from './Navigation'
 import Wrapper from './Wrapper'
+import { BreakPoint } from './GlobalStyles/Breakpoints'
 
 const LawLinks = (): JSX.Element => (
   <ul>
@@ -40,6 +40,11 @@ const LawLinks = (): JSX.Element => (
       a {
         text-decoration: none;
         color: var(--white);
+      }
+      @media (max-width: ${BreakPoint.xs}px) {
+        li {
+          text-align: left;
+        }
       }
     `}</style>
   </ul>
@@ -120,30 +125,25 @@ const Footer = (): JSX.Element => (
       <Wrapper>
         <div className='navBar'>
           <Link href='/'>
-            <a>
+            <a className='logo'>
               <Logo white />
             </a>
           </Link>
           <div className='desktopNav'>
-            <Navigation />
+            <DesktopNavigation />
           </div>
         </div>
-        <Row
-          justifyContent={Justification.SPACE_BETWEEN}
-          alignItems={Alignment.STRETCH}
-        >
-          <Column className='social'>
+        <div className='extra'>
+          <div className='social'>
             <SoMeLinks />
-          </Column>
-          <Column
-            className='law'
-            justifyContent={Justification.SPACE_BETWEEN}
-            alignItems={Alignment.END}
-          >
+          </div>
+          <div className='law'>
             <LawLinks />
-            <span>Copyright © {new Date().getFullYear()} Vanilla</span>
-          </Column>
-        </Row>
+            <span className='copyright'>
+              Copyright © {new Date().getFullYear()} Vanilla
+            </span>
+          </div>
+        </div>
       </Wrapper>
     </footer>
     <div className='bottomFill' />
@@ -156,7 +156,7 @@ const Footer = (): JSX.Element => (
         color: var(--white);
         width: 100%;
         font-size: var(--minisize);
-        padding: 2.3rem;
+        padding: 2.3rem 2.3rem 8rem;
         background-image: url('/images/footer_flower.svg');
         background-repeat: no-repeat;
         background-blend-mode: screen;
@@ -179,12 +179,38 @@ const Footer = (): JSX.Element => (
         --inactivelink: var(--white);
         --activelink: var(--white);
       }
+      .logo {
+        margin-right: 2rem;
+      }
       div.desktopNav {
         display: none;
       }
-      @media (min-width: 680px) {
-        div.desktopNav {
+      .extra {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+      .law {
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .copyright {
+        margin-top: 3rem;
+      }
+      @media (min-width: ${BreakPoint.mobileNav}px) {
+        .desktopNav {
           display: block;
+        }
+      }
+      @media (max-width: ${BreakPoint.xs}px) {
+        .extra {
+          flex-direction: column;
+          justify-content: flex-start;
+        }
+        .law {
+          margin-top: 2rem;
+        }
+        .copyright {
+          text-align: center;
         }
       }
     `}</style>
