@@ -19,11 +19,14 @@ export const selectedPairState = selector<PairByIdQueryResponse | null>({
   get: async ({ get }) => {
     let pair: PairByIdQueryResponse | null = null
     try {
-      const response = await thegraphClient.request(PairByIdQuery, {
-        pairId: selectedPairIdState,
-      })
+      const pairId = get(selectedPairIdState)
+      let response
+      if (pairId !== null) {
+        response = await thegraphClient.request(PairByIdQuery, {
+          pairId: pairId,
+        })
+      }
       pair = response?.pairs?.[0] || null
-
       const counterAsset = get(selectedCounterAsset)
 
       // Sort pairs so that the counter asset is always token1
@@ -47,9 +50,8 @@ export const selectedPairState = selector<PairByIdQueryResponse | null>({
 
 export const token0Selector = selector<UniSwapToken | null>({
   key: 'token0Selector',
-  get: async ({ get }) => {
+  get: ({ get }) => {
     const pairResponse = get(selectedPairState)
-    console.log(pairResponse)
     return pairResponse
       ? {
           symbol: pairResponse.token0.symbol,
@@ -65,7 +67,7 @@ export const token0Selector = selector<UniSwapToken | null>({
 
 export const token1Selector = selector<UniSwapToken | null>({
   key: 'token1Selector',
-  get: async ({ get }) => {
+  get: ({ get }) => {
     const pairResponse = get(selectedPairState)
     return pairResponse
       ? {

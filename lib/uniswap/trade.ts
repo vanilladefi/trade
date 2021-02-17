@@ -87,9 +87,7 @@ export async function getExecutionPrice(
       provider,
     )
 
-    const route = new Route([pair], token1, token0)
-
-    console.log(route)
+    const route = new Route([pair], token1)
 
     const trade = new Trade(route, parsedAmount, TradeType.EXACT_OUTPUT)
 

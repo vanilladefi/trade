@@ -17,7 +17,7 @@ import React, {
   useState,
 } from 'react'
 import { useRecoilValue } from 'recoil'
-import { selectedPairState, token0Selector, token1Selector } from 'state/trade'
+import { token0Selector, token1Selector } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
 import { Operation /*, View*/ } from '..'
 
@@ -28,7 +28,8 @@ type ContentProps = {
 }
 
 const TokenInput = dynamic(() => import('components/Trade/TokenInput'), {
-  loading: () => <div>Fetching pair data...</div>,
+  loading: () => <p>Loading ...</p>,
+  ssr: false,
 })
 
 const PrepareView = ({
@@ -41,16 +42,21 @@ ContentProps): JSX.Element => {
 
   const token0 = useRecoilValue(token0Selector)
   const token1 = useRecoilValue(token1Selector)
-  const selectedPair = useRecoilValue(selectedPairState)
-  console.log(selectedPair)
 
   const [executionPrice, setExecutionPrice] = useState<Price>()
   const [amount, setAmount] = useState<string>('0')
 
   useEffect(() => {
+    console.log(
+      'None of the Prepare views inputs changed?',
+      token0,
+      token1,
+      amount,
+    )
     if (provider && amount && amount !== '0' && token0 && token1) {
       getExecutionPrice(amount, token0, token1, provider)
         .then((price) => {
+          console.log('ebin?')
           price && setExecutionPrice(price)
         })
         .catch(console.error)
@@ -76,10 +82,10 @@ ContentProps): JSX.Element => {
       ? executionPrice?.toSignificant()
       : '0'
     return ep ? parseFloat(amount) * parseFloat(ep) : 0
-  }, [executionPrice])
+  }, [amount, executionPrice])
 
   return (
-    <Suspense fallback={<div>Fetching pair data...</div>}>
+    <Suspense fallback={() => <div>Fetching pair data...</div>}>
       <Column>
         <div className='row'>
           <div className='toggleWrapper'>

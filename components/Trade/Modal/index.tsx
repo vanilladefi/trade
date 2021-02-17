@@ -1,17 +1,19 @@
 import Modal from 'components/Modal'
 import dynamic from 'next/dynamic'
-import React, { ReactElement, useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import { useSetRecoilState } from 'recoil'
 import { selectedPairIdState } from 'state/trade'
 
-const Loading = (): ReactElement => <div>Loading pair data...</div>
+const Loading = (): JSX.Element => <div>Loading pair data...</div>
 
 const Prepare = dynamic(() => import('./Views/Prepare'), {
   loading: () => <Loading />,
+  ssr: false,
 })
 
 const Success = dynamic(() => import('./Views/Success'), {
   loading: () => <Loading />,
+  ssr: false,
 })
 
 type Props = {
@@ -46,16 +48,18 @@ const TradeModal = ({
   }, [selectedPairId, setSelectedPairId])
 
   return (
-    <Modal open={open} onRequestClose={onRequestClose}>
-      {currentView === View.Prepare && (
-        <Prepare
-          operation={operation}
-          setOperation={setOperation}
-          //setCurrentView={setCurrentView}
-        />
-      )}
-      {currentView === View.Success && <Success />}
-    </Modal>
+    <Suspense fallback={() => <Loading />}>
+      <Modal open={open} onRequestClose={onRequestClose}>
+        {currentView === View.Prepare && (
+          <Prepare
+            operation={operation}
+            setOperation={setOperation}
+            //setCurrentView={setCurrentView}
+          />
+        )}
+        {currentView === View.Success && <Success />}
+      </Modal>
+    </Suspense>
   )
 }
 
