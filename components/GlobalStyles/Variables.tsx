@@ -103,6 +103,7 @@ const Variables = (): JSX.Element => (
       --buttonweight: 600;
 
       --buttonsize: 1.2rem;
+      --smallbuttonsize: 1rem;
       --largebuttonsize: 1.2rem;
       --mobilebuttonsize: 1.2rem;
 

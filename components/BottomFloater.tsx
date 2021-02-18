@@ -13,9 +13,10 @@ const BottomFloater = ({ children }: Props): JSX.Element => {
           position: fixed;
           bottom: 0;
           left: 0;
-          width: 100vw;
+          width: 100%;
           height: fit-content;
           display: flex;
+          z-index: 3;
         }
       `}</style>
     </>

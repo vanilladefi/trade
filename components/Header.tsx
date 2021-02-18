@@ -1,93 +1,21 @@
-import { AnimatePresence, motion, useCycle } from 'framer-motion'
 import Link from 'next/link'
-import React, { ReactNode, useRef } from 'react'
 import { Logo } from './Brand'
-import MenuToggle from './MenuToggle'
-import Navigation from './Navigation'
+import { DesktopNavigation, MobileNavigation } from './Navigation'
 import Wrapper from './Wrapper'
+import { BreakPoint } from './GlobalStyles/Breakpoints'
 
-type RenderFunction = () => ReactNode
+type RenderFunction = () => React.ReactNode
 
-type Props = {
-  children?: ReactNode
-  background?: ReactNode
+interface Props {
+  background?: React.ReactNode
   renderChildren?: RenderFunction
-}
-
-const MobileNavigation = (): JSX.Element => {
-  const [isOpen, toggleOpen] = useCycle(false, true)
-  const containerRef = useRef(null)
-  return (
-    <>
-      <motion.div animate={isOpen ? 'open' : 'closed'} ref={containerRef}>
-        <MenuToggle toggle={() => toggleOpen()} />
-      </motion.div>
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            key='container'
-            className='mobileNavContainer'
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{
-              position: 'fixed',
-              top: '0',
-              bottom: '0',
-              left: '0',
-              right: '0',
-              display: 'flex',
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              zIndex: 4,
-            }}
-          >
-            <div
-              onClick={() => toggleOpen()}
-              style={{
-                position: 'fixed',
-                top: '0',
-                bottom: '0',
-                left: '0',
-                width: 'calc(100% - 240px)',
-                boxSizing: 'border-box',
-                backgroundColor: 'transparent',
-                display: 'flex',
-                height: '100vh',
-              }}
-            ></div>
-            <motion.div
-              key='sidebar'
-              initial={{ right: -440 }}
-              animate={{ right: 0.1 }} // framer-motion does not handle animate to right 0 very well for some reason
-              exit={{ right: -440 }}
-              transition={{ type: 'tween' }}
-              style={{
-                position: 'fixed',
-                top: '0',
-                bottom: '0',
-                width: '240px',
-                boxSizing: 'border-box',
-                backgroundColor: '#fff',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-                height: '100vh',
-              }}
-            >
-              <Navigation />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  )
 }
 
 const Header = ({
   children,
   background,
   renderChildren,
-}: Props): JSX.Element => {
+}: React.PropsWithChildren<Props>): JSX.Element => {
   return (
     <>
       <header>
@@ -96,7 +24,7 @@ const Header = ({
           <div className='headerPadding'>
             <div className='navBar'>
               <Link href='/'>
-                <a>
+                <a className='logo'>
                   <Logo />
                 </a>
               </Link>
@@ -104,7 +32,7 @@ const Header = ({
                 <MobileNavigation />
               </div>
               <div className='desktopNav'>
-                <Navigation />
+                <DesktopNavigation />
               </div>
             </div>
             {children || (renderChildren && renderChildren())}
@@ -127,11 +55,15 @@ const Header = ({
           position: relative;
           width: 100%;
           justify-content: center;
+          padding-top: 1rem;
         }
         div.desktopNav {
           display: none;
         }
-        @media (min-width: 680px) {
+        .logo {
+          margin-right: 2rem;
+        }
+        @media (min-width: ${BreakPoint.mobileNav}px) {
           div.mobileNav {
             display: none;
           }

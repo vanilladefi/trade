@@ -1,4 +1,4 @@
-import { utils } from 'ethers'
+import { utils as ethersUtils } from 'ethers'
 import { useMemo } from 'react'
 import { useWallet } from 'use-wallet'
 import { useRecoilState } from 'recoil'
@@ -15,13 +15,14 @@ import Button, {
 import Spacer from './typography/Spacer'
 import WalletAddress from './typography/WalletAddress'
 import WalletIcon from './typography/WalletIcon'
-import { useBreakpoints } from '../hooks/breakpoints'
+import { BreakPoint } from './GlobalStyles/Breakpoints'
+import WalletConnectButton from './WalletConnectButton'
 
-type Props = {
+interface SmallWalletInfoProps {
   grow?: boolean
 }
 
-const SmallWalletInfo = ({ grow }: Props): JSX.Element => {
+const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
   const wallet = useWallet()
   const [walletModalOpen, setWalletModalOpen] = useRecoilState(
     walletModalOpenState,
@@ -29,7 +30,7 @@ const SmallWalletInfo = ({ grow }: Props): JSX.Element => {
 
   const walletBalance = useMemo(() => {
     return Number.parseFloat(
-      utils.formatUnits(wallet.balance, 'ether'),
+      ethersUtils.formatUnits(wallet.balance, 'ether'),
     ).toFixed(3)
   }, [wallet.balance])
 
@@ -42,6 +43,8 @@ const SmallWalletInfo = ({ grow }: Props): JSX.Element => {
       : ''
     return { long, short }
   }, [wallet.account])
+
+  if (wallet.status !== 'connected') return <WalletConnectButton />
 
   return (
     <ButtonGroup grow={grow}>
@@ -62,6 +65,7 @@ const SmallWalletInfo = ({ grow }: Props): JSX.Element => {
         onClick={() => {
           setWalletModalOpen(!walletModalOpen)
         }}
+        size={ButtonSize.SMALL}
         color={ButtonColor.TRANSPARENT}
         bordered
         rounded={Rounding.RIGHT}
@@ -84,30 +88,32 @@ const SmallWalletInfo = ({ grow }: Props): JSX.Element => {
 }
 
 export const MobileWalletFloater = (): JSX.Element => {
-  const wallet = useWallet()
-  const { isSmaller } = useBreakpoints()
   return (
     <>
-      {wallet.account && isSmaller.sm && (
-        <BottomFloater>
-          <div className='walletInfoWrapper'>
-            <SmallWalletInfo grow />
-          </div>
-        </BottomFloater>
-      )}
+      <BottomFloater>
+        <div className='walletInfoWrapper'>
+          <SmallWalletInfo grow />
+        </div>
+      </BottomFloater>
       <style jsx>{`
         .walletInfoWrapper {
-          width: 100vw;
+          width: 100%;
           background: var(--white);
           padding: 1rem;
           display: flex;
           flex-direction: row;
-          justify-content: stretch;
+          justify-content: center;
         }
         .walletInfoWrapper * {
           display: flex;
           flex-grow: 1;
           width: 100%;
+        }
+
+        @media (min-width: ${BreakPoint.mobileNav}px) {
+          .walletInfoWrapper {
+            display: none;
+          }
         }
       `}</style>
     </>

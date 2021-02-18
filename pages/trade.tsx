@@ -7,7 +7,6 @@ import { AvailableTokens, MyPositions } from 'components/Trade'
 import TokenSearch from 'components/TokenSearch'
 import { TopGradient } from 'components/backgrounds/gradient'
 import { Column, Row, Width } from 'components/grid/Flex'
-import { GridItem, GridTemplate } from 'components/grid/Grid'
 import Button, { ButtonSize } from 'components/input/Button'
 import Layout from 'components/Layout'
 import Modal from 'components/Modal'
@@ -64,28 +63,22 @@ const HeaderContent = (): JSX.Element => {
         ) : (
           <Column width={Width.TWELVE}>
             <Title>My trading</Title>
-            <GridTemplate>
-              <GridItem>
-                <Column>
-                  <SmallTitle>TOTAL BALANCE</SmallTitle>
-                  <h1>Amountenings $</h1>
-                  <span>this is the subtitle</span>
-                </Column>
-              </GridItem>
-              <GridItem>
-                <Column>
-                  <SmallTitle>PROFITABLE POSITIONS</SmallTitle>
-                  <h1>24/34</h1>
-                </Column>
-              </GridItem>
-              <GridItem>
-                <Column>
-                  <SmallTitle>UNREALIZED PROFIT</SmallTitle>
-                  <h1>12%</h1>
-                  <span>1.15 VNL</span>
-                </Column>
-              </GridItem>
-            </GridTemplate>
+            <div className='stats-grid'>
+              <div className='stats-grid-item'>
+                <h2 className='title'>TOTAL BALANCE</h2>
+                <h3 className='subTitle'>$324</h3>
+                <span className='details'>5.1275 ETH (+4%)</span>
+              </div>
+              <div className='stats-grid-item'>
+                <h2 className='title'>PROFITABLE POSITIONS</h2>
+                <h3 className='subTitle'>24/34</h3>
+              </div>
+              <div className='stats-grid-item'>
+                <h2 className='title'>UNREALIZED PROFIT</h2>
+                <h3 className='subTitle'>12%</h3>
+                <span className='details'>1.15 VNL</span>
+              </div>
+            </div>
           </Column>
         )}
       </Row>
@@ -93,6 +86,88 @@ const HeaderContent = (): JSX.Element => {
         .subpageHeader {
           --buttonmargin: var(--subpage-buttonmargin);
           --titlemargin: var(--subpage-titlemargin);
+        }
+
+        .stats-grid {
+          width: 100%;
+          display: grid;
+          gap: 70px;
+          grid: auto / 1fr 1fr 1fr;
+          margin-bottom: 2rem;
+        }
+        .stats-grid .title,
+        .stats-grid .subTitle,
+        .stats-grid .details {
+          font-size: 1.1rem;
+          font-family: var(--monofont);
+          font-weight: var(--monoweight)
+          line-height: 1em;
+          margin: 0;
+          padding: 0;
+        }
+
+        .stats-grid-item {
+          width: 100%;
+          display: grid;
+          grid:
+            "title" auto
+            "subTitle" auto
+            "details" 26px
+            / auto
+        }
+
+        .stats-grid .title {
+          grid-area: title;
+          font-weight: var(--titleweight);
+          padding-bottom: 1rem;
+          margin-bottom: 1rem;
+          border-bottom: 1px solid rgba(44, 25, 41, .4)
+        }
+
+        .stats-grid .subTitle {
+          grid-area: subTitle;
+          font-size: 1.8rem;
+        }
+
+        .stats-grid .details {
+          grid-area: details;
+        }
+
+        @media(max-width: 680px){
+          .stats-grid {
+            gap: 0;
+            grid: auto / auto;
+          }
+          .stats-grid-item:first-child {
+            border-top: 1px solid rgba(44, 25, 41, .4);
+          }
+          .stats-grid-item {
+            grid:
+              "title subTitle" 1fr
+              "title details" auto
+              / 1fr 1fr;
+            padding: 2rem 0;
+            border-bottom: 1px solid rgba(44, 25, 41, .4);
+          }
+          .stats-grid .title {
+            align-self: center;
+            font-size: 1.5rem;
+            padding-bottom: 0;
+            margin-bottom: 0;
+            border: none;
+          }
+          .stats-grid .subTitle,
+          .stats-grid .details {
+            align-self: center;
+            justify-self: end;
+            text-align: right;
+          }
+          .stats-grid .subTitle {
+            font-size: 2.2rem;
+          }
+          .stats-grid .details {
+            font-size: 1.3rem;
+          }
         }
       `}</style>
     </>

@@ -1,10 +1,10 @@
 import classNames from 'classnames'
 import Link, { LinkProps } from 'next/link'
 import { useRouter } from 'next/router'
-import React, { ReactNode } from 'react'
+import { BreakPoint } from './GlobalStyles/Breakpoints'
 
 type Props = LinkProps & {
-  children?: ReactNode
+  children?: React.ReactNode
 }
 
 const NavLink = ({ href, children }: Props): JSX.Element => {
@@ -26,7 +26,7 @@ const NavLink = ({ href, children }: Props): JSX.Element => {
         a.active {
           color: var(--activelink);
         }
-        @media (min-width: 680px) {
+        @media (min-width: ${BreakPoint.mobileNav}px) {
           a {
             display: flex;
             align-items: center;
