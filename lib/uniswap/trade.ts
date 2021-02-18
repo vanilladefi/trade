@@ -18,80 +18,93 @@ import { tokenListChainId } from '../tokens'
 
 type TradeProps = {
   tokenAddress: string
-  amount: string
-  decimals: number
+  amountIn: string
+  amountOut: string
+  tokenIn: UniSwapToken
+  tokenOut: UniSwapToken
   provider?: providers.JsonRpcProvider
   signer?: providers.JsonRpcSigner
 }
 
 export const buy = async ({
   tokenAddress,
-  amount,
-  decimals = 18,
+  amountIn,
+  amountOut,
+  tokenIn,
+  tokenOut,
   signer,
 }: TradeProps): Promise<string> => {
-  const amountParsed = parseUnits(amount, decimals)
+  const amountInParsed = parseUnits(amountIn, tokenIn.decimals)
+  const amountOutParsed = parseUnits(amountOut, tokenOut.decimals)
 
   const vanillaRouter = new ethers.Contract(
     vanillaRouterAddress,
     JSON.stringify(vanillaABI),
     signer,
   )
-  const receipt = await vanillaRouter.buy(
+
+  const receipt = await vanillaRouter.depositAndBuy(
     tokenAddress,
-    12,
+    amountOutParsed,
     constants.MaxUint256,
-    { value: amountParsed },
+    { value: amountInParsed },
   )
+
   return receipt
 }
 
 export const sell = async ({
   tokenAddress,
-  amount,
-  provider,
+  amountIn,
+  amountOut,
+  tokenIn,
+  tokenOut,
+  signer,
 }: TradeProps): Promise<string> => {
   const vanillaRouter = new ethers.Contract(
     vanillaRouterAddress,
     JSON.stringify(vanillaABI),
-    provider,
+    signer,
   )
   const receipt = await vanillaRouter.sell(
     tokenAddress,
-    493,
-    amount,
+    amountIn,
+    amountOut,
     constants.MaxUint256,
   )
   return receipt
 }
 
 export async function getExecutionPrice(
-  amountIn: string,
-  token0: UniSwapToken,
-  token1: UniSwapToken,
+  amountToTrade: string,
+  tokenOut: UniSwapToken,
+  tokenIn: UniSwapToken,
   provider: providers.JsonRpcProvider,
 ): Promise<Price> {
   try {
-    const parsedAmount = tryParseAmount(amountIn, token0)
+    const parsedAmount = tryParseAmount(amountToTrade, tokenOut)
     if (!parsedAmount)
-      return Promise.reject(`Failed to parse input amount: ${amountIn}`)
+      return Promise.reject(`Failed to parse input amount: ${amountToTrade}`)
 
-    const convertedToken0 = new Token(
+    const convertedTokenOut = new Token(
       tokenListChainId,
-      token0.address,
-      token0.decimals,
+      tokenOut.address,
+      tokenOut.decimals,
+    )
+    const convertedTokenIn = new Token(
+      tokenListChainId,
+      tokenIn.address,
+      tokenIn.decimals,
     )
     const pair = await Fetcher.fetchPairData(
-      convertedToken0,
-      new Token(tokenListChainId, token1.address, token1.decimals),
+      convertedTokenOut,
+      convertedTokenIn,
       provider,
     )
 
-    const route = new Route([pair], token1)
+    const route = new Route([pair], convertedTokenIn)
 
     const trade = new Trade(route, parsedAmount, TradeType.EXACT_OUTPUT)
-
-    console.log(trade)
 
     return trade.executionPrice
   } catch (error) {

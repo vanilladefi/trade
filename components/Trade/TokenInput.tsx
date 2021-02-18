@@ -11,15 +11,15 @@ import { Operation } from './Modal'
 type Props = {
   operation: Operation
   onAmountChange: (value: string) => void | undefined
-  token0In?: CurrencyAmount | undefined
-  token1Out?: number | undefined
+  token1In?: CurrencyAmount | number | undefined
+  token0Out?: number | undefined
 }
 
 const TokenInput = ({
   operation,
   onAmountChange,
   //token0In,
-  token1Out,
+  token1In,
 }: Props): JSX.Element => {
   const wallet = useWallet()
   const provider = useRecoilValue(providerState)
@@ -68,7 +68,7 @@ const TokenInput = ({
                 type='number'
                 placeholder={'0.0'}
                 disabled
-                value={token1Out?.toString()}
+                value={token1In?.toString()}
               />
             </div>
             <div className='tokenSelector'>

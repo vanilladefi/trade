@@ -1,3 +1,4 @@
+import { Token } from '@uniswap/sdk'
 import { TopGradient } from 'components/backgrounds/gradient'
 import { Column, Row, Width } from 'components/grid/Flex'
 import Button, { ButtonSize } from 'components/input/Button'
@@ -10,14 +11,21 @@ import Wrapper from 'components/Wrapper'
 import useMetaSubscription from 'hooks/useMetaSubscription'
 import useTokenSubscription from 'hooks/useTokenSubscription'
 import { getAverageBlockCountPerHour, getCurrentBlockNumber } from 'lib/block'
-import { addGraphInfo, addLogoColor, getAllTokens } from 'lib/tokens'
+import {
+  addGraphInfo,
+  addLogoColor,
+  getAllTokens,
+  getERC20TokenBalance,
+  tokenListChainId,
+} from 'lib/tokens'
+import { getVnlTokenAddress } from 'lib/vanilla'
 import type { GetStaticPropsResult } from 'next'
 import dynamic from 'next/dynamic'
 import React, { useCallback, useEffect, useState } from 'react'
-import { useSetRecoilState } from 'recoil'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { allTokensStoreState } from 'state/tokens'
-import { walletModalOpenState } from 'state/wallet'
-import type { HandleBuyClick, HandleSellClick, Token } from 'types/trade'
+import { providerState, walletModalOpenState } from 'state/wallet'
+import type { HandleBuyClick, HandleSellClick } from 'types/trade'
 import { useWallet } from 'use-wallet'
 
 type PageProps = {
@@ -37,6 +45,26 @@ const TradeModal = dynamic(() => import('components/Trade/Modal'), {
 const HeaderContent = (): JSX.Element => {
   const wallet = useWallet()
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
+  const provider = useRecoilValue(providerState)
+  const [vnlTokenAddress, setVnlTokenAddress] = useState('')
+
+  useEffect(() => {
+    provider && getVnlTokenAddress(provider).then(setVnlTokenAddress)
+  }, [provider])
+
+  useEffect(() => {
+    if (vnlTokenAddress && provider) {
+      const vnlToken = {
+        address: vnlTokenAddress,
+        symbol: 'VNL',
+        decimals: 13,
+        chainId: tokenListChainId,
+      }
+      getERC20TokenBalance(vnlTokenAddress, vnlToken, provider).then(
+        console.log,
+      )
+    }
+  }, [provider, vnlTokenAddress])
 
   return (
     <>
@@ -178,6 +206,7 @@ const BodyContent = ({
 }: BodyProps): JSX.Element => {
   useMetaSubscription()
   useTokenSubscription()
+
   const setTokens = useSetRecoilState(allTokensStoreState)
 
   useEffect(() => {

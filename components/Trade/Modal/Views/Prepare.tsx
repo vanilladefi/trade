@@ -47,16 +47,9 @@ ContentProps): JSX.Element => {
   const [amount, setAmount] = useState<string>('0')
 
   useEffect(() => {
-    console.log(
-      'None of the Prepare views inputs changed?',
-      token0,
-      token1,
-      amount,
-    )
     if (provider && amount && amount !== '0' && token0 && token1) {
       getExecutionPrice(amount, token0, token1, provider)
         .then((price) => {
-          console.log('ebin?')
           price && setExecutionPrice(price)
         })
         .catch(console.error)
@@ -72,16 +65,16 @@ ContentProps): JSX.Element => {
     [setAmount],
   )
 
-  const token0In = useCallback(() => token0 && tryParseAmount(amount, token0), [
-    amount,
-    token0,
-  ])
+  const token0Out = useCallback(
+    () => token0 && tryParseAmount(amount, token0),
+    [amount, token0],
+  )
 
-  const token1Out = useCallback(() => {
+  const token1In = useCallback(() => {
     const ep: string = executionPrice?.toSignificant
       ? executionPrice?.toSignificant()
       : '0'
-    return ep ? parseFloat(amount) * parseFloat(ep) : 0
+    return ep ? parseFloat(amount) / parseFloat(ep) : 0
   }, [amount, executionPrice])
 
   return (
@@ -108,29 +101,34 @@ ContentProps): JSX.Element => {
           <TokenInput
             operation={operation}
             onAmountChange={handleAmountChanged}
-            //token0In={token0In()}
-            token1Out={token1Out() > 0 ? token1Out() : undefined}
+            //token0Out={token0Out()}
+            token1In={token1In() > 0 ? token1In() : undefined}
           />
         </div>
 
         <div className='row'>
-          {token0In() ? (
+          {token0Out() ? (
             <Button
               onClick={() => {
                 token0 &&
-                  token0In &&
+                  token1 &&
+                  token0Out &&
                   signer &&
                   (operation === Operation.Buy
                     ? buy({
                         tokenAddress: token0.address,
-                        amount: amount,
-                        decimals: token0.decimals,
+                        amountOut: amount,
+                        amountIn: token1In().toString(),
+                        tokenIn: token1,
+                        tokenOut: token0,
                         signer: signer,
                       })
                     : sell({
                         tokenAddress: token0.address,
-                        amount: amount,
-                        decimals: token0.decimals,
+                        amountIn: amount,
+                        amountOut: token1In().toString(),
+                        tokenIn: token0,
+                        tokenOut: token1,
                         signer: signer,
                       }))
               }}
@@ -138,7 +136,7 @@ ContentProps): JSX.Element => {
               grow
             >
               {operation.charAt(0).toUpperCase() + operation.slice(1)}ing{' '}
-              {token0In()?.toSignificant()} {token0?.symbol}
+              {token0Out()?.toSignificant()} {token0?.symbol}
             </Button>
           ) : (
             <Button
