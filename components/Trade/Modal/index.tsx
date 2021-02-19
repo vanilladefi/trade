@@ -1,6 +1,6 @@
 import Modal from 'components/Modal'
 import dynamic from 'next/dynamic'
-import React, { Suspense, useEffect, useState } from 'react'
+import React, { Suspense, useState } from 'react'
 import { useSetRecoilState } from 'recoil'
 import { selectedPairIdState } from 'state/trade'
 
@@ -18,7 +18,6 @@ const Success = dynamic(() => import('./Views/Success'), {
 
 type Props = {
   open: boolean
-  selectedPairId?: string
   onRequestClose: () => void
 }
 
@@ -32,24 +31,20 @@ export enum Operation {
   Sell = 'sell',
 }
 
-const TradeModal = ({
-  open,
-  onRequestClose,
-  selectedPairId,
-}: Props): JSX.Element => {
+const TradeModal = ({ open, onRequestClose }: Props): JSX.Element => {
   const [currentView] = useState<View>(View.Prepare)
   const [operation, setOperation] = useState<Operation>(Operation.Buy)
-
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
-
-  // Retrieve pair info from The Graph when 'selectedPairId' changes
-  useEffect(() => {
-    setSelectedPairId(selectedPairId ?? null)
-  }, [selectedPairId, setSelectedPairId])
 
   return (
     <Suspense fallback={() => <Loading />}>
-      <Modal open={open} onRequestClose={onRequestClose}>
+      <Modal
+        open={open}
+        onRequestClose={() => {
+          setSelectedPairId(null)
+          onRequestClose()
+        }}
+      >
         {currentView === View.Prepare && (
           <Prepare
             operation={operation}

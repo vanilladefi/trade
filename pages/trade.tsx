@@ -8,6 +8,7 @@ import { AvailableTokens, MyPositions } from 'components/Trade'
 import HugeMonospace from 'components/typography/HugeMonospace'
 import { SmallTitle, Title } from 'components/typography/Titles'
 import Wrapper from 'components/Wrapper'
+import { Contract } from 'ethers'
 import useMetaSubscription from 'hooks/useMetaSubscription'
 import useTokenSubscription from 'hooks/useTokenSubscription'
 import { getAverageBlockCountPerHour, getCurrentBlockNumber } from 'lib/block'
@@ -21,12 +22,21 @@ import {
 import { getVnlTokenAddress } from 'lib/vanilla'
 import type { GetStaticPropsResult } from 'next'
 import dynamic from 'next/dynamic'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { allTokensStoreState } from 'state/tokens'
+import { selectedPairIdState } from 'state/trade'
 import { providerState, walletModalOpenState } from 'state/wallet'
 import type { HandleBuyClick, HandleSellClick } from 'types/trade'
+import VanillaRouterABI from 'types/vanillaRouter'
 import { useWallet } from 'use-wallet'
+import { vanillaRouterAddress } from 'utils/config'
 
 type PageProps = {
   allTokens: Token[]
@@ -34,8 +44,7 @@ type PageProps = {
 
 type BodyProps = {
   allTokens: Token[]
-  onBuyClick: HandleBuyClick
-  onSellClick: HandleSellClick
+  setModalOpen: Dispatch<SetStateAction<boolean>>
 }
 
 const TradeModal = dynamic(() => import('components/Trade/Modal'), {
@@ -199,19 +208,53 @@ const HeaderContent = (): JSX.Element => {
   )
 }
 
-const BodyContent = ({
-  allTokens,
-  onBuyClick,
-  onSellClick,
-}: BodyProps): JSX.Element => {
+const BodyContent = ({ allTokens, setModalOpen }: BodyProps): JSX.Element => {
   useMetaSubscription()
   useTokenSubscription()
 
+  const provider = useRecoilValue(providerState)
   const setTokens = useSetRecoilState(allTokensStoreState)
+  const setSelectedPairId = useSetRecoilState(selectedPairIdState)
+
+  useEffect(() => setTokens(allTokens), [setTokens, allTokens])
+
+  const handleBuyClick: HandleBuyClick = useCallback(
+    (pairInfo) => {
+      setSelectedPairId(pairInfo?.pairId ?? null)
+      setModalOpen(true)
+    },
+    [setModalOpen, setSelectedPairId],
+  )
+
+  const handleSellClick: HandleSellClick = useCallback(
+    (pairInfo) => {
+      setSelectedPairId(pairInfo?.pairId ?? null)
+      setModalOpen(true)
+    },
+    [setModalOpen, setSelectedPairId],
+  )
 
   useEffect(() => {
-    setTokens(allTokens)
-  }, [setTokens, allTokens])
+    if (provider) {
+      const router = new Contract(
+        vanillaRouterAddress,
+        VanillaRouterABI,
+        provider,
+      )
+      router.on(
+        'TokensPurchased',
+        (sender, token, sold, bought, newReserve) => {
+          console.log('TokensPurchased-event: ', {
+            sender,
+            token,
+            sold,
+            bought,
+            newReserve,
+          })
+        },
+      )
+    }
+  }, [provider])
 
   return (
     <Wrapper>
@@ -222,11 +265,17 @@ const BodyContent = ({
           </div>
 
           <h2>MY POSITIONS</h2>
-          <MyPositions onBuyClick={onBuyClick} onSellClick={onSellClick} />
+          <MyPositions
+            onBuyClick={handleBuyClick}
+            onSellClick={handleSellClick}
+          />
 
           <h2>AVAILABLE TOKENS</h2>
           {/* Pass "initialTokens" so this page is statically rendered with tokens */}
-          <AvailableTokens initialTokens={allTokens} onBuyClick={onBuyClick} />
+          <AvailableTokens
+            initialTokens={allTokens}
+            onBuyClick={handleBuyClick}
+          />
         </Column>
       </Row>
       <style jsx>{`
@@ -249,17 +298,6 @@ export default function TradePage({ allTokens }: PageProps): JSX.Element {
   // because this is a page component
 
   const [modalOpen, setModalOpen] = useState(false)
-  const [selectedPairId, setSelectedPairId] = useState('')
-
-  const handleBuyClick: HandleBuyClick = useCallback((pairInfo) => {
-    setSelectedPairId(pairInfo?.pairId ?? '')
-    setModalOpen(true)
-  }, [])
-
-  const handleSellClick: HandleSellClick = useCallback((pairInfo) => {
-    setSelectedPairId(pairInfo?.pairId ?? '')
-    setModalOpen(true)
-  }, [])
 
   return (
     <Layout
@@ -270,14 +308,11 @@ export default function TradePage({ allTokens }: PageProps): JSX.Element {
     >
       <TradeModal
         open={modalOpen}
-        onRequestClose={() => setModalOpen(false)}
-        selectedPairId={selectedPairId}
+        onRequestClose={() => {
+          setModalOpen(false)
+        }}
       />
-      <BodyContent
-        allTokens={allTokens}
-        onBuyClick={handleBuyClick}
-        onSellClick={handleSellClick}
-      />
+      <BodyContent allTokens={allTokens} setModalOpen={setModalOpen} />
     </Layout>
   )
 }

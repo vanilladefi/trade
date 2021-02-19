@@ -38,8 +38,6 @@ export const selectedPairState = selector<PairByIdQueryResponse | null>({
           decimals: String(counterAsset.decimals),
         }
       }
-
-      console.log(pair)
     } catch (e) {
       console.error(e)
     } finally {

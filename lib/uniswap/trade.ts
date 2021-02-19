@@ -61,17 +61,22 @@ export const sell = async ({
   tokenOut,
   signer,
 }: TradeProps): Promise<string> => {
+  const amountInParsed = parseUnits(amountIn, tokenIn.decimals)
+  const amountOutParsed = parseUnits(amountOut, tokenOut.decimals)
+
   const vanillaRouter = new ethers.Contract(
     vanillaRouterAddress,
     JSON.stringify(vanillaABI),
     signer,
   )
+
   const receipt = await vanillaRouter.sell(
     tokenAddress,
-    amountIn,
-    amountOut,
+    amountInParsed,
+    amountOutParsed,
     constants.MaxUint256,
   )
+
   return receipt
 }
 
