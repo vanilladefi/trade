@@ -1,4 +1,5 @@
 import { CurrencyAmount } from '@uniswap/sdk'
+import Spinner from 'components/Spinner'
 import Icon from 'components/typography/Icon'
 import { getERC20TokenBalance } from 'lib/tokens'
 import React, { useEffect, useState } from 'react'
@@ -63,13 +64,17 @@ const TokenInput = ({
           <div className='row'>
             <div className='numberInput'>
               <span>{operation === Operation.Sell ? 'Get' : 'Pay'}</span>
-              <input
-                className='input'
-                type='number'
-                placeholder={'0.0'}
-                disabled
-                value={token1In?.toString()}
-              />
+              {token1In ? (
+                <input
+                  className='input'
+                  type='number'
+                  placeholder={'0.0'}
+                  disabled
+                  value={token1In?.toString()}
+                />
+              ) : (
+                <Spinner />
+              )}
             </div>
             <div className='tokenSelector'>
               <span>Balance: {balance1}</span>

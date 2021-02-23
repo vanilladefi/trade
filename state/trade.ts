@@ -17,6 +17,7 @@ export const selectedCounterAsset = atom<UniSwapToken>({
 export const selectedPairState = selector<PairByIdQueryResponse | null>({
   key: 'selectedPair',
   get: async ({ get }) => {
+    console.log('should this change on press?')
     let pair: PairByIdQueryResponse | null = null
     try {
       const pairId = get(selectedPairIdState)

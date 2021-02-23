@@ -1,18 +1,30 @@
+import { Column, Row } from 'components/grid/Flex'
 import Modal from 'components/Modal'
 import dynamic from 'next/dynamic'
+import { useRouter } from 'next/router'
 import React, { Suspense, useState } from 'react'
 import { useSetRecoilState } from 'recoil'
 import { selectedPairIdState } from 'state/trade'
 
-const Loading = (): JSX.Element => <div>Loading pair data...</div>
+const Loading = (): JSX.Element => (
+  <Row>
+    <Column>
+      <div>Loading pair data...</div>
+    </Column>
+    <style jsx>{`
+      div {
+        width: 100%;
+        height: 60px;
+      }
+    `}</style>
+  </Row>
+)
 
 const Prepare = dynamic(() => import('./Views/Prepare'), {
-  loading: () => <Loading />,
   ssr: false,
 })
 
 const Success = dynamic(() => import('./Views/Success'), {
-  loading: () => <Loading />,
   ssr: false,
 })
 
@@ -36,25 +48,28 @@ const TradeModal = ({ open, onRequestClose }: Props): JSX.Element => {
   const [operation, setOperation] = useState<Operation>(Operation.Buy)
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
 
+  const router = useRouter()
+  const { id } = router.query
+
   return (
-    <Suspense fallback={() => <Loading />}>
-      <Modal
-        open={open}
-        onRequestClose={() => {
-          setSelectedPairId(null)
-          onRequestClose()
-        }}
-      >
-        {currentView === View.Prepare && (
+    <Modal
+      open={open || !!id}
+      onRequestClose={() => {
+        setSelectedPairId(null)
+        onRequestClose()
+      }}
+    >
+      <Suspense fallback={() => <Loading />}>
+        {currentView === View.Prepare && !id && (
           <Prepare
             operation={operation}
             setOperation={setOperation}
             //setCurrentView={setCurrentView}
           />
         )}
-        {currentView === View.Success && <Success />}
-      </Modal>
-    </Suspense>
+        {currentView === View.Success || (id && id !== '' && <Success />)}
+      </Suspense>
+    </Modal>
   )
 }
 

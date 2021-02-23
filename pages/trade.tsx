@@ -1,4 +1,4 @@
-import { Token } from '@uniswap/sdk'
+// import { Token } from '@uniswap/sdk'
 import { TopGradient } from 'components/backgrounds/gradient'
 import { Column, Row, Width } from 'components/grid/Flex'
 import Button, { ButtonSize } from 'components/input/Button'
@@ -6,7 +6,7 @@ import Layout from 'components/Layout'
 import TokenSearch from 'components/TokenSearch'
 import { AvailableTokens, MyPositions } from 'components/Trade'
 import HugeMonospace from 'components/typography/HugeMonospace'
-import { SmallTitle, Title } from 'components/typography/Titles'
+import { Title } from 'components/typography/Titles'
 import Wrapper from 'components/Wrapper'
 import { Contract } from 'ethers'
 import useMetaSubscription from 'hooks/useMetaSubscription'
@@ -33,8 +33,8 @@ import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { allTokensStoreState } from 'state/tokens'
 import { selectedPairIdState } from 'state/trade'
 import { providerState, walletModalOpenState } from 'state/wallet'
-import type { HandleBuyClick, HandleSellClick } from 'types/trade'
-import VanillaRouterABI from 'types/vanillaRouter'
+import VanillaRouterABI from 'types/abis/vanillaRouter'
+import type { HandleBuyClick, HandleSellClick, Token } from 'types/trade'
 import { useWallet } from 'use-wallet'
 import { vanillaRouterAddress } from 'utils/config'
 
@@ -47,7 +47,22 @@ type BodyProps = {
   setModalOpen: Dispatch<SetStateAction<boolean>>
 }
 
+const Loading = (): JSX.Element => (
+  <Row>
+    <Column>
+      <div>Loading pair data...</div>
+    </Column>
+    <style jsx>{`
+      div {
+        width: 100%;
+        height: 60px;
+      }
+    `}</style>
+  </Row>
+)
+
 const TradeModal = dynamic(() => import('components/Trade/Modal'), {
+  loading: () => <Loading />,
   ssr: false,
 })
 

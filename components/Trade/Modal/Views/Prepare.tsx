@@ -5,7 +5,8 @@ import Button, {
   ButtonSize,
   Rounding,
 } from 'components/input/Button'
-import { buy, getExecutionPrice, sell, tryParseAmount } from 'lib/uniswap/trade'
+import useTradeEngine from 'hooks/useTradeEngine'
+import { getExecutionPrice, tryParseAmount } from 'lib/uniswap/trade'
 import debounce from 'lodash.debounce'
 import dynamic from 'next/dynamic'
 import React, {
@@ -37,6 +38,7 @@ const PrepareView = ({
   setOperation,
 }: //setCurrentView,
 ContentProps): JSX.Element => {
+  const { buy, sell } = useTradeEngine()
   const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
 
@@ -116,20 +118,16 @@ ContentProps): JSX.Element => {
                   signer &&
                   (operation === Operation.Buy
                     ? buy({
-                        tokenAddress: token0.address,
-                        amountOut: amount,
                         amountIn: token1In().toString(),
+                        amountOut: amount,
                         tokenIn: token1,
                         tokenOut: token0,
-                        signer: signer,
                       })
                     : sell({
-                        tokenAddress: token0.address,
                         amountIn: amount,
                         amountOut: token1In().toString(),
                         tokenIn: token0,
                         tokenOut: token1,
-                        signer: signer,
                       }))
               }}
               size={ButtonSize.LARGE}

@@ -1,11 +1,9 @@
 import { Column } from 'components/grid/Flex'
 import TradeFlower from 'components/TradeFlower'
 import { SmallTitle } from 'components/typography/Titles'
-import { useRecoilValue } from 'recoil'
-import { selectedPairState } from 'state/trade'
 
-const SuccessView = (): JSX.Element => {
-  const selectedPair = useRecoilValue(selectedPairState)
+const SuccessView = (id: string): JSX.Element => {
+  const transaction = useTransaction(id)
   return (
     <Column>
       <div>

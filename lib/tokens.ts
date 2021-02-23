@@ -1,6 +1,7 @@
 import uniswapTokens from '@uniswap/default-token-list'
 import additionalTokens from 'data/tokens.json'
-import { Contract, providers, utils } from 'ethers'
+import { constants, Contract, providers, Signer, utils } from 'ethers'
+import { getAddress } from 'ethers/lib/utils'
 import {
   thegraphClient,
   TokenInfoQuery,
@@ -187,7 +188,29 @@ export async function getERC20TokenBalance(
       payable: false,
     },
   ]
-  const contract = new Contract(token.address, ERCBalanceQueryABI, provider)
+  const contract = getContract(token.address, ERCBalanceQueryABI, provider)
   const balance = await contract.balanceOf(address)
   return parseFloat(utils.formatUnits(balance, token.decimals))
+}
+
+// returns the checksummed address if the address is valid, otherwise returns false
+export function isAddress(value: any): string | false {
+  try {
+    return getAddress(value)
+  } catch {
+    return false
+  }
+}
+
+// account is optional
+export function getContract(
+  address: string,
+  ABI: any,
+  signerOrProvider?: providers.JsonRpcProvider | Signer | undefined,
+): Contract {
+  if (!isAddress(address) || address === constants.AddressZero) {
+    throw Error(`Invalid 'address' parameter '${address}'.`)
+  }
+
+  return new Contract(address, ABI, signerOrProvider)
 }

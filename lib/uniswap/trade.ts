@@ -2,6 +2,7 @@ import {
   CurrencyAmount,
   Fetcher,
   JSBI,
+  Percent,
   Price,
   Route,
   Token,
@@ -9,15 +10,19 @@ import {
   Trade,
   TradeType,
 } from '@uniswap/sdk'
-import { constants, ethers, providers } from 'ethers'
+import { BigNumber, constants, providers } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
+import vanillaABI from 'types/abis/vanillaRouter'
 import type { UniSwapToken } from 'types/trade'
-import vanillaABI from 'types/vanillaRouter'
 import { vanillaRouterAddress } from 'utils/config'
-import { tokenListChainId } from '../tokens'
+import { getContract, tokenListChainId } from '../tokens'
+
+export enum Field {
+  INPUT = 'INPUT',
+  OUTPUT = 'OUTPUT',
+}
 
 type TradeProps = {
-  tokenAddress: string
   amountIn: string
   amountOut: string
   tokenIn: UniSwapToken
@@ -27,7 +32,6 @@ type TradeProps = {
 }
 
 export const buy = async ({
-  tokenAddress,
   amountIn,
   amountOut,
   tokenIn,
@@ -37,14 +41,14 @@ export const buy = async ({
   const amountInParsed = parseUnits(amountIn, tokenIn.decimals)
   const amountOutParsed = parseUnits(amountOut, tokenOut.decimals)
 
-  const vanillaRouter = new ethers.Contract(
+  const vanillaRouter = getContract(
     vanillaRouterAddress,
     JSON.stringify(vanillaABI),
     signer,
   )
 
   const receipt = await vanillaRouter.depositAndBuy(
-    tokenAddress,
+    tokenOut.address,
     amountOutParsed,
     constants.MaxUint256,
     { value: amountInParsed },
@@ -54,7 +58,6 @@ export const buy = async ({
 }
 
 export const sell = async ({
-  tokenAddress,
   amountIn,
   amountOut,
   tokenIn,
@@ -64,14 +67,14 @@ export const sell = async ({
   const amountInParsed = parseUnits(amountIn, tokenIn.decimals)
   const amountOutParsed = parseUnits(amountOut, tokenOut.decimals)
 
-  const vanillaRouter = new ethers.Contract(
+  const vanillaRouter = getContract(
     vanillaRouterAddress,
     JSON.stringify(vanillaABI),
     signer,
   )
 
-  const receipt = await vanillaRouter.sell(
-    tokenAddress,
+  const receipt = await vanillaRouter.sellAndWithdraw(
+    tokenIn.address,
     amountInParsed,
     amountOutParsed,
     constants.MaxUint256,
@@ -141,4 +144,47 @@ export function tryParseAmount(
   }
   // necessary for all paths to return a value
   return undefined
+}
+
+// add 10%
+export function calculateGasMargin(value: BigNumber): BigNumber {
+  return value
+    .mul(BigNumber.from(10000).add(BigNumber.from(1000)))
+    .div(BigNumber.from(10000))
+}
+
+// converts a basis points value to a sdk percent
+export function basisPointsToPercent(num: number): Percent {
+  return new Percent(JSBI.BigInt(num), JSBI.BigInt(10000))
+}
+
+export function calculateSlippageAmount(
+  value: CurrencyAmount,
+  slippage: number,
+): [JSBI, JSBI] {
+  if (slippage < 0 || slippage > 10000) {
+    throw Error(`Unexpected slippage value: ${slippage}`)
+  }
+  return [
+    JSBI.divide(
+      JSBI.multiply(value.raw, JSBI.BigInt(10000 - slippage)),
+      JSBI.BigInt(10000),
+    ),
+    JSBI.divide(
+      JSBI.multiply(value.raw, JSBI.BigInt(10000 + slippage)),
+      JSBI.BigInt(10000),
+    ),
+  ]
+}
+
+// computes the minimum amount out and maximum amount in for a trade given a user specified allowed slippage in bips
+export function computeSlippageAdjustedAmounts(
+  trade: Trade | undefined,
+  allowedSlippage: number,
+): { [field in Field]?: CurrencyAmount } {
+  const pct = basisPointsToPercent(allowedSlippage)
+  return {
+    [Field.INPUT]: trade?.maximumAmountIn(pct),
+    [Field.OUTPUT]: trade?.minimumAmountOut(pct),
+  }
 }

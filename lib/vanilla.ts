@@ -1,5 +1,5 @@
 import { ethers, providers } from 'ethers'
-import vanillaABI from 'types/vanillaRouter'
+import vanillaABI from 'types/abis/vanillaRouter'
 import { vanillaRouterAddress } from 'utils/config'
 
 export const getVnlTokenAddress = async (
