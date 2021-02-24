@@ -21,7 +21,7 @@ const TokenInput = ({
   operation,
   onAmountChange,
   //token0In,
-  token1In,
+  token1In = 0.0,
   useWethProxy = true,
 }: Props): JSX.Element => {
   const wallet = useWallet()

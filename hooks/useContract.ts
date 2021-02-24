@@ -1,13 +1,14 @@
 import { Contract } from '@ethersproject/contracts'
+import ERC20 from '@uniswap/v2-periphery/build/ERC20.json'
 import { getContract } from 'lib/tokens'
 import { useMemo } from 'react'
 import { useRecoilValue } from 'recoil'
 import { signerState } from 'state/wallet'
-import ERC20_ABI from 'types/abis/erc20.json'
+import ABI from 'types/abis'
 
 export function useContract(
   address: string | undefined,
-  ABI: any,
+  ABI: ABI,
 ): Contract | null {
   const signer = useRecoilValue(signerState)
 
@@ -23,5 +24,5 @@ export function useContract(
 }
 
 export function useTokenContract(tokenAddress?: string): Contract | null {
-  return useContract(tokenAddress, ERC20_ABI)
+  return useContract(tokenAddress, ERC20.abi)
 }

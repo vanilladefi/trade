@@ -1,9 +1,8 @@
-import { chainId } from 'lib/tokens'
 import { buy, sell } from 'lib/uniswap/trade'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
-import { transactionsState } from 'state/transactions'
+import { useRecoilValue } from 'recoil'
 import { signerState } from 'state/wallet'
 import { UniSwapToken } from 'types/trade'
+import useAllTransactions from './useAllTransactions'
 
 interface TradeExecutionOptions {
   amountIn: string
@@ -12,9 +11,12 @@ interface TradeExecutionOptions {
   tokenOut: UniSwapToken
 }
 
-const useTradeEngine = () => {
+const useTradeEngine = (): {
+  buy: (options: TradeExecutionOptions) => void
+  sell: (options: TradeExecutionOptions) => void
+} => {
   const signer = useRecoilValue(signerState)
-  const setTransactions = useSetRecoilState(transactionsState)
+  const { addTransaction } = useAllTransactions()
 
   const executeBuy = async ({
     amountIn,
@@ -30,15 +32,7 @@ const useTradeEngine = () => {
         tokenOut: tokenOut,
         signer: signer,
       })
-      setTransactions((currentTransactions) => {
-        const transactions = Object.assign({}, currentTransactions)
-        transactions[chainId][transaction.hash] = {
-          from: transaction.from,
-          hash: transaction.hash,
-          addedTime: transaction.blockNumber || 0,
-        }
-        return transactions
-      })
+      addTransaction(transaction)
     }
   }
 
@@ -56,15 +50,7 @@ const useTradeEngine = () => {
         tokenOut: tokenOut,
         signer: signer,
       })
-      setTransactions((currentTransactions) => {
-        const transactions = Object.assign({}, currentTransactions)
-        transactions[chainId][transaction.hash] = {
-          from: transaction.from,
-          hash: transaction.hash,
-          addedTime: transaction.blockNumber || 0,
-        }
-        return transactions
-      })
+      addTransaction(transaction)
     }
   }
 

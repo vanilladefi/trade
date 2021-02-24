@@ -8,7 +8,6 @@ import { AvailableTokens, MyPositions } from 'components/Trade'
 import HugeMonospace from 'components/typography/HugeMonospace'
 import { Title } from 'components/typography/Titles'
 import Wrapper from 'components/Wrapper'
-import { Contract } from 'ethers'
 import useMetaSubscription from 'hooks/useMetaSubscription'
 import useTokenSubscription from 'hooks/useTokenSubscription'
 import { getAverageBlockCountPerHour, getCurrentBlockNumber } from 'lib/block'
@@ -33,10 +32,8 @@ import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { allTokensStoreState } from 'state/tokens'
 import { selectedPairIdState } from 'state/trade'
 import { providerState, walletModalOpenState } from 'state/wallet'
-import VanillaRouterABI from 'types/abis/vanillaRouter'
 import type { HandleBuyClick, HandleSellClick, Token } from 'types/trade'
 import { useWallet } from 'use-wallet'
-import { vanillaRouterAddress } from 'utils/config'
 
 type PageProps = {
   allTokens: Token[]
@@ -227,7 +224,6 @@ const BodyContent = ({ allTokens, setModalOpen }: BodyProps): JSX.Element => {
   useMetaSubscription()
   useTokenSubscription()
 
-  const provider = useRecoilValue(providerState)
   const setTokens = useSetRecoilState(allTokensStoreState)
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
 
@@ -248,28 +244,6 @@ const BodyContent = ({ allTokens, setModalOpen }: BodyProps): JSX.Element => {
     },
     [setModalOpen, setSelectedPairId],
   )
-
-  useEffect(() => {
-    if (provider) {
-      const router = new Contract(
-        vanillaRouterAddress,
-        VanillaRouterABI,
-        provider,
-      )
-      router.on(
-        'TokensPurchased',
-        (sender, token, sold, bought, newReserve) => {
-          console.log('TokensPurchased-event: ', {
-            sender,
-            token,
-            sold,
-            bought,
-            newReserve,
-          })
-        },
-      )
-    }
-  }, [provider])
 
   return (
     <Wrapper>

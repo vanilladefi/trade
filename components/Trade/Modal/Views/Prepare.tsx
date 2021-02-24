@@ -1,10 +1,11 @@
-import { Price } from '@uniswap/sdk'
+import { Price, TradeType } from '@uniswap/sdk'
 import { Column } from 'components/grid/Flex'
 import Button, {
   ButtonColor,
   ButtonSize,
   Rounding,
 } from 'components/input/Button'
+import Spinner from 'components/Spinner'
 import useTradeEngine from 'hooks/useTradeEngine'
 import { getExecutionPrice, tryParseAmount } from 'lib/uniswap/trade'
 import debounce from 'lodash.debounce'
@@ -29,7 +30,6 @@ type ContentProps = {
 }
 
 const TokenInput = dynamic(() => import('components/Trade/TokenInput'), {
-  loading: () => <p>Loading ...</p>,
   ssr: false,
 })
 
@@ -50,14 +50,31 @@ ContentProps): JSX.Element => {
 
   useEffect(() => {
     if (provider && amount && amount !== '0' && token0 && token1) {
-      getExecutionPrice(amount, token0, token1, provider)
-        .then((price) => {
-          price && setExecutionPrice(price)
-        })
-        .catch(console.error)
+      operation === Operation.Buy
+        ? getExecutionPrice(
+            amount,
+            token0,
+            token1,
+            provider,
+            TradeType.EXACT_OUTPUT,
+          )
+            .then((price) => {
+              price && setExecutionPrice(price)
+            })
+            .catch(console.error)
+        : getExecutionPrice(
+            amount,
+            token0,
+            token1,
+            provider,
+            TradeType.EXACT_INPUT,
+          )
+            .then((price) => {
+              price && setExecutionPrice(price)
+            })
+            .catch(console.error)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token0, token1, provider, amount])
+  }, [token0, token1, provider, amount, operation])
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleAmountChanged = useCallback(
@@ -133,8 +150,13 @@ ContentProps): JSX.Element => {
               size={ButtonSize.LARGE}
               grow
             >
-              {operation.charAt(0).toUpperCase() + operation.slice(1)}ing{' '}
-              {token0Out()?.toSignificant()} {token0?.symbol}
+              {token1In() < 0 ? (
+                <Spinner />
+              ) : (
+                `${
+                  operation.charAt(0).toUpperCase() + operation.slice(1)
+                }ing ${token0Out()?.toSignificant()} ${token0?.symbol}`
+              )}
             </Button>
           ) : (
             <Button

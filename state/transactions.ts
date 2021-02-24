@@ -1,9 +1,15 @@
 import { atom } from 'recoil'
 import { recoilPersist } from 'recoil-persist'
-import { TransactionDetails } from 'types/trade'
+import { ChainIdToTransactionMapping } from 'types/general'
 
-type ChainId = string
-type TransactionHash = string
+const defaultTransactionsState = {
+  '1': {},
+  '2': {},
+  '3': {},
+  '4': {},
+  '42': {},
+  '1337': {},
+}
 
 const { persistAtom } =
   typeof window !== 'undefined'
@@ -13,10 +19,9 @@ const { persistAtom } =
         persistAtom: () => {},
       }
 
-export const transactionsState = atom<
-  Record<ChainId, Record<TransactionHash, TransactionDetails>>
->({
+export const transactionsState = atom<ChainIdToTransactionMapping>({
   key: 'transactionsState',
-  default: {},
+  default: defaultTransactionsState,
+  dangerouslyAllowMutability: true,
   effects_UNSTABLE: [persistAtom],
 })

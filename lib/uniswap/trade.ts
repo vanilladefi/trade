@@ -88,6 +88,7 @@ export async function getExecutionPrice(
   tokenOut: UniSwapToken,
   tokenIn: UniSwapToken,
   provider: providers.JsonRpcProvider,
+  tradeType = TradeType.EXACT_OUTPUT,
 ): Promise<Price> {
   try {
     const parsedAmount = tryParseAmount(amountToTrade, tokenOut)
@@ -112,7 +113,7 @@ export async function getExecutionPrice(
 
     const route = new Route([pair], convertedTokenIn)
 
-    const trade = new Trade(route, parsedAmount, TradeType.EXACT_OUTPUT)
+    const trade = new Trade(route, parsedAmount, tradeType)
 
     return trade.executionPrice
   } catch (error) {
