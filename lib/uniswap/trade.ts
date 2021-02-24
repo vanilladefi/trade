@@ -13,7 +13,7 @@ import {
 import { BigNumber, constants, providers } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import vanillaABI from 'types/abis/vanillaRouter'
-import type { UniSwapToken } from 'types/trade'
+import type { TransactionReceipt, UniSwapToken } from 'types/trade'
 import { vanillaRouterAddress } from 'utils/config'
 import { getContract, tokenListChainId } from '../tokens'
 
@@ -37,7 +37,7 @@ export const buy = async ({
   tokenIn,
   tokenOut,
   signer,
-}: TradeProps): Promise<string> => {
+}: TradeProps): Promise<TransactionReceipt> => {
   const amountInParsed = parseUnits(amountIn, tokenIn.decimals)
   const amountOutParsed = parseUnits(amountOut, tokenOut.decimals)
 
@@ -63,7 +63,7 @@ export const sell = async ({
   tokenIn,
   tokenOut,
   signer,
-}: TradeProps): Promise<string> => {
+}: TradeProps): Promise<TransactionReceipt> => {
   const amountInParsed = parseUnits(amountIn, tokenIn.decimals)
   const amountOutParsed = parseUnits(amountOut, tokenOut.decimals)
 

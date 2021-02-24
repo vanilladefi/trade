@@ -1,9 +1,9 @@
+import { chainId } from 'lib/tokens'
 import { buy, sell } from 'lib/uniswap/trade'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { transactionsState } from 'state/transactions'
 import { signerState } from 'state/wallet'
 import { UniSwapToken } from 'types/trade'
-import { chainId } from 'utils/config'
 
 interface TradeExecutionOptions {
   amountIn: string
@@ -30,9 +30,14 @@ const useTradeEngine = () => {
         tokenOut: tokenOut,
         signer: signer,
       })
-      console.log(transaction)
       setTransactions((currentTransactions) => {
-        return Object.assign(currentTransactions, { chainId: chainId })
+        const transactions = Object.assign({}, currentTransactions)
+        transactions[chainId][transaction.hash] = {
+          from: transaction.from,
+          hash: transaction.hash,
+          addedTime: transaction.blockNumber || 0,
+        }
+        return transactions
       })
     }
   }
@@ -51,7 +56,15 @@ const useTradeEngine = () => {
         tokenOut: tokenOut,
         signer: signer,
       })
-      console.log(transaction)
+      setTransactions((currentTransactions) => {
+        const transactions = Object.assign({}, currentTransactions)
+        transactions[chainId][transaction.hash] = {
+          from: transaction.from,
+          hash: transaction.hash,
+          addedTime: transaction.blockNumber || 0,
+        }
+        return transactions
+      })
     }
   }
 

@@ -1,4 +1,5 @@
 import type { BreakPointOptions } from 'components/GlobalStyles/Breakpoints'
+import { BigNumber } from 'ethers'
 import type { Column } from 'react-table'
 
 export interface PairInfo {
@@ -83,6 +84,26 @@ export interface TransactionDetails {
   addedTime: number
   confirmedTime?: number
   from: string
+}
+
+export interface TransactionReceipt {
+  blockHash: string | null
+  blockNumber: number | null
+  chainId: number
+  confirmations: number
+  creates: any | null
+  data: string
+  from: string
+  gasLimit: BigNumber
+  gasPrice: BigNumber
+  hash: string
+  nonce: number
+  r: string
+  s: string
+  to: string
+  transactionIndex: number | null
+  v: number
+  value: BigNumber
 }
 
 export type HandleBuyClick = (pairInfo: PairInfo) => void

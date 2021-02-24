@@ -1,5 +1,6 @@
-import { Column, Row } from 'components/grid/Flex'
+import { Column, Row, Width } from 'components/grid/Flex'
 import Modal from 'components/Modal'
+import Spinner from 'components/Spinner'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import React, { Suspense, useState } from 'react'
@@ -8,15 +9,20 @@ import { selectedPairIdState } from 'state/trade'
 
 const Loading = (): JSX.Element => (
   <Row>
-    <Column>
-      <div>Loading pair data...</div>
+    <Column width={Width.TWELVE}>
+      <div>
+        <Spinner />
+      </div>
+      <style jsx>{`
+        div {
+          width: 100%;
+          height: 400px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+      `}</style>
     </Column>
-    <style jsx>{`
-      div {
-        width: 100%;
-        height: 60px;
-      }
-    `}</style>
   </Row>
 )
 
@@ -59,7 +65,7 @@ const TradeModal = ({ open, onRequestClose }: Props): JSX.Element => {
         onRequestClose()
       }}
     >
-      <Suspense fallback={() => <Loading />}>
+      <Suspense fallback={<Loading />}>
         {currentView === View.Prepare && !id && (
           <Prepare
             operation={operation}

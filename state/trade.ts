@@ -17,26 +17,36 @@ export const selectedCounterAsset = atom<UniSwapToken>({
 export const selectedPairState = selector<PairByIdQueryResponse | null>({
   key: 'selectedPair',
   get: async ({ get }) => {
-    console.log('should this change on press?')
     let pair: PairByIdQueryResponse | null = null
     try {
       const pairId = get(selectedPairIdState)
-      let response
+      const counterAsset = get(selectedCounterAsset)
       if (pairId !== null) {
-        response = await thegraphClient.request(PairByIdQuery, {
+        const response = await thegraphClient.request(PairByIdQuery, {
           pairId: pairId,
         })
-      }
-      pair = response?.pairs?.[0] || null
-      const counterAsset = get(selectedCounterAsset)
 
-      // Sort pairs so that the counter asset is always token1
-      if (pair?.token0?.id === counterAsset.address) {
-        pair.token0 = pair.token1
-        pair.token1 = {
-          id: counterAsset.address,
-          symbol: counterAsset.symbol ?? '',
-          decimals: String(counterAsset.decimals),
+        if (response?.pairs?.[0]) {
+          const id = response.pairs[0].id
+          let token0, token1
+
+          if (response.pairs[0].token0?.id === counterAsset.address) {
+            token0 = response.pairs[0].token1
+            token1 = response.pairs[0].token0
+            console.log(token0, counterAsset)
+          } else {
+            token0 = response.pairs[0].token0
+            token1 = response.pairs[0].token1
+          }
+
+          pair =
+            {
+              id: id,
+              token0: token0,
+              token1: token1,
+            } || null
+        } else {
+          pair = null
         }
       }
     } catch (e) {

@@ -1,7 +1,7 @@
 import { CurrencyAmount } from '@uniswap/sdk'
 import Spinner from 'components/Spinner'
 import Icon from 'components/typography/Icon'
-import { getERC20TokenBalance } from 'lib/tokens'
+import { getBalance, getERC20TokenBalance } from 'lib/tokens'
 import React, { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { token0Selector, token1Selector } from 'state/trade'
@@ -14,6 +14,7 @@ type Props = {
   onAmountChange: (value: string) => void | undefined
   token1In?: CurrencyAmount | number | undefined
   token0Out?: number | undefined
+  useWethProxy?: boolean
 }
 
 const TokenInput = ({
@@ -21,6 +22,7 @@ const TokenInput = ({
   onAmountChange,
   //token0In,
   token1In,
+  useWethProxy = true,
 }: Props): JSX.Element => {
   const wallet = useWallet()
   const provider = useRecoilValue(providerState)
@@ -34,9 +36,13 @@ const TokenInput = ({
   useEffect(() => {
     if (provider && token0 && token1 && wallet.account) {
       getERC20TokenBalance(wallet.account, token0, provider).then(setBalance0)
-      getERC20TokenBalance(wallet.account, token1, provider).then(setBalance1)
+      if (useWethProxy) {
+        getBalance(wallet.account, provider).then(setBalance1)
+      } else {
+        getERC20TokenBalance(wallet.account, token1, provider).then(setBalance1)
+      }
     }
-  }, [provider, token0, token1, wallet.account])
+  }, [provider, token0, token1, useWethProxy, wallet.account])
 
   return (
     <React.Suspense fallback={() => <div></div>}>

@@ -193,6 +193,14 @@ export async function getERC20TokenBalance(
   return parseFloat(utils.formatUnits(balance, token.decimals))
 }
 
+export async function getBalance(
+  address: string,
+  provider: providers.JsonRpcProvider,
+): Promise<number> {
+  const balance = await provider.getBalance(address)
+  return parseFloat(utils.formatUnits(balance, 18))
+}
+
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
   try {
