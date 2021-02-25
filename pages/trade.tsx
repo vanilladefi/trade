@@ -44,22 +44,7 @@ type BodyProps = {
   setModalOpen: Dispatch<SetStateAction<boolean>>
 }
 
-const Loading = (): JSX.Element => (
-  <Row>
-    <Column>
-      <div>Loading pair data...</div>
-    </Column>
-    <style jsx>{`
-      div {
-        width: 100%;
-        height: 60px;
-      }
-    `}</style>
-  </Row>
-)
-
 const TradeModal = dynamic(() => import('components/Trade/Modal'), {
-  loading: () => <Loading />,
   ssr: false,
 })
 
@@ -231,6 +216,8 @@ const BodyContent = ({ allTokens, setModalOpen }: BodyProps): JSX.Element => {
 
   const handleBuyClick: HandleBuyClick = useCallback(
     (pairInfo) => {
+      // TODO: PairId is null sometimes
+      console.log(pairInfo)
       setSelectedPairId(pairInfo?.pairId ?? null)
       setModalOpen(true)
     },

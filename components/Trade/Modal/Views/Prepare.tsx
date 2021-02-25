@@ -1,15 +1,16 @@
-import { Price, TradeType } from '@uniswap/sdk'
+import { Price, TokenAmount, TradeType } from '@uniswap/sdk'
 import { Column } from 'components/grid/Flex'
 import Button, {
   ButtonColor,
   ButtonSize,
   Rounding,
 } from 'components/input/Button'
-import Spinner from 'components/Spinner'
+import { Spinner } from 'components/Spinner'
 import useTradeEngine from 'hooks/useTradeEngine'
 import { getExecutionPrice, tryParseAmount } from 'lib/uniswap/trade'
 import debounce from 'lodash.debounce'
 import dynamic from 'next/dynamic'
+import { useRouter } from 'next/router'
 import React, {
   Dispatch,
   SetStateAction,
@@ -21,12 +22,11 @@ import React, {
 import { useRecoilValue } from 'recoil'
 import { token0Selector, token1Selector } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
-import { Operation /*, View*/ } from '..'
+import { Operation } from '..'
 
 type ContentProps = {
   operation: Operation
   setOperation: Dispatch<SetStateAction<Operation>>
-  //setCurrentView: Dispatch<SetStateAction<View>>
 }
 
 const TokenInput = dynamic(() => import('components/Trade/TokenInput'), {
@@ -36,8 +36,9 @@ const TokenInput = dynamic(() => import('components/Trade/TokenInput'), {
 const PrepareView = ({
   operation,
   setOperation,
-}: //setCurrentView,
-ContentProps): JSX.Element => {
+}: ContentProps): JSX.Element => {
+  const router = useRouter()
+
   const { buy, sell } = useTradeEngine()
   const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
@@ -48,8 +49,12 @@ ContentProps): JSX.Element => {
   const [executionPrice, setExecutionPrice] = useState<Price>()
   const [amount, setAmount] = useState<string>('0')
 
+  const [token1In, setToken1In] = useState<TokenAmount | number | null>(0.0)
+
   useEffect(() => {
     if (provider && amount && amount !== '0' && token0 && token1) {
+      console.log('amount !== 0')
+      setToken1In(null)
       operation === Operation.Buy
         ? getExecutionPrice(
             amount,
@@ -76,6 +81,13 @@ ContentProps): JSX.Element => {
     }
   }, [token0, token1, provider, amount, operation])
 
+  useEffect(() => {
+    const ep: string = executionPrice?.toSignificant
+      ? executionPrice?.toSignificant()
+      : '0'
+    setToken1In(ep ? parseFloat(amount) / parseFloat(ep) : 0.0)
+  }, [amount, executionPrice])
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleAmountChanged = useCallback(
     debounce((value: string) => {
@@ -84,17 +96,36 @@ ContentProps): JSX.Element => {
     [setAmount],
   )
 
+  const handleClick = async () => {
+    if (token0 && token1 && token0Out && token1In && signer) {
+      let hash: string
+
+      if (operation === Operation.Buy) {
+        hash =
+          (await buy({
+            amountIn: token1In.toString(),
+            amountOut: amount,
+            tokenIn: token1,
+            tokenOut: token0,
+          })) || ''
+      } else {
+        hash =
+          (await sell({
+            amountIn: amount,
+            amountOut: token1In.toString(),
+            tokenIn: token0,
+            tokenOut: token1,
+          })) || ''
+      }
+
+      router.push(`/trade?id=${hash}`, undefined, { shallow: true })
+    }
+  }
+
   const token0Out = useCallback(
     () => token0 && tryParseAmount(amount, token0),
     [amount, token0],
   )
-
-  const token1In = useCallback(() => {
-    const ep: string = executionPrice?.toSignificant
-      ? executionPrice?.toSignificant()
-      : '0'
-    return ep ? parseFloat(amount) / parseFloat(ep) : 0
-  }, [amount, executionPrice])
 
   return (
     <Suspense fallback={() => <div>Fetching pair data...</div>}>
@@ -121,36 +152,17 @@ ContentProps): JSX.Element => {
             operation={operation}
             onAmountChange={handleAmountChanged}
             //token0Out={token0Out()}
-            token1In={token1In() > 0 ? token1In() : undefined}
+            token1In={token1In ? token1In : null}
           />
         </div>
 
+        {/* TODO: Trade info */}
+        <div className='row'></div>
+
         <div className='row'>
           {token0Out() ? (
-            <Button
-              onClick={() => {
-                token0 &&
-                  token1 &&
-                  token0Out &&
-                  signer &&
-                  (operation === Operation.Buy
-                    ? buy({
-                        amountIn: token1In().toString(),
-                        amountOut: amount,
-                        tokenIn: token1,
-                        tokenOut: token0,
-                      })
-                    : sell({
-                        amountIn: amount,
-                        amountOut: token1In().toString(),
-                        tokenIn: token0,
-                        tokenOut: token1,
-                      }))
-              }}
-              size={ButtonSize.LARGE}
-              grow
-            >
-              {token1In() < 0 ? (
+            <Button onClick={() => handleClick()} size={ButtonSize.LARGE} grow>
+              {token1In && token1In < 0 ? (
                 <Spinner />
               ) : (
                 `${

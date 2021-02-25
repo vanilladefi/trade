@@ -1,6 +1,7 @@
 import { Column } from 'components/grid/Flex'
 import TradeFlower from 'components/TradeFlower'
 import { SmallTitle } from 'components/typography/Titles'
+import useTransaction from 'hooks/useTransaction'
 
 const SuccessView = (id: string): JSX.Element => {
   const transaction = useTransaction(id)
@@ -9,24 +10,16 @@ const SuccessView = (id: string): JSX.Element => {
       <div>
         <SmallTitle>TRADE SUCCESSFUL!</SmallTitle>
       </div>
-      {selectedPair?.token0 && selectedPair?.token1 && (
+      {transaction && (
         <TradeFlower
-          received={{ ticker: selectedPair?.token0.symbol, amount: 2.5 }}
-          paid={{ ticker: selectedPair?.token1.symbol, amount: 0.0056572 }}
+          received={{ ticker: 'UNI', amount: 2.5 }}
+          paid={{ ticker: 'WETH', amount: 0.0056572 }}
           tradeURL={{
             domain: 'vnl.com',
-            transactionHash:
-              '0x05c7cedb4b6a234a92fcc9e396661cbed6d89e301899af6569dae3ff32a48acb',
+            transactionHash: transaction.hash,
           }}
         />
       )}
-      <div>
-        <Column>
-          <SmallTitle>Share for more VNL</SmallTitle>
-          <span>Learn more</span>
-        </Column>
-        <span>links here</span>
-      </div>
       <style jsx>{`
         div {
           display: flex;

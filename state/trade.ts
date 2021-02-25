@@ -25,15 +25,15 @@ export const selectedPairState = selector<PairByIdQueryResponse | null>({
         const response = await thegraphClient.request(PairByIdQuery, {
           pairId: pairId,
         })
+        console.log(response)
 
         if (response?.pairs?.[0]) {
           const id = response.pairs[0].id
           let token0, token1
 
-          if (response.pairs[0].token0?.id === counterAsset.address) {
+          if (response.pairs[0].token0?.id == counterAsset.address) {
             token0 = response.pairs[0].token1
             token1 = response.pairs[0].token0
-            console.log(token0, counterAsset)
           } else {
             token0 = response.pairs[0].token0
             token1 = response.pairs[0].token1

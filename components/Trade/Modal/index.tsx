@@ -1,6 +1,6 @@
 import { Column, Row, Width } from 'components/grid/Flex'
 import Modal from 'components/Modal'
-import Spinner from 'components/Spinner'
+import { Spinner } from 'components/Spinner'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import React, { Suspense, useState } from 'react'
@@ -39,18 +39,12 @@ type Props = {
   onRequestClose: () => void
 }
 
-export enum View {
-  Prepare,
-  Success,
-}
-
 export enum Operation {
   Buy = 'buy',
   Sell = 'sell',
 }
 
 const TradeModal = ({ open, onRequestClose }: Props): JSX.Element => {
-  const [currentView] = useState<View>(View.Prepare)
   const [operation, setOperation] = useState<Operation>(Operation.Buy)
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
 
@@ -62,18 +56,16 @@ const TradeModal = ({ open, onRequestClose }: Props): JSX.Element => {
       open={open || !!id}
       onRequestClose={() => {
         setSelectedPairId(null)
+        router.push('/trade', undefined, { shallow: true }) // Shallow to disable fetching getInitialProps() again
         onRequestClose()
       }}
     >
       <Suspense fallback={<Loading />}>
-        {currentView === View.Prepare && !id && (
-          <Prepare
-            operation={operation}
-            setOperation={setOperation}
-            //setCurrentView={setCurrentView}
-          />
+        {!id ? (
+          <Prepare operation={operation} setOperation={setOperation} />
+        ) : (
+          <Success />
         )}
-        {currentView === View.Success || (id && id !== '' && <Success />)}
       </Suspense>
     </Modal>
   )

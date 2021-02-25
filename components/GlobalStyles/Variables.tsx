@@ -16,6 +16,7 @@ const Variables = (): JSX.Element => (
       --roadmapcolor: #ffd866;
       --link-on-white: #be6700;
       --bordercolor: var(--dark);
+      --alertcolor: #c1163f;
 
       /* Gradients */
       --topgradient: radial-gradient(

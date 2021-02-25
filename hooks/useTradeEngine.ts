@@ -12,8 +12,8 @@ interface TradeExecutionOptions {
 }
 
 const useTradeEngine = (): {
-  buy: (options: TradeExecutionOptions) => void
-  sell: (options: TradeExecutionOptions) => void
+  buy: (options: TradeExecutionOptions) => Promise<string | undefined>
+  sell: (options: TradeExecutionOptions) => Promise<string | undefined>
 } => {
   const signer = useRecoilValue(signerState)
   const { addTransaction } = useAllTransactions()
@@ -33,6 +33,7 @@ const useTradeEngine = (): {
         signer: signer,
       })
       addTransaction(transaction)
+      return transaction.hash || undefined
     }
   }
 
@@ -51,6 +52,7 @@ const useTradeEngine = (): {
         signer: signer,
       })
       addTransaction(transaction)
+      return transaction.hash || undefined
     }
   }
 

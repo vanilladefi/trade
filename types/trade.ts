@@ -63,27 +63,17 @@ export interface Call {
   callData: string
 }
 
-export interface SerializableTransactionReceipt {
-  to: string
-  from: string
-  contractAddress: string
-  transactionIndex: number
-  blockHash: string
-  transactionHash: string
-  blockNumber: number
-  status?: number
-}
-
 export interface TransactionDetails {
   hash: string
   approval?: { tokenAddress: string; spender: string }
   summary?: string
   claim?: { recipient: string }
-  receipt?: SerializableTransactionReceipt
+  receipt?: TransactionReceipt
   lastCheckedBlockNumber?: number
   addedTime: number
   confirmedTime?: number
   from: string
+  blockNumber?: number
 }
 
 export interface TransactionReceipt {
@@ -91,7 +81,7 @@ export interface TransactionReceipt {
   blockNumber: number | null
   chainId: number
   confirmations: number
-  creates: any | null
+  creates: string | null
   data: string
   from: string
   gasLimit: BigNumber

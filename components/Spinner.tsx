@@ -1,4 +1,4 @@
-const Spinner = (): JSX.Element => (
+export const Dots = (): JSX.Element => (
   <>
     <div className='lds-ellipsis'>
       <div></div>
@@ -66,4 +66,47 @@ const Spinner = (): JSX.Element => (
   </>
 )
 
-export default Spinner
+export const Spinner = (): JSX.Element => (
+  <>
+    <div className='wrapper'>
+      <div className='spinner'>
+        <div className='innerCircle' />
+      </div>
+    </div>
+    <style jsx>{`
+      .wrapper {
+        position: relative;
+        display: flex;
+        flex-grow: 0;
+        flex-shrink: 0;
+      }
+      .spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: conic-gradient(#2c1929, rgba(44, 25, 41, 0));
+        animation-name: spin;
+        animation-duration: 1500ms;
+        animation-iteration-count: infinite;
+        animation-timing-function: linear;
+      }
+      .innerCircle {
+        width: 22px;
+        height: 22px;
+        background: white;
+        border-radius: 50%;
+      }
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    `}</style>
+  </>
+)

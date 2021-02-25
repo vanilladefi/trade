@@ -7,6 +7,7 @@ type Props = {
 export enum IconUrls {
   COPY = '/images/icons/Copy.png',
   ARROW_UP_RIGHT = '/images/icons/ArrowCircleUpRight.png',
+  CHECK = '/images/icons/check.svg',
 }
 
 const Icon = ({ src }: Props): JSX.Element => {

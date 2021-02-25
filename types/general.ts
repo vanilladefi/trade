@@ -4,6 +4,6 @@ export type ChainId = '1' | '2' | '3' | '4' | '42' | '1337'
 
 export type ChainIdToTransactionMapping = {
   [chainId in ChainId]: {
-    [transactionHash: string]: TransactionDetails
+    [transactionKey: string]: TransactionDetails
   }
 }
