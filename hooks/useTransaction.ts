@@ -44,11 +44,11 @@ function useTransaction(id: string): TransactionDetails | null {
       setTransactionDetails(getTransaction(getTransactionKey(id, account)))
 
       // TODO: Check that this works.
-      router.once(id, mineListener)
+      //router.once(id, mineListener)
       router.once('TokensPurchased', purchaseListener)
     }
     return () => {
-      router?.removeListener(id, mineListener)
+      //router?.removeListener(id, mineListener)
       router?.removeListener('TokensPurchased', purchaseListener)
     }
   }, [router, id, getTransaction, account])

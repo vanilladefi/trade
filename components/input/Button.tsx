@@ -1,4 +1,6 @@
 import classNames from 'classnames'
+import { Spinner } from 'components/Spinner'
+import Icon, { IconUrls } from 'components/typography/Icon'
 import React, { ReactNode } from 'react'
 import { Alignment, Justification } from '../grid/Flex'
 
@@ -37,6 +39,12 @@ export enum Overflow {
   `,
 }
 
+export enum ButtonState {
+  NORMAL,
+  LOADING,
+  SUCCESS,
+}
+
 type Callback = () => void
 
 type Props = {
@@ -55,6 +63,8 @@ type Props = {
   grow?: boolean
   justifyContent?: Justification
   alignItems?: Alignment
+  buttonState?: ButtonState
+  disabled?: boolean
 }
 
 const Button = ({
@@ -73,6 +83,8 @@ const Button = ({
   grow,
   alignItems = Alignment.CENTER,
   justifyContent = Justification.CENTER,
+  buttonState = ButtonState.NORMAL,
+  disabled,
 }: Props): JSX.Element => {
   const buttonClass = classNames({
     [`${size}`]: true,
@@ -82,6 +94,7 @@ const Button = ({
     white: color === ButtonColor.WHITE,
     bordered: bordered,
     noRightBorder: noRightBorder,
+    disabled: disabled,
     'roundedTopLeft roundedTopRight roundedBottomRight roundedBottomLeft':
       rounded === Rounding.ALL,
     'roundedTopLeft roundedTopRight': rounded === Rounding.TOP,
@@ -89,9 +102,51 @@ const Button = ({
     'roundedTopLeft roundedBottomLeft': rounded === Rounding.LEFT,
     'roundedTopRight roundedBottomRight': rounded === Rounding.RIGHT,
   })
+  const stateIndicator = (): JSX.Element | undefined => {
+    const Wrapper = ({ children }: Props) => (
+      <div>
+        {children}
+        <style jsx>{`
+          div {
+            display: flex;
+            position: absolute;
+            height: fit-content;
+            width: fit-content;
+            left: 1.4rem;
+            --iconsize: 1.6rem;
+            margin-top: -0.8rem;
+            top: 50%;
+          }
+        `}</style>
+      </div>
+    )
+    switch (buttonState) {
+      case ButtonState.NORMAL:
+        return undefined
+      case ButtonState.LOADING:
+        return (
+          <Wrapper>
+            <Spinner />
+          </Wrapper>
+        )
+      case ButtonState.SUCCESS:
+        return (
+          <Wrapper>
+            <Icon src={IconUrls.CHECK} />
+          </Wrapper>
+        )
+      default:
+        return undefined
+    }
+  }
   return (
     <>
-      <button className={buttonClass} onClick={onClick} title={title}>
+      <button
+        className={buttonClass}
+        onClick={!disabled ? onClick : () => null}
+        title={title}
+      >
+        {stateIndicator()}
         {children}
       </button>
       <style jsx>{`
@@ -113,6 +168,7 @@ const Button = ({
           ${grow ? 'flex-grow: 1;' : 'flex-grow: 0;'}
           align-items: ${alignItems};
           justify-content: ${justifyContent};
+          position: relative;
         }
         button.large {
           padding: var(--largebuttonpadding);
@@ -135,6 +191,10 @@ const Button = ({
         }
         button.transparent {
           background: transparent;
+        }
+        button.disabled {
+          opacity: 0.8;
+          cursor: wait;
         }
         button.bordered {
           border-width: 3px;

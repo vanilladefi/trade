@@ -81,7 +81,7 @@ const TokenInput = ({
               )}
             </div>
             <div className='tokenSelector'>
-              <span>Balance: {balance1}</span>
+              <span>Balance: {balance1.toFixed(5)}</span>
               <div className='tokenIndicator'>
                 {token1?.logoURI && <Icon src={token1.logoURI}></Icon>}
                 <h2>{token1?.symbol}</h2>

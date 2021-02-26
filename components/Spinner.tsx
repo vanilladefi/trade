@@ -84,18 +84,19 @@ export const Spinner = (): JSX.Element => (
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 32px;
-        height: 32px;
+        width: var(--iconsize);
+        height: var(--iconsize);
         border-radius: 50%;
         background: conic-gradient(#2c1929, rgba(44, 25, 41, 0));
         animation-name: spin;
         animation-duration: 1500ms;
         animation-iteration-count: infinite;
         animation-timing-function: linear;
+        mix-blend-mode: darken;
       }
       .innerCircle {
-        width: 22px;
-        height: 22px;
+        width: calc(var(--iconsize) - 10px);
+        height: calc(var(--iconsize) - 10px);
         background: white;
         border-radius: 50%;
       }

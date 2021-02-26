@@ -3,7 +3,11 @@ import TradeFlower from 'components/TradeFlower'
 import { SmallTitle } from 'components/typography/Titles'
 import useTransaction from 'hooks/useTransaction'
 
-const SuccessView = (id: string): JSX.Element => {
+type Props = {
+  id: string
+}
+
+const SuccessView = ({ id }: Props): JSX.Element => {
   const transaction = useTransaction(id)
   return (
     <Column>

@@ -71,6 +71,7 @@ const Modal = ({
           opacity: ${isOpen ? 1 : 0};
           transition: 0.1s ease opacity;
           pointer-events: all;
+          --iconsize: 2rem;
         }
         .closeButton {
           position: absolute;

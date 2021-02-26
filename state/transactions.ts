@@ -22,5 +22,6 @@ const { persistAtom } =
 export const transactionsState = atom<ChainIdToTransactionMapping>({
   key: 'transactionsState',
   default: defaultTransactionsState,
+  dangerouslyAllowMutability: true,
   effects_UNSTABLE: [persistAtom],
 })

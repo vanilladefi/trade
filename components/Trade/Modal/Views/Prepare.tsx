@@ -1,13 +1,15 @@
 import { Price, TokenAmount, TradeType } from '@uniswap/sdk'
-import { Column } from 'components/grid/Flex'
+import { Column, Width } from 'components/grid/Flex'
 import Button, {
   ButtonColor,
   ButtonSize,
+  ButtonState,
   Rounding,
 } from 'components/input/Button'
 import { Spinner } from 'components/Spinner'
+import Icon, { IconUrls } from 'components/typography/Icon'
 import useTradeEngine from 'hooks/useTradeEngine'
-import { getExecutionPrice, tryParseAmount } from 'lib/uniswap/trade'
+import { getExecutionPrice } from 'lib/uniswap/trade'
 import debounce from 'lodash.debounce'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
@@ -33,6 +35,12 @@ const TokenInput = dynamic(() => import('components/Trade/TokenInput'), {
   ssr: false,
 })
 
+enum TransactionState {
+  PREPARE,
+  PROCESSING,
+  DONE,
+}
+
 const PrepareView = ({
   operation,
   setOperation,
@@ -48,13 +56,17 @@ const PrepareView = ({
 
   const [executionPrice, setExecutionPrice] = useState<Price>()
   const [amount, setAmount] = useState<string>('0')
+  const [error, setError] = useState<string | null>(null)
+  const [transactionState, setTransactionState] = useState<TransactionState>(
+    TransactionState.PREPARE,
+  )
 
   const [token1In, setToken1In] = useState<TokenAmount | number | null>(0.0)
 
   useEffect(() => {
+    setToken1In(null)
+    setTransactionState(TransactionState.PROCESSING)
     if (provider && amount && amount !== '0' && token0 && token1) {
-      console.log('amount !== 0')
-      setToken1In(null)
       operation === Operation.Buy
         ? getExecutionPrice(
             amount,
@@ -66,7 +78,7 @@ const PrepareView = ({
             .then((price) => {
               price && setExecutionPrice(price)
             })
-            .catch(console.error)
+            .catch((e) => setError(e.message))
         : getExecutionPrice(
             amount,
             token0,
@@ -77,8 +89,9 @@ const PrepareView = ({
             .then((price) => {
               price && setExecutionPrice(price)
             })
-            .catch(console.error)
+            .catch((e) => setError(e.message))
     }
+    setTransactionState(TransactionState.PREPARE)
   }, [token0, token1, provider, amount, operation])
 
   useEffect(() => {
@@ -97,77 +110,105 @@ const PrepareView = ({
   )
 
   const handleClick = async () => {
-    if (token0 && token1 && token0Out && token1In && signer) {
-      let hash: string
-
-      if (operation === Operation.Buy) {
-        hash =
-          (await buy({
+    if (token0 && token1 && token1In && signer) {
+      let hash: string | undefined
+      try {
+        setTransactionState(TransactionState.PROCESSING)
+        if (operation === Operation.Buy) {
+          hash = await buy({
             amountIn: token1In.toString(),
             amountOut: amount,
             tokenIn: token1,
             tokenOut: token0,
-          })) || ''
-      } else {
-        hash =
-          (await sell({
+          })
+        } else {
+          hash = await sell({
             amountIn: amount,
             amountOut: token1In.toString(),
             tokenIn: token0,
             tokenOut: token1,
-          })) || ''
+          })
+        }
+        hash && setTransactionState(TransactionState.DONE)
+        setTimeout(() => {
+          router.push(`/trade?id=${hash}`, undefined, { shallow: true })
+        }, 1500)
+      } catch (error) {
+        setTransactionState(TransactionState.PREPARE)
+        setError(error.message)
       }
-
-      router.push(`/trade?id=${hash}`, undefined, { shallow: true })
     }
   }
-
-  const token0Out = useCallback(
-    () => token0 && tryParseAmount(amount, token0),
-    [amount, token0],
-  )
 
   return (
     <Suspense fallback={() => <div>Fetching pair data...</div>}>
       <Column>
-        <div className='row'>
-          <div className='toggleWrapper'>
-            <button
-              className={operation === Operation.Buy ? 'active' : undefined}
-              onClick={() => setOperation(Operation.Buy)}
-            >
-              Buy
-            </button>
-            <button
-              className={operation === Operation.Sell ? 'active' : undefined}
-              onClick={() => setOperation(Operation.Sell)}
-            >
-              Sell
-            </button>
+        <section
+          className={`inputWrapper${
+            [TransactionState.PROCESSING, TransactionState.DONE].includes(
+              transactionState,
+            )
+              ? ' disabled'
+              : ''
+          }`}
+        >
+          <div className='row noBottomMargin'>
+            <div className='toggleWrapper'>
+              <button
+                className={operation === Operation.Buy ? 'active' : undefined}
+                onClick={() => setOperation(Operation.Buy)}
+              >
+                Buy
+              </button>
+              <button
+                className={operation === Operation.Sell ? 'active' : undefined}
+                onClick={() => setOperation(Operation.Sell)}
+              >
+                Sell
+              </button>
+            </div>
           </div>
-        </div>
+
+          <div className='row noBottomMargin'>
+            <TokenInput
+              operation={operation}
+              onAmountChange={handleAmountChanged}
+              token1In={token1In}
+            />
+          </div>
+
+          {/* TODO: Trade info */}
+          {amount && <div className='row'></div>}
+        </section>
 
         <div className='row'>
-          <TokenInput
-            operation={operation}
-            onAmountChange={handleAmountChanged}
-            //token0Out={token0Out()}
-            token1In={token1In ? token1In : null}
-          />
-        </div>
-
-        {/* TODO: Trade info */}
-        <div className='row'></div>
-
-        <div className='row'>
-          {token0Out() ? (
-            <Button onClick={() => handleClick()} size={ButtonSize.LARGE} grow>
+          {amount ? (
+            <Button
+              onClick={() => handleClick()}
+              size={ButtonSize.LARGE}
+              buttonState={
+                transactionState === TransactionState.PROCESSING
+                  ? ButtonState.LOADING
+                  : transactionState === TransactionState.DONE
+                  ? ButtonState.SUCCESS
+                  : ButtonState.NORMAL
+              }
+              disabled={[
+                TransactionState.PROCESSING,
+                TransactionState.DONE,
+              ].includes(transactionState)}
+              grow
+            >
               {token1In && token1In < 0 ? (
                 <Spinner />
-              ) : (
+              ) : transactionState === TransactionState.PREPARE ? (
                 `${
                   operation.charAt(0).toUpperCase() + operation.slice(1)
-                }ing ${token0Out()?.toSignificant()} ${token0?.symbol}`
+                }ing ${amount} ${token0?.symbol}`
+              ) : transactionState === TransactionState.PROCESSING ? (
+                'Processing'
+              ) : (
+                'Done'
               )}
             </Button>
           ) : (
@@ -183,11 +224,42 @@ const PrepareView = ({
           )}
         </div>
 
+        {error !== null && (
+          <div className='row error'>
+            <Column width={Width.TWO}>
+              <div className='center'>
+                <Icon src={IconUrls.ALERT} />
+              </div>
+            </Column>
+            <Column width={Width.TEN}>
+              Something went wrong. Reason:{' '}
+              <span className='code'>{error}</span> You can try again.{' '}
+              <a onClick={() => setError(null)}>Dismiss notification</a>
+            </Column>
+          </div>
+        )}
+
         <style jsx>{`
           div {
             display: flex;
             padding: 1.1rem 1.2rem;
             --bordercolor: var(--toggleWrapperGradient);
+          }
+          .noBottomMargin {
+            padding-bottom: 0;
+          }
+          section.inputWrapper {
+            position: relative;
+            display: flex;
+            width: 100%;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+            opacity: 1;
+          }
+          section.inputWrapper.disabled {
+            pointer-events: none;
+            opacity: 0.5;
           }
           .row {
             position: relative;
@@ -221,6 +293,30 @@ const PrepareView = ({
           .toggleWrapper button.active {
             background: white;
             font-weight: var(--buttonweight);
+          }
+          .error {
+            color: var(--alertcolor);
+            background: var(--alertbackground);
+            font-family: var(--bodyfont);
+            font-weight: var(--bodyweight);
+            font-size: 0.9rem;
+            cursor: text;
+            --iconsize: 1.5rem;
+            border-top: 2px solid rgba(0, 0, 0, 0.1);
+          }
+          .error span,
+          .error a,
+          .error .code {
+            display: inline-block;
+          }
+          .code {
+            font-family: var(--monofont);
+            font-weight: var(--monoweight);
+          }
+          .error a {
+            text-decoration: underline;
+            margin-top: 0.5rem;
+            cursor: pointer;
           }
         `}</style>
       </Column>

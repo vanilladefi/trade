@@ -50,21 +50,21 @@ const TradeModal = ({ open, onRequestClose }: Props): JSX.Element => {
 
   const router = useRouter()
   const { id } = router.query
+  const parsedId: string = id && id.length ? id.toString() : (id as string)
+
+  const onClose = () => {
+    setSelectedPairId(null)
+    router.push('/trade', undefined, { shallow: true }) // Shallow to disable fetching getInitialProps() again
+    onRequestClose()
+  }
 
   return (
-    <Modal
-      open={open || !!id}
-      onRequestClose={() => {
-        setSelectedPairId(null)
-        router.push('/trade', undefined, { shallow: true }) // Shallow to disable fetching getInitialProps() again
-        onRequestClose()
-      }}
-    >
+    <Modal open={open || !!id} onRequestClose={onClose}>
       <Suspense fallback={<Loading />}>
         {!id ? (
           <Prepare operation={operation} setOperation={setOperation} />
         ) : (
-          <Success />
+          <Success id={parsedId} />
         )}
       </Suspense>
     </Modal>

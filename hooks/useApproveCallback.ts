@@ -1,14 +1,14 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { TransactionResponse } from '@ethersproject/providers'
 import { CurrencyAmount, ETHER, TokenAmount } from '@uniswap/sdk'
-import { useCallback, useMemo } from 'react'
-import { useWallet } from 'use-wallet'
-import { useTokenAllowance } from '../data/Allowances'
 import {
   useHasPendingApproval,
   useTransactionAdder,
-} from '../state/transactions/hooks'
-import { calculateGasMargin } from '../utils'
+} from 'hooks/useAllTransactions'
+import { useTokenAllowance } from 'hooks/useTokenAllowance'
+import { calculateGasMargin } from 'lib/uniswap/trade'
+import { useCallback, useMemo } from 'react'
+import { useWallet } from 'use-wallet'
 import { useTokenContract } from './useContract'
 
 export enum ApprovalState {
