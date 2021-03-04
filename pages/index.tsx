@@ -1,5 +1,4 @@
 import Image from 'next/image'
-import Link from 'next/link'
 import BoxSection, { Color, SeriousBox } from '../components/BoxSection'
 import { Column, Row, Width } from '../components/grid/Flex'
 import { GridItem, GridTemplate } from '../components/grid/Grid'
@@ -518,48 +517,9 @@ const IndexPage = (): JSX.Element => (
 
     <Wrapper>
       <BoxSection>
-        <Column>
-          <Row>
-            <Column width={Width.FIVE}>
-              <Title>Shill kit</Title>
-            </Column>
-            <Column width={Width.SEVEN}>
-              <Highlight>Spread the joy of #ProfitMining.</Highlight>
-            </Column>
-          </Row>
-        </Column>
-        <div className='galleryContainer'>
-          {ShillKitList.map((shill) => (
-            <div
-              style={{ width: '100%', maxWidth: '400px', padding: '0 0 .5rem' }}
-            >
-              <img
-                style={{ width: '100%' }}
-                src={shill.url}
-                alt={shill.description}
-              />
-            </div>
-          ))}
-        </div>
+        <Title>Shill kit</Title>
+        <ShillKitList />
       </BoxSection>
-      <style jsx>{`
-        .galleryContainer
-        column-gap: 1.5em;
-        column-count: 1;
-        }
-        @media (min-width: ${BreakPoint.sm}px) {
-          .galleryContainer{
-            column-count: 2;
-          }
-        }
-
-        @media (min-width: ${BreakPoint.md}px) {
-          .galleryContainer{
-            column-count: 3;
-          }
-        }
-
-      `}</style>
     </Wrapper>
   </Layout>
 )
