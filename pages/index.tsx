@@ -11,6 +11,7 @@ import { Title } from '../components/typography/Titles'
 import Wrapper from '../components/Wrapper'
 import Flower from '../components/Flower'
 import { BreakPoint } from '../components/GlobalStyles/Breakpoints'
+import ShillKitList from '../components/ShillKitList'
 
 const HeaderContent = (
   <div className='heroContainer'>
@@ -511,6 +512,13 @@ const IndexPage = (): JSX.Element => (
             </GridItem>
           </GridTemplate>
         </Column>
+      </BoxSection>
+    </Wrapper>
+
+    <Wrapper>
+      <BoxSection>
+        <Title>Shill kit</Title>
+        <ShillKitList />
       </BoxSection>
     </Wrapper>
   </Layout>
