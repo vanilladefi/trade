@@ -177,6 +177,7 @@ const WalletView = (): JSX.Element => {
           </div>
         </div>
       </div>
+      <div className='modalFooter'>{/* <TransactionList /> */}</div>
       <style jsx>{`
         div {
           display: flex;

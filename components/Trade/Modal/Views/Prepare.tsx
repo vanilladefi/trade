@@ -29,6 +29,7 @@ import { Operation } from '..'
 type ContentProps = {
   operation: Operation
   setOperation: Dispatch<SetStateAction<Operation>>
+  setModalCloseEnabled: Dispatch<SetStateAction<boolean>>
 }
 
 const TokenInput = dynamic(() => import('components/Trade/TokenInput'), {
@@ -44,6 +45,7 @@ enum TransactionState {
 const PrepareView = ({
   operation,
   setOperation,
+  setModalCloseEnabled,
 }: ContentProps): JSX.Element => {
   const router = useRouter()
 
@@ -81,8 +83,8 @@ const PrepareView = ({
             .catch((e) => setError(e.message))
         : getExecutionPrice(
             amount,
-            token0,
             token1,
+            token0,
             provider,
             TradeType.EXACT_INPUT,
           )
@@ -100,6 +102,14 @@ const PrepareView = ({
       : '0'
     setToken1In(ep ? parseFloat(amount) / parseFloat(ep) : 0.0)
   }, [amount, executionPrice])
+
+  useEffect(() => {
+    ;[TransactionState.PROCESSING].includes(transactionState) &&
+      setModalCloseEnabled(false)
+    return () => {
+      setModalCloseEnabled(true)
+    }
+  }, [setModalCloseEnabled, transactionState])
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleAmountChanged = useCallback(
@@ -131,6 +141,7 @@ const PrepareView = ({
         }
         hash && setTransactionState(TransactionState.DONE)
         setTimeout(() => {
+          setTransactionState(TransactionState.PREPARE)
           router.push(`/trade?id=${hash}`, undefined, { shallow: true })
         }, 1500)
       } catch (error) {

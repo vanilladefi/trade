@@ -211,25 +211,37 @@ const BodyContent = ({ allTokens, setModalOpen }: BodyProps): JSX.Element => {
 
   const setTokens = useSetRecoilState(allTokensStoreState)
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
+  const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
+  const { account } = useWallet()
 
   useEffect(() => setTokens(allTokens), [setTokens, allTokens])
 
   const handleBuyClick: HandleBuyClick = useCallback(
     (pairInfo) => {
-      // TODO: PairId is null sometimes
-      console.log(pairInfo)
-      setSelectedPairId(pairInfo?.pairId ?? null)
-      setModalOpen(true)
+      if (account === null) {
+        setWalletModalOpen(true)
+      } else {
+        setWalletModalOpen(false)
+        // TODO: pairInfo/pairId is null sometimes
+        console.log(pairInfo)
+        setSelectedPairId(pairInfo?.pairId ?? null)
+        setModalOpen(true)
+      }
     },
-    [setModalOpen, setSelectedPairId],
+    [account, setModalOpen, setSelectedPairId, setWalletModalOpen],
   )
 
   const handleSellClick: HandleSellClick = useCallback(
     (pairInfo) => {
-      setSelectedPairId(pairInfo?.pairId ?? null)
-      setModalOpen(true)
+      if (account === null) {
+        setWalletModalOpen(true)
+      } else {
+        setWalletModalOpen(false)
+        setSelectedPairId(pairInfo?.pairId ?? null)
+        setModalOpen(true)
+      }
     },
-    [setModalOpen, setSelectedPairId],
+    [account, setModalOpen, setSelectedPairId, setWalletModalOpen],
   )
 
   return (

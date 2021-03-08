@@ -46,6 +46,7 @@ export enum Operation {
 
 const TradeModal = ({ open, onRequestClose }: Props): JSX.Element => {
   const [operation, setOperation] = useState<Operation>(Operation.Buy)
+  const [modalCloseEnabled, setModalCloseEnabled] = useState<boolean>(true)
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
 
   const router = useRouter()
@@ -53,16 +54,22 @@ const TradeModal = ({ open, onRequestClose }: Props): JSX.Element => {
   const parsedId: string = id && id.length ? id.toString() : (id as string)
 
   const onClose = () => {
-    setSelectedPairId(null)
-    router.push('/trade', undefined, { shallow: true }) // Shallow to disable fetching getInitialProps() again
-    onRequestClose()
+    if (modalCloseEnabled) {
+      setSelectedPairId(null)
+      onRequestClose()
+      router.push('/trade', undefined, { shallow: true }) // Shallow to disable fetching getInitialProps() again
+    }
   }
 
   return (
     <Modal open={open || !!id} onRequestClose={onClose}>
       <Suspense fallback={<Loading />}>
         {!id ? (
-          <Prepare operation={operation} setOperation={setOperation} />
+          <Prepare
+            operation={operation}
+            setOperation={setOperation}
+            setModalCloseEnabled={setModalCloseEnabled}
+          />
         ) : (
           <Success id={parsedId} />
         )}
