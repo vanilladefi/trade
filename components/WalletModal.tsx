@@ -250,6 +250,7 @@ const WalletView = (): JSX.Element => {
           align-items: center;
           justify-content: space-between;
           padding: 1rem 1.5rem;
+          --iconsize: 1rem;
         }
         .bottomSection button,
         .bottomSection a {
