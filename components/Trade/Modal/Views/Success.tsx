@@ -9,6 +9,7 @@ type Props = {
 
 const SuccessView = ({ id }: Props): JSX.Element => {
   const transaction = useTransaction(id)
+  console.log(transaction)
   return (
     <Column>
       <div>
@@ -16,8 +17,11 @@ const SuccessView = ({ id }: Props): JSX.Element => {
       </div>
       {transaction && (
         <TradeFlower
-          received={{ ticker: 'UNI', amount: 2.5 }}
-          paid={{ ticker: 'WETH', amount: 0.0056572 }}
+          received={{
+            ticker: 'UNI',
+            amount: transaction.amount ?? '0.0',
+          }}
+          paid={{ ticker: 'ETH', amount: '0.0056572' }}
           tradeURL={{
             domain: 'vnl.com',
             transactionHash: transaction.hash,

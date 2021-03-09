@@ -1,5 +1,5 @@
 import type { BreakPointOptions } from 'components/GlobalStyles/Breakpoints'
-import { BigNumber } from 'ethers'
+import { ethers } from 'ethers'
 import type { Column } from 'react-table'
 
 export interface PairInfo {
@@ -63,37 +63,23 @@ export interface Call {
   callData: string
 }
 
-export interface TransactionDetails {
-  hash: string
-  approval?: { tokenAddress: string; spender: string }
-  summary?: string
-  claim?: { recipient: string }
-  receipt?: TransactionReceipt
-  lastCheckedBlockNumber?: number
-  addedTime: number
-  confirmedTime?: number
-  from: string
-  blockNumber?: number
+export enum Action {
+  PURCHASE = 'purchase',
+  SALE = 'sale',
+  APPROVAL = 'approval',
 }
 
-export interface TransactionReceipt {
-  blockHash: string | null
-  blockNumber: number | null
-  chainId: number
-  confirmations: number
-  creates: string | null
-  data: string
-  from: string
-  gasLimit: BigNumber
-  gasPrice: BigNumber
+export interface TransactionDetails {
   hash: string
-  nonce: number
-  r: string
-  s: string
-  to: string
-  transactionIndex: number | null
-  v: number
-  value: BigNumber
+  action: Action
+  approval?: { tokenAddress: string; spender: string }
+  receipt?: ethers.providers.TransactionReceipt
+  from: string
+  blockNumber?: number
+  paid?: UniSwapToken
+  received?: UniSwapToken
+  amount?: string
+  addedTime?: number
 }
 
 export type HandleBuyClick = (pairInfo: PairInfo) => void

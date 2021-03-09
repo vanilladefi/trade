@@ -1,7 +1,7 @@
 import { buy, sell } from 'lib/uniswap/trade'
 import { useRecoilValue } from 'recoil'
 import { signerState } from 'state/wallet'
-import { UniSwapToken } from 'types/trade'
+import { Action, UniSwapToken } from 'types/trade'
 import useAllTransactions from './useAllTransactions'
 
 interface TradeExecutionOptions {
@@ -32,7 +32,16 @@ const useTradeEngine = (): {
         tokenOut: tokenOut,
         signer: signer,
       })
-      addTransaction(transaction)
+      transaction.hash &&
+        transaction.from &&
+        addTransaction({
+          action: Action.PURCHASE,
+          hash: transaction.hash,
+          from: transaction.from,
+          received: tokenOut,
+          paid: tokenIn,
+          addedTime: Date.now(),
+        })
       return transaction.hash || undefined
     }
   }
@@ -51,7 +60,16 @@ const useTradeEngine = (): {
         tokenOut: tokenOut,
         signer: signer,
       })
-      addTransaction(transaction)
+      transaction.hash &&
+        transaction.from &&
+        addTransaction({
+          action: Action.SALE,
+          hash: transaction.hash,
+          from: transaction.from,
+          received: tokenOut,
+          paid: tokenIn,
+          addedTime: Date.now(),
+        })
       return transaction.hash || undefined
     }
   }

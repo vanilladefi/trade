@@ -1,57 +1,115 @@
-import { BigNumber } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
+import { formatUnits } from 'ethers/lib/utils'
 import { useEffect, useState } from 'react'
-import { TransactionDetails } from 'types/trade'
+import { useRecoilValue } from 'recoil'
+import { providerState } from 'state/wallet'
+import VanillaRouterABI from 'types/abis/vanillaRouter'
+import { Action, TransactionDetails } from 'types/trade'
 import { useWallet } from 'use-wallet'
-import { getTransactionKey } from 'utils/transactions'
 import useAllTransactions from './useAllTransactions'
 import useVanillaRouter from './useVanillaRouter'
 
-interface PurchaseEvent {
-  sender: string
-  token: string
-  sold: BigNumber
-  bought: BigNumber
-  newReserve: BigNumber
-}
-
 function useTransaction(id: string): TransactionDetails | null {
-  const { getTransaction } = useAllTransactions()
+  const { getTransaction, updateTransaction } = useAllTransactions()
   const [
     transactionDetails,
     setTransactionDetails,
   ] = useState<TransactionDetails | null>(null)
   const router = useVanillaRouter()
+  const provider = useRecoilValue(providerState)
   const { account } = useWallet()
 
-  const purchaseListener = (purchaseEvent: PurchaseEvent) => {
-    const { token, sold, bought, newReserve } = purchaseEvent
-
-    const tokenAddr = token
-    const soldBN = sold && sold.toString && sold.toString()
-    const boughtBN = bought && bought.toString && bought.toString()
-    const newReserveBN =
-      newReserve && newReserve.toString && newReserve.toString()
-
-    console.log(tokenAddr, soldBN, boughtBN, newReserveBN)
-  }
-
-  const mineListener = async (transaction: any) => {
-    console.log(transaction)
-  }
+  /* const filteredPurchases = router?.filters.TokensPurchased(account, null) */
 
   useEffect(() => {
-    if (router && account) {
-      setTransactionDetails(getTransaction(getTransactionKey(id, account)))
+    if (router && account && provider) {
+      const routerInterface = new ethers.utils.Interface(VanillaRouterABI)
 
-      // TODO: Check that this works.
-      //router.once(id, mineListener)
-      router.once('TokensPurchased', purchaseListener)
+      const purchaseTopic = ethers.utils.id(
+        'TokensPurchased(address,address,uint256,uint256,uint256)',
+      )
+      const saleTopic = ethers.utils.id(
+        'TokensSold(address,address,uint256,uint256,uint256,uint256,uint256)',
+      )
+
+      const preliminaryTransactionDetails = getTransaction(id)
+
+      provider.waitForTransaction(id).then((receipt) => {
+        const purchase = receipt.logs.find((log) => {
+          if (log.topics.find((logTopic) => logTopic === purchaseTopic)) {
+            return true
+          } else {
+            return false
+          }
+        })
+
+        const sale = receipt.logs.find((log) => {
+          if (log.topics.find((logTopic) => logTopic === saleTopic)) {
+            return true
+          } else {
+            return false
+          }
+        })
+
+        if (purchase || sale) {
+          const data = purchase?.data || sale?.data || ''
+
+          const {
+            amount,
+          }: ethers.utils.Result = routerInterface.decodeEventLog(
+            purchase ? 'TokensPurchased' : 'TokensSold',
+            data,
+          )
+
+          let bnAmount: BigNumber
+          if (amount as BigNumber) {
+            bnAmount = amount
+          } else {
+            bnAmount = BigNumber.from('0')
+          }
+
+          const formattedAmount = purchase
+            ? formatUnits(
+                bnAmount,
+                preliminaryTransactionDetails?.received?.decimals,
+              )
+            : formatUnits(
+                bnAmount,
+                preliminaryTransactionDetails?.paid?.decimals,
+              )
+
+          const newDetails = {
+            action: purchase ? Action.PURCHASE : Action.SALE,
+            received: preliminaryTransactionDetails?.received,
+            paid: preliminaryTransactionDetails?.paid,
+            amount: formattedAmount,
+            hash: id,
+            blockNumber: receipt.blockNumber,
+            from: account,
+          }
+
+          setTransactionDetails(newDetails)
+
+          const newTransactionDetails = preliminaryTransactionDetails
+            ? {
+                ...preliminaryTransactionDetails,
+                receipt: receipt,
+                amount: bnAmount.toString(),
+              }
+            : {
+                hash: id,
+                action: purchase ? Action.PURCHASE : Action.SALE,
+                from: receipt.from,
+                receipt: receipt,
+                amount: bnAmount.toString(),
+              }
+
+          updateTransaction(id, newTransactionDetails)
+        }
+      })
     }
-    return () => {
-      //router?.removeListener(id, mineListener)
-      router?.removeListener('TokensPurchased', purchaseListener)
-    }
-  }, [router, id, getTransaction, account])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account, id])
 
   return transactionDetails
 }

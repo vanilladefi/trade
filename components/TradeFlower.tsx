@@ -3,8 +3,8 @@ import dynamic from 'next/dynamic'
 const Flower = dynamic(import('../components/Flower'))
 
 export type Token = {
-  ticker: string
-  amount: number
+  symbol: string
+  amount: string
 }
 
 export type TradeURL = {
@@ -29,7 +29,7 @@ const TradeFlower = ({
     <>
       +{received.amount}
       <br />
-      {received.ticker}
+      {received.symbol}
     </>
   )
 
@@ -37,7 +37,7 @@ const TradeFlower = ({
     <>
       +{reward.amount}
       <br />
-      {reward.ticker}
+      {reward.symbol}
     </>
   )
 
@@ -53,7 +53,7 @@ const TradeFlower = ({
     <>
       -{paid.amount}
       <br />
-      {paid.ticker}
+      {paid.symbol}
     </>
   )
   return (

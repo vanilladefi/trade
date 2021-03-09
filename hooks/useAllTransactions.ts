@@ -1,17 +1,15 @@
-import { useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { transactionsState } from 'state/transactions'
 import { ChainId, ChainIdToTransactionMapping } from 'types/general'
-import { TransactionDetails, TransactionReceipt } from 'types/trade'
+import { TransactionDetails } from 'types/trade'
 import { useWallet } from 'use-wallet'
 import { chainId } from 'utils/config'
 import { getTransactionKey } from 'utils/transactions'
-import useVanillaRouter from './useVanillaRouter'
 
 function useAllTransactions(): {
   transactions: TransactionDetails[] | null
   transactionsByCurrentAccount: TransactionDetails[] | null
-  addTransaction: (transaction: TransactionReceipt) => void
+  addTransaction: (transaction: TransactionDetails) => void
   getTransaction: (transactionHash: string) => TransactionDetails | null
   updateTransaction: (
     transactionHash: string,
@@ -21,45 +19,15 @@ function useAllTransactions(): {
   const [transactions, setTransactions] = useRecoilState(transactionsState)
   const castChainId = chainId.toString() as ChainId
   const { account } = useWallet()
-  const router = useVanillaRouter()
 
-  useEffect(() => {
-    const purchaseListener = (
-      sender: string,
-      token: string,
-      sold: string,
-      bought: string,
-      newReserve: string,
-    ) => {
-      console.log('TokensPurchased-event: ', {
-        sender,
-        token,
-        sold,
-        bought,
-        newReserve,
-      })
-    }
-    if (router) {
-      router.on('TokensPurchased', purchaseListener)
-    }
-    return () => {
-      router?.removeListener('TokensPurchased', purchaseListener)
-    }
-  }, [router])
-
-  const transactionAdder = (transaction: TransactionReceipt) =>
+  const transactionAdder = (transaction: TransactionDetails) =>
     setTransactions((currentTransactions: ChainIdToTransactionMapping) => {
       const newTransactions: ChainIdToTransactionMapping = {
         ...currentTransactions,
       }
       if (account) {
         const transactionKey = getTransactionKey(transaction.hash, account)
-        newTransactions[castChainId][transactionKey] = {
-          from: transaction.from,
-          hash: transaction.hash,
-          blockNumber: transaction.blockNumber || 0,
-          addedTime: Date.now(),
-        }
+        newTransactions[castChainId][transactionKey] = transaction
       }
       return { ...newTransactions }
     })

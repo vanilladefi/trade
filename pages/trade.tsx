@@ -53,6 +53,7 @@ const HeaderContent = (): JSX.Element => {
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const provider = useRecoilValue(providerState)
   const [vnlTokenAddress, setVnlTokenAddress] = useState('')
+  const [vnlTokenBalance, setVnlTokenBalance] = useState(0)
 
   useEffect(() => {
     provider && getVnlTokenAddress(provider).then(setVnlTokenAddress)
@@ -67,7 +68,7 @@ const HeaderContent = (): JSX.Element => {
         chainId: tokenListChainId,
       }
       getERC20TokenBalance(vnlTokenAddress, vnlToken, provider).then(
-        console.log,
+        setVnlTokenBalance,
       )
     }
   }, [provider, vnlTokenAddress])
@@ -98,7 +99,7 @@ const HeaderContent = (): JSX.Element => {
               <div className='stats-grid-item'>
                 <h2 className='title'>TOTAL BALANCE</h2>
                 <h3 className='subTitle'>$324</h3>
-                <span className='details'>5.1275 ETH (+4%)</span>
+                <span className='details'>{vnlTokenBalance} VNL</span>
               </div>
               <div className='stats-grid-item'>
                 <h2 className='title'>PROFITABLE POSITIONS</h2>

@@ -25,7 +25,6 @@ export const selectedPairState = selector<PairByIdQueryResponse | null>({
         const response = await thegraphClient.request(PairByIdQuery, {
           pairId: pairId,
         })
-        console.log(response)
 
         if (response?.pairs?.[0]) {
           const id = response.pairs[0].id
