@@ -2,6 +2,7 @@ import { providers } from 'ethers'
 import { atom } from 'recoil'
 import { recoilPersist } from 'recoil-persist'
 import type { Connectors } from 'use-wallet'
+import { defaultProvider } from 'utils/config'
 
 const { persistAtom } =
   typeof window !== 'undefined'
@@ -30,6 +31,6 @@ export const signerState = atom<providers.JsonRpcSigner | null>({
 
 export const providerState = atom<providers.JsonRpcProvider | null>({
   key: 'providerState',
-  default: null,
+  default: defaultProvider,
   dangerouslyAllowMutability: true, // If it works without, that'd be awesome. Here for now.
 })

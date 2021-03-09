@@ -125,6 +125,7 @@ const ProviderOptions = (): JSX.Element => {
 
 const WalletView = (): JSX.Element => {
   const wallet = useWallet()
+  const { account, connector } = wallet
 
   const resetWallet = (): void => {
     wallet.reset()
@@ -140,16 +141,16 @@ const WalletView = (): JSX.Element => {
         <div className='mainWrapper'>
           <div className='innerBox'>
             <div className='topRow'>
-              {wallet.account ? 'Connected with ' : 'Connecting with '}
-              {wallet.connector === 'injected' ? 'Metamask' : wallet.connector}
+              {account ? 'Connected with ' : 'Connecting with '}
+              {connector === 'injected' ? 'Metamask' : connector}
               <Button onClick={() => resetWallet()} size={ButtonSize.SMALL}>
                 Disconnect
               </Button>
             </div>
             <div className='middleSection'>
-              {wallet.account ? (
+              {account ? (
                 <>
-                  <WalletIcon walletType={wallet.connector} />
+                  <WalletIcon walletType={connector} />
                   <Spacer />
                   <WalletAddress wallet={wallet} />
                 </>
@@ -157,18 +158,17 @@ const WalletView = (): JSX.Element => {
                 'Connecting...'
               )}
             </div>
-            {wallet.account && (
+            {account && (
               <div className='bottomSection'>
                 <button
                   onClick={() =>
-                    wallet.account &&
-                    navigator.clipboard.writeText(wallet.account)
+                    account && navigator.clipboard.writeText(account)
                   }
                 >
                   <Icon src={IconUrls.COPY} />
                   Copy address
                 </button>
-                <a href={`https://etherscan.io/address/${wallet.account}`}>
+                <a href={`https://etherscan.io/address/${account}`}>
                   <Icon src={IconUrls.ARROW_UP_RIGHT} />
                   View on Etherscan
                 </a>
@@ -282,7 +282,7 @@ const WalletView = (): JSX.Element => {
 }
 
 const WalletModal = (): JSX.Element => {
-  const wallet = useWallet()
+  const { status } = useWallet()
 
   const [walletModalOpen, setWalletModalOpen] = useRecoilState(
     walletModalOpenState,
@@ -295,8 +295,8 @@ const WalletModal = (): JSX.Element => {
         setWalletModalOpen(false)
       }}
     >
-      {['disconnected', 'error'].includes(wallet.status) && <ProviderOptions />}
-      {['connected', 'connecting'].includes(wallet.status) && <WalletView />}
+      {['disconnected', 'error'].includes(status) && <ProviderOptions />}
+      {['connected', 'connecting'].includes(status) && <WalletView />}
     </Modal>
   )
 }

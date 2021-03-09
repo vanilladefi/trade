@@ -4,7 +4,6 @@ import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
 import VanillaRouterABI from 'types/abis/vanillaRouter'
 import { Action, TransactionDetails } from 'types/trade'
-import { useWallet } from 'use-wallet'
 import useAllTransactions from './useAllTransactions'
 import useVanillaRouter from './useVanillaRouter'
 
@@ -16,12 +15,11 @@ function useTransaction(id: string): TransactionDetails | null {
   ] = useState<TransactionDetails | null>(null)
   const router = useVanillaRouter()
   const provider = useRecoilValue(providerState)
-  const { account } = useWallet()
 
   /* const filteredPurchases = router?.filters.TokensPurchased(account, null) */
 
   useEffect(() => {
-    if (router && account && provider) {
+    if (router && provider) {
       const routerInterface = new ethers.utils.Interface(VanillaRouterABI)
 
       const purchaseTopic = ethers.utils.id(
@@ -81,7 +79,7 @@ function useTransaction(id: string): TransactionDetails | null {
             amountPaid: amountPaid,
             hash: id,
             blockNumber: receipt.blockNumber,
-            from: account,
+            from: receipt.from,
           }
 
           setTransactionDetails(newDetails)
@@ -107,7 +105,7 @@ function useTransaction(id: string): TransactionDetails | null {
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, id])
+  }, [id])
 
   return transactionDetails
 }

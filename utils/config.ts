@@ -1,3 +1,5 @@
+import { providers } from 'ethers'
+
 export const chainId: number =
   (process.env.NEXT_PUBLIC_CHAIN_ID &&
     parseInt(process.env.NEXT_PUBLIC_CHAIN_ID)) ||
@@ -9,3 +11,5 @@ export const vanillaRouterAddress: string =
 
 export const rpcUrl: string =
   process.env.NEXT_PUBLIC_RPC_URL || 'http://localhost:8545'
+
+export const defaultProvider = new providers.JsonRpcProvider(rpcUrl, chainId)

@@ -24,27 +24,26 @@ interface SmallWalletInfoProps {
 
 const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
   const wallet = useWallet()
+  const { account, status, balance } = wallet
   const [walletModalOpen, setWalletModalOpen] = useRecoilState(
     walletModalOpenState,
   )
 
   const walletBalance = useMemo(() => {
-    return Number.parseFloat(
-      ethersUtils.formatUnits(wallet.balance, 'ether'),
-    ).toFixed(3)
-  }, [wallet.balance])
+    return Number.parseFloat(ethersUtils.formatUnits(balance, 'ether')).toFixed(
+      3,
+    )
+  }, [balance])
 
   const walletAddress = useMemo(() => {
-    const long = wallet.account || ''
-    const short = wallet.account
-      ? `${wallet.account.substring(0, 6)}...${wallet.account.substring(
-          wallet.account.length - 4,
-        )}`
+    const long = account || ''
+    const short = account
+      ? `${account.substring(0, 6)}...${account.substring(account.length - 4)}`
       : ''
     return { long, short }
-  }, [wallet.account])
+  }, [account])
 
-  if (wallet.status !== 'connected') return <WalletConnectButton />
+  if (status !== 'connected') return <WalletConnectButton />
 
   return (
     <ButtonGroup grow={grow}>
