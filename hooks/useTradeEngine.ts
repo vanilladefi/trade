@@ -40,6 +40,8 @@ const useTradeEngine = (): {
           from: transaction.from,
           received: tokenOut,
           paid: tokenIn,
+          amountPaid: amountIn,
+          amountReceived: amountOut,
           addedTime: Date.now(),
         })
       return transaction.hash || undefined
@@ -68,6 +70,8 @@ const useTradeEngine = (): {
           from: transaction.from,
           received: tokenOut,
           paid: tokenIn,
+          amountPaid: amountIn,
+          amountReceived: amountOut,
           addedTime: Date.now(),
         })
       return transaction.hash || undefined

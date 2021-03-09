@@ -4,7 +4,7 @@ const Flower = dynamic(import('../components/Flower'))
 
 export type Token = {
   symbol: string
-  amount: string
+  amount: number
 }
 
 export type TradeURL = {

@@ -1,6 +1,7 @@
 import { Column } from 'components/grid/Flex'
 import TradeFlower from 'components/TradeFlower'
 import { SmallTitle } from 'components/typography/Titles'
+import { formatUnits } from 'ethers/lib/utils'
 import useTransaction from 'hooks/useTransaction'
 
 type Props = {
@@ -9,7 +10,26 @@ type Props = {
 
 const SuccessView = ({ id }: Props): JSX.Element => {
   const transaction = useTransaction(id)
-  console.log(transaction)
+
+  const [amountPaid, amountReceived] = [
+    transaction
+      ? parseFloat(
+          formatUnits(
+            transaction.amountPaid || '0',
+            transaction.paid?.decimals,
+          ),
+        )
+      : 0,
+    transaction
+      ? parseFloat(
+          formatUnits(
+            transaction.amountReceived || '0',
+            transaction.paid?.decimals,
+          ),
+        )
+      : 0,
+  ]
+
   return (
     <Column>
       <div>
@@ -18,10 +38,13 @@ const SuccessView = ({ id }: Props): JSX.Element => {
       {transaction && (
         <TradeFlower
           received={{
-            ticker: 'UNI',
-            amount: transaction.amount ?? '0.0',
+            symbol: transaction.received?.symbol ?? '',
+            amount: amountReceived,
           }}
-          paid={{ ticker: 'ETH', amount: '0.0056572' }}
+          paid={{
+            symbol: transaction.paid?.symbol ?? '',
+            amount: amountPaid,
+          }}
           tradeURL={{
             domain: 'vnl.com',
             transactionHash: transaction.hash,

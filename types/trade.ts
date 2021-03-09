@@ -78,7 +78,8 @@ export interface TransactionDetails {
   blockNumber?: number
   paid?: UniSwapToken
   received?: UniSwapToken
-  amount?: string
+  amountPaid?: string
+  amountReceived?: string
   addedTime?: number
 }
 

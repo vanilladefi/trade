@@ -1,5 +1,4 @@
 import { BigNumber, ethers } from 'ethers'
-import { formatUnits } from 'ethers/lib/utils'
 import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
@@ -56,33 +55,30 @@ function useTransaction(id: string): TransactionDetails | null {
 
           const {
             amount,
+            eth,
           }: ethers.utils.Result = routerInterface.decodeEventLog(
             purchase ? 'TokensPurchased' : 'TokensSold',
             data,
           )
 
-          let bnAmount: BigNumber
-          if (amount as BigNumber) {
-            bnAmount = amount
-          } else {
-            bnAmount = BigNumber.from('0')
+          let amountPaid = '0'
+          let amountReceived = '0'
+          if ((amount as BigNumber) && (eth as BigNumber)) {
+            if (purchase) {
+              amountPaid = eth.toString()
+              amountReceived = amount.toString()
+            } else {
+              amountPaid = amount.toString()
+              amountReceived = eth.toString()
+            }
           }
-
-          const formattedAmount = purchase
-            ? formatUnits(
-                bnAmount,
-                preliminaryTransactionDetails?.received?.decimals,
-              )
-            : formatUnits(
-                bnAmount,
-                preliminaryTransactionDetails?.paid?.decimals,
-              )
 
           const newDetails = {
             action: purchase ? Action.PURCHASE : Action.SALE,
             received: preliminaryTransactionDetails?.received,
             paid: preliminaryTransactionDetails?.paid,
-            amount: formattedAmount,
+            amountReceived: amountReceived,
+            amountPaid: amountPaid,
             hash: id,
             blockNumber: receipt.blockNumber,
             from: account,
@@ -90,18 +86,20 @@ function useTransaction(id: string): TransactionDetails | null {
 
           setTransactionDetails(newDetails)
 
-          const newTransactionDetails = preliminaryTransactionDetails
+          const newTransactionDetails: TransactionDetails = preliminaryTransactionDetails
             ? {
                 ...preliminaryTransactionDetails,
                 receipt: receipt,
-                amount: bnAmount.toString(),
+                amountPaid: amountPaid,
+                amountReceived: amountReceived,
               }
             : {
                 hash: id,
                 action: purchase ? Action.PURCHASE : Action.SALE,
                 from: receipt.from,
                 receipt: receipt,
-                amount: bnAmount.toString(),
+                amountPaid: amountPaid,
+                amountReceived: amountReceived,
               }
 
           updateTransaction(id, newTransactionDetails)
