@@ -20,24 +20,32 @@ export enum Field {
   OUTPUT = 'OUTPUT',
 }
 
-type TradeProps = {
-  amountIn: string
-  amountOut: string
-  tokenIn: UniSwapToken
-  tokenOut: UniSwapToken
-  provider?: providers.JsonRpcProvider
-  signer?: providers.JsonRpcSigner
+export interface BuyProps {
+  amountReceived: string
+  amountPaid: TokenAmount | CurrencyAmount
+  tokenReceived: UniSwapToken
+  tokenPaid?: UniSwapToken
+  signer: providers.JsonRpcSigner
+}
+
+export interface SellProps {
+  amountReceived: TokenAmount | CurrencyAmount
+  amountPaid: string
+  tokenPaid: UniSwapToken
+  tokenReceived?: UniSwapToken
+  signer: providers.JsonRpcSigner
 }
 
 export const buy = async ({
-  amountIn,
-  amountOut,
-  tokenIn,
-  tokenOut,
+  amountPaid,
+  amountReceived,
+  tokenReceived,
   signer,
-}: TradeProps): Promise<Transaction> => {
-  const amountInParsed = parseUnits(amountIn, tokenIn.decimals)
-  const amountOutParsed = parseUnits(amountOut, tokenOut.decimals)
+}: BuyProps): Promise<Transaction> => {
+  const amountReceivedParsed = parseUnits(
+    amountReceived,
+    tokenReceived.decimals,
+  )
 
   const vanillaRouter = getContract(
     vanillaRouterAddress,
@@ -46,23 +54,22 @@ export const buy = async ({
   )
 
   const receipt = await vanillaRouter.depositAndBuy(
-    tokenOut.address,
-    amountOutParsed,
+    tokenReceived.address,
+    amountReceivedParsed,
     constants.MaxUint256,
-    { value: amountInParsed },
+    { value: amountPaid.raw.toString() },
   )
 
   return receipt
 }
 
 export const sell = async ({
-  amountIn,
-  amountOut,
-  tokenIn,
-  tokenOut,
+  amountPaid,
+  amountReceived,
+  tokenPaid,
   signer,
-}: TradeProps): Promise<Transaction> => {
-  const amountInParsed = parseUnits(amountIn, tokenIn.decimals)
+}: SellProps): Promise<Transaction> => {
+  const amountPaidParsed = parseUnits(amountPaid, tokenPaid.decimals)
 
   const vanillaRouter = getContract(
     vanillaRouterAddress,
@@ -71,9 +78,9 @@ export const sell = async ({
   )
 
   const receipt = await vanillaRouter.sellAndWithdraw(
-    tokenIn.address,
-    amountInParsed,
-    amountOutParsed,
+    tokenPaid.address,
+    amountPaidParsed,
+    amountReceived,
     constants.MaxUint256,
   )
 

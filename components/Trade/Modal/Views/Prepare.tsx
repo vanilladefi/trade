@@ -86,7 +86,13 @@ const PrepareView = ({
 
   // Estimate gas fees
   useEffect(() => {
-    if (vanillaRouter && token0 && token1 && receivedTokenAmount) {
+    if (
+      vanillaRouter &&
+      token0 &&
+      token1 &&
+      receivedTokenAmount &&
+      paidTokenAmount !== ''
+    ) {
       if (operation === Operation.Buy) {
         const amountInParsed = parseUnits(paidTokenAmount, token1.decimals)
         vanillaRouter.estimateGas
@@ -176,7 +182,7 @@ const PrepareView = ({
     trade &&
       setReceivedTokenAmount(
         operation === Operation.Buy
-          ? trade.maximumAmountIn(slippageTolerance)
+          ? trade.maximumAmountIn && trade.maximumAmountIn(slippageTolerance)
           : trade.minimumAmountOut && trade.minimumAmountOut(slippageTolerance),
       )
   }, [operation, slippageTolerance, trade])
@@ -205,17 +211,17 @@ const PrepareView = ({
         setTransactionState(TransactionState.PROCESSING)
         if (operation === Operation.Buy) {
           hash = await buy({
-            amountIn: receivedTokenAmount.toString(),
-            amountOut: paidTokenAmount,
-            tokenIn: token1,
-            tokenOut: token0,
+            amountPaid: receivedTokenAmount,
+            amountReceived: paidTokenAmount,
+            tokenPaid: token1,
+            tokenReceived: token0,
           })
         } else {
           hash = await sell({
-            amountIn: paidTokenAmount,
-            amountOut: receivedTokenAmount.toString(),
-            tokenIn: token0,
-            tokenOut: token1,
+            amountPaid: paidTokenAmount,
+            amountReceived: receivedTokenAmount,
+            tokenPaid: token0,
+            tokenReceived: token1,
           })
         }
         hash && setTransactionState(TransactionState.DONE)

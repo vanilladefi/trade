@@ -1,35 +1,28 @@
-import { buy, sell } from 'lib/uniswap/trade'
+import { buy, BuyProps, sell, SellProps } from 'lib/uniswap/trade'
 import { useRecoilValue } from 'recoil'
 import { signerState } from 'state/wallet'
-import { Action, UniSwapToken } from 'types/trade'
+import { Action } from 'types/trade'
 import useAllTransactions from './useAllTransactions'
 
-interface TradeExecutionOptions {
-  amountIn: string
-  amountOut: string
-  tokenIn: UniSwapToken
-  tokenOut: UniSwapToken
-}
-
 const useTradeEngine = (): {
-  buy: (options: TradeExecutionOptions) => Promise<string | undefined>
-  sell: (options: TradeExecutionOptions) => Promise<string | undefined>
+  buy: (options: BuyProps) => Promise<string | undefined>
+  sell: (options: SellProps) => Promise<string | undefined>
 } => {
   const signer = useRecoilValue(signerState)
   const { addTransaction } = useAllTransactions()
 
   const executeBuy = async ({
-    amountIn,
-    amountOut,
-    tokenIn,
-    tokenOut,
-  }: TradeExecutionOptions) => {
+    amountPaid,
+    amountReceived,
+    tokenPaid,
+    tokenReceived,
+  }: BuyProps) => {
     if (signer) {
       const transaction = await buy({
-        amountOut: amountOut,
-        amountIn: amountIn,
-        tokenIn: tokenIn,
-        tokenOut: tokenOut,
+        amountReceived: amountReceived,
+        amountPaid: amountPaid,
+        tokenPaid: tokenPaid,
+        tokenReceived: tokenReceived,
         signer: signer,
       })
       transaction.hash &&
@@ -38,10 +31,10 @@ const useTradeEngine = (): {
           action: Action.PURCHASE,
           hash: transaction.hash,
           from: transaction.from,
-          received: tokenOut,
-          paid: tokenIn,
-          amountPaid: amountIn,
-          amountReceived: amountOut,
+          received: tokenReceived,
+          paid: tokenPaid,
+          amountPaid: amountPaid.toSignificant(),
+          amountReceived: amountReceived,
           addedTime: Date.now(),
         })
       return transaction.hash || undefined
@@ -49,17 +42,17 @@ const useTradeEngine = (): {
   }
 
   const executeSell = async ({
-    amountIn,
-    amountOut,
-    tokenIn,
-    tokenOut,
-  }: TradeExecutionOptions) => {
+    amountPaid,
+    amountReceived,
+    tokenPaid,
+    tokenReceived,
+  }: SellProps) => {
     if (signer) {
       const transaction = await sell({
-        amountOut: amountOut,
-        amountIn: amountIn,
-        tokenIn: tokenIn,
-        tokenOut: tokenOut,
+        amountReceived: amountReceived,
+        amountPaid: amountPaid,
+        tokenPaid: tokenPaid,
+        tokenReceived: tokenReceived,
         signer: signer,
       })
       transaction.hash &&
@@ -68,10 +61,10 @@ const useTradeEngine = (): {
           action: Action.SALE,
           hash: transaction.hash,
           from: transaction.from,
-          received: tokenOut,
-          paid: tokenIn,
-          amountPaid: amountIn,
-          amountReceived: amountOut,
+          received: tokenReceived,
+          paid: tokenPaid,
+          amountPaid: amountPaid,
+          amountReceived: amountReceived.toSignificant(),
           addedTime: Date.now(),
         })
       return transaction.hash || undefined
