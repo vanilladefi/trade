@@ -56,6 +56,14 @@ const TradeFlower = ({
       {paid.symbol}
     </>
   )
+
+  const rawParticleCount = received
+    ? received.amount * 100
+    : reward
+    ? reward.amount * 100
+    : 0
+  const particleCount = rawParticleCount > 10000 ? 10000 : rawParticleCount
+
   return (
     <>
       <div className='tradeWrapper'>
@@ -66,9 +74,7 @@ const TradeFlower = ({
           maxWidth='100%'
           maxHeight='100%'
           seed={tradeURL.transactionHash}
-          particleCount={
-            received ? received.amount * 100 : reward ? reward.amount * 100 : 0
-          }
+          particleCount={particleCount}
           topLeft={receivedData}
           topRight={rewardData}
           bottomLeft={tradeURLData}
