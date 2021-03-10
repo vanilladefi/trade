@@ -2,8 +2,6 @@ import {
   CurrencyAmount,
   Fetcher,
   JSBI,
-  Percent,
-  Price,
   Route,
   Token,
   TokenAmount,
@@ -65,7 +63,6 @@ export const sell = async ({
   signer,
 }: TradeProps): Promise<Transaction> => {
   const amountInParsed = parseUnits(amountIn, tokenIn.decimals)
-  const amountOutParsed = parseUnits(amountOut, tokenOut.decimals)
 
   const vanillaRouter = getContract(
     vanillaRouterAddress,
@@ -83,13 +80,14 @@ export const sell = async ({
   return receipt
 }
 
-export async function getExecutionPrice(
+// Pricing function for all trades
+export async function constructTrade(
   amountToTrade: string,
   tokenOut: UniSwapToken,
   tokenIn: UniSwapToken,
   provider: providers.JsonRpcProvider,
   tradeType = TradeType.EXACT_OUTPUT,
-): Promise<Price> {
+): Promise<Trade> {
   try {
     const parsedAmount = tryParseAmount(amountToTrade, tokenOut)
     if (!parsedAmount)
@@ -114,10 +112,10 @@ export async function getExecutionPrice(
     const route = new Route([pair], convertedTokenIn)
 
     const trade = new Trade(route, parsedAmount, tradeType)
-
-    return trade.executionPrice
+    console.log(trade)
+    return trade
   } catch (error) {
-    console.log(error)
+    console.error(error)
     return error
   }
 }
@@ -152,40 +150,4 @@ export function calculateGasMargin(value: BigNumber): BigNumber {
   return value
     .mul(BigNumber.from(10000).add(BigNumber.from(1000)))
     .div(BigNumber.from(10000))
-}
-
-// converts a basis points value to a sdk percent
-export function basisPointsToPercent(num: number): Percent {
-  return new Percent(JSBI.BigInt(num), JSBI.BigInt(10000))
-}
-
-export function calculateSlippageAmount(
-  value: CurrencyAmount,
-  slippage: number,
-): [JSBI, JSBI] {
-  if (slippage < 0 || slippage > 10000) {
-    throw Error(`Unexpected slippage value: ${slippage}`)
-  }
-  return [
-    JSBI.divide(
-      JSBI.multiply(value.raw, JSBI.BigInt(10000 - slippage)),
-      JSBI.BigInt(10000),
-    ),
-    JSBI.divide(
-      JSBI.multiply(value.raw, JSBI.BigInt(10000 + slippage)),
-      JSBI.BigInt(10000),
-    ),
-  ]
-}
-
-// computes the minimum amount out and maximum amount in for a trade given a user specified allowed slippage in bips
-export function computeSlippageAdjustedAmounts(
-  trade: Trade | undefined,
-  allowedSlippage: number,
-): { [field in Field]?: CurrencyAmount } {
-  const pct = basisPointsToPercent(allowedSlippage)
-  return {
-    [Field.INPUT]: trade?.maximumAmountIn(pct),
-    [Field.OUTPUT]: trade?.minimumAmountOut(pct),
-  }
 }

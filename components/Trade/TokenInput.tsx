@@ -1,4 +1,4 @@
-import { CurrencyAmount } from '@uniswap/sdk'
+import { CurrencyAmount, TokenAmount } from '@uniswap/sdk'
 import { Spinner } from 'components/Spinner'
 import Icon from 'components/typography/Icon'
 import { getBalance, getERC20TokenBalance } from 'lib/tokens'
@@ -12,14 +12,14 @@ import { Operation } from './Modal'
 type Props = {
   operation: Operation
   onAmountChange: (value: string) => void | undefined
-  token1In: CurrencyAmount | number | null
+  receivedTokenAmount: TokenAmount | CurrencyAmount | null
   useWethProxy?: boolean
 }
 
 const TokenInput = ({
   operation,
   onAmountChange,
-  token1In,
+  receivedTokenAmount,
   useWethProxy = true,
 }: Props): JSX.Element => {
   const wallet = useWallet()
@@ -31,6 +31,7 @@ const TokenInput = ({
   const [balance0, setBalance0] = useState(0)
   const [balance1, setBalance1] = useState(0)
 
+  // Get balances for traded assets
   useEffect(() => {
     if (provider && token0 && token1 && wallet.account) {
       getERC20TokenBalance(wallet.account, token0, provider).then(setBalance0)
@@ -68,13 +69,15 @@ const TokenInput = ({
           <div className='row'>
             <div className='numberInput'>
               <span>{operation === Operation.Sell ? 'Get' : 'Pay'}</span>
-              {token1In !== null ? (
+              {receivedTokenAmount !== null ? (
                 <input
                   className='input'
                   type='number'
                   placeholder={'0.0'}
                   disabled
-                  value={token1In?.toString()}
+                  value={
+                    receivedTokenAmount && receivedTokenAmount.toSignificant()
+                  }
                 />
               ) : (
                 <Spinner />

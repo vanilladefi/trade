@@ -1,3 +1,4 @@
+import { Percent } from '@uniswap/sdk'
 import { PairByIdQuery, thegraphClient } from 'lib/graphql'
 import { getLogoUri, tokenListChainId, weth } from 'lib/tokens'
 import { atom, selector } from 'recoil'
@@ -12,6 +13,11 @@ export const selectedPairIdState = atom<string | null>({
 export const selectedCounterAsset = atom<UniSwapToken>({
   key: 'selectedCounterAsset',
   default: weth,
+})
+
+export const selectedSlippageTolerance = atom<Percent>({
+  key: 'selectedSlippageTolerance',
+  default: new Percent('5', '1000'),
 })
 
 export const selectedPairState = selector<PairByIdQueryResponse | null>({

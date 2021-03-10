@@ -1,4 +1,11 @@
-import { Price, TokenAmount, TradeType } from '@uniswap/sdk'
+import {
+  CurrencyAmount,
+  JSBI,
+  Token,
+  TokenAmount,
+  Trade,
+  TradeType,
+} from '@uniswap/sdk'
 import { Column, Width } from 'components/grid/Flex'
 import Button, {
   ButtonColor,
@@ -8,8 +15,11 @@ import Button, {
 } from 'components/input/Button'
 import { Spinner } from 'components/Spinner'
 import Icon, { IconUrls } from 'components/typography/Icon'
+import { constants } from 'ethers'
+import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import useTradeEngine from 'hooks/useTradeEngine'
-import { getExecutionPrice } from 'lib/uniswap/trade'
+import useVanillaRouter from 'hooks/useVanillaRouter'
+import { constructTrade } from 'lib/uniswap/trade'
 import debounce from 'lodash.debounce'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
@@ -22,7 +32,11 @@ import React, {
   useState,
 } from 'react'
 import { useRecoilValue } from 'recoil'
-import { token0Selector, token1Selector } from 'state/trade'
+import {
+  selectedSlippageTolerance,
+  token0Selector,
+  token1Selector,
+} from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
 import { Operation } from '..'
 
@@ -48,6 +62,7 @@ const PrepareView = ({
   setModalCloseEnabled,
 }: ContentProps): JSX.Element => {
   const router = useRouter()
+  const vanillaRouter = useVanillaRouter()
 
   const { buy, sell } = useTradeEngine()
   const signer = useRecoilValue(signerState)
@@ -55,54 +70,118 @@ const PrepareView = ({
 
   const token0 = useRecoilValue(token0Selector)
   const token1 = useRecoilValue(token1Selector)
+  const slippageTolerance = useRecoilValue(selectedSlippageTolerance)
 
-  const [executionPrice, setExecutionPrice] = useState<Price>()
-  const [amount, setAmount] = useState<string>('0')
+  const [trade, setTrade] = useState<Trade>()
+  const [estimatedGas, setEstimatedGas] = useState<string>()
   const [error, setError] = useState<string | null>(null)
   const [transactionState, setTransactionState] = useState<TransactionState>(
     TransactionState.PREPARE,
   )
 
-  const [token1In, setToken1In] = useState<TokenAmount | number | null>(0.0)
+  const [paidTokenAmount, setPaidTokenAmount] = useState<string>('0')
+  const [receivedTokenAmount, setReceivedTokenAmount] = useState<
+    TokenAmount | CurrencyAmount | null
+  >(null)
 
+  // Estimate gas fees
   useEffect(() => {
-    setToken1In(null)
+    if (vanillaRouter && token0 && token1 && receivedTokenAmount) {
+      if (operation === Operation.Buy) {
+        const amountInParsed = parseUnits(paidTokenAmount, token1.decimals)
+        vanillaRouter.estimateGas
+          .depositAndBuy(
+            token0.address,
+            receivedTokenAmount.raw.toString(),
+            constants.MaxUint256,
+            { value: amountInParsed },
+          )
+          .then((value) => {
+            setEstimatedGas(formatUnits(value.toString()))
+          })
+      } else {
+        const amountInParsed = parseUnits(paidTokenAmount, token0.decimals)
+        vanillaRouter.estimateGas
+          .sellAndWithdraw(
+            token0.address,
+            amountInParsed,
+            receivedTokenAmount.raw.toString(),
+            constants.MaxUint256,
+          )
+          .then((value) => {
+            setEstimatedGas(formatUnits(value.toString()))
+          })
+      }
+    }
+  }, [
+    operation,
+    paidTokenAmount,
+    receivedTokenAmount,
+    token0,
+    token1,
+    vanillaRouter,
+  ])
+
+  // Update the trade object when parameters change
+  useEffect(() => {
+    token1 &&
+      setReceivedTokenAmount(
+        new TokenAmount(
+          new Token(
+            token1.chainId,
+            token1.address,
+            token1.decimals,
+            token1.symbol,
+          ),
+          JSBI.BigInt(0),
+        ),
+      )
     setTransactionState(TransactionState.PROCESSING)
-    if (provider && amount && amount !== '0' && token0 && token1) {
+    if (
+      provider &&
+      paidTokenAmount &&
+      paidTokenAmount !== '0' &&
+      token0 &&
+      token1
+    ) {
       operation === Operation.Buy
-        ? getExecutionPrice(
-            amount,
+        ? constructTrade(
+            paidTokenAmount,
             token0,
             token1,
             provider,
             TradeType.EXACT_OUTPUT,
           )
-            .then((price) => {
-              price && setExecutionPrice(price)
+            .then((trade) => {
+              trade && setTrade(trade)
             })
             .catch((e) => setError(e.message))
-        : getExecutionPrice(
-            amount,
+        : constructTrade(
+            paidTokenAmount,
             token1,
             token0,
             provider,
             TradeType.EXACT_INPUT,
           )
-            .then((price) => {
-              price && setExecutionPrice(price)
+            .then((trade) => {
+              trade && setTrade(trade)
             })
             .catch((e) => setError(e.message))
     }
     setTransactionState(TransactionState.PREPARE)
-  }, [token0, token1, provider, amount, operation])
+  }, [token0, token1, provider, paidTokenAmount, operation, slippageTolerance])
 
+  // Set received token amount, based on the trade type and slippage tolerance
   useEffect(() => {
-    const ep: string = executionPrice?.toSignificant
-      ? executionPrice?.toSignificant()
-      : '0'
-    setToken1In(ep ? parseFloat(amount) / parseFloat(ep) : 0.0)
-  }, [amount, executionPrice])
+    trade &&
+      setReceivedTokenAmount(
+        operation === Operation.Buy
+          ? trade.maximumAmountIn(slippageTolerance)
+          : trade.minimumAmountOut && trade.minimumAmountOut(slippageTolerance),
+      )
+  }, [operation, slippageTolerance, trade])
 
+  // Disable closing of the trade modal when a trade is being processed
   useEffect(() => {
     ;[TransactionState.PROCESSING].includes(transactionState) &&
       setModalCloseEnabled(false)
@@ -114,27 +193,27 @@ const PrepareView = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleAmountChanged = useCallback(
     debounce((value: string) => {
-      setAmount(value)
+      setPaidTokenAmount(value)
     }, 200),
-    [setAmount],
+    [setPaidTokenAmount],
   )
 
   const handleClick = async () => {
-    if (token0 && token1 && token1In && signer) {
+    if (token0 && token1 && receivedTokenAmount && signer) {
       let hash: string | undefined
       try {
         setTransactionState(TransactionState.PROCESSING)
         if (operation === Operation.Buy) {
           hash = await buy({
-            amountIn: token1In.toString(),
-            amountOut: amount,
+            amountIn: receivedTokenAmount.toString(),
+            amountOut: paidTokenAmount,
             tokenIn: token1,
             tokenOut: token0,
           })
         } else {
           hash = await sell({
-            amountIn: amount,
-            amountOut: token1In.toString(),
+            amountIn: paidTokenAmount,
+            amountOut: receivedTokenAmount.toString(),
             tokenIn: token0,
             tokenOut: token1,
           })
@@ -184,16 +263,35 @@ const PrepareView = ({
             <TokenInput
               operation={operation}
               onAmountChange={handleAmountChanged}
-              token1In={token1In}
+              receivedTokenAmount={receivedTokenAmount}
             />
           </div>
 
           {/* TODO: Trade info */}
-          {amount && <div className='row'></div>}
+          {paidTokenAmount && trade?.executionPrice && vanillaRouter && (
+            <div className='row'>
+              <Column width={Width.TWELVE}>
+                <div className='tradeInfoRow'>
+                  <span>Price per {token0?.symbol}</span>
+                  <span>
+                    {trade?.executionPrice.toSignificant()} {token1?.symbol}
+                  </span>
+                </div>
+                <div className='tradeInfoRow'>
+                  <span>Fees</span>
+                  <span>{estimatedGas} ETH</span>
+                </div>
+                <div className='tradeInfoRow'>
+                  <span>Slippage tolerance</span>
+                  <span>{slippageTolerance.toSignificant()} %</span>
+                </div>
+              </Column>
+            </div>
+          )}
         </section>
 
         <div className='row'>
-          {amount ? (
+          {paidTokenAmount !== '0' ? (
             <Button
               onClick={() => handleClick()}
               size={ButtonSize.LARGE}
@@ -210,12 +308,12 @@ const PrepareView = ({
               ].includes(transactionState)}
               grow
             >
-              {token1In && token1In < 0 ? (
+              {receivedTokenAmount === null ? (
                 <Spinner />
               ) : transactionState === TransactionState.PREPARE ? (
                 `${
                   operation.charAt(0).toUpperCase() + operation.slice(1)
-                }ing ${amount} ${token0?.symbol}`
+                }ing ${paidTokenAmount} ${token0?.symbol}`
               ) : transactionState === TransactionState.PROCESSING ? (
                 'Processing'
               ) : (
@@ -230,7 +328,7 @@ const PrepareView = ({
               rounded={Rounding.ALL}
               grow
             >
-              Enter an amount to {operation}
+              Enter an {token0?.symbol} amount to {operation}
             </Button>
           )}
         </div>
@@ -328,6 +426,18 @@ const PrepareView = ({
             text-decoration: underline;
             margin-top: 0.5rem;
             cursor: pointer;
+          }
+          .tradeInfoRow {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            width: 100%;
+            border-bottom: 1px solid #d4d4d4;
+            padding-left: 0;
+            padding-right: 0;
+          }
+          .tradeInfoRow:last-of-type {
+            border-bottom: 0;
           }
         `}</style>
       </Column>
