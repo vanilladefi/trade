@@ -18,6 +18,7 @@ const useTradeEngine = (): {
     tokenReceived,
   }: BuyProps) => {
     if (signer) {
+      console.log(amountReceived, amountPaid)
       const transaction = await buy({
         amountReceived: amountReceived,
         amountPaid: amountPaid,
@@ -48,6 +49,7 @@ const useTradeEngine = (): {
     tokenReceived,
   }: SellProps) => {
     if (signer) {
+      console.log(amountReceived, amountPaid)
       const transaction = await sell({
         amountReceived: amountReceived,
         amountPaid: amountPaid,

@@ -25,7 +25,7 @@ export interface BuyProps {
   amountPaid: TokenAmount | CurrencyAmount
   tokenReceived: UniSwapToken
   tokenPaid?: UniSwapToken
-  signer: providers.JsonRpcSigner
+  signer?: providers.JsonRpcSigner
 }
 
 export interface SellProps {
@@ -33,7 +33,7 @@ export interface SellProps {
   amountPaid: string
   tokenPaid: UniSwapToken
   tokenReceived?: UniSwapToken
-  signer: providers.JsonRpcSigner
+  signer?: providers.JsonRpcSigner
 }
 
 export const buy = async ({
@@ -80,7 +80,7 @@ export const sell = async ({
   const receipt = await vanillaRouter.sellAndWithdraw(
     tokenPaid.address,
     amountPaidParsed,
-    amountReceived,
+    amountReceived.raw.toString(),
     constants.MaxUint256,
   )
 
@@ -120,6 +120,7 @@ export async function constructTrade(
     )
 
     const route = new Route([pair], convertedTokenPaid)
+
     const trade = new Trade(route, parsedAmount, tradeType)
 
     return trade
