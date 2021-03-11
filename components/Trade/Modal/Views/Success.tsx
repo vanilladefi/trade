@@ -1,4 +1,5 @@
 import { Column } from 'components/grid/Flex'
+import Button, { ButtonSize } from 'components/input/Button'
 import TradeFlower from 'components/TradeFlower'
 import { SmallTitle } from 'components/typography/Titles'
 import { formatUnits } from 'ethers/lib/utils'
@@ -6,9 +7,10 @@ import useTransaction from 'hooks/useTransaction'
 
 type Props = {
   id: string
+  closeModal: () => void
 }
 
-const SuccessView = ({ id }: Props): JSX.Element => {
+const SuccessView = ({ id, closeModal }: Props): JSX.Element => {
   const transaction = useTransaction(id)
 
   const [amountPaid, amountReceived] = [
@@ -51,6 +53,9 @@ const SuccessView = ({ id }: Props): JSX.Element => {
           }}
         />
       )}
+      <Button size={ButtonSize.LARGE} onClick={() => closeModal()}>
+        Close
+      </Button>
       <style jsx>{`
         div {
           display: flex;

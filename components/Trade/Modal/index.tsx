@@ -71,7 +71,7 @@ const TradeModal = ({ open, onRequestClose }: Props): JSX.Element => {
             setModalCloseEnabled={setModalCloseEnabled}
           />
         ) : (
-          <Success id={parsedId} />
+          <Success id={parsedId} closeModal={onClose} />
         )}
       </Suspense>
     </Modal>

@@ -89,40 +89,41 @@ export const sell = async ({
 
 // Pricing function for all trades
 export async function constructTrade(
-  amountToTrade: string,
-  tokenOut: UniSwapToken,
-  tokenIn: UniSwapToken,
+  amountToTrade: string, // Not amountPaid because of tradeType
+  tokenReceived: UniSwapToken,
+  tokenPaid: UniSwapToken,
   provider: providers.JsonRpcProvider,
   tradeType = TradeType.EXACT_OUTPUT,
 ): Promise<Trade> {
   try {
-    const parsedAmount = tryParseAmount(amountToTrade, tokenOut)
+    const parsedAmount = tryParseAmount(
+      amountToTrade,
+      tradeType === TradeType.EXACT_OUTPUT ? tokenReceived : tokenPaid,
+    )
     if (!parsedAmount)
       return Promise.reject(`Failed to parse input amount: ${amountToTrade}`)
 
-    const convertedTokenOut = new Token(
-      tokenListChainId,
-      tokenOut.address,
-      tokenOut.decimals,
+    const convertedTokenReceived = new Token(
+      tokenReceived.chainId,
+      tokenReceived.address,
+      tokenReceived.decimals,
     )
-    const convertedTokenIn = new Token(
-      tokenListChainId,
-      tokenIn.address,
-      tokenIn.decimals,
+    const convertedTokenPaid = new Token(
+      tokenPaid.chainId,
+      tokenPaid.address,
+      tokenPaid.decimals,
     )
     const pair = await Fetcher.fetchPairData(
-      convertedTokenOut,
-      convertedTokenIn,
+      convertedTokenReceived,
+      convertedTokenPaid,
       provider,
     )
 
-    const route = new Route([pair], convertedTokenIn)
-
+    const route = new Route([pair], convertedTokenPaid)
     const trade = new Trade(route, parsedAmount, tradeType)
-    console.log(trade)
+
     return trade
   } catch (error) {
-    console.error(error)
     return error
   }
 }

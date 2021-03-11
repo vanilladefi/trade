@@ -130,50 +130,57 @@ const PrepareView = ({
 
   // Update the trade object when parameters change
   useEffect(() => {
-    token1 &&
+    // Show the user that something is happening
+    setTransactionState(TransactionState.PROCESSING)
+
+    // Switch the token ordering based on operation
+    let tokenReceived, tokenPaid
+    if (operation === Operation.Buy) {
+      tokenReceived = token0
+      tokenPaid = token1
+    } else {
+      tokenReceived = token1
+      tokenPaid = token0
+    }
+
+    // Set received token amount to 0 during calculation
+    tokenReceived &&
       setReceivedTokenAmount(
         new TokenAmount(
           new Token(
-            token1.chainId,
-            token1.address,
-            token1.decimals,
-            token1.symbol,
+            tokenReceived.chainId,
+            tokenReceived.address,
+            tokenReceived.decimals,
+            tokenReceived.symbol,
           ),
           JSBI.BigInt(0),
         ),
       )
-    setTransactionState(TransactionState.PROCESSING)
+
+    // Construct a trade with Uniswap SDK. Pricing the trade happens here.
     if (
       provider &&
       paidTokenAmount &&
       paidTokenAmount !== '0' &&
-      token0 &&
-      token1
+      tokenReceived &&
+      tokenPaid
     ) {
-      operation === Operation.Buy
-        ? constructTrade(
-            paidTokenAmount,
-            token0,
-            token1,
-            provider,
-            TradeType.EXACT_OUTPUT,
-          )
-            .then((trade) => {
-              trade && setTrade(trade)
-            })
-            .catch((e) => setError(e.message))
-        : constructTrade(
-            paidTokenAmount,
-            token1,
-            token0,
-            provider,
-            TradeType.EXACT_INPUT,
-          )
-            .then((trade) => {
-              trade && setTrade(trade)
-            })
-            .catch((e) => setError(e.message))
+      constructTrade(
+        paidTokenAmount,
+        tokenReceived,
+        tokenPaid,
+        provider,
+        operation === Operation.Buy
+          ? TradeType.EXACT_OUTPUT
+          : TradeType.EXACT_INPUT,
+      )
+        .then((trade) => {
+          trade && setTrade(trade)
+        })
+        .catch((e) => setError(e.message))
     }
+
+    // Reset trade state to preparation
     setTransactionState(TransactionState.PREPARE)
   }, [token0, token1, provider, paidTokenAmount, operation, slippageTolerance])
 
@@ -215,6 +222,7 @@ const PrepareView = ({
             amountReceived: paidTokenAmount,
             tokenPaid: token1,
             tokenReceived: token0,
+            signer: signer,
           })
         } else {
           hash = await sell({
@@ -222,6 +230,7 @@ const PrepareView = ({
             amountReceived: receivedTokenAmount,
             tokenPaid: token0,
             tokenReceived: token1,
+            signer: signer,
           })
         }
         hash && setTransactionState(TransactionState.DONE)
@@ -278,9 +287,17 @@ const PrepareView = ({
             <div className='row'>
               <Column width={Width.TWELVE}>
                 <div className='tradeInfoRow'>
-                  <span>Price per {token0?.symbol}</span>
                   <span>
-                    {trade?.executionPrice.toSignificant()} {token1?.symbol}
+                    Price per{' '}
+                    {operation === Operation.Buy
+                      ? token1?.symbol
+                      : token0?.symbol}
+                  </span>
+                  <span>
+                    {trade?.executionPrice.toSignificant()}{' '}
+                    {operation === Operation.Buy
+                      ? token0?.symbol
+                      : token1?.symbol}
                   </span>
                 </div>
                 <div className='tradeInfoRow'>

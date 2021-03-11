@@ -35,8 +35,11 @@ export const selectedPairState = selector<PairByIdQueryResponse | null>({
         if (response?.pairs?.[0]) {
           const id = response.pairs[0].id
           let token0, token1
-
-          if (response.pairs[0].token0?.id == counterAsset.address) {
+          console.log(response)
+          if (
+            response.pairs[0].token0?.id.toLowerCase() ===
+            counterAsset.address.toLowerCase()
+          ) {
             token0 = response.pairs[0].token1
             token1 = response.pairs[0].token0
           } else {
