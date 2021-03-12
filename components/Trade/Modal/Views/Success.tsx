@@ -26,7 +26,7 @@ const SuccessView = ({ id, closeModal }: Props): JSX.Element => {
       ? parseFloat(
           formatUnits(
             transaction.amountReceived || '0',
-            transaction.paid?.decimals,
+            transaction.received?.decimals,
           ),
         )
       : 0,
@@ -34,34 +34,54 @@ const SuccessView = ({ id, closeModal }: Props): JSX.Element => {
 
   return (
     <Column>
-      <div>
+      <div className='row noBottomMargin'>
         <SmallTitle>TRADE SUCCESSFUL!</SmallTitle>
       </div>
       {transaction && (
-        <TradeFlower
-          received={{
-            symbol: transaction.received?.symbol ?? '',
-            amount: amountReceived,
-          }}
-          paid={{
-            symbol: transaction.paid?.symbol ?? '',
-            amount: amountPaid,
-          }}
-          tradeURL={{
-            domain: 'vnl.com',
-            transactionHash: transaction.hash,
-          }}
-        />
+        <div className='row noBottomMargin'>
+          <TradeFlower
+            received={{
+              symbol: transaction.received?.symbol ?? '',
+              amount: amountReceived,
+            }}
+            paid={{
+              symbol: transaction.paid?.symbol ?? '',
+              amount: amountPaid,
+            }}
+            tradeURL={{
+              domain: 'vnl.com',
+              transactionHash: transaction.hash,
+            }}
+          />
+        </div>
       )}
-      <Button size={ButtonSize.LARGE} onClick={() => closeModal()}>
-        Close
-      </Button>
+      <div className='row'>
+        <Button
+          size={ButtonSize.LARGE}
+          onClick={() => closeModal()}
+          width='100%;'
+        >
+          Close
+        </Button>
+      </div>
       <style jsx>{`
         div {
           display: flex;
           flex-direction: row;
           padding: 1.1rem 1.2rem;
           justify-content: space-between;
+        }
+        .noBottomMargin {
+          padding-bottom: 0;
+        }
+        .row {
+          position: relative;
+          width: 100%;
+          flex-direction: row;
+        }
+        .row button {
+          display: flex;
+          flex-grow: 1;
         }
       `}</style>
     </Column>
