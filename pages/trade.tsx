@@ -8,16 +8,12 @@ import { AvailableTokens, MyPositions } from 'components/Trade'
 import HugeMonospace from 'components/typography/HugeMonospace'
 import { Title } from 'components/typography/Titles'
 import Wrapper from 'components/Wrapper'
+import useAllTransactions from 'hooks/useAllTransactions'
 import useMetaSubscription from 'hooks/useMetaSubscription'
+import { useTokenBalance } from 'hooks/useTokenBalance'
 import useTokenSubscription from 'hooks/useTokenSubscription'
 import { getAverageBlockCountPerHour, getCurrentBlockNumber } from 'lib/block'
-import {
-  addGraphInfo,
-  addLogoColor,
-  getAllTokens,
-  getERC20TokenBalance,
-  tokenListChainId,
-} from 'lib/tokens'
+import { addGraphInfo, addLogoColor, getAllTokens } from 'lib/tokens'
 import { getVnlTokenAddress } from 'lib/vanilla'
 import type { GetStaticPropsResult } from 'next'
 import dynamic from 'next/dynamic'
@@ -53,35 +49,31 @@ const HeaderContent = (): JSX.Element => {
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const provider = useRecoilValue(providerState)
   const [vnlTokenAddress, setVnlTokenAddress] = useState('')
-  const [vnlTokenBalance, setVnlTokenBalance] = useState(0)
+  const { formatted: vnlBalance } = useTokenBalance(
+    vnlTokenAddress,
+    13,
+    wallet.account,
+  )
+
+  const { transactionsByCurrentAccount } = useAllTransactions()
 
   useEffect(() => {
     provider && getVnlTokenAddress(provider).then(setVnlTokenAddress)
   }, [provider])
 
-  useEffect(() => {
-    if (vnlTokenAddress && provider) {
-      const vnlToken = {
-        address: vnlTokenAddress,
-        symbol: 'VNL',
-        decimals: 13,
-        chainId: tokenListChainId,
-      }
-      getERC20TokenBalance(vnlTokenAddress, vnlToken, provider).then(
-        setVnlTokenBalance,
-      )
-    }
-  }, [provider, vnlTokenAddress])
-
   return (
     <>
       <TopGradient />
       <Row className='subpageHeader'>
-        {wallet.status !== 'connected' ? (
+        {wallet.status !== 'connected' ||
+        !transactionsByCurrentAccount ||
+        transactionsByCurrentAccount.length === 0 ? (
           <Column width={Width.EIGHT}>
             <Title>Start Trading</Title>
             <HugeMonospace>
-              Make trades, see your profits blossom and mine VNL.
+              Buy a token below to start #ProfitMining. When you sell the token
+              through Vanilla later and you make a profit in ETH, you mine some
+              VNL tokens.
             </HugeMonospace>
             <Button
               size={ButtonSize.LARGE}
@@ -99,7 +91,7 @@ const HeaderContent = (): JSX.Element => {
               <div className='stats-grid-item'>
                 <h2 className='title'>TOTAL BALANCE</h2>
                 <h3 className='subTitle'>$324</h3>
-                <span className='details'>{vnlTokenBalance} VNL</span>
+                <span className='details'>{vnlBalance} VNL</span>
               </div>
               <div className='stats-grid-item'>
                 <h2 className='title'>PROFITABLE POSITIONS</h2>

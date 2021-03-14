@@ -54,6 +54,7 @@ function useTransaction(id: string): TransactionDetails | null {
           const {
             amount,
             eth,
+            reward,
           }: ethers.utils.Result = routerInterface.decodeEventLog(
             purchase ? 'TokensPurchased' : 'TokensSold',
             data,
@@ -61,6 +62,7 @@ function useTransaction(id: string): TransactionDetails | null {
 
           let amountPaid = '0'
           let amountReceived = '0'
+          let vnlReceived: string | undefined
           if ((amount as BigNumber) && (eth as BigNumber)) {
             if (purchase) {
               amountPaid = eth.toString()
@@ -68,6 +70,7 @@ function useTransaction(id: string): TransactionDetails | null {
             } else {
               amountPaid = amount.toString()
               amountReceived = eth.toString()
+              vnlReceived = reward.toString()
             }
           }
 
@@ -80,6 +83,7 @@ function useTransaction(id: string): TransactionDetails | null {
             hash: id,
             blockNumber: receipt.blockNumber,
             from: receipt.from,
+            reward: vnlReceived,
           }
 
           setTransactionDetails(newDetails)

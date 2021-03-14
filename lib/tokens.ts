@@ -1,6 +1,6 @@
 import uniswapTokens from '@uniswap/default-token-list'
 import additionalTokens from 'data/tokens.json'
-import { constants, Contract, providers, Signer, utils } from 'ethers'
+import { BigNumber, constants, Contract, providers, Signer } from 'ethers'
 import { getAddress } from 'ethers/lib/utils'
 import {
   thegraphClient,
@@ -164,10 +164,10 @@ export async function addGraphInfo(
 }
 
 export async function getERC20TokenBalance(
-  address: string,
+  owner: string,
   token: UniSwapToken,
   provider: providers.JsonRpcProvider,
-): Promise<number> {
+): Promise<BigNumber> {
   const ERCBalanceQueryABI = [
     {
       name: 'balanceOf',
@@ -189,16 +189,16 @@ export async function getERC20TokenBalance(
     },
   ]
   const contract = getContract(token.address, ERCBalanceQueryABI, provider)
-  const balance = await contract.balanceOf(address)
-  return parseFloat(utils.formatUnits(balance, token.decimals))
+  const balance = await contract.balanceOf(owner)
+  return balance
 }
 
 export async function getBalance(
   address: string,
   provider: providers.JsonRpcProvider,
-): Promise<number> {
+): Promise<BigNumber> {
   const balance = await provider.getBalance(address)
-  return parseFloat(utils.formatUnits(balance, 18))
+  return balance
 }
 
 // returns the checksummed address if the address is valid, otherwise returns false

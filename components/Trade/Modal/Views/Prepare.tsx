@@ -1,10 +1,9 @@
 import {
   CurrencyAmount,
-  JSBI,
-  Token,
   TokenAmount,
   Trade,
   TradeType,
+  WETH,
 } from '@uniswap/sdk'
 import { Column, Width } from 'components/grid/Flex'
 import Button, {
@@ -20,6 +19,7 @@ import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import useTradeEngine from 'hooks/useTradeEngine'
 import useVanillaRouter from 'hooks/useVanillaRouter'
 import { constructTrade } from 'lib/uniswap/trade'
+import { estimateReward } from 'lib/vanilla'
 import debounce from 'lodash.debounce'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
@@ -74,6 +74,7 @@ const PrepareView = ({
 
   const [trade, setTrade] = useState<Trade>()
   const [estimatedGas, setEstimatedGas] = useState<string>()
+  const [estimatedReward, setEstimatedReward] = useState<string>()
   const [error, setError] = useState<string | null>(null)
   const [transactionState, setTransactionState] = useState<TransactionState>(
     TransactionState.PREPARE,
@@ -82,43 +83,46 @@ const PrepareView = ({
   const [paidTokenAmount, setPaidTokenAmount] = useState<string>('0')
   const [receivedTokenAmount, setReceivedTokenAmount] = useState<
     TokenAmount | CurrencyAmount | null
-  >(null)
+  >(new TokenAmount(WETH['1'], '0'))
 
   // Estimate gas fees
   useEffect(() => {
-    if (
-      vanillaRouter &&
-      token0 &&
-      token1 &&
-      receivedTokenAmount &&
-      paidTokenAmount !== ''
-    ) {
-      if (operation === Operation.Buy) {
-        const amountInParsed = parseUnits(paidTokenAmount, token1.decimals)
-        vanillaRouter.estimateGas
-          .depositAndBuy(
-            token0.address,
-            receivedTokenAmount.raw.toString(),
-            constants.MaxUint256,
-            { value: amountInParsed },
-          )
-          .then((value) => {
-            setEstimatedGas(formatUnits(value.toString()))
-          })
-      } else {
-        const amountInParsed = parseUnits(paidTokenAmount, token0.decimals)
-        vanillaRouter.estimateGas
-          .sellAndWithdraw(
-            token0.address,
-            amountInParsed,
-            receivedTokenAmount.raw.toString(),
-            constants.MaxUint256,
-          )
-          .then((value) => {
-            setEstimatedGas(formatUnits(value.toString()))
-          })
+    const estimateGas = debounce(() => {
+      if (
+        vanillaRouter &&
+        token0 &&
+        token1 &&
+        receivedTokenAmount &&
+        paidTokenAmount !== ''
+      ) {
+        if (operation === Operation.Buy) {
+          const amountInParsed = parseUnits(paidTokenAmount, token1.decimals)
+          vanillaRouter.estimateGas
+            .depositAndBuy(
+              token0.address,
+              receivedTokenAmount.raw.toString(),
+              constants.MaxUint256,
+              { value: amountInParsed },
+            )
+            .then((value) => {
+              setEstimatedGas(formatUnits(value.toString()))
+            })
+        } else {
+          const amountInParsed = parseUnits(paidTokenAmount, token0.decimals)
+          vanillaRouter.estimateGas
+            .sellAndWithdraw(
+              token0.address,
+              amountInParsed,
+              receivedTokenAmount.raw.toString(),
+              constants.MaxUint256,
+            )
+            .then((value) => {
+              setEstimatedGas(formatUnits(value.toString()))
+            })
+        }
       }
-    }
+    }, 200)
+    estimateGas()
   }, [
     operation,
     paidTokenAmount,
@@ -133,52 +137,45 @@ const PrepareView = ({
     // Show the user that something is happening
     setTransactionState(TransactionState.PROCESSING)
 
-    // Switch the token ordering based on operation
-    let tokenReceived, tokenPaid
-    if (operation === Operation.Buy) {
-      tokenReceived = token0
-      tokenPaid = token1
-    } else {
-      tokenReceived = token1
-      tokenPaid = token0
-    }
+    const updateTrade = debounce(() => {
+      // Switch the token ordering based on operation
+      let tokenReceived, tokenPaid
+      if (operation === Operation.Buy) {
+        tokenReceived = token0
+        tokenPaid = token1
+      } else {
+        tokenReceived = token1
+        tokenPaid = token0
+      }
 
-    // Set received token amount to 0 during calculation
-    tokenReceived &&
-      setReceivedTokenAmount(
-        new TokenAmount(
-          new Token(
-            tokenReceived.chainId,
-            tokenReceived.address,
-            tokenReceived.decimals,
-            tokenReceived.symbol,
-          ),
-          JSBI.BigInt(0),
-        ),
-      )
+      // Construct a trade with Uniswap SDK. Pricing the trade happens here.
+      if (
+        provider &&
+        paidTokenAmount &&
+        paidTokenAmount !== '0' &&
+        tokenReceived &&
+        tokenPaid
+      ) {
+        // Set received token amount to null during calculation
+        setReceivedTokenAmount(null)
 
-    // Construct a trade with Uniswap SDK. Pricing the trade happens here.
-    if (
-      provider &&
-      paidTokenAmount &&
-      paidTokenAmount !== '0' &&
-      tokenReceived &&
-      tokenPaid
-    ) {
-      constructTrade(
-        paidTokenAmount,
-        tokenReceived,
-        tokenPaid,
-        provider,
-        operation === Operation.Buy
-          ? TradeType.EXACT_OUTPUT
-          : TradeType.EXACT_INPUT,
-      )
-        .then((trade) => {
-          trade && setTrade(trade)
-        })
-        .catch((e) => setError(e.message))
-    }
+        constructTrade(
+          paidTokenAmount,
+          tokenReceived,
+          tokenPaid,
+          provider,
+          operation === Operation.Buy
+            ? TradeType.EXACT_OUTPUT
+            : TradeType.EXACT_INPUT,
+        )
+          .then((trade) => {
+            trade && setTrade(trade)
+          })
+          .catch((e) => setError(e.message))
+      }
+    }, 200)
+
+    updateTrade()
 
     // Reset trade state to preparation
     setTransactionState(TransactionState.PREPARE)
@@ -193,6 +190,35 @@ const PrepareView = ({
           : trade.minimumAmountOut && trade.minimumAmountOut(slippageTolerance),
       )
   }, [operation, slippageTolerance, trade])
+
+  // Estimate VNL rewards
+  useEffect(() => {
+    const estimateRewards = debounce(() => {
+      if (
+        operation === Operation.Sell &&
+        signer &&
+        token0 &&
+        token1 &&
+        receivedTokenAmount
+      ) {
+        estimateReward(
+          signer,
+          token0,
+          token1,
+          paidTokenAmount,
+          receivedTokenAmount.toSignificant(),
+        ).then((reward) => {
+          const formattedReward = reward
+            ? formatUnits(reward?.reward, 13)
+            : undefined
+          setEstimatedReward(formattedReward)
+        })
+      } else {
+        setEstimatedReward(undefined)
+      }
+    }, 500)
+    estimateRewards()
+  }, [operation, paidTokenAmount, receivedTokenAmount, signer, token0, token1])
 
   // Disable closing of the trade modal when a trade is being processed
   useEffect(() => {
@@ -308,6 +334,12 @@ const PrepareView = ({
                   <span>Slippage tolerance</span>
                   <span>{slippageTolerance.toSignificant()} %</span>
                 </div>
+                {estimatedReward && (
+                  <div className='tradeInfoRow'>
+                    <span>Unclaimed rewards</span>
+                    <span>{estimatedReward} VNL</span>
+                  </div>
+                )}
               </Column>
             </div>
           )}

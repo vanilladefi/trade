@@ -32,6 +32,8 @@ const SuccessView = ({ id, closeModal }: Props): JSX.Element => {
       : 0,
   ]
 
+  const reward = formatUnits(transaction?.reward?.toString() || '0', 13)
+
   return (
     <Column>
       <div className='row noBottomMargin'>
@@ -47,6 +49,10 @@ const SuccessView = ({ id, closeModal }: Props): JSX.Element => {
             paid={{
               symbol: transaction.paid?.symbol ?? '',
               amount: amountPaid,
+            }}
+            reward={{
+              symbol: 'VNL',
+              amount: reward ? parseFloat(reward) : 0.0,
             }}
             tradeURL={{
               domain: 'vnl.com',

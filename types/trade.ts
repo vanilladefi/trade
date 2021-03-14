@@ -81,6 +81,7 @@ export interface TransactionDetails {
   amountPaid?: string
   amountReceived?: string
   addedTime?: number
+  reward?: string
 }
 
 export type HandleBuyClick = (pairInfo: PairInfo) => void
