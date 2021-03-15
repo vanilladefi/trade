@@ -82,8 +82,11 @@ const theList = [
 const ShillKitList = (): JSX.Element => {
   return (
     <div className='galleryContainer'>
-      {theList.map((shill) => (
-        <div style={{ width: '100%', maxWidth: '400px', padding: '0 0 .5rem' }}>
+      {theList.map((shill, index) => (
+        <div
+          key={index}
+          style={{ width: '100%', maxWidth: '400px', padding: '0 0 .5rem' }}
+        >
           <a
             href={shill.giphy ? shill.giphy : shill.url}
             target='_blank'

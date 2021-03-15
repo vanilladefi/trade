@@ -135,9 +135,7 @@ const Flower = ({
                     height: minHeight,
                     maxWidth: maxWidth,
                     maxHeight: maxHeight,
-                    background: background
-                      ? background
-                      : 'var(--tradeflowergradient)',
+                    background: background ? background : 'none',
                     borderRadius: '16px',
                     backgroundSize: '100%',
                     backgroundRepeat: 'no-repeat',
@@ -153,7 +151,6 @@ const Flower = ({
                         : 1
                     }
                     camera={{ fov: 75, position: [0, 0, 19] }}
-                    onMouseMove={onMouseMove}
                     resize={{ scroll: false }}
                     gl={{ preserveDrawingBuffer: true }}
                   >

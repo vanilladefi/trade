@@ -124,6 +124,7 @@ const Button = ({
         }
         button.gradient {
           background: var(--buttongradient);
+          color: var(--dark);
         }
         button.dark {
           background: var(--dark);

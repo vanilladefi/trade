@@ -24,17 +24,15 @@ const FlowerPage = (): JSX.Element => {
   return (
     <Layout title='VNL Flower playground' hideFromSearch>
       <Wrapper>
-        <div style={{ margin: '2rem auto' }}>
+        <div style={{ margin: '2rem auto', background: '#000' }}>
           <Flower
             stems={stems}
             iterations={iterations}
-            color={['#000000']}
+            color={['#ffffff']}
             minWidth='80vw'
             minHeight='80vw'
-            maxWidth='600px'
-            maxHeight='600px'
             seed={seed}
-            particleCount={particleCount}
+            particleCount={0}
             topLeft={`Seed ${seed}`}
             topRight={`Iterations ${iterations}`}
             bottomLeft={`Stems ${stems}`}
