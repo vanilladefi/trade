@@ -100,7 +100,7 @@ const TokenInput = ({
                 </span>
                 <div className='tokenIndicator'>
                   {token1?.logoURI && <Icon src={token1.logoURI}></Icon>}
-                  <h2>{token1?.symbol}</h2>
+                  <h2>{useWethProxy ? 'ETH' : token1?.symbol}</h2>
                 </div>
               </div>
             </Column>
