@@ -103,6 +103,23 @@ const SoMeLinks = (): JSX.Element => (
         GitHub
       </a>
     </li>
+    <li>
+      <a
+        href='https://medium.com/vanilladefi'
+        target='_blank'
+        rel='noopener noreferrer'
+      >
+        <div>
+          <Image
+            src='/images/medium.svg'
+            layout='fixed'
+            width='30px'
+            height='30px'
+          />
+        </div>
+        Medium
+      </a>
+    </li>
     <style jsx>{`
       ul,
       li {

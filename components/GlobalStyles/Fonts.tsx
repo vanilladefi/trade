@@ -8,24 +8,28 @@ const Fonts = (): JSX.Element => (
         format('truetype');
       font-weight: 700;
       font-style: normal;
+      font-display: swap;
     }
     @font-face {
       font-family: 'Fira Code';
       src: url('fonts/Fira_Code/static/FiraCode-Regular.ttf') format('truetype');
       font-weight: 400;
       font-style: monospace;
+      font-display: swap;
     }
     @font-face {
       font-family: 'Inter';
       src: url('fonts/Inter/static/Inter-Regular-slnt=0.ttf') format('truetype');
       font-weight: 400;
       font-style: normal;
+      font-display: swap;
     }
     @font-face {
       font-family: 'Inter';
       src: url('fonts/Inter/static/Inter-Medium-slnt=0.ttf') format('truetype');
       font-weight: 500;
       font-style: normal;
+      font-display: swap;
     }
     @font-face {
       font-family: 'Inter';
@@ -33,6 +37,7 @@ const Fonts = (): JSX.Element => (
         format('truetype');
       font-weight: 600;
       font-style: normal;
+      font-display: swap;
     }
   `}</style>
 )

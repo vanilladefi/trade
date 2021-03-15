@@ -9,7 +9,7 @@ const Variables = (): JSX.Element => (
       --dark: #2c1929;
       --yellow: #fbf3db;
       --beige: #f3f1ea;
-      --inactivelink: #857482;
+      --inactivelink: #62555f;
       --activelink: var(--dark);
       --curtain-background: rgba(44, 21, 45, 0.83);
       --curtain-backdropfilter: blur(40px);
