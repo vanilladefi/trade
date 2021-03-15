@@ -59,6 +59,7 @@ const Modal = ({
           z-index: 999;
 
           transition: 0.2s ease backdrop-filter, 0.2s ease background;
+          overflow: auto;
         }
         .modal {
           width: 30rem;

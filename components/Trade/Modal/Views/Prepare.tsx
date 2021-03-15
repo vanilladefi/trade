@@ -395,7 +395,7 @@ const PrepareView = ({
                 <Icon src={IconUrls.ALERT} />
               </div>
             </Column>
-            <Column width={Width.TEN}>
+            <Column width={Width.TEN} shrink={true}>
               Something went wrong. Reason:{' '}
               <span className='code'>{error}</span> You can try again.{' '}
               <a onClick={() => setError(null)}>Dismiss notification</a>
@@ -471,7 +471,9 @@ const PrepareView = ({
           .error span,
           .error a,
           .error .code {
-            display: inline-block;
+            display: inline-flex;
+            flex-shrink: 1;
+            word-break: break-all;
           }
           .code {
             font-family: var(--monofont);
