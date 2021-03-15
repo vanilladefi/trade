@@ -53,48 +53,72 @@ const LawLinks = (): JSX.Element => (
 const SoMeLinks = (): JSX.Element => (
   <ul>
     <li>
-      <div>
-        <Image
-          src='/images/telegram.svg'
-          layout='fixed'
-          width='30px'
-          height='30px'
-        />
-      </div>
-      Telegram
+      <a
+        href='https://t.me/vanilladefi'
+        target='_blank'
+        rel='noopener noreferrer'
+      >
+        <div>
+          <Image
+            src='/images/telegram.svg'
+            layout='fixed'
+            width='30px'
+            height='30px'
+          />
+        </div>
+        Telegram
+      </a>
     </li>
     <li>
-      <div>
-        <Image
-          src='/images/twitter.svg'
-          layout='fixed'
-          width='30px'
-          height='30px'
-        />
-      </div>
-      Twitter
+      <a
+        href='https://www.twitter.com/vanilladefi'
+        target='_blank'
+        rel='noopener noreferrer'
+      >
+        <div>
+          <Image
+            src='/images/twitter.svg'
+            layout='fixed'
+            width='30px'
+            height='30px'
+          />
+        </div>
+        Twitter
+      </a>
     </li>
     <li>
-      <div>
-        <Image
-          src='/images/github.svg'
-          layout='fixed'
-          width='30px'
-          height='30px'
-        />
-      </div>
-      GitHub
+      <a
+        href='https://www.github.com/vanilladefi'
+        target='_blank'
+        rel='noopener noreferrer'
+      >
+        <div>
+          <Image
+            src='/images/github.svg'
+            layout='fixed'
+            width='30px'
+            height='30px'
+          />
+        </div>
+        GitHub
+      </a>
     </li>
     <li>
-      <div>
-        <Image
-          src='/images/discord.svg'
-          layout='fixed'
-          width='30px'
-          height='30px'
-        />
-      </div>
-      Discord
+      <a
+        href='https://medium.com/vanilladefi'
+        target='_blank'
+        rel='noopener noreferrer'
+      >
+        <div>
+          <Image
+            src='/images/medium.svg'
+            layout='fixed'
+            width='30px'
+            height='30px'
+          />
+        </div>
+        Medium
+      </a>
     </li>
     <style jsx>{`
       ul,
@@ -104,15 +128,17 @@ const SoMeLinks = (): JSX.Element => (
         text-indent: 0;
         padding: 0;
       }
-      li {
+      li a {
         font-family: var(--bodyfont);
         font-size: var(--minisize);
         display: flex;
         justify-content: flex-start;
         align-items: center;
         margin-bottom: 18px;
+        color: var(--white);
+        text-decoration: none;
       }
-      li > div {
+      li a > div {
         margin-right: 18px;
       }
     `}</style>
@@ -156,8 +182,7 @@ const Footer = (): JSX.Element => (
         color: var(--white);
         width: 100%;
         font-size: var(--minisize);
-        padding: 2.3rem 2.3rem 8rem;
-        background-image: url('/images/footer_flower.svg');
+        padding: 2.3rem 1rem 4rem;
         background-repeat: no-repeat;
         background-blend-mode: screen;
         background-position: bottom center;
@@ -199,6 +224,9 @@ const Footer = (): JSX.Element => (
       @media (min-width: ${BreakPoint.mobileNav}px) {
         div.desktopNav {
           display: block;
+        }
+        footer {
+          padding: 2.3rem 2.8rem 4rem;
         }
       }
       @media (max-width: ${BreakPoint.xs}px) {

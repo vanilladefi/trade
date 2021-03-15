@@ -3,7 +3,7 @@ import { BreakPoint } from '../components/GlobalStyles/Breakpoints'
 const theList = [
   {
     description: '#ProfitMining, good',
-    url: 'https://media.giphy.com/media/er1fPc8peBhDKejQXn/giphy.gif',
+    url: 'https://media.giphy.com/media/er1fPc8peBhDKejQXn/giphy.mp4',
     giphy: 'https://giphy.com/gifs/er1fPc8peBhDKejQXn',
     type: 'animated',
   },
@@ -24,13 +24,13 @@ const theList = [
   },
   {
     description: 'Lit',
-    url: 'https://media.giphy.com/media/iq4ez2LCX0WOatNGCi/giphy.gif',
+    url: 'https://media.giphy.com/media/iq4ez2LCX0WOatNGCi/giphy.mp4',
     giphy: 'https://giphy.com/gifs/iq4ez2LCX0WOatNGCi',
     type: 'animated',
   },
   {
     description: 'Splash',
-    url: 'https://media.giphy.com/media/NFJhh0gdvNCmnkFvIB/giphy.gif',
+    url: 'https://media.giphy.com/media/NFJhh0gdvNCmnkFvIB/giphy.mp4',
     giphy: 'https://giphy.com/gifs/NFJhh0gdvNCmnkFvIB',
     type: 'animated',
   },
@@ -51,13 +51,13 @@ const theList = [
   },
   {
     description: 'Those profitmining feels',
-    url: 'https://media.giphy.com/media/8ZvWqa2oNFNa6U9uN8/giphy.gif',
+    url: 'https://media.giphy.com/media/8ZvWqa2oNFNa6U9uN8/giphy.mp4',
     giphy: 'https://giphy.com/gifs/8ZvWqa2oNFNa6U9uN8',
     type: 'animated',
   },
   {
     description: 'Yes, Thumbs up for ProfitMining',
-    url: 'https://media.giphy.com/media/FgYB3uyw3noA4UGmHS/giphy.gif',
+    url: 'https://media.giphy.com/media/FgYB3uyw3noA4UGmHS/giphy.mp4',
     giphy: 'https://giphy.com/gifs/FgYB3uyw3noA4UGmHS',
     type: 'animated',
   },
@@ -68,7 +68,7 @@ const theList = [
   },
   {
     description: 'Working hard',
-    url: 'https://media.giphy.com/media/gkrVw2AffIyRSrpBeF/giphy.gif',
+    url: 'https://media.giphy.com/media/gkrVw2AffIyRSrpBeF/giphy.mp4',
     giphy: 'https://giphy.com/gifs/gkrVw2AffIyRSrpBeF',
     type: 'animated',
   },
@@ -82,38 +82,54 @@ const theList = [
 const ShillKitList = (): JSX.Element => {
   return (
     <div className='galleryContainer'>
-      {theList.map((shill) => (
-        <div style={{ width: '100%', maxWidth: '400px', padding: '0 0 .5rem' }}>
+      {theList.map((shill, index) => (
+        <div
+          key={index}
+          style={{ width: '100%', maxWidth: '400px', padding: '0 0 .5rem' }}
+        >
           <a
             href={shill.giphy ? shill.giphy : shill.url}
             target='_blank'
             rel='noopener noreferrer'
           >
-            <img
-              style={{ width: '100%' }}
-              src={shill.url}
-              alt={shill.description}
-            />
+            {shill.giphy ? (
+              <video
+                style={{ margin: 'auto', display: 'block', maxWidth: '100%' }}
+                autoPlay={true}
+                loop
+                muted
+                playsInline
+              >
+                <source src={shill.url} type='video/mp4' />
+              </video>
+            ) : (
+              <img
+                style={{ width: '100%' }}
+                src={shill.url}
+                alt={shill.description}
+                loading='lazy'
+              />
+            )}
           </a>
         </div>
       ))}
       <style jsx>{`
-        .galleryContainer
-        column-gap: 1.5em;
-        column-count: 1;
+        .galleryContainer {
+          column-gap: 1.5em;
+          column-count: 1;
+          grid-auto-columns: 1fr;
         }
         @media (min-width: ${BreakPoint.sm}px) {
-          .galleryContainer{
+          .galleryContainer {
             column-count: 2;
           }
         }
 
         @media (min-width: ${BreakPoint.md}px) {
-          .galleryContainer{
+          .galleryContainer {
             column-count: 3;
           }
         }
-
       `}</style>
     </div>
   )
