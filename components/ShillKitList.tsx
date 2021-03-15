@@ -117,6 +117,7 @@ const ShillKitList = (): JSX.Element => {
         .galleryContainer
         column-gap: 1.5em;
         column-count: 1;
+        grid-auto-columns: 1fr
         }
         @media (min-width: ${BreakPoint.sm}px) {
           .galleryContainer{
