@@ -32,6 +32,10 @@ export function useTokenBalance(
 
   useEffect(() => {
     getBalance(owner)
+    return () => {
+      setRaw(BigNumber.from('0'))
+      setFormatted('')
+    }
   }, [contract, decimals, getBalance, owner, provider])
 
   return { raw, formatted }
