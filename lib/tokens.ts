@@ -106,8 +106,8 @@ export function addData(
       (d) => t.address.toLowerCase() === d?.token.id.toLowerCase(),
     )
 
-    // Don't update data if pair not found or pairId is null
-    if (!d || d.pairId === null) return t
+    // Don't update data if pair not found
+    if (!d) return t
 
     const price = !historical ? parseFloat(d.price) : t.price ?? 0
     const liquidity = !historical ? parseFloat(d.reserveUSD) : t.liquidity

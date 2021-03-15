@@ -2,7 +2,7 @@ import { gql } from 'graphql-request'
 
 const TokenCommonFragment = gql`
   fragment TokenCommonFragment on Pair {
-    pairdId: id
+    pairId: id
     reserveUSD
   }
 `

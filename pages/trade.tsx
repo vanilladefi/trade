@@ -205,8 +205,6 @@ const BodyContent = ({ allTokens, setModalOpen }: BodyProps): JSX.Element => {
         setWalletModalOpen(true)
       } else {
         setWalletModalOpen(false)
-        // TODO: pairInfo/pairId is null sometimes
-        // console.log(pairInfo)
         setSelectedPairId(pairInfo?.pairId ?? null)
         setModalOpen(true)
       }
