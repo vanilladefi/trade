@@ -14,7 +14,6 @@ type Props = {
   operation: Operation
   onAmountChange: (value: string) => void | undefined
   receivedTokenAmount: TokenAmount | CurrencyAmount | null
-  loading: boolean
   useWethProxy?: boolean
 }
 
@@ -70,7 +69,7 @@ const TokenInput = ({
           </div>
 
           <div className='row'>
-            <Column width={Width.EIGHT}>
+            <Column width={Width.SEVEN} shrink={false}>
               <div className='numberInput'>
                 <span>{operation === Operation.Sell ? 'Get' : 'Pay'}</span>
                 {receivedTokenAmount !== null ? (
@@ -89,11 +88,15 @@ const TokenInput = ({
                 )}
               </div>
             </Column>
-            <Column width={Width.FOUR}>
+            <Column width={Width.FIVE} grow={true}>
               <div className='tokenSelector'>
                 <span>
                   Balance:{' '}
-                  {balance1 && token1 && formatUnits(balance1, token1.decimals)}
+                  {useWethProxy
+                    ? formatUnits(wallet.balance, 18)
+                    : balance1 &&
+                      token1 &&
+                      formatUnits(balance1, token1.decimals)}
                 </span>
                 <div className='tokenIndicator'>
                   {token1?.logoURI && <Icon src={token1.logoURI}></Icon>}
@@ -159,6 +162,11 @@ const TokenInput = ({
             width: 100%;
             position: relative;
             margin-top: 1rem;
+          }
+          .tokenSelector {
+            position: relative;
+            max-width: 100%;
+            overflow: hidden;
           }
           .tokenSelector h2 {
             margin: 0;

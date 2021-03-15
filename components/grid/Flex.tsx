@@ -38,6 +38,7 @@ type Props = {
   style?: CSSProperties
   gap?: string
   grow?: boolean
+  shrink?: boolean
   justifyContent?: Justification
   alignItems?: Alignment
 }
@@ -54,7 +55,8 @@ export const Column = ({
   width,
   className,
   style,
-  grow,
+  grow = false,
+  shrink = true,
   alignItems = Alignment.START,
   justifyContent = Justification.START,
 }: Props): JSX.Element => (
@@ -69,6 +71,7 @@ export const Column = ({
         flex-direction: column;
         ${width ? `flex-basis: ${((width + 1) / 12) * 100}%;` : ''}
         ${grow ? 'flex-grow: 1;' : 'flex-grow: 0;'}
+        ${shrink ? 'flex-shrink: 1;' : 'flex-shrink: 0;'}
         align-items: ${alignItems};
         justify-content: ${justifyContent};
       }
