@@ -13,14 +13,14 @@ import { Operation } from './Modal'
 type Props = {
   operation: Operation
   onAmountChange: (value: string) => void | undefined
-  receivedTokenAmount: TokenAmount | CurrencyAmount | null
+  token1Amount: TokenAmount | CurrencyAmount | null
   useWethProxy?: boolean
 }
 
 const TokenInput = ({
   operation,
   onAmountChange,
-  receivedTokenAmount,
+  token1Amount,
   useWethProxy = true,
 }: Props): JSX.Element => {
   const wallet = useWallet()
@@ -78,14 +78,12 @@ const TokenInput = ({
             <Column width={Width.SEVEN} shrink={false} grow={true}>
               <div className='numberInput'>
                 <span>{operation === Operation.Sell ? 'Get' : 'Pay'}</span>
-                {receivedTokenAmount !== null ? (
+                {token1Amount !== null ? (
                   <input
                     type='number'
                     placeholder={'0.0'}
                     disabled
-                    value={
-                      receivedTokenAmount && receivedTokenAmount.toSignificant()
-                    }
+                    value={token1Amount && token1Amount.toSignificant()}
                   />
                 ) : (
                   <div className='spinner'>
