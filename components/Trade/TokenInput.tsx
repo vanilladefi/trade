@@ -39,12 +39,18 @@ const TokenInput = ({
     wallet.account,
   )
 
+  const ethBalance = useWethProxy
+    ? parseFloat(formatUnits(wallet.balance, 18)).toFixed(6)
+    : balance1 &&
+      token1 &&
+      parseFloat(formatUnits(balance1, token1.decimals)).toFixed(6)
+
   return (
     <React.Suspense fallback={() => <div></div>}>
       <>
         <div className='tokenInputWrapper'>
           <div className='row'>
-            <Column width={Width.EIGHT}>
+            <Column width={Width.EIGHT} shrink={false} grow={true}>
               <div className='numberInput'>
                 <span>Amount to {operation}</span>
                 <input
@@ -54,7 +60,7 @@ const TokenInput = ({
                 />
               </div>
             </Column>
-            <Column width={Width.FOUR}>
+            <Column width={Width.FOUR} shrink={true} grow={false}>
               <div className='tokenSelector'>
                 <span>
                   Balance:{' '}
@@ -69,7 +75,7 @@ const TokenInput = ({
           </div>
 
           <div className='row'>
-            <Column width={Width.SEVEN} shrink={false}>
+            <Column width={Width.SEVEN} shrink={false} grow={true}>
               <div className='numberInput'>
                 <span>{operation === Operation.Sell ? 'Get' : 'Pay'}</span>
                 {receivedTokenAmount !== null ? (
@@ -88,16 +94,9 @@ const TokenInput = ({
                 )}
               </div>
             </Column>
-            <Column width={Width.FIVE} grow={true}>
+            <Column width={Width.FIVE} shrink={true} grow={false}>
               <div className='tokenSelector'>
-                <span>
-                  Balance:{' '}
-                  {useWethProxy
-                    ? formatUnits(wallet.balance, 18)
-                    : balance1 &&
-                      token1 &&
-                      formatUnits(balance1, token1.decimals)}
-                </span>
+                <span>Balance: {ethBalance}</span>
                 <div className='tokenIndicator'>
                   {token1?.logoURI && <Icon src={token1.logoURI}></Icon>}
                   <h2>{useWethProxy ? 'ETH' : token1?.symbol}</h2>

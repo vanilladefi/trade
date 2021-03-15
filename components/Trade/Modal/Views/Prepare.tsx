@@ -209,7 +209,7 @@ const PrepareView = ({
           receivedTokenAmount.toSignificant(),
         ).then((reward) => {
           const formattedReward = reward
-            ? formatUnits(reward?.reward, 13)
+            ? formatUnits(reward?.reward, 12)
             : undefined
           setEstimatedReward(formattedReward)
         })

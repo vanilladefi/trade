@@ -1,4 +1,6 @@
 import { utils as ethersUtils } from 'ethers'
+import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
+import useWalletAddress from 'hooks/useWalletAddress'
 import { useMemo } from 'react'
 import { useRecoilState } from 'recoil'
 import { walletModalOpenState } from 'state/wallet'
@@ -14,7 +16,6 @@ import Button, {
   Rounding,
 } from './input/Button'
 import Spacer from './typography/Spacer'
-import WalletAddress from './typography/WalletAddress'
 import WalletIcon from './typography/WalletIcon'
 import WalletConnectButton from './WalletConnectButton'
 
@@ -24,10 +25,11 @@ interface SmallWalletInfoProps {
 
 const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
   const wallet = useWallet()
-  const { account, status, balance } = wallet
+  const { status, balance } = wallet
   const [walletModalOpen, setWalletModalOpen] = useRecoilState(
     walletModalOpenState,
   )
+  const { balance: vnlBalance } = useVanillaGovernanceToken()
 
   const walletBalance = useMemo(() => {
     return Number.parseFloat(ethersUtils.formatUnits(balance, 'ether')).toFixed(
@@ -35,13 +37,7 @@ const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
     )
   }, [balance])
 
-  const walletAddress = useMemo(() => {
-    const long = account || ''
-    const short = account
-      ? `${account.substring(0, 6)}...${account.substring(account.length - 4)}`
-      : ''
-    return { long, short }
-  }, [account])
+  const walletAddress = useWalletAddress()
 
   if (status !== 'connected') return <WalletConnectButton />
 
@@ -58,7 +54,7 @@ const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
         noRightBorder
         grow={grow}
       >
-        {walletBalance} ETH
+        {vnlBalance} VNL
       </Button>
       <Button
         onClick={() => {
@@ -77,7 +73,7 @@ const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
           alignItems={Alignment.CENTER}
           justifyContent={Justification.SPACE_AROUND}
         >
-          <WalletAddress wallet={wallet} />
+          {walletBalance} ETH
           <Spacer />
           <WalletIcon walletType={wallet.connector} />
         </Row>

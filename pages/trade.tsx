@@ -10,11 +10,10 @@ import { Title } from 'components/typography/Titles'
 import Wrapper from 'components/Wrapper'
 import useAllTransactions from 'hooks/useAllTransactions'
 import useMetaSubscription from 'hooks/useMetaSubscription'
-import { useTokenBalance } from 'hooks/useTokenBalance'
 import useTokenSubscription from 'hooks/useTokenSubscription'
+import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import { getAverageBlockCountPerHour, getCurrentBlockNumber } from 'lib/block'
 import { addGraphInfo, addLogoColor, getAllTokens } from 'lib/tokens'
-import { getVnlTokenAddress } from 'lib/vanilla'
 import type { GetStaticPropsResult } from 'next'
 import dynamic from 'next/dynamic'
 import React, {
@@ -24,10 +23,10 @@ import React, {
   useEffect,
   useState,
 } from 'react'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
+import { useSetRecoilState } from 'recoil'
 import { allTokensStoreState } from 'state/tokens'
 import { selectedPairIdState } from 'state/trade'
-import { providerState, walletModalOpenState } from 'state/wallet'
+import { walletModalOpenState } from 'state/wallet'
 import type { HandleBuyClick, HandleSellClick, Token } from 'types/trade'
 import { useWallet } from 'use-wallet'
 
@@ -47,19 +46,9 @@ const TradeModal = dynamic(() => import('components/Trade/Modal'), {
 const HeaderContent = (): JSX.Element => {
   const wallet = useWallet()
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
-  const provider = useRecoilValue(providerState)
-  const [vnlTokenAddress, setVnlTokenAddress] = useState('')
-  const { formatted: vnlBalance } = useTokenBalance(
-    vnlTokenAddress,
-    13,
-    wallet.account,
-  )
+  const { balance: vnlBalance, userMintedTotal } = useVanillaGovernanceToken()
 
   const { transactionsByCurrentAccount } = useAllTransactions()
-
-  useEffect(() => {
-    provider && getVnlTokenAddress(provider).then(setVnlTokenAddress)
-  }, [provider])
 
   return (
     <>
@@ -94,8 +83,8 @@ const HeaderContent = (): JSX.Element => {
                 <span className='details'>{vnlBalance} VNL</span>
               </div>
               <div className='stats-grid-item'>
-                <h2 className='title'>PROFITABLE POSITIONS</h2>
-                <h3 className='subTitle'>24/34</h3>
+                <h2 className='title'>VNL MINED</h2>
+                <h3 className='subTitle'>{userMintedTotal} VNL</h3>
               </div>
               <div className='stats-grid-item'>
                 <h2 className='title'>UNREALIZED PROFIT</h2>
@@ -118,6 +107,7 @@ const HeaderContent = (): JSX.Element => {
           gap: 70px;
           grid: auto / 1fr 1fr 1fr;
           margin-bottom: 2rem;
+          margin-top: 2rem;
         }
         .stats-grid .title,
         .stats-grid .subTitle,

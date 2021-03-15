@@ -32,7 +32,7 @@ const SuccessView = ({ id, closeModal }: Props): JSX.Element => {
       : 0,
   ]
 
-  const reward = formatUnits(transaction?.reward?.toString() || '0', 13)
+  const reward = formatUnits(transaction?.reward?.toString() || '0', 12)
 
   return (
     <Column>

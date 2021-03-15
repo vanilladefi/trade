@@ -1,5 +1,6 @@
+import { Token, TokenAmount } from '@uniswap/sdk'
 import { BigNumber } from 'ethers'
-import { formatUnits } from 'ethers/lib/utils'
+import { tokenListChainId } from 'lib/tokens'
 import { useCallback, useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
@@ -18,16 +19,16 @@ export function useTokenBalance(
 
   const getBalance = useCallback(
     async (owner: string | null | undefined) => {
-      const raw = contract
-        ? owner
-          ? await contract.balanceOf(owner)
-          : '0'
-        : (owner && (await provider?.getBalance(owner))) || '0'
-      const formatted = formatUnits(raw.toString(), decimals || 18)
-      setRaw(raw)
-      setFormatted(formatted)
+      if (tokenAddress && decimals) {
+        const parsedDecimals = parseInt(decimals.toString())
+        const token = new Token(tokenListChainId, tokenAddress, parsedDecimals)
+        const raw = contract && owner ? await contract.balanceOf(owner) : '0'
+        const formatted = new TokenAmount(token, raw.toString())
+        setRaw(raw)
+        setFormatted(formatted.toSignificant())
+      }
     },
-    [contract, decimals, provider],
+    [contract, decimals, tokenAddress],
   )
 
   useEffect(() => {
