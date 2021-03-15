@@ -9,7 +9,7 @@ import {
 } from 'lib/graphql'
 import { ipfsToHttp } from 'lib/ipfs'
 import Vibrant from 'node-vibrant'
-import type { Token, TokenInfoQueryResponse, UniSwapToken } from 'types/trade'
+import type { Token, TokenInfoQueryResponse } from 'types/trade'
 import { chainId } from 'utils/config'
 
 export { chainId }
@@ -106,7 +106,8 @@ export function addData(
       (d) => t.address.toLowerCase() === d?.token.id.toLowerCase(),
     )
 
-    if (!d) return t
+    // Don't update data if pair not found or pairId is null
+    if (!d || d.pairId === null) return t
 
     const price = !historical ? parseFloat(d.price) : t.price ?? 0
     const liquidity = !historical ? parseFloat(d.reserveUSD) : t.liquidity
@@ -161,36 +162,6 @@ export async function addGraphInfo(
     console.error(e)
     return tokens
   }
-}
-
-export async function getERC20TokenBalance(
-  owner: string,
-  token: UniSwapToken,
-  provider: providers.JsonRpcProvider,
-): Promise<BigNumber> {
-  const ERCBalanceQueryABI = [
-    {
-      name: 'balanceOf',
-      type: 'function',
-      inputs: [
-        {
-          name: '_owner',
-          type: 'address',
-        },
-      ],
-      outputs: [
-        {
-          name: 'balance',
-          type: 'uint256',
-        },
-      ],
-      constant: true,
-      payable: false,
-    },
-  ]
-  const contract = getContract(token.address, ERCBalanceQueryABI, provider)
-  const balance = await contract.balanceOf(owner)
-  return balance
 }
 
 export async function getBalance(
