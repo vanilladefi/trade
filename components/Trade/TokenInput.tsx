@@ -50,7 +50,7 @@ const TokenInput = ({
       <>
         <div className='tokenInputWrapper'>
           <div className='row'>
-            <Column width={Width.EIGHT} shrink={false} grow={true}>
+            <Column width={Width.SEVEN} shrink={false} grow={true}>
               <div className='numberInput'>
                 <span>Amount to {operation}</span>
                 <input
@@ -60,7 +60,7 @@ const TokenInput = ({
                 />
               </div>
             </Column>
-            <Column width={Width.FOUR} shrink={true} grow={false}>
+            <Column width={Width.FIVE} shrink={true} grow={false}>
               <div className='tokenSelector'>
                 <span>
                   Balance:{' '}
