@@ -111,7 +111,9 @@ const PrepareView = ({
         token0 &&
         token1 &&
         token1Amount &&
-        token0Amount
+        token0Amount &&
+        !amount0Parsed().isZero() &&
+        !amount1Parsed().isZero()
       ) {
         if (operation === Operation.Buy) {
           vanillaRouter.estimateGas
@@ -128,6 +130,9 @@ const PrepareView = ({
                 setEstimatedGas(formatUnits(value.mul(price)))
               })
             })
+            .catch(() => {
+              return
+            })
         } else {
           vanillaRouter.estimateGas
             .sellAndWithdraw(
@@ -140,6 +145,9 @@ const PrepareView = ({
               provider.getGasPrice().then((price) => {
                 setEstimatedGas(formatUnits(value.mul(price)))
               })
+            })
+            .catch(() => {
+              return
             })
         }
       }
@@ -186,30 +194,37 @@ const PrepareView = ({
     tokenChanged: 0 | 1,
     amount: string,
   ): Promise<Trade | null> => {
-    const receivedToken = tokenReceived()
-    const paidToken = tokenPaid()
-    const tradeType =
-      tokenChanged === 0
-        ? operation === Operation.Buy
-          ? TradeType.EXACT_OUTPUT
-          : TradeType.EXACT_INPUT
-        : operation === Operation.Buy
-        ? TradeType.EXACT_INPUT
-        : TradeType.EXACT_OUTPUT
-    if (provider && receivedToken && paidToken) {
-      try {
-        const trade = await constructTrade(
-          amount,
-          receivedToken,
-          paidToken,
-          provider,
-          tradeType,
-        )
-        setTrade(trade)
-        return trade
-      } catch (e) {
-        console.log(e)
-        setError(e.message)
+    if (token0 && token1) {
+      const receivedToken = tokenReceived()
+      const paidToken = tokenPaid()
+      const tradeType =
+        tokenChanged === 0
+          ? operation === Operation.Buy
+            ? TradeType.EXACT_OUTPUT
+            : TradeType.EXACT_INPUT
+          : operation === Operation.Buy
+          ? TradeType.EXACT_INPUT
+          : TradeType.EXACT_OUTPUT
+
+      const parsedAmount = parseUnits(
+        amount,
+        tokenChanged === 0 ? token0.decimals : token1.decimals,
+      )
+
+      if (provider && receivedToken && paidToken && !parsedAmount.isZero()) {
+        try {
+          const trade = await constructTrade(
+            amount,
+            receivedToken,
+            paidToken,
+            provider,
+            tradeType,
+          )
+          setTrade(trade)
+          return trade
+        } catch (e) {
+          setError(e.message)
+        }
       }
     }
     return null

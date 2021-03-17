@@ -36,12 +36,12 @@ const TokenInput = ({
   const [amount1, setAmount1] = useState<string | null | undefined>()
   const [focused, setFocused] = useState<0 | 1 | undefined>()
 
-  const { raw: balance0 } = useTokenBalance(
+  const { formatted: balance0 } = useTokenBalance(
     token0?.address,
     token0?.decimals,
     wallet.account,
   )
-  const { raw: balance1 } = useTokenBalance(
+  const { formatted: balance1 } = useTokenBalance(
     token1?.address,
     token1?.decimals,
     wallet.account,
@@ -99,7 +99,7 @@ const TokenInput = ({
                   <input
                     type='number'
                     placeholder={'0.0'}
-                    value={amount0}
+                    value={amount0 || ''}
                     onFocus={() => setFocusAtIndex(0, true)}
                     onBlur={() => setFocusAtIndex(0, false)}
                     onChange={(e) => {
@@ -118,10 +118,7 @@ const TokenInput = ({
             </Column>
             <Column width={Width.FIVE} shrink={true} grow={false}>
               <div className='tokenSelector'>
-                <span>
-                  Balance:{' '}
-                  {balance0 && token0 && formatUnits(balance0, token0.decimals)}
-                </span>
+                <span>Balance: {balance0}</span>
                 <div className='tokenIndicator'>
                   {token0?.logoURI && <Icon src={token0.logoURI}></Icon>}
                   <h2>{token0?.symbol}</h2>
@@ -138,7 +135,7 @@ const TokenInput = ({
                   <input
                     type='number'
                     placeholder={'0.0'}
-                    value={amount1}
+                    value={amount1 || ''}
                     onFocus={() => setFocusAtIndex(1, true)}
                     onBlur={() => setFocusAtIndex(1, false)}
                     onChange={(e) => {

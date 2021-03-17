@@ -1,7 +1,7 @@
 import { Token, TokenAmount } from '@uniswap/sdk'
 import ERC20 from '@uniswap/v2-periphery/build/ERC20.json'
 import { BigNumber, constants } from 'ethers'
-import { Interface, Result } from 'ethers/lib/utils'
+import { Interface, isAddress, Result } from 'ethers/lib/utils'
 import { tokenListChainId } from 'lib/tokens'
 import { getVnlTokenAddress } from 'lib/vanilla'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -49,7 +49,7 @@ function useVanillaGovernanceToken(): {
 
   useEffect(() => {
     const getMints = async () => {
-      if (contract && provider) {
+      if (contract && provider && isAddress(userAddress)) {
         const ercInterface = new Interface(ERC20.abi)
         const events = contract?.filters.Transfer(
           constants.AddressZero,
