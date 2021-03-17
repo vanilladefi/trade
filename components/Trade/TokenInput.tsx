@@ -12,10 +12,9 @@ import { Operation } from './Modal'
 
 type Props = {
   operation: Operation
-  onAmountChange: (
-    tokenIndex: 0 | 1,
-    value: string,
-  ) => DebouncedFunc<(tokenIndex: 0 | 1, value: string) => Promise<void>>
+  onAmountChange: DebouncedFunc<
+    (tokenIndex: 0 | 1, value: string) => Promise<void | undefined>
+  >
   token0Amount: string | null
   token1Amount: string | null
   useWethProxy?: boolean

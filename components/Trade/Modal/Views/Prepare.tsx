@@ -215,6 +215,24 @@ const PrepareView = ({
     return null
   }
 
+  // Update trade on operation change to get updated pricing
+  useEffect(() => {
+    const updateTradeAndToken1 = async () => {
+      const trade = await updateTrade(0, token0Amount)
+      if (trade) {
+        const newToken1Amount =
+          operation === Operation.Buy
+            ? trade.maximumAmountIn(slippageTolerance).toSignificant()
+            : trade.minimumAmountOut(slippageTolerance).toSignificant()
+        setToken1Amount(newToken1Amount)
+      } else {
+        setToken1Amount('0.0')
+      }
+    }
+    updateTradeAndToken1()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [operation])
+
   // Estimate VNL rewards
   useEffect(() => {
     const estimateRewards = debounce(() => {
@@ -258,7 +276,6 @@ const PrepareView = ({
         if (parseFloat(value) > 0) {
           const trade = await updateTrade(tokenIndex, value)
           if (trade) {
-            console.log(trade)
             const newToken1Amount =
               operation === Operation.Buy
                 ? trade.maximumAmountIn(slippageTolerance).toSignificant()
@@ -273,7 +290,6 @@ const PrepareView = ({
         if (parseFloat(value) > 0) {
           const trade = await updateTrade(tokenIndex, value)
           if (trade) {
-            console.log(trade)
             const newToken0Amount =
               operation === Operation.Buy
                 ? trade.minimumAmountOut(slippageTolerance).toSignificant()
