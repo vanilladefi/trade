@@ -1,10 +1,10 @@
-import { CurrencyAmount, TokenAmount } from '@uniswap/sdk'
 import { Column, Width } from 'components/grid/Flex'
 import { Spinner } from 'components/Spinner'
 import Icon from 'components/typography/Icon'
 import { formatUnits } from 'ethers/lib/utils'
 import { useTokenBalance } from 'hooks/useTokenBalance'
-import React from 'react'
+import { DebouncedFunc } from 'lodash'
+import React, { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { token0Selector, token1Selector } from 'state/trade'
 import { useWallet } from 'use-wallet'
@@ -12,14 +12,19 @@ import { Operation } from './Modal'
 
 type Props = {
   operation: Operation
-  onAmountChange: (value: string) => void | undefined
-  token1Amount: TokenAmount | CurrencyAmount | null
+  onAmountChange: (
+    tokenIndex: 0 | 1,
+    value: string,
+  ) => DebouncedFunc<(tokenIndex: 0 | 1, value: string) => Promise<void>>
+  token0Amount: string | null
+  token1Amount: string | null
   useWethProxy?: boolean
 }
 
 const TokenInput = ({
   operation,
   onAmountChange,
+  token0Amount,
   token1Amount,
   useWethProxy = true,
 }: Props): JSX.Element => {
@@ -27,6 +32,10 @@ const TokenInput = ({
 
   const token0 = useRecoilValue(token0Selector)
   const token1 = useRecoilValue(token1Selector)
+
+  const [amount0, setAmount0] = useState<string | null | undefined>()
+  const [amount1, setAmount1] = useState<string | null | undefined>()
+  const [focused, setFocused] = useState<0 | 1 | undefined>()
 
   const { raw: balance0 } = useTokenBalance(
     token0?.address,
@@ -45,6 +54,40 @@ const TokenInput = ({
       token1 &&
       parseFloat(formatUnits(balance1, token1.decimals)).toFixed(6)
 
+  useEffect(() => {
+    focused !== 0 &&
+      token0Amount !== '0' &&
+      token0Amount !== '' &&
+      setAmount0(token0Amount)
+  }, [focused, token0Amount])
+
+  useEffect(() => {
+    focused !== 1 &&
+      token1Amount !== '0' &&
+      token1Amount !== '' &&
+      setAmount1(token1Amount)
+  }, [focused, token1Amount])
+
+  const handleAmountChange = (tokenIndex: 0 | 1, value: string) => {
+    const parsedValue = parseFloat(value) > 0 ? value : undefined
+    if (tokenIndex === 0) {
+      setAmount0(parsedValue)
+      setAmount1(null)
+    } else {
+      setAmount1(parsedValue)
+      setAmount0(null)
+    }
+    onAmountChange(tokenIndex, value)
+  }
+
+  const setFocusAtIndex = (focusIndex: 0 | 1, focusState: boolean) => {
+    if (focusState) {
+      setFocused(focusIndex)
+    } else if (focusIndex === focused) {
+      setFocused(undefined)
+    }
+  }
+
   return (
     <React.Suspense fallback={() => <div></div>}>
       <>
@@ -53,11 +96,25 @@ const TokenInput = ({
             <Column width={Width.SEVEN} shrink={false} grow={true}>
               <div className='numberInput'>
                 <span>Amount to {operation}</span>
-                <input
-                  type='number'
-                  placeholder={'0.0'}
-                  onInput={(e) => onAmountChange(e.currentTarget.value)}
-                />
+                {amount0 !== null ? (
+                  <input
+                    type='number'
+                    placeholder={'0.0'}
+                    value={amount0}
+                    onFocus={() => setFocusAtIndex(0, true)}
+                    onBlur={() => setFocusAtIndex(0, false)}
+                    onChange={(e) => {
+                      if (focused === 0) {
+                        handleAmountChange(0, e.currentTarget.value)
+                      }
+                    }}
+                    step='0.001'
+                  />
+                ) : (
+                  <div className='spinner'>
+                    <Spinner />
+                  </div>
+                )}
               </div>
             </Column>
             <Column width={Width.FIVE} shrink={true} grow={false}>
@@ -78,12 +135,19 @@ const TokenInput = ({
             <Column width={Width.SEVEN} shrink={false} grow={true}>
               <div className='numberInput'>
                 <span>{operation === Operation.Sell ? 'Get' : 'Pay'}</span>
-                {token1Amount !== null ? (
+                {amount1 !== null ? (
                   <input
                     type='number'
                     placeholder={'0.0'}
-                    disabled
-                    value={token1Amount && token1Amount.toSignificant()}
+                    value={amount1}
+                    onFocus={() => setFocusAtIndex(1, true)}
+                    onBlur={() => setFocusAtIndex(1, false)}
+                    onChange={(e) => {
+                      if (focused === 1) {
+                        handleAmountChange(1, e.currentTarget.value)
+                      }
+                    }}
+                    step='0.001'
                   />
                 ) : (
                   <div className='spinner'>

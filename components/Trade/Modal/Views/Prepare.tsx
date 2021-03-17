@@ -1,12 +1,4 @@
-import {
-  CurrencyAmount,
-  Percent,
-  Token,
-  TokenAmount,
-  Trade,
-  TradeType,
-  WETH,
-} from '@uniswap/sdk'
+import { Percent, Token, TokenAmount, Trade, TradeType } from '@uniswap/sdk'
 import { Column, Width } from 'components/grid/Flex'
 import Button, {
   ButtonColor,
@@ -16,7 +8,7 @@ import Button, {
 } from 'components/input/Button'
 import { Spinner } from 'components/Spinner'
 import Icon, { IconUrls } from 'components/typography/Icon'
-import { constants } from 'ethers'
+import { BigNumber, constants } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import useTradeEngine from 'hooks/useTradeEngine'
 import useVanillaRouter from 'hooks/useVanillaRouter'
@@ -64,29 +56,51 @@ const PrepareView = ({
   setModalCloseEnabled,
 }: ContentProps): JSX.Element => {
   const lpFeePercentage = new Percent('3', '1000')
+  const slippageTolerance = useRecoilValue(selectedSlippageTolerance)
+
   const router = useRouter()
   const vanillaRouter = useVanillaRouter()
   const { buy, sell } = useTradeEngine()
-
   const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
-  const token0 = useRecoilValue(token0Selector)
-  const token1 = useRecoilValue(token1Selector)
-  const slippageTolerance = useRecoilValue(selectedSlippageTolerance)
 
   const [trade, setTrade] = useState<Trade>()
+  const token0 = useRecoilValue(token0Selector)
+  const token1 = useRecoilValue(token1Selector)
+  const tokenPaid = useCallback(
+    () => (operation === Operation.Buy ? token1 : token0),
+    [operation, token0, token1],
+  )
+  const tokenReceived = useCallback(
+    () => (operation === Operation.Buy ? token0 : token1),
+    [operation, token0, token1],
+  )
+
   const [estimatedGas, setEstimatedGas] = useState<string>()
   const [estimatedFees, setEstimatedFees] = useState<string>()
   const [estimatedReward, setEstimatedReward] = useState<string>()
+
   const [error, setError] = useState<string | null>(null)
   const [transactionState, setTransactionState] = useState<TransactionState>(
     TransactionState.PREPARE,
   )
 
-  const [token0Amount, setPaidTokenAmount] = useState<string>('0')
-  const [token1Amount, setReceivedTokenAmount] = useState<
-    TokenAmount | CurrencyAmount | null
-  >(new TokenAmount(WETH['1'], '0'))
+  const [token0Amount, setToken0Amount] = useState<string>('0')
+  const [token1Amount, setToken1Amount] = useState<string>('0')
+  const amount0Parsed: () => BigNumber = useCallback(() => {
+    if (token0Amount && token0) {
+      return parseUnits(token0Amount, token0.decimals)
+    } else {
+      return BigNumber.from('0')
+    }
+  }, [token0Amount, token0])
+  const amount1Parsed: () => BigNumber = useCallback(() => {
+    if (token1Amount && token1) {
+      return parseUnits(token1Amount, token1.decimals)
+    } else {
+      return BigNumber.from('0')
+    }
+  }, [token1Amount, token1])
 
   // Estimate gas fees
   useEffect(() => {
@@ -97,16 +111,17 @@ const PrepareView = ({
         token0 &&
         token1 &&
         token1Amount &&
-        token0Amount !== ''
+        token0Amount
       ) {
         if (operation === Operation.Buy) {
-          const amountInParsed = parseUnits(token0Amount, token1.decimals)
           vanillaRouter.estimateGas
             .depositAndBuy(
               token0.address,
-              token1Amount.raw.toString(),
+              amount0Parsed(),
               constants.MaxUint256,
-              { value: amountInParsed },
+              {
+                value: amount1Parsed(),
+              },
             )
             .then((value) => {
               provider.getGasPrice().then((price) => {
@@ -114,12 +129,11 @@ const PrepareView = ({
               })
             })
         } else {
-          const amountInParsed = parseUnits(token0Amount, token0.decimals)
           vanillaRouter.estimateGas
             .sellAndWithdraw(
               token0.address,
-              amountInParsed,
-              token1Amount.raw.toString(),
+              amount0Parsed(),
+              amount1Parsed(),
               constants.MaxUint256,
             )
             .then((value) => {
@@ -139,96 +153,67 @@ const PrepareView = ({
     token0,
     token1,
     vanillaRouter,
+    amount0Parsed,
+    amount1Parsed,
   ])
 
   // Estimate LP fees
   useEffect(() => {
-    if (token1 && token0 && token1Amount && token0Amount) {
-      if (operation === Operation.Buy) {
-        const feeAmount = token1Amount
-          .multiply(lpFeePercentage.numerator.toString())
-          .divide(lpFeePercentage.denominator.toString())
-        setEstimatedFees(feeAmount.toSignificant(3))
-      } else {
-        const parsedAmount = parseUnits(token0Amount, token0.decimals)
-        const feeAmount = parsedAmount
-          .mul(lpFeePercentage.numerator.toString())
-          .div(lpFeePercentage.denominator.toString())
-        const feeTokenAmount = new TokenAmount(
-          new Token(token0.chainId, token0.address, token0.decimals),
-          feeAmount.toString(),
-        )
-        setEstimatedFees(feeTokenAmount.toSignificant())
-      }
+    if (token1 && token0) {
+      const token = operation === Operation.Buy ? token1 : token0
+      const amountParsed =
+        operation === Operation.Buy ? amount1Parsed() : amount0Parsed()
+      const feeAmount = amountParsed
+        .mul(lpFeePercentage.numerator.toString())
+        .div(lpFeePercentage.denominator.toString())
+      const feeTokenAmount = new TokenAmount(
+        new Token(token.chainId, token.address, token.decimals),
+        feeAmount.toString(),
+      )
+      setEstimatedFees(feeTokenAmount.toSignificant())
     }
   }, [
     lpFeePercentage.denominator,
     lpFeePercentage.numerator,
-    token0Amount,
-    token1Amount,
     token0,
     token1,
     operation,
+    amount1Parsed,
+    amount0Parsed,
   ])
 
-  // Update the trade object when parameters change
-  useEffect(() => {
-    // Show the user that something is happening
-    setTransactionState(TransactionState.PROCESSING)
-
-    const updateTrade = debounce(() => {
-      // Switch the token ordering based on operation
-      let tokenReceived, tokenPaid
-      if (operation === Operation.Buy) {
-        tokenReceived = token0
-        tokenPaid = token1
-      } else {
-        tokenReceived = token1
-        tokenPaid = token0
-      }
-
-      // Construct a trade with Uniswap SDK. Pricing the trade happens here.
-      if (
-        provider &&
-        token0Amount &&
-        token0Amount !== '0' &&
-        tokenReceived &&
-        tokenPaid
-      ) {
-        // Set received token amount to null during calculation
-        setReceivedTokenAmount(null)
-
-        constructTrade(
-          token0Amount,
-          tokenReceived,
-          tokenPaid,
+  const updateTrade = async (
+    tokenChanged: 0 | 1,
+    amount: string,
+  ): Promise<Trade | null> => {
+    const receivedToken = tokenReceived()
+    const paidToken = tokenPaid()
+    const tradeType =
+      tokenChanged === 0
+        ? operation === Operation.Buy
+          ? TradeType.EXACT_OUTPUT
+          : TradeType.EXACT_INPUT
+        : operation === Operation.Buy
+        ? TradeType.EXACT_INPUT
+        : TradeType.EXACT_OUTPUT
+    if (provider && receivedToken && paidToken) {
+      try {
+        const trade = await constructTrade(
+          amount,
+          receivedToken,
+          paidToken,
           provider,
-          operation === Operation.Buy
-            ? TradeType.EXACT_OUTPUT
-            : TradeType.EXACT_INPUT,
+          tradeType,
         )
-          .then((trade) => {
-            trade && setTrade(trade)
-          })
-          .catch((e) => setError(e.message))
+        setTrade(trade)
+        return trade
+      } catch (e) {
+        console.log(e)
+        setError(e.message)
       }
-    }, 200)
-
-    updateTrade()
-
-    // Reset trade state to preparation
-    setTransactionState(TransactionState.PREPARE)
-  }, [token0, token1, provider, token0Amount, operation, slippageTolerance])
-
-  // Set received token amount, based on the trade type and slippage tolerance
-  useEffect(() => {
-    trade &&
-      setReceivedTokenAmount(
-        operation === Operation.Buy
-          ? trade.maximumAmountIn && trade.maximumAmountIn(slippageTolerance)
-          : trade.minimumAmountOut && trade.minimumAmountOut(slippageTolerance),
-      )
-  }, [operation, slippageTolerance, trade])
+    }
+    return null
+  }
 
   // Estimate VNL rewards
   useEffect(() => {
@@ -238,20 +223,17 @@ const PrepareView = ({
         signer &&
         token0 &&
         token1 &&
+        token0Amount &&
         token1Amount
       ) {
-        estimateReward(
-          signer,
-          token0,
-          token1,
-          token0Amount,
-          token1Amount.toSignificant(),
-        ).then((reward) => {
-          const formattedReward = reward
-            ? formatUnits(reward?.reward, 12)
-            : undefined
-          setEstimatedReward(formattedReward)
-        })
+        estimateReward(signer, token0, token1, token0Amount, token1Amount).then(
+          (reward) => {
+            const formattedReward = reward
+              ? formatUnits(reward?.reward, 12)
+              : undefined
+            setEstimatedReward(formattedReward)
+          },
+        )
       } else {
         setEstimatedReward(undefined)
       }
@@ -270,17 +252,48 @@ const PrepareView = ({
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleAmountChanged = useCallback(
-    debounce((value: string) => {
-      setPaidTokenAmount(value)
+    debounce(async (tokenIndex: 0 | 1, value: string) => {
+      if (tokenIndex === 0) {
+        setToken0Amount(value)
+        if (parseFloat(value) > 0) {
+          const trade = await updateTrade(tokenIndex, value)
+          if (trade) {
+            console.log(trade)
+            const newToken1Amount =
+              operation === Operation.Buy
+                ? trade.maximumAmountIn(slippageTolerance).toSignificant()
+                : trade.minimumAmountOut(slippageTolerance).toSignificant()
+            setToken1Amount(newToken1Amount)
+          } else {
+            setToken1Amount('0.0')
+          }
+        }
+      } else {
+        setToken1Amount(value)
+        if (parseFloat(value) > 0) {
+          const trade = await updateTrade(tokenIndex, value)
+          if (trade) {
+            console.log(trade)
+            const newToken0Amount =
+              operation === Operation.Buy
+                ? trade.minimumAmountOut(slippageTolerance).toSignificant()
+                : trade.maximumAmountIn(slippageTolerance).toSignificant()
+            setToken0Amount(newToken0Amount)
+          }
+        } else {
+          setToken0Amount('0.0')
+        }
+      }
     }, 200),
-    [setPaidTokenAmount],
+    [setToken0Amount, setToken1Amount, operation],
   )
 
   const handleClick = async () => {
-    if (token0 && token1 && token1Amount && signer) {
+    if (token0 && token1 && token1Amount && token0Amount && signer) {
       let hash: string | undefined
       try {
         setTransactionState(TransactionState.PROCESSING)
+
         if (operation === Operation.Buy) {
           hash = await buy({
             amountPaid: token1Amount,
@@ -298,7 +311,11 @@ const PrepareView = ({
             signer: signer,
           })
         }
+
+        // Show the successful trade status to user in the button with a checkmark
         hash && setTransactionState(TransactionState.DONE)
+
+        // Wait for a bit, and then redirect the user to the TradeFlower view with more trade info
         setTimeout(() => {
           setTransactionState(TransactionState.PREPARE)
           router.push(`/trade?id=${hash}`, undefined, { shallow: true })
@@ -343,6 +360,7 @@ const PrepareView = ({
             <TokenInput
               operation={operation}
               onAmountChange={handleAmountChanged}
+              token0Amount={token0Amount}
               token1Amount={token1Amount}
             />
           </div>

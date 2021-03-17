@@ -33,7 +33,7 @@ const useTradeEngine = (): {
           from: transaction.from,
           received: tokenReceived,
           paid: tokenPaid,
-          amountPaid: amountPaid.toSignificant(),
+          amountPaid: amountPaid,
           amountReceived: amountReceived,
           addedTime: Date.now(),
         })
@@ -64,7 +64,7 @@ const useTradeEngine = (): {
           received: tokenReceived,
           paid: tokenPaid,
           amountPaid: amountPaid,
-          amountReceived: amountReceived.toSignificant(),
+          amountReceived: amountReceived,
           addedTime: Date.now(),
         })
       return transaction.hash || undefined

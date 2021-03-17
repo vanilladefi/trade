@@ -24,6 +24,7 @@
   "dependencies": {
     "@mdx-js/loader": "^1.6.22",
     "@next/mdx": "^10.0.6",
+    "@types/lodash": "^4.14.168",
     "@uniswap/default-token-list": "^2.0.0",
     "@uniswap/sdk": "^3.0.3",
     "@uniswap/v2-periphery": "^1.1.0-beta.0",

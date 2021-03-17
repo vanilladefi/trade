@@ -22,17 +22,17 @@ export enum Field {
 
 export interface BuyProps {
   amountReceived: string
-  amountPaid: TokenAmount | CurrencyAmount
+  amountPaid: string
   tokenReceived: UniSwapToken
-  tokenPaid?: UniSwapToken
+  tokenPaid: UniSwapToken
   signer?: providers.JsonRpcSigner
 }
 
 export interface SellProps {
-  amountReceived: TokenAmount | CurrencyAmount
+  amountReceived: string
   amountPaid: string
   tokenPaid: UniSwapToken
-  tokenReceived?: UniSwapToken
+  tokenReceived: UniSwapToken
   signer?: providers.JsonRpcSigner
 }
 
@@ -40,12 +40,14 @@ export const buy = async ({
   amountPaid,
   amountReceived,
   tokenReceived,
+  tokenPaid,
   signer,
 }: BuyProps): Promise<Transaction> => {
   const amountReceivedParsed = parseUnits(
     amountReceived,
     tokenReceived.decimals,
   )
+  const amountPaidParsed = parseUnits(amountPaid, tokenPaid.decimals)
 
   const vanillaRouter = getContract(
     vanillaRouterAddress,
@@ -57,7 +59,7 @@ export const buy = async ({
     tokenReceived.address,
     amountReceivedParsed,
     constants.MaxUint256,
-    { value: amountPaid.raw.toString() },
+    { value: amountPaidParsed },
   )
 
   return receipt
@@ -67,8 +69,13 @@ export const sell = async ({
   amountPaid,
   amountReceived,
   tokenPaid,
+  tokenReceived,
   signer,
 }: SellProps): Promise<Transaction> => {
+  const amountReceivedParsed = parseUnits(
+    amountReceived,
+    tokenReceived.decimals,
+  )
   const amountPaidParsed = parseUnits(amountPaid, tokenPaid.decimals)
 
   const vanillaRouter = getContract(
@@ -80,7 +87,7 @@ export const sell = async ({
   const receipt = await vanillaRouter.sellAndWithdraw(
     tokenPaid.address,
     amountPaidParsed,
-    amountReceived.raw.toString(),
+    amountReceivedParsed,
     constants.MaxUint256,
   )
 
