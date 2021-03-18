@@ -8,7 +8,6 @@ import { AvailableTokens, MyPositions } from 'components/Trade'
 import HugeMonospace from 'components/typography/HugeMonospace'
 import { Title } from 'components/typography/Titles'
 import Wrapper from 'components/Wrapper'
-import useAllTransactions from 'hooks/useAllTransactions'
 import useMetaSubscription from 'hooks/useMetaSubscription'
 import useTokenSubscription from 'hooks/useTokenSubscription'
 import useTotalOwnedUSD from 'hooks/useTotalOwnedUSD'
@@ -30,9 +29,9 @@ import React, {
   useEffect,
   useState,
 } from 'react'
-import { useSetRecoilState } from 'recoil'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { currentETHPrice } from 'state/meta'
-import { allTokensStoreState } from 'state/tokens'
+import { allTokensStoreState, userTokensState } from 'state/tokens'
 import { selectedPairIdState } from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
 import type { HandleBuyClick, HandleSellClick, Token } from 'types/trade'
@@ -59,14 +58,14 @@ const HeaderContent = (): JSX.Element => {
   const { balance: vnlBalance, userMintedTotal } = useVanillaGovernanceToken()
   const totalOwnedUSD = useTotalOwnedUSD()
   const router = useRouter()
-  const { transactionsByCurrentAccount } = useAllTransactions()
+  //const { transactionsByCurrentAccount } = useAllTransactions()
+  const userTokens = useRecoilValue(userTokensState)
 
   return (
     <>
       <TopGradient />
       <Row className='subpageHeader'>
-        {!transactionsByCurrentAccount ||
-        transactionsByCurrentAccount.length === 0 ? (
+        {!userTokens || userTokens.length === 0 ? (
           <Column width={Width.EIGHT}>
             <Title>Start Trading</Title>
             <HugeMonospace>
