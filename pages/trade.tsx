@@ -61,6 +61,29 @@ const HeaderContent = (): JSX.Element => {
   //const { transactionsByCurrentAccount } = useAllTransactions()
   const userTokens = useRecoilValue(userTokensState)
 
+  const totalUnrealizedProfit = useCallback(() => {
+    const profits = userTokens.map((token) =>
+      token.value && token.profit && token.value > 0
+        ? parseFloat(token.profit) / token.value
+        : 0,
+    )
+    return profits.reduce((a, b) => a + b)
+  }, [userTokens])
+
+  const totalUnrealizedVnl = useCallback(() => {
+    return userTokens
+      .map((token) => token.vnl)
+      .reduce((accumulator, current) => {
+        if (accumulator && current) {
+          return accumulator + current
+        } else if (current) {
+          return current
+        } else {
+          return 0
+        }
+      })
+  }, [userTokens])
+
   return (
     <>
       <TopGradient />
@@ -73,19 +96,24 @@ const HeaderContent = (): JSX.Element => {
               through Vanilla later and you make a profit in ETH, you mine some
               VNL tokens.
             </HugeMonospace>
-            {wallet.status !== 'connected' && (
+            <div className='buttonWrapper'>
+              {wallet.status !== 'connected' && (
+                <Button
+                  size={ButtonSize.LARGE}
+                  onClick={() => {
+                    setWalletModalOpen(true)
+                  }}
+                >
+                  Connect wallet
+                </Button>
+              )}
               <Button
                 size={ButtonSize.LARGE}
-                onClick={() => {
-                  setWalletModalOpen(true)
-                }}
+                onClick={() => router.push('/faq')}
               >
-                Connect wallet
+                Learn more
               </Button>
-            )}
-            <Button size={ButtonSize.LARGE} onClick={() => router.push('/faq')}>
-              Learn more
-            </Button>
+            </div>
           </Column>
         ) : (
           <Column width={Width.TWELVE}>
@@ -102,8 +130,8 @@ const HeaderContent = (): JSX.Element => {
               </div>
               <div className='stats-grid-item'>
                 <h2 className='title'>UNREALIZED PROFIT</h2>
-                <h3 className='subTitle'>12%</h3>
-                <span className='details'>1.15 VNL</span>
+                <h3 className='subTitle'>{totalUnrealizedProfit()} %</h3>
+                <span className='details'>{totalUnrealizedVnl()} VNL</span>
               </div>
             </div>
           </Column>
@@ -159,6 +187,11 @@ const HeaderContent = (): JSX.Element => {
 
         .stats-grid .details {
           grid-area: details;
+        }
+
+        .buttonWrapper {
+          display: flex;
+          flex-direction: row;
         }
 
         @media(max-width: 680px){
@@ -346,7 +379,7 @@ export async function getStaticProps(): Promise<
   return {
     props: {
       allTokens: tokens,
-      ethPrice: ethPrice,
+      ethPrice: ethPrice || '0',
     },
     revalidate: 60,
   }

@@ -2,6 +2,7 @@ import uniswapTokens from '@uniswap/default-token-list'
 import additionalTokens from 'data/tokens.json'
 import { BigNumber, constants, Contract, providers, Signer } from 'ethers'
 import { getAddress } from 'ethers/lib/utils'
+import { ETHPriceResponse } from 'hooks/useETHPrice'
 import {
   ETHPrice,
   thegraphClient,
@@ -173,8 +174,9 @@ export async function getBalance(
   return balance
 }
 
-export async function getETHPrice(): Promise<string> {
-  return thegraphClient.request(ETHPrice)
+export async function getETHPrice(): Promise<string | null> {
+  const { data }: ETHPriceResponse = await thegraphClient.request(ETHPrice)
+  return data?.bundle?.ethPrice ?? null
 }
 
 // returns the checksummed address if the address is valid, otherwise returns false
