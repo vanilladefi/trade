@@ -85,7 +85,7 @@ function useVanillaGovernanceToken(): {
     return {
       address: vnlTokenAddress,
       decimals: 12,
-      balance: vnlBalance,
+      balance: vnlBalance !== '' ? vnlBalance : '0',
       userMintedTotal: userMintedTotal(),
     }
   }, [userMintedTotal, vnlBalance, vnlTokenAddress])

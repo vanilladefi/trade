@@ -1,4 +1,9 @@
-import { Token as UniswapToken, TokenAmount, TradeType } from '@uniswap/sdk'
+import {
+  Token as UniswapToken,
+  TokenAmount,
+  Trade,
+  TradeType,
+} from '@uniswap/sdk'
 import ERC20 from '@uniswap/v2-periphery/build/ERC20.json'
 import { BigNumber } from 'ethers'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
@@ -28,7 +33,7 @@ function useUserPositions(): Token[] {
   const signer = useRecoilValue(signerState)
   const slippageTolerance = useRecoilValue(selectedSlippageTolerance)
 
-  const getTokenBalance = async (token: Token): Promise<string> => {
+  const getTokenBalance = async (token: Token): Promise<BigNumber> => {
     if (token.address && token.decimals && token.chainId && signer) {
       try {
         const contract = getContract(token.address, ERC20.abi, signer)
@@ -40,10 +45,10 @@ function useUserPositions(): Token[] {
         //const formatted = new TokenAmount(parsedToken, raw.toString())
         return raw
       } catch (e) {
-        return '0'
+        return BigNumber.from('0')
       }
     }
-    return '0'
+    return BigNumber.from('0')
   }
 
   useEffect(() => {
@@ -79,12 +84,14 @@ function useUserPositions(): Token[] {
 
             // Owned amount. By default, use the total owned amount.
             // On localhost, fall back to Vanilla router data
-            const parsedOwnedAmount =
-              ownedInTotal !== '0'
-                ? ownedInTotal
-                : tokenSum && !tokenSum.isZero()
-                ? tokenAmount.toSignificant()
-                : undefined
+            const parsedOwnedAmount = !ownedInTotal.isZero()
+              ? new TokenAmount(
+                  parsedUniToken,
+                  ownedInTotal.toString(),
+                ).toSignificant()
+              : tokenSum && !tokenSum.isZero()
+              ? tokenAmount.toSignificant()
+              : undefined
 
             // Parse value of owned token in USD
             const parsedValue =
@@ -95,30 +102,38 @@ function useUserPositions(): Token[] {
                 : 0
 
             // Get current best trade from Uniswap to calculate available rewards
-            const trade = await constructTrade(
-              tokenAmount.toSignificant(),
-              counterAsset,
-              token,
-              provider,
-              TradeType.EXACT_INPUT,
-            )
+            let trade: Trade | null
+            try {
+              trade = await constructTrade(
+                tokenAmount.toSignificant(),
+                counterAsset,
+                token,
+                provider,
+                TradeType.EXACT_INPUT,
+              )
+            } catch (e) {
+              trade = null
+            }
 
             // Amount out from the trade as a Bignumber gwei string and an ether float
-            const amountOut = trade.minimumAmountOut(slippageTolerance).raw
-            const parsedAmountOut = parseFloat(
-              formatUnits(amountOut.toString()),
-            )
+            const amountOut = trade
+              ? trade.minimumAmountOut(slippageTolerance).raw
+              : undefined
+            const parsedAmountOut =
+              amountOut && parseFloat(formatUnits(amountOut.toString()))
 
             let reward: RewardResponse | null
             try {
               // Get reward estimate from Vanilla router
-              reward = await estimateReward(
-                signer,
-                token,
-                counterAsset,
-                tokenAmount.toSignificant(),
-                amountOut.toString(),
-              )
+              reward = amountOut
+                ? await estimateReward(
+                    signer,
+                    token,
+                    counterAsset,
+                    tokenAmount.toSignificant(),
+                    amountOut.toString(),
+                  )
+                : null
             } catch (e) {
               // Catch error from reward estimation. This probably means that the Vanilla router hasn't been deployed on the used network.
               reward = null
@@ -130,7 +145,9 @@ function useUserPositions(): Token[] {
 
             // Calculate profit percentage
             const profitPercentage =
-              reward && profitablePrice ? profitablePrice / parsedAmountOut : 0
+              reward && profitablePrice && parsedAmountOut
+                ? profitablePrice / parsedAmountOut
+                : 0
 
             // Parse the available VNL reward
             const parsedVnl = reward
