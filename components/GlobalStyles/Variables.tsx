@@ -77,7 +77,7 @@ const Variables = (): JSX.Element => (
       --subpage-titlemargin: 56px 0 1.5rem 0;
       --box-titlemargin: 0 0 32px 0;
       --box-hugemonomargin: 0 0 20px 0;
-      --subpage-buttonmargin: 0 0 76px 0;
+      --subpage-buttonmargin: 0 1rem 4rem 0;
 
       /* Fonts */
       --rootfontsize: 12px;
