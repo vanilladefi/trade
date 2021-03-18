@@ -18,11 +18,12 @@ export interface UniSwapToken {
 
 export interface Token extends UniSwapToken {
   pairId: string | null
-  price: number | null
-  priceHistorical: number | null
-  priceChange: number | null
-  liquidity: number | null
+  price?: number | null
+  priceHistorical?: number | null
+  priceChange?: number | null
+  liquidity?: number | null
   logoColor: string | null
+  owned?: string | null
 }
 
 export interface TokenInfoQueryResponse {

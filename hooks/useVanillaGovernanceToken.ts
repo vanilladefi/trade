@@ -33,12 +33,11 @@ function useVanillaGovernanceToken(): {
   )
 
   const userMintedTotal = useCallback(() => {
-    const bigSum:
-      | BigNumber
-      | undefined = mints?.reduce((accumulator, current) =>
-      accumulator.add(current),
-    )
-    if (bigSum) {
+    const bigSum: BigNumber | undefined =
+      mints && mints.length
+        ? mints.reduce((accumulator, current) => accumulator.add(current))
+        : BigNumber.from('0')
+    if (bigSum && vnlTokenAddress) {
       const token = new Token(tokenListChainId, vnlTokenAddress, decimals)
       const tokenAmount = new TokenAmount(token, bigSum.toString())
       return tokenAmount.toSignificant()

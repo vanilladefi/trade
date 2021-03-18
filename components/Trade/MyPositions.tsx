@@ -6,10 +6,9 @@ import Button, {
 } from 'components/input/Button'
 import { Columns, Table } from 'components/Table'
 import useTokenSearch from 'hooks/useTokenSearch'
+import useUserPositions from 'hooks/useUserPositions'
 import { useMemo } from 'react'
 import type { CellProps } from 'react-table'
-import { useRecoilValue } from 'recoil'
-import { userTokensState } from 'state/tokens'
 import type {
   HandleBuyClick,
   HandleSellClick,
@@ -20,13 +19,14 @@ import type {
 interface Props {
   onBuyClick: HandleBuyClick
   onSellClick: HandleSellClick
+  initialTokens?: Token[]
 }
 
 export default function MyPositions({
   onBuyClick,
   onSellClick,
 }: Props): JSX.Element {
-  const userTokens = useRecoilValue(userTokensState)
+  const userPositions = useUserPositions()
 
   const [query, clearQuery] = useTokenSearch()
 
@@ -39,7 +39,7 @@ export default function MyPositions({
 
   return (
     <Table
-      data={userTokens}
+      data={userPositions}
       columns={columns}
       initialSortBy={initialSortBy}
       query={query}

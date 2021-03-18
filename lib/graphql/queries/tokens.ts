@@ -106,3 +106,30 @@ export const PairByIdQuery = gql`
     }
   }
 `
+
+export const TokenDayData = gql`
+  query tokenDayData($tokenAddresses: [String]) {
+    tokenDayDatas(where: { token_in: $tokenAddresses }) {
+      token {
+        id
+      }
+      priceUSD
+    }
+  }
+`
+
+export const ETHPrice = gql`
+  query ethPrice {
+    bundle(id: 1) {
+      ethPrice
+    }
+  }
+`
+
+export const ETHPriceSub = gql`
+  subscription ethPrice {
+    bundle(id: 1) {
+      ethPrice
+    }
+  }
+`

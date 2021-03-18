@@ -3,6 +3,7 @@ import additionalTokens from 'data/tokens.json'
 import { BigNumber, constants, Contract, providers, Signer } from 'ethers'
 import { getAddress } from 'ethers/lib/utils'
 import {
+  ETHPrice,
   thegraphClient,
   TokenInfoQuery,
   TokenInfoQueryHistorical,
@@ -170,6 +171,10 @@ export async function getBalance(
 ): Promise<BigNumber> {
   const balance = await provider.getBalance(address)
   return balance
+}
+
+export async function getETHPrice(): Promise<string> {
+  return thegraphClient.request(ETHPrice)
 }
 
 // returns the checksummed address if the address is valid, otherwise returns false

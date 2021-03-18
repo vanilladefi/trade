@@ -26,7 +26,7 @@ export default function AvailableTokens({
 
   return (
     <Table
-      data={tokens.length ? tokens : initialTokens}
+      data={tokens?.length ? tokens : initialTokens}
       columns={columns}
       initialSortBy={initialSortBy}
       query={query}

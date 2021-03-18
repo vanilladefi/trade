@@ -13,7 +13,12 @@ import useMetaSubscription from 'hooks/useMetaSubscription'
 import useTokenSubscription from 'hooks/useTokenSubscription'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import { getAverageBlockCountPerHour, getCurrentBlockNumber } from 'lib/block'
-import { addGraphInfo, addLogoColor, getAllTokens } from 'lib/tokens'
+import {
+  addGraphInfo,
+  addLogoColor,
+  getAllTokens,
+  getETHPrice,
+} from 'lib/tokens'
 import type { GetStaticPropsResult } from 'next'
 import dynamic from 'next/dynamic'
 import React, {
@@ -24,6 +29,7 @@ import React, {
   useState,
 } from 'react'
 import { useSetRecoilState } from 'recoil'
+import { currentETHPrice } from 'state/meta'
 import { allTokensStoreState } from 'state/tokens'
 import { selectedPairIdState } from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
@@ -32,10 +38,12 @@ import { useWallet } from 'use-wallet'
 
 type PageProps = {
   allTokens: Token[]
+  ethPrice: string
 }
 
 type BodyProps = {
-  allTokens: Token[]
+  initialTokens: Token[]
+  ethPrice: string
   setModalOpen: Dispatch<SetStateAction<boolean>>
 }
 
@@ -188,16 +196,24 @@ const HeaderContent = (): JSX.Element => {
   )
 }
 
-const BodyContent = ({ allTokens, setModalOpen }: BodyProps): JSX.Element => {
+const BodyContent = ({
+  initialTokens,
+  ethPrice,
+  setModalOpen,
+}: BodyProps): JSX.Element => {
   useMetaSubscription()
   useTokenSubscription()
 
+  const setETHPrice = useSetRecoilState(currentETHPrice)
   const setTokens = useSetRecoilState(allTokensStoreState)
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const { account } = useWallet()
 
-  useEffect(() => setTokens(allTokens), [setTokens, allTokens])
+  useEffect(() => {
+    setTokens(initialTokens)
+    setETHPrice(ethPrice)
+  }, [setTokens, initialTokens, setETHPrice, ethPrice])
 
   const handleBuyClick: HandleBuyClick = useCallback(
     (pairInfo) => {
@@ -242,7 +258,7 @@ const BodyContent = ({ allTokens, setModalOpen }: BodyProps): JSX.Element => {
           <h2>AVAILABLE TOKENS</h2>
           {/* Pass "initialTokens" so this page is statically rendered with tokens */}
           <AvailableTokens
-            initialTokens={allTokens}
+            initialTokens={initialTokens}
             onBuyClick={handleBuyClick}
           />
         </Column>
@@ -259,7 +275,10 @@ const BodyContent = ({ allTokens, setModalOpen }: BodyProps): JSX.Element => {
   )
 }
 
-export default function TradePage({ allTokens }: PageProps): JSX.Element {
+export default function TradePage({
+  allTokens,
+  ethPrice,
+}: PageProps): JSX.Element {
   // NOTE: allTokens here will be stale after a while
   // allTokens here is only used to populate the state on first render (static)
   // Updates to allTokens happen in recoil
@@ -281,7 +300,11 @@ export default function TradePage({ allTokens }: PageProps): JSX.Element {
           setModalOpen(false)
         }}
       />
-      <BodyContent allTokens={allTokens} setModalOpen={setModalOpen} />
+      <BodyContent
+        initialTokens={allTokens}
+        ethPrice={ethPrice}
+        setModalOpen={setModalOpen}
+      />
     </Layout>
   )
 }
@@ -293,9 +316,15 @@ export async function getStaticProps(): Promise<
   tokens = await addLogoColor(tokens)
 
   // Fetch these simultaneously
-  const [blocksPerHour, currentBlockNumber, _tokens] = await Promise.all([
+  const [
+    blocksPerHour,
+    currentBlockNumber,
+    ethPrice,
+    _tokens,
+  ] = await Promise.all([
     getAverageBlockCountPerHour(),
     getCurrentBlockNumber(),
+    getETHPrice(),
     addGraphInfo(tokens),
   ])
 
@@ -311,6 +340,7 @@ export async function getStaticProps(): Promise<
   return {
     props: {
       allTokens: tokens,
+      ethPrice: ethPrice,
     },
     revalidate: 60,
   }
