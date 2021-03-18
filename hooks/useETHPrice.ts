@@ -1,8 +1,9 @@
 import { ETHPriceSub, thegraphClientSub } from 'lib/graphql'
+import { useEffect } from 'react'
 import { useRecoilCallback } from 'recoil'
 import { currentETHPrice } from 'state/meta'
 
-interface ETHPriceResponse {
+export interface ETHPriceResponse {
   data: {
     bundle: {
       ethPrice: string
@@ -14,17 +15,23 @@ function useETHPrice(): void {
   const handleNewData = useRecoilCallback(
     ({ set }) => ({ data }: ETHPriceResponse) => {
       if (data?.bundle?.ethPrice) {
-        if (parseFloat(data.bundle.ethPrice) > 0) {
-          set(currentETHPrice, data.bundle.ethPrice)
-        }
+        set(currentETHPrice, data.bundle.ethPrice)
       }
     },
     [],
   )
-  const subOptions = {
-    next: handleNewData,
-  }
-  thegraphClientSub.request({ query: ETHPriceSub }).subscribe(subOptions)
+
+  useEffect(() => {
+    const subOptions = {
+      next: handleNewData,
+    }
+    const ethPriceSub = thegraphClientSub
+      .request({ query: ETHPriceSub })
+      .subscribe(subOptions)
+    return () => {
+      ethPriceSub.unsubscribe()
+    }
+  }, [handleNewData])
 }
 
 export default useETHPrice
