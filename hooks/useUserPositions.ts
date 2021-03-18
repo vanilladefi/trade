@@ -1,5 +1,6 @@
 import { Token as UniswapToken, TokenAmount, TradeType } from '@uniswap/sdk'
 import ERC20 from '@uniswap/v2-periphery/build/ERC20.json'
+import { BigNumber } from 'ethers'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
 import { getContract } from 'lib/tokens'
 import { constructTrade } from 'lib/uniswap/trade'
@@ -29,14 +30,18 @@ function useUserPositions(): Token[] {
 
   const getTokenBalance = async (token: Token): Promise<string> => {
     if (token.address && token.decimals && token.chainId && signer) {
-      const contract = getContract(token.address, ERC20.abi, signer)
-      //const parsedToken = new UniswapToken(token.chainId, token.address, token.decimals)
-      const raw =
-        contract && isAddress(userAddress)
-          ? await contract.balanceOf(userAddress)
-          : '0'
-      //const formatted = new TokenAmount(parsedToken, raw.toString())
-      return raw
+      try {
+        const contract = getContract(token.address, ERC20.abi, signer)
+        //const parsedToken = new UniswapToken(token.chainId, token.address, token.decimals)
+        const raw =
+          contract && isAddress(userAddress)
+            ? await contract.balanceOf(userAddress)
+            : '0'
+        //const formatted = new TokenAmount(parsedToken, raw.toString())
+        return raw
+      } catch (e) {
+        return '0'
+      }
     }
     return '0'
   }
@@ -46,81 +51,98 @@ function useUserPositions(): Token[] {
       if (vanillaRouter && userAddress && provider && signer) {
         const tokensWithBalance = await Promise.all(
           tokens.map(async (token) => {
+            // Fetch price data from Vanilla router
+            let tokenSum
             try {
-              const {
-                tokenSum,
-              }: TokenPriceResponse = await vanillaRouter.tokenPriceData(
+              const priceResponse: TokenPriceResponse = await vanillaRouter.tokenPriceData(
                 userAddress,
                 token.address,
               )
+              tokenSum = priceResponse.tokenSum
+            } catch (e) {
+              tokenSum = BigNumber.from('0')
+            }
 
-              const ownedInTotal = await getTokenBalance(token)
+            // Fetch token balances (Doesn't really work on localhost)
+            const ownedInTotal = await getTokenBalance(token)
 
-              const parsedUniToken = new UniswapToken(
-                token.chainId,
-                token.address,
-                token.decimals,
-              )
+            // Construct helpers for upcoming calculations
+            const parsedUniToken = new UniswapToken(
+              token.chainId,
+              token.address,
+              token.decimals,
+            )
+            const tokenAmount = new TokenAmount(
+              parsedUniToken,
+              tokenSum.toString(),
+            )
 
-              const tokenAmount = new TokenAmount(
-                parsedUniToken,
-                tokenSum.toString(),
-              )
+            // Owned amount. By default, use the total owned amount.
+            // On localhost, fall back to Vanilla router data
+            const parsedOwnedAmount =
+              ownedInTotal !== '0'
+                ? ownedInTotal
+                : tokenSum && !tokenSum.isZero()
+                ? tokenAmount.toSignificant()
+                : undefined
 
-              const parsedOwnedAmount =
-                tokenSum && !tokenSum.isZero()
-                  ? tokenAmount.toSignificant()
-                  : ownedInTotal
+            // Parse value of owned token in USD
+            const parsedValue =
+              tokenSum && !tokenSum.isZero() && token.price
+                ? parseFloat(tokenAmount.toSignificant()) *
+                  token.price *
+                  parseFloat(ETHPrice)
+                : 0
 
-              const parsedValue =
-                tokenSum && !tokenSum.isZero() && token.price
-                  ? parseFloat(tokenAmount.toSignificant()) *
-                    token.price *
-                    parseFloat(ETHPrice)
-                  : 0
+            // Get current best trade from Uniswap to calculate available rewards
+            const trade = await constructTrade(
+              tokenAmount.toSignificant(),
+              counterAsset,
+              token,
+              provider,
+              TradeType.EXACT_INPUT,
+            )
 
-              const trade = await constructTrade(
-                tokenAmount.toSignificant(),
-                counterAsset,
-                token,
-                provider,
-                TradeType.EXACT_INPUT,
-              )
+            // Amount out from the trade as a Bignumber gwei string and an ether float
+            const amountOut = trade.minimumAmountOut(slippageTolerance).raw
+            const parsedAmountOut = parseFloat(
+              formatUnits(amountOut.toString()),
+            )
 
-              const amountOut = trade.minimumAmountOut(slippageTolerance).raw
-
-              const reward: RewardResponse | null = await estimateReward(
+            let reward: RewardResponse | null
+            try {
+              // Get reward estimate from Vanilla router
+              reward = await estimateReward(
                 signer,
                 token,
                 counterAsset,
                 tokenAmount.toSignificant(),
                 amountOut.toString(),
               )
+            } catch (e) {
+              // Catch error from reward estimation. This probably means that the Vanilla router hasn't been deployed on the used network.
+              reward = null
+            }
 
-              const parsedAmountOut = parseFloat(
-                formatUnits(amountOut.toString()),
-              )
-              const profitablePrice =
-                reward && parseFloat(formatUnits(reward?.profitablePrice))
+            // Parse the minimum profitable price from the reward estimate
+            const profitablePrice =
+              reward && parseFloat(formatUnits(reward?.profitablePrice))
 
-              const profitPercentage =
-                reward && profitablePrice
-                  ? profitablePrice / parsedAmountOut
-                  : 0
+            // Calculate profit percentage
+            const profitPercentage =
+              reward && profitablePrice ? profitablePrice / parsedAmountOut : 0
 
-              const parsedVnl = reward
-                ? parseFloat(formatUnits(reward.reward, 12))
-                : 0
+            // Parse the available VNL reward
+            const parsedVnl = reward
+              ? parseFloat(formatUnits(reward.reward, 12))
+              : 0
 
-              return {
-                ...token,
-                owned: parsedOwnedAmount,
-                value: parsedValue,
-                profit: profitPercentage.toFixed(3),
-                vnl: parsedVnl,
-              }
-            } catch {
-              return { ...token }
+            return {
+              ...token,
+              owned: parsedOwnedAmount,
+              value: parsedValue,
+              profit: profitPercentage.toFixed(3),
+              vnl: parsedVnl,
             }
           }),
         )

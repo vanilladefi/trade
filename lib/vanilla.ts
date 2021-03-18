@@ -7,12 +7,17 @@ import { tryParseAmount } from './uniswap/trade'
 export const getVnlTokenAddress = async (
   provider: providers.JsonRpcProvider,
 ): Promise<string> => {
-  const vanillaRouter = new ethers.Contract(
-    vanillaRouterAddress,
-    JSON.stringify(vanillaABI),
-    provider,
-  )
-  return vanillaRouter.vnlContract()
+  try {
+    const vanillaRouter = new ethers.Contract(
+      vanillaRouterAddress,
+      JSON.stringify(vanillaABI),
+      provider,
+    )
+    const vnlTokenAddress = await vanillaRouter.vnlContract()
+    return vnlTokenAddress
+  } catch (e) {
+    return ''
+  }
 }
 
 export interface TokenPriceResponse {
