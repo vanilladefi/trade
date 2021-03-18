@@ -11,6 +11,7 @@ import Wrapper from 'components/Wrapper'
 import useAllTransactions from 'hooks/useAllTransactions'
 import useMetaSubscription from 'hooks/useMetaSubscription'
 import useTokenSubscription from 'hooks/useTokenSubscription'
+import useTotalOwnedUSD from 'hooks/useTotalOwnedUSD'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import { getAverageBlockCountPerHour, getCurrentBlockNumber } from 'lib/block'
 import {
@@ -55,6 +56,7 @@ const HeaderContent = (): JSX.Element => {
   const wallet = useWallet()
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const { balance: vnlBalance, userMintedTotal } = useVanillaGovernanceToken()
+  const totalOwnedUSD = useTotalOwnedUSD()
 
   const { transactionsByCurrentAccount } = useAllTransactions()
 
@@ -87,7 +89,7 @@ const HeaderContent = (): JSX.Element => {
             <div className='stats-grid'>
               <div className='stats-grid-item'>
                 <h2 className='title'>TOTAL BALANCE</h2>
-                <h3 className='subTitle'>$324</h3>
+                <h3 className='subTitle'>${totalOwnedUSD.toLocaleString()}</h3>
                 <span className='details'>{vnlBalance} VNL</span>
               </div>
               <div className='stats-grid-item'>

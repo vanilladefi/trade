@@ -14,7 +14,9 @@ function useETHPrice(): void {
   const handleNewData = useRecoilCallback(
     ({ set }) => ({ data }: ETHPriceResponse) => {
       if (data?.bundle?.ethPrice) {
-        set(currentETHPrice, data.bundle.ethPrice)
+        if (parseFloat(data.bundle.ethPrice) > 0) {
+          set(currentETHPrice, data.bundle.ethPrice)
+        }
       }
     },
     [],
