@@ -1,5 +1,7 @@
 import { Token as UniswapToken, TokenAmount, TradeType } from '@uniswap/sdk'
-import { formatUnits } from 'ethers/lib/utils'
+import ERC20 from '@uniswap/v2-periphery/build/ERC20.json'
+import { formatUnits, isAddress } from 'ethers/lib/utils'
+import { getContract } from 'lib/tokens'
 import { constructTrade } from 'lib/uniswap/trade'
 import { estimateReward, RewardResponse, TokenPriceResponse } from 'lib/vanilla'
 import { useEffect, useMemo } from 'react'
@@ -25,6 +27,20 @@ function useUserPositions(): Token[] {
   const signer = useRecoilValue(signerState)
   const slippageTolerance = useRecoilValue(selectedSlippageTolerance)
 
+  const getTokenBalance = async (token: Token): Promise<string> => {
+    if (token.address && token.decimals && token.chainId && signer) {
+      const contract = getContract(token.address, ERC20.abi, signer)
+      //const parsedToken = new UniswapToken(token.chainId, token.address, token.decimals)
+      const raw =
+        contract && isAddress(userAddress)
+          ? await contract.balanceOf(userAddress)
+          : '0'
+      //const formatted = new TokenAmount(parsedToken, raw.toString())
+      return raw
+    }
+    return '0'
+  }
+
   useEffect(() => {
     const filterUserTokens = async (tokens: Token[]): Promise<Token[]> => {
       if (vanillaRouter && userAddress && provider && signer) {
@@ -37,6 +53,8 @@ function useUserPositions(): Token[] {
                 userAddress,
                 token.address,
               )
+
+              const ownedInTotal = await getTokenBalance(token)
 
               const parsedUniToken = new UniswapToken(
                 token.chainId,
@@ -52,7 +70,7 @@ function useUserPositions(): Token[] {
               const parsedOwnedAmount =
                 tokenSum && !tokenSum.isZero()
                   ? tokenAmount.toSignificant()
-                  : undefined
+                  : ownedInTotal
 
               const parsedValue =
                 tokenSum && !tokenSum.isZero() && token.price
