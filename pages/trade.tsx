@@ -22,6 +22,7 @@ import {
 } from 'lib/tokens'
 import type { GetStaticPropsResult } from 'next'
 import dynamic from 'next/dynamic'
+import { useRouter } from 'next/router'
 import React, {
   Dispatch,
   SetStateAction,
@@ -57,15 +58,14 @@ const HeaderContent = (): JSX.Element => {
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const { balance: vnlBalance, userMintedTotal } = useVanillaGovernanceToken()
   const totalOwnedUSD = useTotalOwnedUSD()
-
+  const router = useRouter()
   const { transactionsByCurrentAccount } = useAllTransactions()
 
   return (
     <>
       <TopGradient />
       <Row className='subpageHeader'>
-        {wallet.status !== 'connected' ||
-        !transactionsByCurrentAccount ||
+        {!transactionsByCurrentAccount ||
         transactionsByCurrentAccount.length === 0 ? (
           <Column width={Width.EIGHT}>
             <Title>Start Trading</Title>
@@ -74,13 +74,18 @@ const HeaderContent = (): JSX.Element => {
               through Vanilla later and you make a profit in ETH, you mine some
               VNL tokens.
             </HugeMonospace>
-            <Button
-              size={ButtonSize.LARGE}
-              onClick={() => {
-                setWalletModalOpen(true)
-              }}
-            >
-              Connect wallet
+            {wallet.status !== 'connected' && (
+              <Button
+                size={ButtonSize.LARGE}
+                onClick={() => {
+                  setWalletModalOpen(true)
+                }}
+              >
+                Connect wallet
+              </Button>
+            )}
+            <Button size={ButtonSize.LARGE} onClick={() => router.push('/faq')}>
+              Learn more
             </Button>
           </Column>
         ) : (
