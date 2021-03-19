@@ -21,7 +21,7 @@ import useETHPrice from './useETHPrice'
 import useVanillaRouter from './useVanillaRouter'
 import useWalletAddress from './useWalletAddress'
 
-function useUserPositions(): Token[] {
+function useUserPositions(): Token[] | null {
   useETHPrice()
   const ETHPrice = useRecoilValue(currentETHPrice)
   const allTokens = useRecoilValue(allTokensStoreState)
@@ -52,7 +52,9 @@ function useUserPositions(): Token[] {
   }
 
   useEffect(() => {
-    const filterUserTokens = async (tokens: Token[]): Promise<Token[]> => {
+    const filterUserTokens = async (
+      tokens: Token[],
+    ): Promise<Token[] | null> => {
       if (vanillaRouter && userAddress && provider && signer) {
         const tokensWithBalance = await Promise.all(
           tokens.map(async (token) => {
@@ -163,7 +165,7 @@ function useUserPositions(): Token[] {
         )
         return tokensWithBalance.filter((token) => token.owned)
       } else {
-        return []
+        return null
       }
     }
     filterUserTokens(allTokens).then((tokensWithBalance) => {

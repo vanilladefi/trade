@@ -3,6 +3,7 @@ import { TopGradient } from 'components/backgrounds/gradient'
 import { Column, Row, Width } from 'components/grid/Flex'
 import Button, { ButtonSize } from 'components/input/Button'
 import Layout from 'components/Layout'
+import { Spinner } from 'components/Spinner'
 import TokenSearch from 'components/TokenSearch'
 import { AvailableTokens, MyPositions } from 'components/Trade'
 import HugeMonospace from 'components/typography/HugeMonospace'
@@ -57,37 +58,46 @@ const HeaderContent = (): JSX.Element => {
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const { balance: vnlBalance, userMintedTotal } = useVanillaGovernanceToken()
   const totalOwnedUSD = useTotalOwnedUSD()
-  //const { transactionsByCurrentAccount } = useAllTransactions()
   const userTokens = useRecoilValue(userTokensState)
 
   const totalUnrealizedProfit = useCallback(() => {
-    const profits = userTokens.map((token) =>
-      token.value && token.profit && token.value > 0
-        ? parseFloat(token.profit) / token.value
-        : 0,
-    )
-    return profits.reduce((a, b) => a + b).toFixed(2)
+    const profits = userTokens
+      ? userTokens.map((token) =>
+          token.value && token.profit && token.value > 0
+            ? parseFloat(token.profit) / token.value
+            : 0,
+        )
+      : null
+    return profits ? profits.reduce((a, b) => a + b).toFixed(2) : null
   }, [userTokens])
 
   const totalUnrealizedVnl = useCallback(() => {
-    return userTokens
-      .map((token) => token.vnl)
-      .reduce((accumulator, current) => {
-        if (accumulator && current) {
-          return accumulator + current
-        } else if (current) {
-          return current
-        } else {
-          return 0
-        }
-      })
+    const vnlAmounts = userTokens ? userTokens.map((token) => token.vnl) : null
+    return vnlAmounts
+      ? vnlAmounts.reduce((accumulator, current) => {
+          if (accumulator && current) {
+            return accumulator + current
+          } else if (current) {
+            return current
+          } else {
+            return 0
+          }
+        })
+      : 0
   }, [userTokens])
 
   return (
     <>
       <TopGradient />
       <Row className='subpageHeader'>
-        {!userTokens || userTokens.length === 0 ? (
+        {!userTokens && (
+          <Column width={Width.TWELVE}>
+            <div className='spinnerWrapper'>
+              <Spinner />
+            </div>
+          </Column>
+        )}
+        {userTokens && userTokens.length === 0 && (
           <Column width={Width.EIGHT}>
             <Title>Start Trading</Title>
             <HugeMonospace>
@@ -111,7 +121,8 @@ const HeaderContent = (): JSX.Element => {
               </Link>
             </div>
           </Column>
-        ) : (
+        )}
+        {userTokens && userTokens.length > 0 && (
           <Column width={Width.TWELVE}>
             <Title>My trading</Title>
             <div className='stats-grid'>
@@ -126,13 +137,28 @@ const HeaderContent = (): JSX.Element => {
               </div>
               <div className='stats-grid-item'>
                 <h2 className='title'>UNREALIZED PROFIT</h2>
-                <h3 className='subTitle'>{totalUnrealizedProfit()} %</h3>
+                <h3 className='subTitle'>
+                  {totalUnrealizedProfit() ? (
+                    `${totalUnrealizedProfit()} %`
+                  ) : (
+                    <Spinner />
+                  )}
+                </h3>
                 <span className='details'>{totalUnrealizedVnl()} VNL</span>
               </div>
             </div>
           </Column>
         )}
       </Row>
+      <style jsx>{`
+        .spinnerWrapper {
+          width: 100%;
+          height: 300px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      `}</style>
       <style jsx global>{`
         .subpageHeader {
           --buttonmargin: var(--subpage-buttonmargin);

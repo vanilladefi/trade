@@ -13,9 +13,9 @@ function useTotalOwnedUSD(): number {
   return useMemo(() => {
     const parsedETHBalance = parseFloat(formatUnits(balance, 18))
 
-    const values = userTokens
-      .filter((token) => !!token.value)
-      .map((token) => token.value)
+    const values =
+      userTokens &&
+      userTokens.filter((token) => !!token.value).map((token) => token.value)
 
     const tokenSum =
       values &&

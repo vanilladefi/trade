@@ -4,10 +4,11 @@ import Button, {
   ButtonSize,
   Rounding,
 } from 'components/input/Button'
+import { Spinner } from 'components/Spinner'
 import { Columns, Table } from 'components/Table'
 import useTokenSearch from 'hooks/useTokenSearch'
 import useUserPositions from 'hooks/useUserPositions'
-import { useMemo } from 'react'
+import React, { useMemo } from 'react'
 import type { CellProps } from 'react-table'
 import type {
   HandleBuyClick,
@@ -37,7 +38,7 @@ export default function MyPositions({
 
   const initialSortBy = useMemo(() => [{ id: 'logoName', desc: false }], [])
 
-  return (
+  return userPositions ? (
     <Table
       data={userPositions}
       columns={columns}
@@ -47,6 +48,8 @@ export default function MyPositions({
       colorize
       pagination
     />
+  ) : (
+    <Spinner />
   )
 }
 
