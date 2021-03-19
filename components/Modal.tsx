@@ -1,5 +1,6 @@
 import classNames from 'classnames'
 import Image from 'next/image'
+import useKeyboardInputListener from 'hooks/useKeyboardInputListener'
 import React, { ReactNode, useEffect, useState } from 'react'
 
 type Callback = () => void
@@ -16,9 +17,17 @@ const Modal = ({
 }: Props): JSX.Element => {
   const [isOpen, setOpen] = useState(false)
   const curtainClasses = classNames('curtain', { closed: !isOpen })
+
+  const close = () => {
+    setOpen(false)
+    setTimeout(() => onRequestClose && onRequestClose(), 200)
+  }
+
+  useKeyboardInputListener(['Escape', 'Esc'], close)
   useEffect(() => {
     setOpen(open)
   }, [open])
+
   return (
     <>
       {open && (
@@ -34,8 +43,7 @@ const Modal = ({
               className='closeButton'
               onClick={(e) => {
                 e.preventDefault()
-                setOpen(false)
-                setTimeout(() => onRequestClose && onRequestClose(), 200)
+                close()
               }}
             >
               <Image src='/images/close-button.svg' width='44' height='44' />
