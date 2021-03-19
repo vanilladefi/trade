@@ -66,7 +66,7 @@ const HeaderContent = (): JSX.Element => {
         ? parseFloat(token.profit) / token.value
         : 0,
     )
-    return profits.reduce((a, b) => a + b)
+    return profits.reduce((a, b) => a + b).toFixed(2)
   }, [userTokens])
 
   const totalUnrealizedVnl = useCallback(() => {

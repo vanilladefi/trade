@@ -52,6 +52,7 @@ export function ValuePercent({ value }: CellProps<Token>): React.ReactNode {
   return (value ?? 0).toLocaleString('en-US', {
     style: 'percent',
     maximumFractionDigits: 2,
+    minimumFractionDigits: 2,
     signDisplay: 'always',
   })
 }
