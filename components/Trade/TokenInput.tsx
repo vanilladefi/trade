@@ -1,8 +1,8 @@
 import { Column, Width } from 'components/grid/Flex'
 import { Spinner } from 'components/Spinner'
 import Icon from 'components/typography/Icon'
-import { formatUnits } from 'ethers/lib/utils'
-import { useTokenBalance } from 'hooks/useTokenBalance'
+import { formatUnits, parseUnits } from 'ethers/lib/utils'
+import useTokenBalance from 'hooks/useTokenBalance'
 import { DebouncedFunc } from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
@@ -39,16 +39,16 @@ const TokenInput = ({
   const [amount1, setAmount1] = useState<string | null | undefined>()
   const [focused, setFocused] = useState<0 | 1 | undefined>(undefined)
 
-  const { formatted: balance0 } = useTokenBalance(
-    token0?.address,
-    token0?.decimals,
-    wallet.account,
-  )
-  const { formatted: balance1 } = useTokenBalance(
-    token1?.address,
-    token1?.decimals,
-    wallet.account,
-  )
+  const {
+    formatted: balance0,
+    raw: balance0Raw,
+    decimals: decimals0,
+  } = useTokenBalance(token0?.address, token0?.decimals)
+  const {
+    formatted: balance1,
+    raw: balance1Raw,
+    decimals: decimals1,
+  } = useTokenBalance(token1?.address, token1?.decimals)
 
   const ethBalance = useWethProxy
     ? parseFloat(formatUnits(wallet.balance, 18)).toFixed(6)
@@ -57,7 +57,7 @@ const TokenInput = ({
       parseFloat(formatUnits(balance1, token1.decimals)).toFixed(6)
 
   useEffect(() => {
-    focused === 1 &&
+    ;(!focused || focused === 1) &&
       token0Amount &&
       token0Amount !== '0' &&
       token0Amount !== '' &&
@@ -65,7 +65,7 @@ const TokenInput = ({
   }, [focused, token0Amount])
 
   useEffect(() => {
-    focused === 0 &&
+    ;(!focused || focused === 0) &&
       token1Amount &&
       token1Amount !== '0' &&
       token1Amount !== '' &&
@@ -73,7 +73,30 @@ const TokenInput = ({
   }, [focused, token1Amount])
 
   const handleAmountChange = (tokenIndex: 0 | 1, value: string) => {
-    const parsedValue = value || undefined
+    // Input validation
+    let parsedValue = value || undefined
+    if (parsedValue && parsedValue !== '') {
+      if (parseFloat(parsedValue) < 0) {
+        parsedValue = '0'
+      } else if (parseFloat(parsedValue) > 0) {
+        if (tokenIndex === 0 && operation === Operation.Sell) {
+          const parsedValueRaw = parseUnits(parsedValue, decimals0)
+          if (parsedValueRaw.gt(balance0Raw)) {
+            parsedValue = balance0
+          }
+        }
+        if (tokenIndex === 1 && operation === Operation.Buy) {
+          const parsedValueRaw = parseUnits(parsedValue, decimals1)
+          if (parsedValueRaw.gt(balance1Raw)) {
+            if (ethBalance) {
+              parsedValue = ethBalance
+            }
+          }
+        }
+      }
+    }
+
+    // Set the values
     if (tokenIndex === 0) {
       setAmount0(parsedValue)
       if (parsedValue && parseFloat(parsedValue) > 0) {
@@ -86,10 +109,11 @@ const TokenInput = ({
       if (parsedValue && parseFloat(parsedValue) > 0) {
         setAmount0(null)
       } else {
-        setAmount1(undefined)
+        setAmount0(undefined)
       }
     }
-    onAmountChange(tokenIndex, value)
+
+    parsedValue && onAmountChange(tokenIndex, parsedValue)
   }
 
   const setFocusAtIndex = (focusIndex: 0 | 1, focusState: boolean) => {
@@ -115,7 +139,7 @@ const TokenInput = ({
                     value={amount0 || ''}
                     onFocus={() => setFocusAtIndex(0, true)}
                     onBlur={() => setFocusAtIndex(0, false)}
-                    onChange={(e) => {
+                    onInput={(e) => {
                       if (focused === 0) {
                         handleAmountChange(0, e.currentTarget.value)
                       }
@@ -127,11 +151,25 @@ const TokenInput = ({
                     <Spinner />
                   </div>
                 )}
+                {operation === Operation.Sell && (
+                  <button
+                    className='maxButton'
+                    onClick={() =>
+                      handleAmountChange(0, balance0Raw.toString())
+                    }
+                  >
+                    max
+                  </button>
+                )}
               </div>
             </Column>
             <Column width={Width.FIVE} shrink={true} grow={false}>
               <div className='tokenSelector'>
-                <span>Balance: {balance0}</span>
+                <span
+                  onClick={() => handleAmountChange(0, balance0Raw.toString())}
+                >
+                  Balance: {balance0}
+                </span>
                 <div className='tokenIndicator'>
                   {token0?.logoURI && <Icon src={token0.logoURI} />}
                   <h2>{token0?.symbol}</h2>
@@ -151,7 +189,7 @@ const TokenInput = ({
                     value={amount1 || ''}
                     onFocus={() => setFocusAtIndex(1, true)}
                     onBlur={() => setFocusAtIndex(1, false)}
-                    onChange={(e) => {
+                    onInput={(e) => {
                       if (focused === 1) {
                         handleAmountChange(1, e.currentTarget.value)
                       }
@@ -163,11 +201,25 @@ const TokenInput = ({
                     <Spinner />
                   </div>
                 )}
+                {operation === Operation.Buy && (
+                  <button
+                    className='maxButton'
+                    onClick={() =>
+                      handleAmountChange(1, ethBalance || balance1)
+                    }
+                  >
+                    max
+                  </button>
+                )}
               </div>
             </Column>
             <Column width={Width.FIVE} shrink={true} grow={false}>
               <div className='tokenSelector'>
-                <span>Balance: {ethBalance}</span>
+                <span
+                  onClick={() => handleAmountChange(1, ethBalance || balance1)}
+                >
+                  Balance: {ethBalance}
+                </span>
                 <div className='tokenIndicator'>
                   {useWethProxy ? (
                     <Icon src={ethLogoURI} />
@@ -255,6 +307,22 @@ const TokenInput = ({
             flex-direction: row;
             align-items: center;
             --iconsize: 2.3rem;
+          }
+          .maxButton {
+            position: absolute;
+            top: 1rem;
+            right: 1.2rem;
+            width: max-content;
+            border-radius: 9999px;
+            border: 1px solid black;
+            background: transparent;
+            padding: 0.2rem 0.5rem;
+            cursor: pointer;
+            outline: 0;
+          }
+          .maxButton:hover {
+            background: var(--dark);
+            color: var(--white);
           }
         `}</style>
       </>

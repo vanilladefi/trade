@@ -240,8 +240,6 @@ const PrepareView = ({
             ? trade.maximumAmountIn(slippageTolerance).toSignificant()
             : trade.minimumAmountOut(slippageTolerance).toSignificant()
         setToken1Amount(newToken1Amount)
-      } else {
-        setToken1Amount('0.0')
       }
     }
     updateTradeAndToken1()
@@ -381,6 +379,7 @@ const PrepareView = ({
               <button
                 className={operation === Operation.Sell ? 'active' : undefined}
                 onClick={() => setOperation(Operation.Sell)}
+                //disabled={}
               >
                 Sell
               </button>

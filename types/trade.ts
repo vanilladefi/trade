@@ -24,6 +24,7 @@ export interface Token extends UniSwapToken {
   liquidity?: number | null
   logoColor: string | null
   owned?: string | null
+  ownedRaw?: string | null
   value?: number | null
   profit?: string | null
   vnl?: number | null

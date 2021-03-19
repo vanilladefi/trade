@@ -1,43 +1,72 @@
 import { Token, TokenAmount } from '@uniswap/sdk'
 import { BigNumber } from 'ethers'
+import { parseUnits } from 'ethers/lib/utils'
 import { tokenListChainId } from 'lib/tokens'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue } from 'recoil'
-import { providerState } from 'state/wallet'
+import { userTokensState } from 'state/tokens'
 import { useTokenContract } from './useContract'
+import useWalletAddress from './useWalletAddress'
 
-export function useTokenBalance(
+function useTokenBalance(
   tokenAddress?: string | null,
   decimals?: string | number | null,
-  owner?: string | null,
-): { raw: BigNumber; formatted: string } {
-  const contract = useTokenContract(tokenAddress || '')
-  const provider = useRecoilValue(providerState)
+): { formatted: string; raw: BigNumber; decimals: number } {
+  const userTokens = useRecoilValue(userTokensState)
 
   const [raw, setRaw] = useState(BigNumber.from('0'))
   const [formatted, setFormatted] = useState('')
+  const [updatedDecimals, setDecimals] = useState(18)
 
-  const getBalance = useCallback(
-    async (owner: string | null | undefined) => {
-      if (tokenAddress && decimals) {
-        const parsedDecimals = parseInt(decimals.toString())
-        const token = new Token(tokenListChainId, tokenAddress, parsedDecimals)
-        const raw = contract && owner ? await contract.balanceOf(owner) : '0'
-        const formatted = new TokenAmount(token, raw.toString())
-        setRaw(raw)
-        setFormatted(formatted.toSignificant())
+  const { long: userAddress } = useWalletAddress()
+  const contract = useTokenContract(tokenAddress || '')
+
+  const getBalances = useCallback(async () => {
+    if (tokenAddress) {
+      const token = userTokens?.find(
+        (token) => token.address.toLowerCase() === tokenAddress.toLowerCase(),
+      )
+
+      if (token) {
+        const ownedRaw: BigNumber =
+          token && token.ownedRaw
+            ? parseUnits(token.ownedRaw, token?.decimals)
+            : BigNumber.from('0')
+        setFormatted(token?.owned ?? '0')
+        setRaw(ownedRaw)
+        setDecimals(token.decimals)
+      } else {
+        if (decimals && userAddress) {
+          const parsedDecimals = parseInt(decimals.toString())
+          const token = new Token(
+            tokenListChainId,
+            tokenAddress,
+            parsedDecimals,
+          )
+          const raw =
+            contract && userAddress
+              ? await contract.balanceOf(userAddress)
+              : '0'
+          const formatted = new TokenAmount(token, raw.toString())
+          setRaw(raw)
+          setFormatted(formatted.toSignificant())
+          setDecimals(parsedDecimals)
+        }
       }
-    },
-    [contract, decimals, tokenAddress],
-  )
+    }
+  }, [contract, decimals, tokenAddress, userAddress, userTokens])
 
   useEffect(() => {
-    getBalance(owner)
+    getBalances()
     return () => {
       setRaw(BigNumber.from('0'))
       setFormatted('')
     }
-  }, [contract, decimals, getBalance, owner, provider])
+  }, [getBalances])
 
-  return { raw, formatted }
+  return useMemo(() => {
+    return { formatted: formatted, raw: raw, decimals: updatedDecimals }
+  }, [formatted, raw, updatedDecimals])
 }
+
+export default useTokenBalance

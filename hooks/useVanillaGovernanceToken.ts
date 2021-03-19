@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState, signerState } from 'state/wallet'
 import { useTokenContract } from './useContract'
-import { useTokenBalance } from './useTokenBalance'
+import useTokenBalance from './useTokenBalance'
 import useWalletAddress from './useWalletAddress'
 
 function useVanillaGovernanceToken(): {
@@ -17,20 +17,16 @@ function useVanillaGovernanceToken(): {
   balance: string
   userMintedTotal: string
 } {
-  const { long: userAddress } = useWalletAddress()
   const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
   const decimals = 12
 
   const [vnlTokenAddress, setVnlTokenAddress] = useState('')
+  const { long: userAddress } = useWalletAddress()
   const [mints, setMints] = useState<Array<BigNumber>>()
 
   const contract = useTokenContract(vnlTokenAddress)
-  const { formatted: vnlBalance } = useTokenBalance(
-    vnlTokenAddress,
-    decimals,
-    userAddress,
-  )
+  const { formatted: vnlBalance } = useTokenBalance(vnlTokenAddress, decimals)
 
   const userMintedTotal = useCallback(() => {
     const bigSum: BigNumber | undefined =

@@ -310,11 +310,15 @@ const BodyContent = ({
             <TokenSearch placeholder='Search tokens by name or ticker' />
           </div>
 
-          <h2>MY POSITIONS</h2>
-          <MyPositions
-            onBuyClick={handleBuyClick}
-            onSellClick={handleSellClick}
-          />
+          {account && (
+            <>
+              <h2>MY POSITIONS</h2>
+              <MyPositions
+                onBuyClick={handleBuyClick}
+                onSellClick={handleSellClick}
+              />
+            </>
+          )}
 
           <h2>AVAILABLE TOKENS</h2>
           {/* Pass "initialTokens" so this page is statically rendered with tokens */}

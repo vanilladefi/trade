@@ -36,7 +36,7 @@ export default function MyPositions({
     onSellClick,
   ])
 
-  const initialSortBy = useMemo(() => [{ id: 'logoName', desc: false }], [])
+  const initialSortBy = useMemo(() => [{ id: 'value', desc: true }], [])
 
   return userPositions ? (
     <Table

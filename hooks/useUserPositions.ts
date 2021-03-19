@@ -166,6 +166,7 @@ function useUserPositions(): Token[] | null {
             return {
               ...token,
               owned: parsedOwnedAmount,
+              ownedRaw: tokenAmount.raw.toString(),
               value: parsedValue,
               profit: profitPercentage.toFixed(3),
               vnl: parsedVnl,
