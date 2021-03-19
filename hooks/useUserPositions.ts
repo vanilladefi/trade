@@ -95,7 +95,8 @@ function useUserPositions(): Token[] {
 
             // Parse value of owned token in USD
             const parsedValue =
-              tokenSum && !tokenSum.isZero() && token.price
+              ((tokenSum && !tokenSum.isZero()) || !ownedInTotal.isZero) &&
+              token.price
                 ? parseFloat(tokenAmount.toSignificant()) *
                   token.price *
                   parseFloat(ETHPrice)
