@@ -35,7 +35,6 @@ const Modal = ({
           <div
             className='modal'
             onClick={(e) => {
-              e.preventDefault()
               e.stopPropagation()
             }}
           >
