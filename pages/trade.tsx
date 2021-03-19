@@ -21,7 +21,7 @@ import {
 } from 'lib/tokens'
 import type { GetStaticPropsResult } from 'next'
 import dynamic from 'next/dynamic'
-import { useRouter } from 'next/router'
+import Link from 'next/link'
 import React, {
   Dispatch,
   SetStateAction,
@@ -57,7 +57,6 @@ const HeaderContent = (): JSX.Element => {
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const { balance: vnlBalance, userMintedTotal } = useVanillaGovernanceToken()
   const totalOwnedUSD = useTotalOwnedUSD()
-  const router = useRouter()
   //const { transactionsByCurrentAccount } = useAllTransactions()
   const userTokens = useRecoilValue(userTokensState)
 
@@ -107,12 +106,9 @@ const HeaderContent = (): JSX.Element => {
                   Connect wallet
                 </Button>
               )}
-              <Button
-                size={ButtonSize.LARGE}
-                onClick={() => router.push('/faq')}
-              >
-                Learn more
-              </Button>
+              <Link href='/faq'>
+                <Button size={ButtonSize.LARGE}>Learn more</Button>
+              </Link>
             </div>
           </Column>
         ) : (
