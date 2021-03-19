@@ -17,6 +17,7 @@ import { allTokensStoreState, userTokensState } from 'state/tokens'
 import { selectedCounterAsset, selectedSlippageTolerance } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
 import type { Token } from 'types/trade'
+import { useWallet } from 'use-wallet'
 import useETHPrice from './useETHPrice'
 import useVanillaRouter from './useVanillaRouter'
 import useWalletAddress from './useWalletAddress'
@@ -32,6 +33,7 @@ function useUserPositions(): Token[] | null {
   const provider = useRecoilValue(providerState)
   const signer = useRecoilValue(signerState)
   const slippageTolerance = useRecoilValue(selectedSlippageTolerance)
+  const wallet = useWallet()
 
   const getTokenBalance = async (token: Token): Promise<BigNumber> => {
     if (token.address && token.decimals && token.chainId && signer) {
@@ -55,7 +57,13 @@ function useUserPositions(): Token[] | null {
     const filterUserTokens = async (
       tokens: Token[],
     ): Promise<Token[] | null> => {
-      if (vanillaRouter && userAddress && provider && signer) {
+      if (
+        wallet.status === 'connected' &&
+        vanillaRouter &&
+        userAddress &&
+        provider &&
+        signer
+      ) {
         const tokensWithBalance = await Promise.all(
           tokens.map(async (token) => {
             // Fetch price data from Vanilla router
@@ -116,9 +124,10 @@ function useUserPositions(): Token[] | null {
             }
 
             // Amount out from the trade as a Bignumber gwei string and an ether float
-            const amountOut = trade
-              ? trade.minimumAmountOut(slippageTolerance).raw
-              : undefined
+            const amountOut =
+              trade && trade.minimumAmountOut
+                ? trade.minimumAmountOut(slippageTolerance).raw
+                : undefined
             const parsedAmountOut =
               amountOut && parseFloat(formatUnits(amountOut.toString()))
 
@@ -164,6 +173,8 @@ function useUserPositions(): Token[] | null {
           }),
         )
         return tokensWithBalance.filter((token) => token.owned)
+      } else if (wallet.status === 'disconnected') {
+        return []
       } else {
         return null
       }

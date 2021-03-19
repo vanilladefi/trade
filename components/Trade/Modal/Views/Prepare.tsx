@@ -234,7 +234,7 @@ const PrepareView = ({
   useEffect(() => {
     const updateTradeAndToken1 = async () => {
       const trade = await updateTrade(0, token0Amount)
-      if (trade) {
+      if (trade && trade.minimumAmountOut && trade.maximumAmountIn) {
         const newToken1Amount =
           operation === Operation.Buy
             ? trade.maximumAmountIn(slippageTolerance).toSignificant()
