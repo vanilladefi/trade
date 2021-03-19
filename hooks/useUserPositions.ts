@@ -57,13 +57,7 @@ function useUserPositions(): Token[] | null {
     const filterUserTokens = async (
       tokens: Token[],
     ): Promise<Token[] | null> => {
-      if (
-        wallet.status === 'connected' &&
-        vanillaRouter &&
-        userAddress &&
-        provider &&
-        signer
-      ) {
+      if (vanillaRouter && userAddress && provider && signer) {
         const tokensWithBalance = await Promise.all(
           tokens.map(async (token) => {
             // Fetch price data from Vanilla router
