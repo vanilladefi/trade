@@ -1,20 +1,19 @@
+import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
-import dynamic from 'next/dynamic'
 import { InView } from 'react-intersection-observer'
-
 import BoxSection, { Color } from '../components/BoxSection'
+import { BreakPoint } from '../components/GlobalStyles/Breakpoints'
 import { Column, Row, Width } from '../components/grid/Flex'
 import { GridItem, GridTemplate } from '../components/grid/Grid'
 import Button from '../components/input/Button'
 import Layout from '../components/Layout'
+import SVGFlower from '../components/SVGFlower'
 import Timeline from '../components/Timeline'
 import HugeMonospace from '../components/typography/HugeMonospace'
 import { Highlight } from '../components/typography/Text'
 import { Title } from '../components/typography/Titles'
 import Wrapper from '../components/Wrapper'
-import SVGFlower from '../components/SVGFlower'
-import { BreakPoint } from '../components/GlobalStyles/Breakpoints'
 
 const ShillKitList = dynamic(import('../components/ShillKitList'))
 
@@ -441,7 +440,9 @@ const IndexPage = (): JSX.Element => (
               other ecosystem efforts.
             </Highlight>
             <br />
-            <Button>Learn more</Button>
+            <Link href='/faq'>
+              <Button>Learn more</Button>
+            </Link>
           </div>
         </Row>
       </BoxSection>
