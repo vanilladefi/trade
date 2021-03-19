@@ -3,7 +3,6 @@ import { Spinner } from 'components/Spinner'
 import Icon from 'components/typography/Icon'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import useTokenBalance from 'hooks/useTokenBalance'
-import { DebouncedFunc } from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { token0Selector, token1Selector } from 'state/trade'
@@ -12,9 +11,10 @@ import { Operation } from './Modal'
 
 type Props = {
   operation: Operation
-  onAmountChange: DebouncedFunc<
-    (tokenIndex: 0 | 1, value: string) => Promise<void | undefined>
-  >
+  onAmountChange: (
+    tokenIndex: 0 | 1,
+    value: string,
+  ) => Promise<void | undefined>
   token0Amount: string | null
   token1Amount: string | null
   useWethProxy?: boolean
@@ -37,7 +37,7 @@ const TokenInput = ({
 
   const [amount0, setAmount0] = useState<string | null | undefined>()
   const [amount1, setAmount1] = useState<string | null | undefined>()
-  const [focused, setFocused] = useState<0 | 1 | undefined>(undefined)
+  const [focused, setFocused] = useState<number | undefined>(undefined)
 
   const {
     formatted: balance0,
@@ -57,16 +57,14 @@ const TokenInput = ({
       parseFloat(formatUnits(balance1, token1.decimals)).toFixed(6)
 
   useEffect(() => {
-    ;(focused === undefined || focused === 1) &&
-      token0Amount &&
+    token0Amount &&
       token0Amount !== '0' &&
       token0Amount !== '' &&
       setAmount0(token0Amount)
   }, [focused, token0Amount])
 
   useEffect(() => {
-    !(focused === undefined || focused === 0) &&
-      token1Amount &&
+    token1Amount &&
       token1Amount !== '0' &&
       token1Amount !== '' &&
       setAmount1(token1Amount)

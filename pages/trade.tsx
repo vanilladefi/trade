@@ -90,14 +90,15 @@ const HeaderContent = (): JSX.Element => {
     <>
       <TopGradient />
       <Row className='subpageHeader'>
-        {!userTokens && (
+        {wallet.status === 'connected' && !userTokens && (
           <Column width={Width.TWELVE}>
             <div className='spinnerWrapper'>
               <Spinner />
             </div>
           </Column>
         )}
-        {userTokens && userTokens.length === 0 && (
+        {(wallet.status === 'disconnected' ||
+          (userTokens && userTokens.length === 0)) && (
           <Column width={Width.EIGHT}>
             <Title>Start Trading</Title>
             <HugeMonospace>

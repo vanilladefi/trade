@@ -197,6 +197,7 @@ const PrepareView = ({
     if (token0 && token1) {
       const receivedToken = tokenReceived()
       const paidToken = tokenPaid()
+
       const tradeType =
         tokenChanged === 0
           ? operation === Operation.Buy
@@ -281,41 +282,37 @@ const PrepareView = ({
     }
   }, [setModalCloseEnabled, transactionState])
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleAmountChanged = useCallback(
-    debounce(async (tokenIndex: 0 | 1, value: string) => {
-      if (tokenIndex === 0) {
-        setToken0Amount(value)
-        if (parseFloat(value) > 0) {
-          const trade = await updateTrade(tokenIndex, value)
-          if (trade) {
-            const newToken1Amount =
-              operation === Operation.Buy
-                ? trade.maximumAmountIn(slippageTolerance).toSignificant()
-                : trade.minimumAmountOut(slippageTolerance).toSignificant()
-            setToken1Amount(newToken1Amount)
-          } else {
-            setToken1Amount('0.0')
-          }
-        }
-      } else {
-        setToken1Amount(value)
-        if (parseFloat(value) > 0) {
-          const trade = await updateTrade(tokenIndex, value)
-          if (trade) {
-            const newToken0Amount =
-              operation === Operation.Buy
-                ? trade.minimumAmountOut(slippageTolerance).toSignificant()
-                : trade.maximumAmountIn(slippageTolerance).toSignificant()
-            setToken0Amount(newToken0Amount)
-          }
+  const handleAmountChanged = async (tokenIndex: 0 | 1, value: string) => {
+    if (tokenIndex === 0) {
+      if (parseFloat(value) > 0) {
+        const trade = await updateTrade(tokenIndex, value)
+        if (trade) {
+          const newToken1Amount =
+            operation === Operation.Buy
+              ? trade.maximumAmountIn(slippageTolerance).toSignificant()
+              : trade.minimumAmountOut(slippageTolerance).toSignificant()
+          setToken1Amount(newToken1Amount)
         } else {
-          setToken0Amount('0.0')
+          setToken1Amount('0.0')
         }
       }
-    }, 200),
-    [setToken0Amount, setToken1Amount, operation],
-  )
+      setToken0Amount(value)
+    } else {
+      if (parseFloat(value) > 0) {
+        const trade = await updateTrade(tokenIndex, value)
+        if (trade) {
+          const newToken0Amount =
+            operation === Operation.Buy
+              ? trade.minimumAmountOut(slippageTolerance).toSignificant()
+              : trade.maximumAmountIn(slippageTolerance).toSignificant()
+          setToken0Amount(newToken0Amount)
+        }
+      } else {
+        setToken0Amount('0.0')
+      }
+      setToken1Amount(value)
+    }
+  }
 
   const handleClick = async () => {
     if (token0 && token1 && token1Amount && token0Amount && signer) {
@@ -392,6 +389,8 @@ const PrepareView = ({
               onAmountChange={handleAmountChanged}
               token0Amount={token0Amount}
               token1Amount={token1Amount}
+              setToken0Amount={setToken0Amount}
+              setToken1Amount={setToken1Amount}
             />
           </div>
 
