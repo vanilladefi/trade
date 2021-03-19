@@ -57,7 +57,7 @@ const TokenInput = ({
       parseFloat(formatUnits(balance1, token1.decimals)).toFixed(6)
 
   useEffect(() => {
-    ;(!focused || focused === 1) &&
+    ;(focused === undefined || focused === 1) &&
       token0Amount &&
       token0Amount !== '0' &&
       token0Amount !== '' &&
@@ -65,7 +65,7 @@ const TokenInput = ({
   }, [focused, token0Amount])
 
   useEffect(() => {
-    ;(!focused || focused === 0) &&
+    !(focused === undefined || focused === 0) &&
       token1Amount &&
       token1Amount !== '0' &&
       token1Amount !== '' &&

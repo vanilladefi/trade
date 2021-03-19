@@ -169,6 +169,8 @@ const Button = ({
           align-items: ${alignItems};
           justify-content: ${justifyContent};
           position: relative;
+          opacity: 1;
+          transition: 0.3s eased opacity;
         }
         button.large {
           padding: var(--largebuttonpadding);
@@ -215,6 +217,9 @@ const Button = ({
         }
         button.noRightBorder {
           border-right-width: 0;
+        }
+        button:hover {
+          opacity: 0.9;
         }
         ${injectedStyles}
       `}</style>
