@@ -77,26 +77,23 @@ function useUserPositions(): Token[] {
               token.address,
               token.decimals,
             )
+
             const tokenAmount = new TokenAmount(
               parsedUniToken,
-              tokenSum.toString(),
+              !ownedInTotal.isZero()
+                ? ownedInTotal.toString()
+                : tokenSum.toString(),
             )
 
             // Owned amount. By default, use the total owned amount.
             // On localhost, fall back to Vanilla router data
-            const parsedOwnedAmount = !ownedInTotal.isZero()
-              ? new TokenAmount(
-                  parsedUniToken,
-                  ownedInTotal.toString(),
-                ).toSignificant()
-              : tokenSum && !tokenSum.isZero()
+            const parsedOwnedAmount = tokenAmount.greaterThan('0')
               ? tokenAmount.toSignificant()
               : undefined
 
             // Parse value of owned token in USD
             const parsedValue =
-              ((tokenSum && !tokenSum.isZero()) || !ownedInTotal.isZero) &&
-              token.price
+              tokenAmount.greaterThan('0') && token.price
                 ? parseFloat(tokenAmount.toSignificant()) *
                   token.price *
                   parseFloat(ETHPrice)
