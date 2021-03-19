@@ -37,7 +37,7 @@ const TokenInput = ({
 
   const [amount0, setAmount0] = useState<string | null | undefined>()
   const [amount1, setAmount1] = useState<string | null | undefined>()
-  const [focused, setFocused] = useState<0 | 1 | undefined>()
+  const [focused, setFocused] = useState<0 | 1 | undefined>(undefined)
 
   const { formatted: balance0 } = useTokenBalance(
     token0?.address,
@@ -57,27 +57,37 @@ const TokenInput = ({
       parseFloat(formatUnits(balance1, token1.decimals)).toFixed(6)
 
   useEffect(() => {
-    focused !== 0 &&
+    focused === 1 &&
+      token0Amount &&
       token0Amount !== '0' &&
       token0Amount !== '' &&
       setAmount0(token0Amount)
   }, [focused, token0Amount])
 
   useEffect(() => {
-    focused !== 1 &&
+    focused === 0 &&
+      token1Amount &&
       token1Amount !== '0' &&
       token1Amount !== '' &&
       setAmount1(token1Amount)
   }, [focused, token1Amount])
 
   const handleAmountChange = (tokenIndex: 0 | 1, value: string) => {
-    const parsedValue = parseFloat(value) > 0 ? value : undefined
+    const parsedValue = value || undefined
     if (tokenIndex === 0) {
       setAmount0(parsedValue)
-      setAmount1(null)
+      if (parsedValue && parseFloat(parsedValue) > 0) {
+        setAmount1(null)
+      } else {
+        setAmount1(undefined)
+      }
     } else {
       setAmount1(parsedValue)
-      setAmount0(null)
+      if (parsedValue && parseFloat(parsedValue) > 0) {
+        setAmount0(null)
+      } else {
+        setAmount1(undefined)
+      }
     }
     onAmountChange(tokenIndex, value)
   }
