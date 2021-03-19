@@ -20,6 +20,9 @@ type Props = {
   useWethProxy?: boolean
 }
 
+const ethLogoURI =
+  'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png'
+
 const TokenInput = ({
   operation,
   onAmountChange,
@@ -120,7 +123,7 @@ const TokenInput = ({
               <div className='tokenSelector'>
                 <span>Balance: {balance0}</span>
                 <div className='tokenIndicator'>
-                  {token0?.logoURI && <Icon src={token0.logoURI}></Icon>}
+                  {token0?.logoURI && <Icon src={token0.logoURI} />}
                   <h2>{token0?.symbol}</h2>
                 </div>
               </div>
@@ -156,7 +159,11 @@ const TokenInput = ({
               <div className='tokenSelector'>
                 <span>Balance: {ethBalance}</span>
                 <div className='tokenIndicator'>
-                  {token1?.logoURI && <Icon src={token1.logoURI}></Icon>}
+                  {useWethProxy ? (
+                    <Icon src={ethLogoURI} />
+                  ) : (
+                    token1?.logoURI && <Icon src={token1.logoURI} />
+                  )}
                   <h2>{useWethProxy ? 'ETH' : token1?.symbol}</h2>
                 </div>
               </div>
@@ -227,6 +234,7 @@ const TokenInput = ({
           }
           .tokenSelector h2 {
             margin: 0;
+            margin-left: 0.2rem;
             font-family: var(--bodyfont);
             font-weight: var(--buttonweight);
             font-size: 1.3rem;
