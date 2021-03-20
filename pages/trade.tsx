@@ -64,7 +64,7 @@ const HeaderContent = (): JSX.Element => {
     const profits = userTokens
       ? userTokens.map((token) =>
           token.value && token.profit && token.value > 0
-            ? parseFloat(token.profit) / token.value
+            ? parseFloat(token.profit.toString()) / token.value
             : 0,
         )
       : null

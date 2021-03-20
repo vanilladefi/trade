@@ -1,7 +1,7 @@
 import { Column, Width } from 'components/grid/Flex'
 import { Spinner } from 'components/Spinner'
 import Icon from 'components/typography/Icon'
-import { formatUnits, parseUnits } from 'ethers/lib/utils'
+import { formatUnits } from 'ethers/lib/utils'
 import useTokenBalance from 'hooks/useTokenBalance'
 import React, { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
@@ -39,16 +39,14 @@ const TokenInput = ({
   const [amount1, setAmount1] = useState<string | null | undefined>()
   const [focused, setFocused] = useState<number | undefined>(undefined)
 
-  const {
-    formatted: balance0,
-    raw: balance0Raw,
-    decimals: decimals0,
-  } = useTokenBalance(token0?.address, token0?.decimals)
-  const {
-    formatted: balance1,
-    raw: balance1Raw,
-    decimals: decimals1,
-  } = useTokenBalance(token1?.address, token1?.decimals)
+  const { formatted: balance0 } = useTokenBalance(
+    token0?.address,
+    token0?.decimals,
+  )
+  const { formatted: balance1 } = useTokenBalance(
+    token1?.address,
+    token1?.decimals,
+  )
 
   const ethBalance = useWethProxy
     ? parseFloat(formatUnits(wallet.balance, 18)).toFixed(6)
@@ -71,29 +69,7 @@ const TokenInput = ({
   }, [focused, token1Amount])
 
   const handleAmountChange = (tokenIndex: 0 | 1, value: string) => {
-    // Input validation
-    let parsedValue = value || undefined
-    if (parsedValue && parsedValue !== '') {
-      if (parseFloat(parsedValue) < 0) {
-        parsedValue = '0'
-      } else if (parseFloat(parsedValue) > 0) {
-        if (tokenIndex === 0 && operation === Operation.Sell) {
-          const parsedValueRaw = parseUnits(parsedValue, decimals0)
-          if (parsedValueRaw.gt(balance0Raw)) {
-            parsedValue = balance0
-          }
-        }
-        if (tokenIndex === 1 && operation === Operation.Buy) {
-          const parsedValueRaw = parseUnits(parsedValue, decimals1)
-          if (parsedValueRaw.gt(balance1Raw)) {
-            if (ethBalance) {
-              parsedValue = ethBalance
-            }
-          }
-        }
-      }
-    }
-
+    const parsedValue = value || undefined
     // Set the values
     if (tokenIndex === 0) {
       setAmount0(parsedValue)
@@ -152,9 +128,7 @@ const TokenInput = ({
                 {operation === Operation.Sell && (
                   <button
                     className='maxButton'
-                    onClick={() =>
-                      handleAmountChange(0, balance0Raw.toString())
-                    }
+                    onClick={() => handleAmountChange(0, balance0)}
                   >
                     max
                   </button>
@@ -163,9 +137,7 @@ const TokenInput = ({
             </Column>
             <Column width={Width.FIVE} shrink={true} grow={false}>
               <div className='tokenSelector'>
-                <span
-                  onClick={() => handleAmountChange(0, balance0Raw.toString())}
-                >
+                <span onClick={() => handleAmountChange(0, balance0)}>
                   Balance: {balance0}
                 </span>
                 <div className='tokenIndicator'>

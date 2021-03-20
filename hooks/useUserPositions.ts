@@ -149,7 +149,7 @@ function useUserPositions(): Token[] | null {
             // Calculate profit percentage
             const profitPercentage =
               reward && profitablePrice && parsedAmountOut
-                ? profitablePrice / parsedAmountOut
+                ? (profitablePrice - parsedAmountOut) / parsedAmountOut
                 : 0
 
             // Parse the available VNL reward
@@ -162,7 +162,7 @@ function useUserPositions(): Token[] | null {
               owned: parsedOwnedAmount,
               ownedRaw: tokenAmount.raw.toString(),
               value: parsedValue,
-              profit: profitPercentage.toFixed(3),
+              profit: profitPercentage,
               vnl: parsedVnl,
             }
           }),

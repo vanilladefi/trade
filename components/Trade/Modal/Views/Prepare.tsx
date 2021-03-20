@@ -8,8 +8,9 @@ import Button, {
 } from 'components/input/Button'
 import { Spinner } from 'components/Spinner'
 import Icon, { IconUrls } from 'components/typography/Icon'
-import { BigNumber, constants } from 'ethers'
+import { constants } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
+import useTokenBalance from 'hooks/useTokenBalance'
 import useTradeEngine from 'hooks/useTradeEngine'
 import useVanillaRouter from 'hooks/useVanillaRouter'
 import { constructTrade } from 'lib/uniswap/trade'
@@ -85,22 +86,38 @@ const PrepareView = ({
     TransactionState.PREPARE,
   )
 
+  const { raw: balance0Raw } = useTokenBalance(
+    token0?.address,
+    token0?.decimals,
+  )
+  const { raw: balance1Raw } = useTokenBalance(
+    token1?.address,
+    token1?.decimals,
+    true,
+  )
   const [token0Amount, setToken0Amount] = useState<string>('0')
   const [token1Amount, setToken1Amount] = useState<string>('0')
-  const amount0Parsed: () => BigNumber = useCallback(() => {
-    if (token0Amount && token0) {
-      return parseUnits(token0Amount, token0.decimals)
+
+  const isOverFlow = useCallback(() => {
+    if (
+      (operation === Operation.Buy &&
+        parseUnits(token1Amount, token1?.decimals).gt(balance1Raw)) ||
+      (operation === Operation.Sell &&
+        parseUnits(token0Amount, token0?.decimals).gt(balance0Raw))
+    ) {
+      return true
     } else {
-      return BigNumber.from('0')
+      return false
     }
-  }, [token0Amount, token0])
-  const amount1Parsed: () => BigNumber = useCallback(() => {
-    if (token1Amount && token1) {
-      return parseUnits(token1Amount, token1.decimals)
-    } else {
-      return BigNumber.from('0')
-    }
-  }, [token1Amount, token1])
+  }, [
+    token1Amount,
+    token1?.decimals,
+    balance1Raw,
+    token0Amount,
+    token0?.decimals,
+    balance0Raw,
+    operation,
+  ])
 
   // Estimate gas fees
   useEffect(() => {
@@ -112,17 +129,17 @@ const PrepareView = ({
         token1 &&
         token1Amount &&
         token0Amount &&
-        !amount0Parsed().isZero() &&
-        !amount1Parsed().isZero()
+        !parseUnits(token0Amount, token0?.decimals).isZero() &&
+        !parseUnits(token1Amount, token1?.decimals).isZero()
       ) {
         if (operation === Operation.Buy) {
           vanillaRouter.estimateGas
             .depositAndBuy(
               token0.address,
-              amount0Parsed(),
+              parseUnits(token0Amount, token0?.decimals),
               constants.MaxUint256,
               {
-                value: amount1Parsed(),
+                value: parseUnits(token1Amount, token1?.decimals),
               },
             )
             .then((value) => {
@@ -137,8 +154,8 @@ const PrepareView = ({
           vanillaRouter.estimateGas
             .sellAndWithdraw(
               token0.address,
-              amount0Parsed(),
-              amount1Parsed(),
+              parseUnits(token0Amount, token0?.decimals),
+              parseUnits(token1Amount, token1?.decimals),
               constants.MaxUint256,
             )
             .then((value) => {
@@ -161,8 +178,6 @@ const PrepareView = ({
     token0,
     token1,
     vanillaRouter,
-    amount0Parsed,
-    amount1Parsed,
   ])
 
   // Estimate LP fees
@@ -170,7 +185,9 @@ const PrepareView = ({
     if (token1 && token0) {
       const token = operation === Operation.Buy ? token1 : token0
       const amountParsed =
-        operation === Operation.Buy ? amount1Parsed() : amount0Parsed()
+        operation === Operation.Buy
+          ? parseUnits(token1Amount, token1?.decimals)
+          : parseUnits(token0Amount, token0?.decimals)
       const feeAmount = amountParsed
         .mul(lpFeePercentage.numerator.toString())
         .div(lpFeePercentage.denominator.toString())
@@ -186,8 +203,8 @@ const PrepareView = ({
     token0,
     token1,
     operation,
-    amount1Parsed,
-    amount0Parsed,
+    token1Amount,
+    token0Amount,
   ])
 
   const updateTrade = async (
@@ -389,8 +406,6 @@ const PrepareView = ({
               onAmountChange={handleAmountChanged}
               token0Amount={token0Amount}
               token1Amount={token1Amount}
-              setToken0Amount={setToken0Amount}
-              setToken1Amount={setToken1Amount}
             />
           </div>
 
@@ -452,14 +467,17 @@ const PrepareView = ({
                   ? ButtonState.SUCCESS
                   : ButtonState.NORMAL
               }
-              disabled={[
-                TransactionState.PROCESSING,
-                TransactionState.DONE,
-              ].includes(transactionState)}
+              disabled={
+                [TransactionState.PROCESSING, TransactionState.DONE].includes(
+                  transactionState,
+                ) || isOverFlow()
+              }
               grow
             >
               {token1Amount === null ? (
                 <Spinner />
+              ) : isOverFlow() ? (
+                'Not enough funds'
               ) : transactionState === TransactionState.PREPARE ? (
                 `${
                   operation.charAt(0).toUpperCase() + operation.slice(1)
