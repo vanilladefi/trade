@@ -37,25 +37,24 @@ function useUserPositions(): Token[] | null {
   const wallet = useWallet()
   const vnl = useVanillaGovernanceToken()
 
-  const getTokenBalance = async (token: Token): Promise<BigNumber> => {
-    if (token.address && token.decimals && token.chainId && signer) {
-      try {
-        const contract = getContract(token.address, ERC20.abi, signer)
-        //const parsedToken = new UniswapToken(token.chainId, token.address, token.decimals)
-        const raw =
-          contract && isAddress(userAddress)
-            ? await contract.balanceOf(userAddress)
-            : '0'
-        //const formatted = new TokenAmount(parsedToken, raw.toString())
-        return raw
-      } catch (e) {
-        return BigNumber.from('0')
-      }
-    }
-    return BigNumber.from('0')
-  }
-
   useEffect(() => {
+    const getTokenBalance = async (token: Token): Promise<BigNumber> => {
+      if (token.address && token.decimals && token.chainId && signer) {
+        try {
+          const contract = getContract(token.address, ERC20.abi, signer)
+          //const parsedToken = new UniswapToken(token.chainId, token.address, token.decimals)
+          const raw =
+            contract && isAddress(userAddress)
+              ? await contract.balanceOf(userAddress)
+              : '0'
+          //const formatted = new TokenAmount(parsedToken, raw.toString())
+          return raw
+        } catch (e) {
+          return BigNumber.from('0')
+        }
+      }
+      return BigNumber.from('0')
+    }
     const filterUserTokens = async (
       tokens: Token[],
     ): Promise<Token[] | null> => {

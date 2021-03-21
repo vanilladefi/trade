@@ -75,10 +75,13 @@ const HeaderContent = (): JSX.Element => {
     const vnlAmounts = userTokens ? userTokens.map((token) => token.vnl) : null
     return vnlAmounts
       ? vnlAmounts.reduce((accumulator, current) => {
-          if (accumulator && current) {
+          if (
+            accumulator !== undefined &&
+            current !== undefined &&
+            accumulator !== null &&
+            current !== null
+          ) {
             return accumulator + current
-          } else if (current) {
-            return current
           } else {
             return 0
           }

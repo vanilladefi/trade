@@ -25,34 +25,45 @@ function useTokenBalance(
   const contract = useTokenContract(tokenAddress || '')
 
   const getBalances = useCallback(async () => {
+    const fetchRawBalance = async () => {
+      let raw: BigNumber = BigNumber.from('0')
+      if (
+        wethAsEth &&
+        tokenAddress &&
+        tokenAddress.toLowerCase() === weth.address.toLowerCase() &&
+        signer
+      ) {
+        raw = await signer?.getBalance()
+      } else if (contract) {
+        raw = await contract.balanceOf(userAddress)
+      }
+      return raw
+    }
+
     if (tokenAddress) {
       // Check balances from owned tokens first
-      const token = userTokens?.find(
-        (token) => token.address.toLowerCase() === tokenAddress.toLowerCase(),
-      )
+      const cachedToken =
+        tokenAddress &&
+        userTokens?.find(
+          (token) => token.address.toLowerCase() === tokenAddress.toLowerCase(),
+        )
+
+      const cachedTokenOwnedRaw =
+        cachedToken && cachedToken.ownedRaw
+          ? parseUnits(cachedToken.ownedRaw, cachedToken?.decimals)
+          : BigNumber.from('0')
 
       // Show cached balance if possible, revert to new balance query if not
-      if (token) {
-        const ownedRaw: BigNumber =
-          token && token.ownedRaw
-            ? parseUnits(token.ownedRaw, token?.decimals)
-            : BigNumber.from('0')
-        setFormatted(token?.owned ?? '0')
-        setRaw(ownedRaw)
-        setDecimals(token.decimals)
+      if (cachedToken && cachedToken instanceof Token) {
+        if (cachedTokenOwnedRaw !== raw || raw.isZero()) {
+          setFormatted(cachedToken?.owned ?? '0')
+          setRaw(cachedTokenOwnedRaw)
+          setDecimals(cachedToken.decimals)
+        }
       } else {
         if (decimals && userAddress && contract) {
           // Get raw BigNumber balance. Interpret wETH as ETH if specified.
-          let raw: BigNumber = BigNumber.from('0')
-          if (
-            wethAsEth &&
-            tokenAddress.toLowerCase() === weth.address.toLowerCase() &&
-            signer
-          ) {
-            raw = await signer?.getBalance()
-          } else {
-            raw = await contract.balanceOf(userAddress)
-          }
+          const newRaw: BigNumber = await fetchRawBalance()
           // Make sure "decimals" is an integer
           const parsedDecimals = parseInt(decimals.toString())
           const token = new Token(
@@ -60,23 +71,18 @@ function useTokenBalance(
             tokenAddress,
             parsedDecimals,
           )
-          const formatted = new TokenAmount(token, raw.toString())
+          const formatted = new TokenAmount(token, newRaw.toString())
 
-          setRaw(raw)
-          setFormatted(formatted.toSignificant())
-          setDecimals(parsedDecimals)
+          if (newRaw !== raw || raw.isZero()) {
+            setRaw(newRaw)
+            setFormatted(formatted.toSignificant())
+            setDecimals(parsedDecimals)
+          }
         }
       }
     }
-  }, [
-    contract,
-    decimals,
-    signer,
-    tokenAddress,
-    userAddress,
-    userTokens,
-    wethAsEth,
-  ])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [decimals, signer, tokenAddress, userAddress, wethAsEth])
 
   useEffect(() => {
     getBalances()

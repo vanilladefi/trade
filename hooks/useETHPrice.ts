@@ -14,7 +14,11 @@ export interface ETHPriceResponse {
 function useETHPrice(): void {
   const handleNewData = useRecoilCallback(
     ({ set }) => ({ data }: ETHPriceResponse) => {
-      if (data?.bundle?.ethPrice) {
+      if (
+        data?.bundle?.ethPrice !== undefined &&
+        data?.bundle?.ethPrice !== null &&
+        Number(data?.bundle?.ethPrice) > 0
+      ) {
         set(currentETHPrice, data.bundle.ethPrice)
       }
     },
