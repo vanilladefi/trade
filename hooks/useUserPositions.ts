@@ -7,7 +7,7 @@ import {
 import ERC20 from '@uniswap/v2-periphery/build/ERC20.json'
 import { BigNumber } from 'ethers'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
-import { getContract } from 'lib/tokens'
+import { getContract, tokenListChainId } from 'lib/tokens'
 import { constructTrade } from 'lib/uniswap/trade'
 import { estimateReward, RewardResponse, TokenPriceResponse } from 'lib/vanilla'
 import { useEffect, useMemo } from 'react'
@@ -19,6 +19,7 @@ import { providerState, signerState } from 'state/wallet'
 import type { Token } from 'types/trade'
 import { useWallet } from 'use-wallet'
 import useETHPrice from './useETHPrice'
+import useVanillaGovernanceToken from './useVanillaGovernanceToken'
 import useVanillaRouter from './useVanillaRouter'
 import useWalletAddress from './useWalletAddress'
 
@@ -34,6 +35,7 @@ function useUserPositions(): Token[] | null {
   const signer = useRecoilValue(signerState)
   const slippageTolerance = useRecoilValue(selectedSlippageTolerance)
   const wallet = useWallet()
+  const vnl = useVanillaGovernanceToken()
 
   const getTokenBalance = async (token: Token): Promise<BigNumber> => {
     if (token.address && token.decimals && token.chainId && signer) {
@@ -57,7 +59,13 @@ function useUserPositions(): Token[] | null {
     const filterUserTokens = async (
       tokens: Token[],
     ): Promise<Token[] | null> => {
-      if (vanillaRouter && userAddress && provider && signer) {
+      if (
+        vanillaRouter &&
+        userAddress &&
+        provider &&
+        signer &&
+        isAddress(vnl.address)
+      ) {
         const tokensWithBalance = await Promise.all(
           tokens.map(async (token) => {
             // Fetch price data from Vanilla router
@@ -71,6 +79,12 @@ function useUserPositions(): Token[] | null {
             } catch (e) {
               tokenSum = BigNumber.from('0')
             }
+
+            const vnlToken = new UniswapToken(
+              tokenListChainId,
+              vnl.address,
+              vnl.decimals,
+            )
 
             // Fetch token balances (Doesn't really work on localhost)
             const ownedInTotal = await getTokenBalance(token)
@@ -123,7 +137,10 @@ function useUserPositions(): Token[] | null {
                 ? trade.minimumAmountOut(slippageTolerance).raw
                 : undefined
             const parsedAmountOut =
-              amountOut && parseFloat(formatUnits(amountOut.toString()))
+              amountOut &&
+              parseFloat(
+                formatUnits(amountOut.toString(), counterAsset.decimals),
+              )
 
             let reward: RewardResponse | null
             try {
@@ -134,7 +151,7 @@ function useUserPositions(): Token[] | null {
                     token,
                     counterAsset,
                     tokenAmount.toSignificant(),
-                    amountOut.toString(),
+                    parsedAmountOut?.toString() || '0',
                   )
                 : null
             } catch (e) {
@@ -154,7 +171,10 @@ function useUserPositions(): Token[] | null {
 
             // Parse the available VNL reward
             const parsedVnl = reward
-              ? parseFloat(formatUnits(reward.reward, 12))
+              ? new TokenAmount(
+                  vnlToken,
+                  reward.reward.toString(),
+                ).toSignificant()
               : 0
 
             return {
