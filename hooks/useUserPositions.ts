@@ -149,7 +149,7 @@ function useUserPositions(): Token[] | null {
             // Calculate profit percentage
             const profitPercentage =
               reward && profitablePrice && parsedAmountOut
-                ? (profitablePrice - parsedAmountOut) / parsedAmountOut
+                ? -(profitablePrice - parsedAmountOut) / parsedAmountOut
                 : 0
 
             // Parse the available VNL reward
@@ -178,7 +178,7 @@ function useUserPositions(): Token[] | null {
       setTokens(tokensWithBalance)
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userAddress, counterAsset, ETHPrice])
+  }, [userAddress, counterAsset, ETHPrice, wallet.status, setTokens])
 
   return useMemo(() => {
     return tokens
