@@ -27,7 +27,7 @@ export interface Token extends UniSwapToken {
   ownedRaw?: string | null
   value?: number | null
   profit?: number | string | null
-  vnl?: string | number | null
+  vnl?: number | null
 }
 
 export interface TokenInfoQueryResponse {

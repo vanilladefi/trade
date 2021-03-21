@@ -171,10 +171,12 @@ function useUserPositions(): Token[] | null {
 
             // Parse the available VNL reward
             const parsedVnl = reward
-              ? new TokenAmount(
-                  vnlToken,
-                  reward.reward.toString(),
-                ).toSignificant()
+              ? parseFloat(
+                  new TokenAmount(
+                    vnlToken,
+                    reward.reward.toString(),
+                  ).toSignificant(),
+                )
               : 0
 
             return {
