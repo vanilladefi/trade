@@ -49,6 +49,7 @@ const Variables = (): JSX.Element => (
       /* Dimensions */
       --maxlayoutwidth: 1280px;
       --iconsize: 1rem;
+      --modalwidth: 30rem;
 
       /* Border radiuses */
       --tradeflowerborderradius: 9px;

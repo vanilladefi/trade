@@ -69,7 +69,7 @@ const Modal = ({
           overflow: auto;
         }
         .modal {
-          width: 30rem;
+          width: var(--modalwidth);
           height: auto;
           position: relative;
           border-radius: 1.5rem;

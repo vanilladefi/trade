@@ -87,7 +87,6 @@ const SuccessView = ({ id, closeModal }: Props): JSX.Element => {
         }
         .row button {
           display: flex;
-          flex-grow: 1;
         }
       `}</style>
     </Column>
