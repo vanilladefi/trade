@@ -17,7 +17,6 @@ function useEligibleTokenBalance(
     )
 
   if (token) {
-    console.log(token.owned)
     formatted = token.owned || '0'
     raw =
       token && token.ownedRaw

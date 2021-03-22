@@ -61,6 +61,7 @@ function useUserPositions(): Token[] | null {
               tokenSum = BigNumber.from('0')
             }
 
+            // VNL governance token
             const vnlToken = new UniswapToken(
               tokenListChainId,
               vnl.address,
@@ -74,6 +75,7 @@ function useUserPositions(): Token[] | null {
               token.decimals,
             )
 
+            // Construct token amount from Vanilla router reported amounts
             const tokenAmount = new TokenAmount(
               parsedUniToken,
               tokenSum.toString(),
@@ -172,9 +174,13 @@ function useUserPositions(): Token[] | null {
         return null
       }
     }
-    filterUserTokens(allTokens).then((tokensWithBalance) => {
-      setTokens(tokensWithBalance)
-    })
+    filterUserTokens(allTokens)
+      .then((tokensWithBalance) => {
+        setTokens(tokensWithBalance)
+      })
+      .catch(() => {
+        setTokens([])
+      })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userAddress, counterAsset, ETHPrice, wallet.status, setTokens])
 

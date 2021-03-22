@@ -36,6 +36,8 @@ function useTokenBalance(
       }
       // Make sure "decimals" is an integer
       const parsedDecimals = parseInt(decimals.toString())
+
+      // Construct token amounts
       const token = new Token(tokenListChainId, tokenAddress, parsedDecimals)
       const formatted = new TokenAmount(token, raw.toString())
 

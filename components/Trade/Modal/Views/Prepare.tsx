@@ -300,27 +300,42 @@ const PrepareView = ({
   const handleAmountChanged = async (tokenIndex: 0 | 1, value: string) => {
     if (tokenIndex === 0) {
       if (parseFloat(value) > 0) {
-        const trade = await updateTrade(tokenIndex, value)
-        if (trade) {
-          const newToken1Amount =
-            operation === Operation.Buy
-              ? trade.maximumAmountIn(slippageTolerance).toSignificant()
-              : trade.minimumAmountOut(slippageTolerance).toSignificant()
-          setToken1Amount(newToken1Amount)
-        } else {
-          setToken1Amount('0.0')
+        try {
+          const trade = await updateTrade(tokenIndex, value)
+          if (trade) {
+            console.log(trade)
+            const newToken1Amount =
+              operation === Operation.Buy
+                ? (trade.maximumAmountIn &&
+                    trade.maximumAmountIn(slippageTolerance).toSignificant()) ||
+                  trade.inputAmount.toSignificant()
+                : (trade.minimumAmountOut &&
+                    trade
+                      .minimumAmountOut(slippageTolerance)
+                      .toSignificant()) ||
+                  trade.outputAmount.toSignificant()
+            setToken1Amount(newToken1Amount)
+          } else {
+            setToken1Amount('0.0')
+          }
+        } catch (e) {
+          console.error(e)
         }
       }
       setToken0Amount(value)
     } else {
       if (parseFloat(value) > 0) {
-        const trade = await updateTrade(tokenIndex, value)
-        if (trade) {
-          const newToken0Amount =
-            operation === Operation.Buy
-              ? trade.minimumAmountOut(slippageTolerance).toSignificant()
-              : trade.maximumAmountIn(slippageTolerance).toSignificant()
-          setToken0Amount(newToken0Amount)
+        try {
+          const trade = await updateTrade(tokenIndex, value)
+          if (trade) {
+            const newToken0Amount =
+              operation === Operation.Buy
+                ? trade.minimumAmountOut(slippageTolerance).toSignificant()
+                : trade.maximumAmountIn(slippageTolerance).toSignificant()
+            setToken0Amount(newToken0Amount)
+          }
+        } catch (e) {
+          console.error(e)
         }
       } else {
         setToken0Amount('0.0')
@@ -606,6 +621,18 @@ const PrepareView = ({
           }
           .tradeInfoRow:last-of-type {
             border-bottom: 0;
+          }
+          .buttonContent {
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: inherit;
+            position: relative;
+            height: 100%;
+            width: 100%;
+            white-space: nowrap;
+            overflow-x: hidden;
+            overflow-y: visible;
+            text-overflow: ellipsis;
           }
         `}</style>
       </Column>
