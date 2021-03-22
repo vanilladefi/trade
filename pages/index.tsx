@@ -21,7 +21,7 @@ const HeaderContent = (
         <Column width={Width.TWELVE}>
           <Title>
             One Interface <br />
-            For All DeFI
+            For All DeFi
           </Title>
           <HugeMonospace>
             Trade, lend and participate in #ProfitMining
@@ -497,27 +497,53 @@ const IndexPage = (): JSX.Element => (
       <BoxSection color={Color.GRADIENT}>
         <Column>
           <Row>
-            <Column width={Width.FIVE}>
+            <Column width={Width.TWELVE}>
               <Title>Security</Title>
-            </Column>
-            <Column width={Width.SEVEN}>
-              <Highlight>
+              <p style={{ margin: '0 0 3rem' }}>
                 All Vanilla smart contracts have been thoroughly audited and
                 there is a public bug bounty, but Vanilla is still beta
                 software. Use at your own risk.
-              </Highlight>
+              </p>
             </Column>
           </Row>
-          <GridTemplate gap={'66px'}>
+          <GridTemplate gap={'32px'} colMinWidth={'280px'}>
             <GridItem>
-              <SeriousBox>
-                <Title>Audit</Title>
-              </SeriousBox>
+              <a
+                href='https://github.com/vanilladefi'
+                target='_blank'
+                rel='noopener noreferrer'
+                style={{
+                  minWidth: '200px',
+                  maxWidth: '20rem',
+                  margin: '0 auto',
+                }}
+              >
+                <Image
+                  src='/images/audit-reports.svg'
+                  width='400'
+                  height='286'
+                  alt='Audit Reports'
+                />
+              </a>
             </GridItem>
             <GridItem>
-              <SeriousBox>
-                <Title>Bug Bounty</Title>
-              </SeriousBox>
+              <a
+                href='https://github.com/vanilladefi'
+                target='_blank'
+                rel='noopener noreferrer'
+                style={{
+                  minWidth: '200px',
+                  maxWidth: '20rem',
+                  margin: '0 auto',
+                }}
+              >
+                <Image
+                  src='/images/bug-bounty.svg'
+                  width='400'
+                  height='286'
+                  alt='Bug bounties'
+                />
+              </a>
             </GridItem>
           </GridTemplate>
         </Column>
