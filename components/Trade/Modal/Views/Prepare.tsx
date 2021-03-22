@@ -117,6 +117,16 @@ const PrepareView = ({
     operation,
   ])
 
+  const notEnoughLiquidity = useCallback(() => {
+    if (trade instanceof Error) {
+      const error = trade as Error
+      if (error.name === 'InsufficientReservesError') {
+        return 'Not enough liquidity'
+      }
+    }
+    return false
+  }, [trade])
+
   // Estimate gas fees
   useEffect(() => {
     const estimateGas = debounce(() => {
@@ -303,7 +313,10 @@ const PrepareView = ({
         try {
           const trade = await updateTrade(tokenIndex, value)
           if (trade) {
-            console.log(trade)
+            if (trade instanceof Error) {
+              const error = trade as Error
+              console.log(error.name === 'InsufficientReservesError')
+            }
             const newToken1Amount =
               operation === Operation.Buy
                 ? (trade.maximumAmountIn &&
@@ -319,7 +332,9 @@ const PrepareView = ({
             setToken1Amount('0.0')
           }
         } catch (e) {
-          console.error(e)
+          if (e.message.includes('toSignificant')) {
+            setError('IO overflow error, reduce traded amounts')
+          }
         }
       }
       setToken0Amount(value)
@@ -330,12 +345,20 @@ const PrepareView = ({
           if (trade) {
             const newToken0Amount =
               operation === Operation.Buy
-                ? trade.minimumAmountOut(slippageTolerance).toSignificant()
-                : trade.maximumAmountIn(slippageTolerance).toSignificant()
+                ? (trade.minimumAmountOut &&
+                    trade
+                      .minimumAmountOut(slippageTolerance)
+                      .toSignificant()) ||
+                  trade.outputAmount.toSignificant()
+                : (trade.maximumAmountIn &&
+                    trade.maximumAmountIn(slippageTolerance).toSignificant()) ||
+                  trade.inputAmount.toSignificant()
             setToken0Amount(newToken0Amount)
           }
         } catch (e) {
-          console.error(e)
+          if (e.message.includes('toSignificant')) {
+            setError('IO overflow error, reduce traded amounts')
+          }
         }
       } else {
         setToken0Amount('0.0')
@@ -489,7 +512,7 @@ const PrepareView = ({
             >
               {token1Amount === null ? (
                 <Spinner />
-              ) : isOverFlow() ? (
+              ) : notEnoughLiquidity() ?? isOverFlow() ? (
                 'Not enough funds'
               ) : transactionState === TransactionState.PREPARE ? (
                 `${
