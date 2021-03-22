@@ -1,4 +1,5 @@
 import classNames from 'classnames'
+import Image from 'next/image'
 import React, { ReactNode, useEffect, useState } from 'react'
 
 type Callback = () => void
@@ -21,14 +22,7 @@ const Modal = ({
   return (
     <>
       {open && (
-        <div
-          className={curtainClasses}
-          onClick={(e) => {
-            e.preventDefault()
-            setOpen(false)
-            setTimeout(() => onRequestClose && onRequestClose(), 200)
-          }}
-        >
+        <div className={curtainClasses}>
           <div
             className='modal'
             onClick={(e) => {
@@ -36,6 +30,16 @@ const Modal = ({
               e.stopPropagation()
             }}
           >
+            <div
+              className='closeButton'
+              onClick={(e) => {
+                e.preventDefault()
+                setOpen(false)
+                setTimeout(() => onRequestClose && onRequestClose(), 200)
+              }}
+            >
+              <Image src='/images/close-button.svg' width='44' height='44' />
+            </div>
             {children}
           </div>
         </div>
@@ -53,12 +57,13 @@ const Modal = ({
           background: ${isOpen ? 'var(--curtain-background)' : 'transparent'};
           backdrop-filter: ${isOpen ? 'var(--curtain-backdropfilter)' : 'none'};
           z-index: 999;
-          cursor: pointer;
+
           transition: 0.2s ease backdrop-filter, 0.2s ease background;
         }
         .modal {
           width: 30rem;
           height: auto;
+          position: relative;
           border-radius: 1.5rem;
           background: var(--white);
           z-index: 1000;
@@ -66,6 +71,22 @@ const Modal = ({
           opacity: ${isOpen ? 1 : 0};
           transition: 0.1s ease opacity;
           pointer-events: all;
+        }
+        .closeButton {
+          position: absolute;
+          top: -14px;
+          cursor: pointer;
+          right: -14px;
+          z-index: 99;
+          width: 44px;
+          height: 44px;
+          line-height: 0;
+          border-radius: 100%;
+          transition: transform 0.2s ease-in-out;
+          border: 2px solid transparent;
+        }
+        .closeButton:hover {
+          transform: scale(1.1);
         }
         .closed {
           display: none;
