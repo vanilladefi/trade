@@ -16,10 +16,10 @@ export default function StaticPage({ children, title }: Props): JSX.Element {
       </Wrapper>
       <style jsx>{`
         .content {
-          padding: var(--boxpadding);
-        }
-        .content > img {
-          max-width: 100%;
+          padding: 0 1rem 5rem;
+          max-width: 48rem;
+          line-height: 1.6;
+          margin: 0 auto;
         }
       `}</style>
     </Layout>

@@ -1,5 +1,6 @@
 import Image from 'next/image'
-import BoxSection, { Color, SeriousBox } from '../components/BoxSection'
+import Link from 'next/link'
+import BoxSection, { Color } from '../components/BoxSection'
 import { Column, Row, Width } from '../components/grid/Flex'
 import { GridItem, GridTemplate } from '../components/grid/Grid'
 import Button from '../components/input/Button'
@@ -18,9 +19,16 @@ const HeaderContent = (
     <Column className='landingHero'>
       <Row>
         <Column width={Width.TWELVE}>
-          <Title>Vanilla Rewards You For Making a Profit In DeFi</Title>
-          <HugeMonospace>Trade, lend, profit.</HugeMonospace>
-          <Button>Start trading</Button>
+          <Title>
+            One Interface <br />
+            For All DeFi
+          </Title>
+          <HugeMonospace>
+            Trade, lend and participate in #ProfitMining
+          </HugeMonospace>
+          <Link href='/trade'>
+            <Button>Start trading</Button>
+          </Link>
         </Column>
       </Row>
     </Column>
@@ -51,7 +59,7 @@ const HeaderContent = (
         --titlemargin: 4vh 0 1.4rem 0;
         --buttonmargin: 0.5rem 0 10vh 0;
         padding-bottom: 0vh;
-        max-width: 35rem;
+        max-width: 38rem;
         width: 70%;
       }
       @media (min-width: ${BreakPoint.sm}px) {
@@ -65,7 +73,7 @@ const HeaderContent = (
           --titlemargin: 6vh 0 1.4rem;
           --buttonmargin: 0.5rem 0 10vh 0;
           --titlecolor: var(--dark);
-          max-width: 40rem;
+          max-width: 34rem;
         }
       }
 
@@ -132,15 +140,16 @@ const IndexPage = (): JSX.Element => (
             <Column width={Width.TWELVE} className='profitMiningHeader'>
               <Title>#ProfitMining</Title>
               <HugeMonospace>
-                Mine VNL by making a profit trading tokens through Vanilla
+                Mine VNL by making a profit trading tokens
               </HugeMonospace>
               <p>
                 Profit mining is the only way to create VNL tokens and mining
-                difficulty increases as the amount of capital in the Vanilla
-                system grows
+                difficulty increases over time.
               </p>
               <br />
-              <Button>Learn more</Button>
+              <Link href='/faq'>
+                <Button>Learn more</Button>
+              </Link>
             </Column>
           </div>
         </BoxSection>
@@ -488,27 +497,53 @@ const IndexPage = (): JSX.Element => (
       <BoxSection color={Color.GRADIENT}>
         <Column>
           <Row>
-            <Column width={Width.FIVE}>
+            <Column width={Width.TWELVE}>
               <Title>Security</Title>
-            </Column>
-            <Column width={Width.SEVEN}>
-              <Highlight>
+              <p style={{ margin: '0 0 3rem' }}>
                 All Vanilla smart contracts have been thoroughly audited and
                 there is a public bug bounty, but Vanilla is still beta
                 software. Use at your own risk.
-              </Highlight>
+              </p>
             </Column>
           </Row>
-          <GridTemplate gap={'66px'}>
+          <GridTemplate gap={'32px'} colMinWidth={'280px'}>
             <GridItem>
-              <SeriousBox>
-                <Title>Audit</Title>
-              </SeriousBox>
+              <a
+                href='https://github.com/vanilladefi'
+                target='_blank'
+                rel='noopener noreferrer'
+                style={{
+                  minWidth: '200px',
+                  maxWidth: '20rem',
+                  margin: '0 auto',
+                }}
+              >
+                <Image
+                  src='/images/audit-reports.svg'
+                  width='400'
+                  height='286'
+                  alt='Audit Reports'
+                />
+              </a>
             </GridItem>
             <GridItem>
-              <SeriousBox>
-                <Title>Bug Bounty</Title>
-              </SeriousBox>
+              <a
+                href='https://github.com/vanilladefi'
+                target='_blank'
+                rel='noopener noreferrer'
+                style={{
+                  minWidth: '200px',
+                  maxWidth: '20rem',
+                  margin: '0 auto',
+                }}
+              >
+                <Image
+                  src='/images/bug-bounty.svg'
+                  width='400'
+                  height='286'
+                  alt='Bug bounties'
+                />
+              </a>
             </GridItem>
           </GridTemplate>
         </Column>
