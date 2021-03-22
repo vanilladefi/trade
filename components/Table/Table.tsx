@@ -1,11 +1,7 @@
+import type { BreakPoints } from 'components/GlobalStyles/Breakpoints'
+import { useBreakpoints } from 'hooks/breakpoints'
+import debounce from 'lodash.debounce'
 import React, { useCallback, useEffect, useRef } from 'react'
-import {
-  useFlexLayout,
-  usePagination,
-  useSortBy,
-  useTable,
-  useGlobalFilter,
-} from 'react-table'
 import type {
   Cell,
   ColumnInstance,
@@ -14,13 +10,17 @@ import type {
   Row,
   TableKeyedProps,
 } from 'react-table'
-import debounce from 'lodash.debounce'
-import { useBreakpoints } from 'hooks/breakpoints'
-import type { BreakPoints } from 'components/GlobalStyles/Breakpoints'
+import {
+  useFlexLayout,
+  useGlobalFilter,
+  usePagination,
+  useSortBy,
+  useTable,
+} from 'react-table'
 import type {
-  ListColumn,
-  LeftOrRightAlignable,
   ColorBasedOnValue,
+  LeftOrRightAlignable,
+  ListColumn,
 } from 'types/trade'
 import PageControl from './PageControl'
 
@@ -230,7 +230,7 @@ export default function Table<D extends Record<string, unknown>>({
         }
         .tr {
           margin-bottom: 0.8rem;
-          border-radius: 30px;
+          border-radius: 9999px;
           min-height: 60px;
         }
         .tbody .tr {
