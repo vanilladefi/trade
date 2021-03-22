@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import BoxSection, { Color, SeriousBox } from '../components/BoxSection'
+import BoxSection, { Color } from '../components/BoxSection'
 import { Column, Row, Width } from '../components/grid/Flex'
 import { GridItem, GridTemplate } from '../components/grid/Grid'
 import Button from '../components/input/Button'
