@@ -56,6 +56,10 @@ const GlobalStyles = (): JSX.Element => (
         filter: grayscale(100%);
       }
 
+      a {
+        color: var(--link-on-white);
+      }
+
       .content > img {
         max-width: 100%;
       }
