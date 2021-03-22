@@ -10,6 +10,7 @@ import { Spinner } from 'components/Spinner'
 import Icon, { IconUrls } from 'components/typography/Icon'
 import { constants } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
+import useEligibleTokenBalance from 'hooks/useEligibleTokenBalance'
 import useTokenBalance from 'hooks/useTokenBalance'
 import useTradeEngine from 'hooks/useTradeEngine'
 import useVanillaRouter from 'hooks/useVanillaRouter'
@@ -86,10 +87,7 @@ const PrepareView = ({
     TransactionState.PREPARE,
   )
 
-  const { raw: balance0Raw } = useTokenBalance(
-    token0?.address,
-    token0?.decimals,
-  )
+  const { raw: balance0Raw } = useEligibleTokenBalance(token0?.address)
   const { raw: balance1Raw } = useTokenBalance(
     token1?.address,
     token1?.decimals,

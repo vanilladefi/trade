@@ -4,10 +4,9 @@ import {
   Trade,
   TradeType,
 } from '@uniswap/sdk'
-import ERC20 from '@uniswap/v2-periphery/build/ERC20.json'
 import { BigNumber } from 'ethers'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
-import { getContract, tokenListChainId } from 'lib/tokens'
+import { tokenListChainId } from 'lib/tokens'
 import { constructTrade } from 'lib/uniswap/trade'
 import { estimateReward, RewardResponse, TokenPriceResponse } from 'lib/vanilla'
 import { useEffect, useMemo } from 'react'
@@ -38,23 +37,6 @@ function useUserPositions(): Token[] | null {
   const vnl = useVanillaGovernanceToken()
 
   useEffect(() => {
-    const getTokenBalance = async (token: Token): Promise<BigNumber> => {
-      if (token.address && token.decimals && token.chainId && signer) {
-        try {
-          const contract = getContract(token.address, ERC20.abi, signer)
-          //const parsedToken = new UniswapToken(token.chainId, token.address, token.decimals)
-          const raw =
-            contract && isAddress(userAddress)
-              ? await contract.balanceOf(userAddress)
-              : '0'
-          //const formatted = new TokenAmount(parsedToken, raw.toString())
-          return raw
-        } catch (e) {
-          return BigNumber.from('0')
-        }
-      }
-      return BigNumber.from('0')
-    }
     const filterUserTokens = async (
       tokens: Token[],
     ): Promise<Token[] | null> => {
@@ -85,9 +67,6 @@ function useUserPositions(): Token[] | null {
               vnl.decimals,
             )
 
-            // Fetch token balances (Doesn't really work on localhost)
-            const ownedInTotal = await getTokenBalance(token)
-
             // Construct helpers for upcoming calculations
             const parsedUniToken = new UniswapToken(
               token.chainId,
@@ -97,13 +76,11 @@ function useUserPositions(): Token[] | null {
 
             const tokenAmount = new TokenAmount(
               parsedUniToken,
-              !ownedInTotal.isZero()
-                ? ownedInTotal.toString()
-                : tokenSum.toString(),
+              tokenSum.toString(),
             )
 
             // Owned amount. By default, use the total owned amount.
-            // On localhost, fall back to Vanilla router data
+            // If zero, exclude from user's owned tokens
             const parsedOwnedAmount = tokenAmount.greaterThan('0')
               ? tokenAmount.toSignificant()
               : undefined

@@ -2,6 +2,7 @@ import { Column, Width } from 'components/grid/Flex'
 import { Spinner } from 'components/Spinner'
 import Icon from 'components/typography/Icon'
 import { formatUnits } from 'ethers/lib/utils'
+import useEligibleTokenBalance from 'hooks/useEligibleTokenBalance'
 import useTokenBalance from 'hooks/useTokenBalance'
 import React, { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
@@ -39,13 +40,11 @@ const TokenInput = ({
   const [amount1, setAmount1] = useState<string | null | undefined>()
   const [focused, setFocused] = useState<number | undefined>(undefined)
 
-  const { formatted: balance0 } = useTokenBalance(
-    token0?.address,
-    token0?.decimals,
-  )
+  const { formatted: balance0 } = useEligibleTokenBalance(token0?.address)
   const { formatted: balance1 } = useTokenBalance(
     token1?.address,
     token1?.decimals,
+    true,
   )
 
   const ethBalance = useWethProxy

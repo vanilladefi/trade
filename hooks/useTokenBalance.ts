@@ -1,10 +1,8 @@
 import { Token, TokenAmount } from '@uniswap/sdk'
 import { BigNumber } from 'ethers'
-import { parseUnits } from 'ethers/lib/utils'
 import { tokenListChainId, weth } from 'lib/tokens'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue } from 'recoil'
-import { userTokensState } from 'state/tokens'
 import { signerState } from 'state/wallet'
 import { useTokenContract } from './useContract'
 import useWalletAddress from './useWalletAddress'
@@ -14,7 +12,6 @@ function useTokenBalance(
   decimals?: string | number | null,
   wethAsEth?: boolean,
 ): { formatted: string; raw: BigNumber; decimals: number } {
-  const userTokens = useRecoilValue(userTokensState)
   const signer = useRecoilValue(signerState)
 
   const [raw, setRaw] = useState(BigNumber.from('0'))
@@ -25,64 +22,28 @@ function useTokenBalance(
   const contract = useTokenContract(tokenAddress || '')
 
   const getBalances = useCallback(async () => {
-    const fetchRawBalance = async () => {
+    if (tokenAddress && decimals && userAddress && contract) {
+      // Get raw BigNumber balance. Interpret wETH as ETH if specified.
       let raw: BigNumber = BigNumber.from('0')
       if (
         wethAsEth &&
-        tokenAddress &&
         tokenAddress.toLowerCase() === weth.address.toLowerCase() &&
         signer
       ) {
         raw = await signer?.getBalance()
-      } else if (contract) {
+      } else {
         raw = await contract.balanceOf(userAddress)
       }
-      return raw
+      // Make sure "decimals" is an integer
+      const parsedDecimals = parseInt(decimals.toString())
+      const token = new Token(tokenListChainId, tokenAddress, parsedDecimals)
+      const formatted = new TokenAmount(token, raw.toString())
+
+      setRaw(raw)
+      setFormatted(formatted.toSignificant())
+      setDecimals(parsedDecimals)
     }
-
-    if (tokenAddress) {
-      // Check balances from owned tokens first
-      const cachedToken =
-        tokenAddress &&
-        userTokens?.find(
-          (token) => token.address.toLowerCase() === tokenAddress.toLowerCase(),
-        )
-
-      const cachedTokenOwnedRaw =
-        cachedToken && cachedToken.ownedRaw
-          ? parseUnits(cachedToken.ownedRaw, cachedToken?.decimals)
-          : BigNumber.from('0')
-
-      // Show cached balance if possible, revert to new balance query if not
-      if (cachedToken && cachedToken instanceof Token) {
-        if (cachedTokenOwnedRaw !== raw || raw.isZero()) {
-          setFormatted(cachedToken?.owned ?? '0')
-          setRaw(cachedTokenOwnedRaw)
-          setDecimals(cachedToken.decimals)
-        }
-      } else {
-        if (decimals && userAddress && contract) {
-          // Get raw BigNumber balance. Interpret wETH as ETH if specified.
-          const newRaw: BigNumber = await fetchRawBalance()
-          // Make sure "decimals" is an integer
-          const parsedDecimals = parseInt(decimals.toString())
-          const token = new Token(
-            tokenListChainId,
-            tokenAddress,
-            parsedDecimals,
-          )
-          const formatted = new TokenAmount(token, newRaw.toString())
-
-          if (newRaw !== raw || raw.isZero()) {
-            setRaw(newRaw)
-            setFormatted(formatted.toSignificant())
-            setDecimals(parsedDecimals)
-          }
-        }
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [decimals, signer, tokenAddress, userAddress, wethAsEth])
+  }, [contract, decimals, signer, tokenAddress, userAddress, wethAsEth])
 
   useEffect(() => {
     getBalances()
