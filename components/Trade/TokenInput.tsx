@@ -7,8 +7,8 @@ import useTokenBalance from 'hooks/useTokenBalance'
 import React, { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { token0Selector, token1Selector } from 'state/trade'
+import { Operation } from 'types/trade'
 import { useWallet } from 'use-wallet'
-import { Operation } from './Modal'
 
 type Props = {
   operation: Operation
@@ -40,7 +40,14 @@ const TokenInput = ({
   const [amount1, setAmount1] = useState<string | null | undefined>()
   const [focused, setFocused] = useState<number | undefined>(undefined)
 
-  const { formatted: balance0 } = useEligibleTokenBalance(token0?.address)
+  const {
+    formatted: eligibleBalance0,
+    raw: eligibleBalance0Raw,
+  } = useEligibleTokenBalance(token0?.address)
+  const { formatted: balance0, raw: balance0Raw } = useTokenBalance(
+    token0?.address,
+    token0?.decimals,
+  )
   const { formatted: balance1 } = useTokenBalance(
     token1?.address,
     token1?.decimals,
@@ -127,7 +134,12 @@ const TokenInput = ({
                 {operation === Operation.Sell && (
                   <button
                     className='maxButton'
-                    onClick={() => handleAmountChange(0, balance0)}
+                    onClick={() =>
+                      handleAmountChange(
+                        0,
+                        !balance0Raw.isZero() ? balance0 : eligibleBalance0,
+                      )
+                    }
                   >
                     max
                   </button>
@@ -136,8 +148,15 @@ const TokenInput = ({
             </Column>
             <Column width={Width.FIVE} shrink={true} grow={false}>
               <div className='tokenSelector'>
-                <span onClick={() => handleAmountChange(0, balance0)}>
-                  Balance: {balance0}
+                <span
+                  onClick={() =>
+                    handleAmountChange(
+                      0,
+                      !balance0Raw.isZero() ? balance0 : eligibleBalance0,
+                    )
+                  }
+                >
+                  Balance: {!balance0Raw.isZero() ? balance0 : eligibleBalance0}
                 </span>
                 <div className='tokenIndicator'>
                   {token0?.logoURI && <Icon src={token0.logoURI} />}

@@ -34,7 +34,7 @@ import {
   token1Selector,
 } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
-import { Operation } from '..'
+import { Operation } from 'types/trade'
 
 type ContentProps = {
   operation: Operation
@@ -87,7 +87,11 @@ const PrepareView = ({
     TransactionState.PREPARE,
   )
 
-  const { raw: balance0Raw } = useEligibleTokenBalance(token0?.address)
+  const { raw: balance0Raw } = useTokenBalance(
+    token0?.address,
+    token0?.decimals,
+  )
+  const { raw: eligibleBalance0Raw } = useEligibleTokenBalance(token0?.address)
   const { raw: balance1Raw } = useTokenBalance(
     token1?.address,
     token1?.decimals,
@@ -100,21 +104,23 @@ const PrepareView = ({
     if (
       (operation === Operation.Buy &&
         parseUnits(token1Amount, token1?.decimals).gt(balance1Raw)) ||
-      (operation === Operation.Sell &&
-        parseUnits(token0Amount, token0?.decimals).gt(balance0Raw))
+      (operation === Operation.Sell && !balance0Raw.isZero()
+        ? parseUnits(token0Amount, token0?.decimals).gt(balance0Raw)
+        : parseUnits(token0Amount, token0?.decimals).gt(eligibleBalance0Raw))
     ) {
       return true
     } else {
       return false
     }
   }, [
+    operation,
     token1Amount,
     token1?.decimals,
     balance1Raw,
+    balance0Raw,
     token0Amount,
     token0?.decimals,
-    balance0Raw,
-    operation,
+    eligibleBalance0Raw,
   ])
 
   const notEnoughLiquidity = useCallback(() => {

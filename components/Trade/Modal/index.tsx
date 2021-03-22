@@ -4,8 +4,8 @@ import { Spinner } from 'components/Spinner'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import React, { Suspense, useState } from 'react'
-import { useSetRecoilState } from 'recoil'
-import { selectedPairIdState } from 'state/trade'
+import { useRecoilState, useSetRecoilState } from 'recoil'
+import { selectedOperation, selectedPairIdState } from 'state/trade'
 
 const Loading = (): JSX.Element => (
   <Row>
@@ -39,13 +39,8 @@ type Props = {
   onRequestClose: () => void
 }
 
-export enum Operation {
-  Buy = 'buy',
-  Sell = 'sell',
-}
-
 const TradeModal = ({ open, onRequestClose }: Props): JSX.Element => {
-  const [operation, setOperation] = useState<Operation>(Operation.Buy)
+  const [operation, setOperation] = useRecoilState(selectedOperation)
   const [modalCloseEnabled, setModalCloseEnabled] = useState<boolean>(true)
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
 

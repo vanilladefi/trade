@@ -6,6 +6,11 @@ export interface PairInfo {
   pairId: string | null
 }
 
+export enum Operation {
+  Buy = 'buy',
+  Sell = 'sell',
+}
+
 export interface UniSwapToken {
   [index: string]: string | number | null | undefined
   name?: string

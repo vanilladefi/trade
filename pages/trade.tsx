@@ -33,9 +33,9 @@ import React, {
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { currentETHPrice } from 'state/meta'
 import { allTokensStoreState, userTokensState } from 'state/tokens'
-import { selectedPairIdState } from 'state/trade'
+import { selectedOperation, selectedPairIdState } from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
-import type { HandleBuyClick, HandleSellClick, Token } from 'types/trade'
+import { HandleBuyClick, HandleSellClick, Operation, Token } from 'types/trade'
 import { useWallet } from 'use-wallet'
 
 type PageProps = {
@@ -279,6 +279,7 @@ const BodyContent = ({
   const setTokens = useSetRecoilState(allTokensStoreState)
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
+  const setOperation = useSetRecoilState(selectedOperation)
   const { account } = useWallet()
 
   useEffect(() => {
@@ -292,11 +293,18 @@ const BodyContent = ({
         setWalletModalOpen(true)
       } else {
         setWalletModalOpen(false)
+        setOperation(Operation.Buy)
         setSelectedPairId(pairInfo?.pairId ?? null)
         setModalOpen(true)
       }
     },
-    [account, setModalOpen, setSelectedPairId, setWalletModalOpen],
+    [
+      account,
+      setModalOpen,
+      setOperation,
+      setSelectedPairId,
+      setWalletModalOpen,
+    ],
   )
 
   const handleSellClick: HandleSellClick = useCallback(
@@ -305,11 +313,18 @@ const BodyContent = ({
         setWalletModalOpen(true)
       } else {
         setWalletModalOpen(false)
+        setOperation(Operation.Sell)
         setSelectedPairId(pairInfo?.pairId ?? null)
         setModalOpen(true)
       }
     },
-    [account, setModalOpen, setSelectedPairId, setWalletModalOpen],
+    [
+      account,
+      setModalOpen,
+      setOperation,
+      setSelectedPairId,
+      setWalletModalOpen,
+    ],
   )
 
   return (

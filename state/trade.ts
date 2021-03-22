@@ -2,12 +2,16 @@ import { Percent } from '@uniswap/sdk'
 import { PairByIdQuery, thegraphClient } from 'lib/graphql'
 import { getLogoUri, tokenListChainId, weth } from 'lib/tokens'
 import { atom, selector } from 'recoil'
-import type { UniSwapToken } from 'types/trade'
-import { PairByIdQueryResponse } from 'types/trade'
+import { Operation, PairByIdQueryResponse, UniSwapToken } from 'types/trade'
 
 export const selectedPairIdState = atom<string | null>({
   key: 'selectedPairId',
   default: null,
+})
+
+export const selectedOperation = atom<Operation>({
+  key: 'selectedOperation',
+  default: Operation.Buy,
 })
 
 export const selectedCounterAsset = atom<UniSwapToken>({
