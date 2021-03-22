@@ -167,6 +167,7 @@ const HeaderContent = (): JSX.Element => {
           display: flex;
           align-items: center;
           justify-content: center;
+          --iconsize: 2rem;
         }
       `}</style>
       <style jsx global>{`

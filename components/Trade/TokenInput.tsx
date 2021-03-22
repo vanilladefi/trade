@@ -108,7 +108,7 @@ const TokenInput = ({
       <>
         <div className='tokenInputWrapper'>
           <div className='row'>
-            <Column width={Width.SEVEN} shrink={false} grow={true}>
+            <Column width={Width.SEVEN}>
               <div className='numberInput'>
                 <span>Amount to {operation}</span>
                 {amount0 !== null ? (
@@ -145,7 +145,7 @@ const TokenInput = ({
                 )}
               </div>
             </Column>
-            <Column width={Width.FIVE} shrink={true} grow={false}>
+            <Column width={Width.FIVE} overflowY={'hidden'}>
               <div className='tokenSelector'>
                 <span
                   onClick={() =>
@@ -154,6 +154,7 @@ const TokenInput = ({
                       !balance0Raw.isZero() ? balance0 : eligibleBalance0,
                     )
                   }
+                  title={!balance0Raw.isZero() ? balance0 : eligibleBalance0}
                 >
                   Balance: {!balance0Raw.isZero() ? balance0 : eligibleBalance0}
                 </span>
@@ -166,7 +167,7 @@ const TokenInput = ({
           </div>
 
           <div className='row'>
-            <Column width={Width.SEVEN} shrink={false} grow={true}>
+            <Column width={Width.SEVEN}>
               <div className='numberInput'>
                 <span>{operation === Operation.Sell ? 'Get' : 'Pay'}</span>
                 {amount1 !== null ? (
@@ -200,10 +201,11 @@ const TokenInput = ({
                 )}
               </div>
             </Column>
-            <Column width={Width.FIVE} shrink={true} grow={false}>
+            <Column width={Width.FIVE} overflowY={'hidden'}>
               <div className='tokenSelector'>
                 <span
                   onClick={() => handleAmountChange(1, ethBalance || balance1)}
+                  title={ethBalance || balance1}
                 >
                   Balance: {ethBalance}
                 </span>
@@ -249,12 +251,14 @@ const TokenInput = ({
             flex-direction: column;
             position: relative;
             padding: 1rem 1.2rem;
+            text-overflow: ellipsis;
           }
           .numberInput {
             border-right: 1px solid #332931;
             width: 100%;
+            height: 100%;
             display: flex;
-            flex-grow: 1;
+            overflow: hidden;
           }
           input {
             margin-top: 1rem;

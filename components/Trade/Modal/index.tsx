@@ -15,7 +15,7 @@ const Loading = (): JSX.Element => (
       </div>
       <style jsx>{`
         div {
-          width: 100%;
+          width: 30rem;
           height: 400px;
           display: flex;
           justify-content: center;

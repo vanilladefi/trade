@@ -49,7 +49,20 @@ export default function MyPositions({
       pagination
     />
   ) : (
-    <Spinner />
+    <div className='spinnerWrapper'>
+      <Spinner />
+      <style jsx>{`
+        .spinnerWrapper {
+          display: flex;
+          width: 100%;
+          flex-direction: row;
+          justify-content: center;
+          align-items: center;
+          height: 80px;
+          --iconsize: 2rem;
+        }
+      `}</style>
+    </div>
   )
 }
 

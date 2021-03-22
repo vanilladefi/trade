@@ -70,6 +70,7 @@ const Modal = ({
         }
         .modal {
           width: var(--modalwidth);
+          max-width: fit-content;
           height: auto;
           position: relative;
           border-radius: 1.5rem;

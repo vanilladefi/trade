@@ -321,19 +321,22 @@ const PrepareView = ({
           if (trade) {
             if (trade instanceof Error) {
               const error = trade as Error
-              console.log(error.name === 'InsufficientReservesError')
+              setError(`Could not construct trade. Error: ${error.message}`)
+            } else {
+              const newToken1Amount =
+                operation === Operation.Buy
+                  ? (trade.maximumAmountIn &&
+                      trade
+                        .maximumAmountIn(slippageTolerance)
+                        .toSignificant()) ||
+                    trade.inputAmount.toSignificant()
+                  : (trade.minimumAmountOut &&
+                      trade
+                        .minimumAmountOut(slippageTolerance)
+                        .toSignificant()) ||
+                    trade.outputAmount.toSignificant()
+              setToken1Amount(newToken1Amount)
             }
-            const newToken1Amount =
-              operation === Operation.Buy
-                ? (trade.maximumAmountIn &&
-                    trade.maximumAmountIn(slippageTolerance).toSignificant()) ||
-                  trade.inputAmount.toSignificant()
-                : (trade.minimumAmountOut &&
-                    trade
-                      .minimumAmountOut(slippageTolerance)
-                      .toSignificant()) ||
-                  trade.outputAmount.toSignificant()
-            setToken1Amount(newToken1Amount)
           } else {
             setToken1Amount('0.0')
           }
@@ -349,17 +352,24 @@ const PrepareView = ({
         try {
           const trade = await updateTrade(tokenIndex, value)
           if (trade) {
-            const newToken0Amount =
-              operation === Operation.Buy
-                ? (trade.minimumAmountOut &&
-                    trade
-                      .minimumAmountOut(slippageTolerance)
-                      .toSignificant()) ||
-                  trade.outputAmount.toSignificant()
-                : (trade.maximumAmountIn &&
-                    trade.maximumAmountIn(slippageTolerance).toSignificant()) ||
-                  trade.inputAmount.toSignificant()
-            setToken0Amount(newToken0Amount)
+            if (trade instanceof Error) {
+              const error = trade as Error
+              setError(`Could not construct trade. Error: ${error.message}`)
+            } else {
+              const newToken0Amount =
+                operation === Operation.Buy
+                  ? (trade.minimumAmountOut &&
+                      trade
+                        .minimumAmountOut(slippageTolerance)
+                        .toSignificant()) ||
+                    trade.outputAmount.toSignificant()
+                  : (trade.maximumAmountIn &&
+                      trade
+                        .maximumAmountIn(slippageTolerance)
+                        .toSignificant()) ||
+                    trade.inputAmount.toSignificant()
+              setToken0Amount(newToken0Amount)
+            }
           }
         } catch (e) {
           if (e.message.includes('toSignificant')) {
@@ -414,259 +424,265 @@ const PrepareView = ({
 
   return (
     <Suspense fallback={() => <div>Fetching pair data...</div>}>
-      <Column>
-        <section
-          className={`inputWrapper${
-            [TransactionState.PROCESSING, TransactionState.DONE].includes(
-              transactionState,
-            )
-              ? ' disabled'
-              : ''
-          }`}
-        >
-          <div className='row noBottomMargin'>
-            <div className='toggleWrapper'>
-              <button
-                className={operation === Operation.Buy ? 'active' : undefined}
-                onClick={() => setOperation(Operation.Buy)}
-              >
-                Buy
-              </button>
-              <button
-                className={operation === Operation.Sell ? 'active' : undefined}
-                onClick={() => setOperation(Operation.Sell)}
-                disabled={balance0Raw.isZero() && eligibleBalance0Raw.isZero()}
-              >
-                Sell
-              </button>
+      <section style={{ minWidth: '360px', maxWidth: '30rem' }}>
+        <Column>
+          <section
+            className={`inputWrapper${
+              [TransactionState.PROCESSING, TransactionState.DONE].includes(
+                transactionState,
+              )
+                ? ' disabled'
+                : ''
+            }`}
+          >
+            <div className='row noBottomMargin'>
+              <div className='toggleWrapper'>
+                <button
+                  className={operation === Operation.Buy ? 'active' : undefined}
+                  onClick={() => setOperation(Operation.Buy)}
+                >
+                  Buy
+                </button>
+                <button
+                  className={
+                    operation === Operation.Sell ? 'active' : undefined
+                  }
+                  onClick={() => setOperation(Operation.Sell)}
+                  disabled={
+                    balance0Raw.isZero() && eligibleBalance0Raw.isZero()
+                  }
+                >
+                  Sell
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div className='row noBottomMargin'>
-            <TokenInput
-              operation={operation}
-              onAmountChange={handleAmountChanged}
-              token0Amount={token0Amount}
-              token1Amount={token1Amount}
-            />
-          </div>
+            <div className='row noBottomMargin'>
+              <TokenInput
+                operation={operation}
+                onAmountChange={handleAmountChanged}
+                token0Amount={token0Amount}
+                token1Amount={token1Amount}
+              />
+            </div>
 
-          {/* TODO: Trade info */}
-          {token0Amount && trade?.executionPrice && vanillaRouter && (
-            <div className='row'>
-              <Column width={Width.TWELVE}>
-                <div className='tradeInfoRow'>
-                  <span>
-                    Price per{' '}
-                    {operation === Operation.Buy
-                      ? token1?.symbol
-                      : token0?.symbol}
-                  </span>
-                  <span>
-                    {trade?.executionPrice.toSignificant()}{' '}
-                    {operation === Operation.Buy
-                      ? token0?.symbol
-                      : token1?.symbol}
-                  </span>
-                </div>
-                <div className='tradeInfoRow'>
-                  <span>Estimated gas</span>
-                  <span>{estimatedGas} ETH</span>
-                </div>
-                <div className='tradeInfoRow'>
-                  <span>Liquidity provider fees</span>
-                  <span>
-                    {estimatedFees}{' '}
-                    {operation === Operation.Buy
-                      ? token1?.symbol
-                      : token0?.symbol}
-                  </span>
-                </div>
-                <div className='tradeInfoRow'>
-                  <span>Slippage tolerance</span>
-                  <span>{slippageTolerance.toSignificant()} %</span>
-                </div>
-                {estimatedReward && (
+            {/* TODO: Trade info */}
+            {token0Amount && trade?.executionPrice && vanillaRouter && (
+              <div className='row'>
+                <Column width={Width.TWELVE}>
                   <div className='tradeInfoRow'>
-                    <span>Unclaimed rewards</span>
-                    <span>{estimatedReward} VNL</span>
+                    <span>
+                      Price per{' '}
+                      {operation === Operation.Buy
+                        ? token1?.symbol
+                        : token0?.symbol}
+                    </span>
+                    <span>
+                      {trade?.executionPrice.toSignificant()}{' '}
+                      {operation === Operation.Buy
+                        ? token0?.symbol
+                        : token1?.symbol}
+                    </span>
                   </div>
+                  <div className='tradeInfoRow'>
+                    <span>Estimated gas</span>
+                    <span>{estimatedGas} ETH</span>
+                  </div>
+                  <div className='tradeInfoRow'>
+                    <span>Liquidity provider fees</span>
+                    <span>
+                      {estimatedFees}{' '}
+                      {operation === Operation.Buy
+                        ? token1?.symbol
+                        : token0?.symbol}
+                    </span>
+                  </div>
+                  <div className='tradeInfoRow'>
+                    <span>Slippage tolerance</span>
+                    <span>{slippageTolerance.toSignificant()} %</span>
+                  </div>
+                  {estimatedReward && (
+                    <div className='tradeInfoRow'>
+                      <span>Unclaimed rewards</span>
+                      <span>{estimatedReward} VNL</span>
+                    </div>
+                  )}
+                </Column>
+              </div>
+            )}
+          </section>
+
+          <div className='row'>
+            {token0Amount !== '0' ? (
+              <Button
+                onClick={() => handleClick()}
+                size={ButtonSize.LARGE}
+                buttonState={
+                  transactionState === TransactionState.PROCESSING
+                    ? ButtonState.LOADING
+                    : transactionState === TransactionState.DONE
+                    ? ButtonState.SUCCESS
+                    : ButtonState.NORMAL
+                }
+                disabled={
+                  [TransactionState.PROCESSING, TransactionState.DONE].includes(
+                    transactionState,
+                  ) || isOverFlow()
+                }
+                grow
+              >
+                {token1Amount === null ? (
+                  <Spinner />
+                ) : notEnoughLiquidity() ? (
+                  'Not enough liquidity'
+                ) : isOverFlow() ? (
+                  'Not enough funds'
+                ) : transactionState === TransactionState.PREPARE ? (
+                  `${
+                    operation.charAt(0).toUpperCase() + operation.slice(1)
+                  }ing ${token0Amount} ${token0?.symbol}`
+                ) : transactionState === TransactionState.PROCESSING ? (
+                  'Processing'
+                ) : (
+                  'Done'
                 )}
+              </Button>
+            ) : (
+              <Button
+                size={ButtonSize.LARGE}
+                color={ButtonColor.TRANSPARENT}
+                bordered
+                rounded={Rounding.ALL}
+                grow
+              >
+                Enter an {token0?.symbol} amount to {operation}
+              </Button>
+            )}
+          </div>
+
+          {error !== null && (
+            <div className='row error'>
+              <Column width={Width.TWO}>
+                <div className='center'>
+                  <Icon src={IconUrls.ALERT} />
+                </div>
+              </Column>
+              <Column width={Width.TEN} shrink={true}>
+                Something went wrong. Reason:{' '}
+                <span className='code'>{error}</span> You can try again.{' '}
+                <a onClick={() => setError(null)}>Dismiss notification</a>
               </Column>
             </div>
           )}
-        </section>
 
-        <div className='row'>
-          {token0Amount !== '0' ? (
-            <Button
-              onClick={() => handleClick()}
-              size={ButtonSize.LARGE}
-              buttonState={
-                transactionState === TransactionState.PROCESSING
-                  ? ButtonState.LOADING
-                  : transactionState === TransactionState.DONE
-                  ? ButtonState.SUCCESS
-                  : ButtonState.NORMAL
-              }
-              disabled={
-                [TransactionState.PROCESSING, TransactionState.DONE].includes(
-                  transactionState,
-                ) || isOverFlow()
-              }
-              grow
-            >
-              {token1Amount === null ? (
-                <Spinner />
-              ) : notEnoughLiquidity() ? (
-                'Not enough liquidity'
-              ) : isOverFlow() ? (
-                'Not enough funds'
-              ) : transactionState === TransactionState.PREPARE ? (
-                `${
-                  operation.charAt(0).toUpperCase() + operation.slice(1)
-                }ing ${token0Amount} ${token0?.symbol}`
-              ) : transactionState === TransactionState.PROCESSING ? (
-                'Processing'
-              ) : (
-                'Done'
-              )}
-            </Button>
-          ) : (
-            <Button
-              size={ButtonSize.LARGE}
-              color={ButtonColor.TRANSPARENT}
-              bordered
-              rounded={Rounding.ALL}
-              grow
-            >
-              Enter an {token0?.symbol} amount to {operation}
-            </Button>
-          )}
-        </div>
-
-        {error !== null && (
-          <div className='row error'>
-            <Column width={Width.TWO}>
-              <div className='center'>
-                <Icon src={IconUrls.ALERT} />
-              </div>
-            </Column>
-            <Column width={Width.TEN} shrink={true}>
-              Something went wrong. Reason:{' '}
-              <span className='code'>{error}</span> You can try again.{' '}
-              <a onClick={() => setError(null)}>Dismiss notification</a>
-            </Column>
-          </div>
-        )}
-
-        <style jsx>{`
-          div {
-            display: flex;
-            padding: 1.1rem 1.2rem;
-            --bordercolor: var(--toggleWrapperGradient);
-          }
-          .noBottomMargin {
-            padding-bottom: 0;
-          }
-          section.inputWrapper {
-            position: relative;
-            display: flex;
-            width: 100%;
-            flex-direction: column;
-            margin: 0;
-            padding: 0;
-            opacity: 1;
-          }
-          section.inputWrapper.disabled {
-            pointer-events: none;
-            opacity: 0.5;
-          }
-          .row {
-            position: relative;
-            width: 100%;
-            flex-direction: row;
-            justify-content: space-between;
-          }
-          .toggleWrapper {
-            width: 100%;
-            position: relative;
-            display: flex;
-            padding: 6px;
-            flex-direction: row;
-            justify-content: stretch;
-            border-radius: 9999px;
-            background: var(--toggleWrapperGradient);
-          }
-          .toggleWrapper button {
-            flex-grow: 1;
-            background: transparent;
-            border: 0;
-            border-radius: 9999px;
-            cursor: pointer;
-            outline: 0;
-            font-family: var(--bodyfont);
-            font-size: var(--largebuttonsize);
-            padding: 0.6rem;
-            text-transform: uppercase;
-            font-weight: var(--bodyweight);
-          }
-          .toggleWrapper button.active {
-            background: white;
-            font-weight: var(--buttonweight);
-          }
-          .error {
-            color: var(--alertcolor);
-            background: var(--alertbackground);
-            font-family: var(--bodyfont);
-            font-weight: var(--bodyweight);
-            font-size: 0.9rem;
-            cursor: text;
-            --iconsize: 1.5rem;
-            border-top: 2px solid rgba(0, 0, 0, 0.1);
-          }
-          .error span,
-          .error a,
-          .error .code {
-            display: inline-flex;
-            flex-shrink: 1;
-            word-break: break-all;
-          }
-          .code {
-            font-family: var(--monofont);
-            font-weight: var(--monoweight);
-          }
-          .error a {
-            text-decoration: underline;
-            margin-top: 0.5rem;
-            cursor: pointer;
-          }
-          .tradeInfoRow {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            width: 100%;
-            border-bottom: 1px solid #d4d4d4;
-            padding-left: 0;
-            padding-right: 0;
-          }
-          .tradeInfoRow:last-of-type {
-            border-bottom: 0;
-          }
-          .buttonContent {
-            font-family: inherit;
-            font-size: inherit;
-            font-weight: inherit;
-            position: relative;
-            height: 100%;
-            width: 100%;
-            white-space: nowrap;
-            overflow-x: hidden;
-            overflow-y: visible;
-            text-overflow: ellipsis;
-          }
-        `}</style>
-      </Column>
+          <style jsx>{`
+            div {
+              display: flex;
+              padding: 1.1rem 1.2rem;
+              --bordercolor: var(--toggleWrapperGradient);
+            }
+            .noBottomMargin {
+              padding-bottom: 0;
+            }
+            section.inputWrapper {
+              position: relative;
+              display: flex;
+              width: 100%;
+              flex-direction: column;
+              margin: 0;
+              padding: 0;
+              opacity: 1;
+            }
+            section.inputWrapper.disabled {
+              pointer-events: none;
+              opacity: 0.5;
+            }
+            .row {
+              position: relative;
+              width: 100%;
+              flex-direction: row;
+              justify-content: space-between;
+            }
+            .toggleWrapper {
+              width: 100%;
+              position: relative;
+              display: flex;
+              padding: 6px;
+              flex-direction: row;
+              justify-content: stretch;
+              border-radius: 9999px;
+              background: var(--toggleWrapperGradient);
+            }
+            .toggleWrapper button {
+              flex-grow: 1;
+              background: transparent;
+              border: 0;
+              border-radius: 9999px;
+              cursor: pointer;
+              outline: 0;
+              font-family: var(--bodyfont);
+              font-size: var(--largebuttonsize);
+              padding: 0.6rem;
+              text-transform: uppercase;
+              font-weight: var(--bodyweight);
+            }
+            .toggleWrapper button.active {
+              background: white;
+              font-weight: var(--buttonweight);
+            }
+            .error {
+              color: var(--alertcolor);
+              background: var(--alertbackground);
+              font-family: var(--bodyfont);
+              font-weight: var(--bodyweight);
+              font-size: 0.9rem;
+              cursor: text;
+              --iconsize: 1.5rem;
+              border-top: 2px solid rgba(0, 0, 0, 0.1);
+            }
+            .error span,
+            .error a,
+            .error .code {
+              display: inline-flex;
+              flex-shrink: 1;
+              word-break: break-all;
+            }
+            .code {
+              font-family: var(--monofont);
+              font-weight: var(--monoweight);
+            }
+            .error a {
+              text-decoration: underline;
+              margin-top: 0.5rem;
+              cursor: pointer;
+            }
+            .tradeInfoRow {
+              display: flex;
+              flex-direction: row;
+              justify-content: space-between;
+              width: 100%;
+              border-bottom: 1px solid #d4d4d4;
+              padding-left: 0;
+              padding-right: 0;
+            }
+            .tradeInfoRow:last-of-type {
+              border-bottom: 0;
+            }
+            .buttonContent {
+              font-family: inherit;
+              font-size: inherit;
+              font-weight: inherit;
+              position: relative;
+              height: 100%;
+              width: 100%;
+              white-space: nowrap;
+              overflow-x: hidden;
+              overflow-y: visible;
+              text-overflow: ellipsis;
+            }
+          `}</style>
+        </Column>
+      </section>
     </Suspense>
   )
 }
