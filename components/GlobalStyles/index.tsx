@@ -42,8 +42,11 @@ const GlobalStyles = (): JSX.Element => (
         font-family: var(--titlefont);
         font-weight: var(--titleweight);
       }
+
       p,
       a,
+      ul,
+      li,
       span,
       tbody {
         font-family: var(--bodyfont);
@@ -51,6 +54,32 @@ const GlobalStyles = (): JSX.Element => (
       }
       .tokenComingSoon {
         filter: grayscale(100%);
+      }
+
+      .content > img {
+        max-width: 100%;
+      }
+      .content h1 {
+        font-size: 2.8rem;
+        line-height: 1;
+      }
+      .content > h2 {
+        font-size: 1.8rem;
+        line-height: 1.1;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid black;
+      }
+      .content h3 {
+        font-size: 1.8rem;
+      }
+      .content h4,
+      .content h5 {
+        font-family: var(--bodyfont);
+        text-transform: uppercase;
+        font-size: 1.2rem;
+      }
+      .content a {
+        color: var(--link-on-white);
       }
     `}</style>
   </>
