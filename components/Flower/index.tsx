@@ -155,7 +155,6 @@ const Flower = ({
                     camera={{ fov: 75, position: [0, 0, 19] }}
                     onMouseMove={onMouseMove}
                     resize={{ scroll: false }}
-                    gl={{ preserveDrawingBuffer: true }}
                   >
                     <Petals
                       stems={stems}
