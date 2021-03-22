@@ -133,11 +133,15 @@ const HeaderContent = (): JSX.Element => {
               <div className='stats-grid-item'>
                 <h2 className='title'>TOTAL BALANCE</h2>
                 <h3 className='subTitle'>${totalOwnedUSD.toLocaleString()}</h3>
-                <span className='details'>{vnlBalance} VNL</span>
+                <span className='details'>
+                  {Number(vnlBalance).toLocaleString()} VNL
+                </span>
               </div>
               <div className='stats-grid-item'>
                 <h2 className='title'>VNL MINED</h2>
-                <h3 className='subTitle'>{userMintedTotal} VNL</h3>
+                <h3 className='subTitle'>
+                  {Number(userMintedTotal).toLocaleString()} VNL
+                </h3>
               </div>
               <div className='stats-grid-item'>
                 <h2 className='title'>UNREALIZED PROFIT</h2>
@@ -148,7 +152,9 @@ const HeaderContent = (): JSX.Element => {
                     <Spinner />
                   )}
                 </h3>
-                <span className='details'>{totalUnrealizedVnl()} VNL</span>
+                <span className='details'>
+                  {totalUnrealizedVnl()?.toLocaleString()} VNL
+                </span>
               </div>
             </div>
           </Column>
