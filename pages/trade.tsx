@@ -280,12 +280,18 @@ const BodyContent = ({
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const setOperation = useSetRecoilState(selectedOperation)
+  const userPositions = useRecoilValue(userTokensState)
   const { account } = useWallet()
 
   useEffect(() => {
     setTokens(initialTokens)
     setETHPrice(ethPrice)
   }, [setTokens, initialTokens, setETHPrice, ethPrice])
+
+  const profitablePositions = useCallback(() => {
+    return userPositions?.filter((token) => token.profit && token.profit > 0)
+      .length
+  }, [userPositions])
 
   const handleBuyClick: HandleBuyClick = useCallback(
     (pairInfo) => {
@@ -337,7 +343,12 @@ const BodyContent = ({
 
           {account && (
             <>
-              <h2>MY POSITIONS</h2>
+              <h2>
+                MY POSITIONS
+                <small>{`${profitablePositions()} of ${
+                  userPositions ? userPositions.length : 0
+                } profitable`}</small>
+              </h2>
               <MyPositions
                 onBuyClick={handleBuyClick}
                 onSellClick={handleSellClick}
@@ -354,6 +365,12 @@ const BodyContent = ({
         </Column>
       </Row>
       <style jsx>{`
+        h2 small {
+          margin-left: 1rem;
+          font-weight: 400;
+          font-family: var(--bodyfont);
+          font-size: 1rem;
+        }
         .token-search {
           width: calc(100% + 2 * var(--outermargin));
           margin-left: calc(-1 * var(--outermargin));
