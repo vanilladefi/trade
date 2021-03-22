@@ -173,9 +173,9 @@ function useUserPositions(): Token[] | null {
         } catch (e) {
           tokensWithBalance = []
         }
-      } /* else if (!isAddress(vnl.address)) {
+      } /* else if (wallet.status === 'connected' && !isAddress(vnl.address)) {
         // This means that Vanilla hasn't been deployed to the used chain
-        tokensWithBalance = 
+        tokensWithBalance = []
       } */
       return (
         tokensWithBalance && tokensWithBalance.filter((token) => token.owned)
@@ -185,7 +185,14 @@ function useUserPositions(): Token[] | null {
       setTokens(tokensWithBalance)
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userAddress, counterAsset, ETHPrice, wallet.status, setTokens])
+  }, [
+    userAddress,
+    counterAsset,
+    ETHPrice,
+    wallet.status,
+    setTokens,
+    vnl.address,
+  ])
 
   return useMemo(() => {
     return tokens

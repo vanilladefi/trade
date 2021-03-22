@@ -470,7 +470,7 @@ const IndexPage = (): JSX.Element => (
 
         @keyframes rotate {
           to {
-            transform: translateX(-50%) rotate(-360deg)
+            transform: translateX(-50%) rotate(-360deg);
           }
         }
         @media (min-width: ${BreakPoint.md}px) {
@@ -480,9 +480,8 @@ const IndexPage = (): JSX.Element => (
           .governaceColumn {
             width: 50%;
             justify-content: center;
-          
+          }
         }
-
       `}</style>
     </Wrapper>
 

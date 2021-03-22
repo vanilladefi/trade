@@ -102,7 +102,7 @@ const ProviderOptions = (): JSX.Element => {
         }
         .modalMain {
           position: relative;
-          width: 100%;
+          width: 30rem;
         }
         .buttons {
           display: flex;
@@ -204,7 +204,7 @@ const WalletView = (): JSX.Element => {
           display: flex;
           flex-direction: column;
           padding: 1rem 1.5rem;
-          width: 100%;
+          width: 30rem;
           font-size: var(--minisize);
         }
         span {

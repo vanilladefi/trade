@@ -6,7 +6,7 @@ import { tokenListChainId } from 'lib/tokens'
 import { getVnlTokenAddress } from 'lib/vanilla'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue } from 'recoil'
-import { providerState, signerState } from 'state/wallet'
+import { providerState } from 'state/wallet'
 import { useTokenContract } from './useContract'
 import useTokenBalance from './useTokenBalance'
 import useWalletAddress from './useWalletAddress'
@@ -17,7 +17,6 @@ function useVanillaGovernanceToken(): {
   balance: string
   userMintedTotal: string
 } {
-  const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
   const decimals = 12
 
@@ -74,8 +73,11 @@ function useVanillaGovernanceToken(): {
   }, [contract, provider, userAddress])
 
   useEffect(() => {
-    provider && getVnlTokenAddress(provider).then(setVnlTokenAddress)
-  }, [provider, signer])
+    provider &&
+      getVnlTokenAddress(provider).then(
+        (address) => vnlTokenAddress === '' && setVnlTokenAddress(address),
+      )
+  }, [provider, vnlTokenAddress])
 
   return useMemo(() => {
     return {
