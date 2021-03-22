@@ -40,10 +40,9 @@ const TokenInput = ({
   const [amount1, setAmount1] = useState<string | null | undefined>()
   const [focused, setFocused] = useState<number | undefined>(undefined)
 
-  const {
-    formatted: eligibleBalance0,
-    raw: eligibleBalance0Raw,
-  } = useEligibleTokenBalance(token0?.address)
+  const { formatted: eligibleBalance0 } = useEligibleTokenBalance(
+    token0?.address,
+  )
   const { formatted: balance0, raw: balance0Raw } = useTokenBalance(
     token0?.address,
     token0?.decimals,
