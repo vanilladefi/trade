@@ -11,6 +11,7 @@ import { Highlight } from '../components/typography/Text'
 import { Title } from '../components/typography/Titles'
 import Wrapper from '../components/Wrapper'
 import Flower from '../components/Flower'
+import SVGFlower from '../components/SVGFlower'
 import { BreakPoint } from '../components/GlobalStyles/Breakpoints'
 import ShillKitList from '../components/ShillKitList'
 
@@ -110,13 +111,8 @@ const IndexPage = (): JSX.Element => (
         <BoxSection color={Color.DARK}>
           <div className='flowerWrapper'>
             <div className='whiteFlower'>
-              <Flower
-                asBackground
+              <SVGFlower
                 color={['#FFFFFF']}
-                minWidth='80vw'
-                minHeight='80vw'
-                maxWidth='400px'
-                maxHeight='400px'
                 seed={Math.random() * 12566}
                 className='whiteFlowers'
               />

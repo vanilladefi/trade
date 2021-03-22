@@ -43,6 +43,7 @@
     "react-feather": "^2.0.9",
     "react-intersection-observer": "^8.31.0",
     "react-parallax-tilt": "^1.4.82",
+    "react-svg-pathline": "^0.5.0",
     "react-table": "^7.6.2",
     "react-three-fiber": "^5.3.18",
     "recoil": "^0.1.2",
