@@ -345,9 +345,11 @@ const BodyContent = ({
             <>
               <h2>
                 MY POSITIONS
-                <small>{`${profitablePositions()} of ${
-                  userPositions ? userPositions.length : 0
-                } profitable`}</small>
+                {userPositions && userPositions.length > 0 && (
+                  <small>{`${profitablePositions()} of ${
+                    userPositions ? userPositions.length : 0
+                  } profitable`}</small>
+                )}
               </h2>
               <MyPositions
                 onBuyClick={handleBuyClick}
