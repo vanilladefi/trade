@@ -60,7 +60,6 @@ const SVGFlower = ({
                       flowerSize={flowerSize}
                       color={color}
                       seed={seed}
-                      duration={800}
                     />
                   </Suspense>
                 )}
@@ -88,7 +87,6 @@ const SVGFlower = ({
                     flowerSize={flowerSize}
                     color={color}
                     seed={seed}
-                    duration={800}
                   />
                 </Suspense>
               )}

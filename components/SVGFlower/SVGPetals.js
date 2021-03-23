@@ -6,7 +6,7 @@ import SimplexNoise from 'simplex-noise' // https://github.com/jwagner/simplex-n
 import { calcMap, calcClamp } from '../../utils/Calc'
 import { PathLine } from 'react-svg-pathline'
 
-function SVGLine({ points, width, rotation, color, duration }) {
+function SVGLine({ points, width, rotation, color }) {
   return (
     <PathLine
       points={points}
@@ -24,7 +24,6 @@ export default function SVGPetals({
   iterations,
   color,
   seed,
-  duration,
   flowerSize,
 }) {
   const angleRange = 130
@@ -68,17 +67,13 @@ export default function SVGPetals({
         return {
           color: color[index] ? color[index] : color[0],
           width: 1.2,
-          duration: duration,
           rotation: (360 / stems) * index,
           points,
           index,
         }
       }),
-    [color, duration, iterations, simplex, stems],
+    [color, iterations, simplex, stems],
   )
-
-  console.log(lines)
-
   return (
     <>
       {lines.map((props, index) => (
