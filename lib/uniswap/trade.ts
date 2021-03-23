@@ -10,7 +10,7 @@ import {
 } from '@uniswap/sdk'
 import { BigNumber, constants, providers, Transaction } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
-import vanillaABI from 'types/abis/vanillaRouter'
+import vanillaRouter from 'types/abis/vanillaRouter.json'
 import type { UniSwapToken } from 'types/trade'
 import { vanillaRouterAddress } from 'utils/config'
 import { getContract, tokenListChainId } from '../tokens'
@@ -49,13 +49,13 @@ export const buy = async ({
   )
   const amountPaidParsed = parseUnits(amountPaid, tokenPaid.decimals)
 
-  const vanillaRouter = getContract(
+  const router = getContract(
     vanillaRouterAddress,
-    JSON.stringify(vanillaABI),
+    JSON.stringify(vanillaRouter.abi),
     signer,
   )
 
-  const receipt = await vanillaRouter.depositAndBuy(
+  const receipt = await router.depositAndBuy(
     tokenReceived.address,
     amountReceivedParsed,
     constants.MaxUint256,
@@ -78,13 +78,13 @@ export const sell = async ({
   )
   const amountPaidParsed = parseUnits(amountPaid, tokenPaid.decimals)
 
-  const vanillaRouter = getContract(
+  const router = getContract(
     vanillaRouterAddress,
-    JSON.stringify(vanillaABI),
+    JSON.stringify(vanillaRouter.abi),
     signer,
   )
 
-  const receipt = await vanillaRouter.sellAndWithdraw(
+  const receipt = await router.sellAndWithdraw(
     tokenPaid.address,
     amountPaidParsed,
     amountReceivedParsed,

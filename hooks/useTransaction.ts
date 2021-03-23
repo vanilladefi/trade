@@ -2,7 +2,7 @@ import { BigNumber, ethers } from 'ethers'
 import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
-import VanillaRouterABI from 'types/abis/vanillaRouter'
+import VanillaRouter from 'types/abis/vanillaRouter.json'
 import { Action, TransactionDetails } from 'types/trade'
 import useAllTransactions from './useAllTransactions'
 import useVanillaRouter from './useVanillaRouter'
@@ -20,7 +20,7 @@ function useTransaction(id: string): TransactionDetails | null {
 
   useEffect(() => {
     if (router && provider) {
-      const routerInterface = new ethers.utils.Interface(VanillaRouterABI)
+      const routerInterface = new ethers.utils.Interface(VanillaRouter.abi)
 
       const purchaseTopic = ethers.utils.id(
         'TokensPurchased(address,address,uint256,uint256,uint256)',

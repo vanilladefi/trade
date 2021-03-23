@@ -1,5 +1,5 @@
 import { BigNumber, ethers, providers, Signer } from 'ethers'
-import vanillaABI from 'types/abis/vanillaRouter'
+import vanillaRouter from 'types/abis/vanillaRouter.json'
 import { UniSwapToken } from 'types/trade'
 import { vanillaRouterAddress } from 'utils/config'
 import { tryParseAmount } from './uniswap/trade'
@@ -8,12 +8,12 @@ export const getVnlTokenAddress = async (
   provider: providers.JsonRpcProvider,
 ): Promise<string> => {
   try {
-    const vanillaRouter = new ethers.Contract(
+    const router = new ethers.Contract(
       vanillaRouterAddress,
-      JSON.stringify(vanillaABI),
+      JSON.stringify(vanillaRouter.abi),
       provider,
     )
-    const vnlTokenAddress = await vanillaRouter.vnlContract()
+    const vnlTokenAddress = await router.vnlContract()
     return vnlTokenAddress
   } catch (e) {
     return ''
@@ -48,15 +48,15 @@ export const estimateReward = async (
   ]
 
   const owner = await signer.getAddress()
-  const vanillaRouter = new ethers.Contract(
+  const router = new ethers.Contract(
     vanillaRouterAddress,
-    JSON.stringify(vanillaABI),
+    JSON.stringify(vanillaRouter.abi),
     signer,
   )
   let reward: RewardResponse | null
 
   try {
-    reward = await vanillaRouter.estimateReward(
+    reward = await router.estimateReward(
       owner,
       tokenSold.address,
       parsedAmountReceived?.raw.toString(),
