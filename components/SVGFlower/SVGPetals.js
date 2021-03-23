@@ -67,7 +67,7 @@ export default function SVGPetals({
 
         return {
           color: color[index] ? color[index] : color[0],
-          width: 1.5,
+          width: 1.2,
           duration: duration,
           rotation: (360 / stems) * index,
           points,
