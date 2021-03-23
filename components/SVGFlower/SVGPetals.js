@@ -14,7 +14,7 @@ function SVGLine({ points, width, rotation, color, duration }) {
       strokeWidth={width}
       fill='none'
       transform={`rotate(${rotation}, 0, 0)`}
-      r={60}
+      r={70}
     />
   )
 }
