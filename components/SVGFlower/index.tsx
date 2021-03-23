@@ -99,7 +99,7 @@ const SVGFlower = ({
               profitCurveHeight - 140
             } 770 ${profitCurveHeight} 770 ${flowerSize / 2}`}
             stroke='#414141'
-            stroke-width='2'
+            strokeWidth='2'
             fill='none'
             className='animated-profitcurve-curve'
           />

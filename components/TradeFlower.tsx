@@ -1,5 +1,6 @@
 import React from 'react'
-import Flower from '../components/Flower'
+import dynamic from 'next/dynamic'
+const Flower = dynamic(import('../components/Flower'))
 
 export type Token = {
   ticker: string
