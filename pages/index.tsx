@@ -407,7 +407,7 @@ const IndexPage = (): JSX.Element => (
       <BoxSection color={Color.DARK}>
         <Row>
           <div
-            className='governaceColumn governaceBg'
+            className='governanceColumn governanceBg'
             style={{
               height: '480px',
               textAlign: 'center',
@@ -429,7 +429,7 @@ const IndexPage = (): JSX.Element => (
               />
             </div>
           </div>
-          <div className='governaceColumn'>
+          <div className='governanceColumn'>
             <Title>
               VNL is the governance token of the Vanilla economic system.
             </Title>
@@ -447,11 +447,11 @@ const IndexPage = (): JSX.Element => (
         </Row>
       </BoxSection>
       <style jsx>{`
-        .governaceColumn {
+        .governanceColumn {
           position: relative;
           width: 100%;
         }
-        .governaceFlowerHolder {
+        .governanceFlowerHolder {
           position: relative;
           width: 100%;
           max-width: 480px;
@@ -474,10 +474,10 @@ const IndexPage = (): JSX.Element => (
           }
         }
         @media (min-width: ${BreakPoint.md}px) {
-          .governaceFlowerHolder {
+          .governanceFlowerHolder {
             margin: 0 0 0 calc(-0.4 * var(--boxpadding));
           }
-          .governaceColumn {
+          .governanceColumn {
             width: 50%;
             justify-content: center;
           }
