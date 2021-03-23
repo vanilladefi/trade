@@ -113,21 +113,20 @@ const IndexPage = (): JSX.Element => (
             <div className='whiteFlower'>
               <SVGFlower
                 color={['#FFFFFF']}
+                iterations={6}
                 seed={Math.random() * 12566}
                 className='whiteFlowers'
+                flowerSize={400}
               />
             </div>
 
             <div className='whiteFlower2'>
-              <Flower
-                asBackground
+              <SVGFlower
                 color={['#FFFFFF']}
-                minWidth='80vw'
-                minHeight='80vw'
-                maxWidth='400px'
-                maxHeight='400px'
-                seed={Math.random() * 12566}
+                iterations={4}
+                seed={Math.random() * 166}
                 className='whiteFlowers'
+                flowerSize={400}
               />
             </div>
           </div>

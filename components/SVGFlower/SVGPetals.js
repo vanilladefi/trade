@@ -6,19 +6,15 @@ import SimplexNoise from 'simplex-noise' // https://github.com/jwagner/simplex-n
 import { calcMap, calcClamp } from '../../utils/Calc'
 import { PathLine } from 'react-svg-pathline'
 
-function SVGLine({ curve, width, rotation, color, duration }) {
-  const offsetAmount = dashArray / duration
-  const points = curve.length
-  const rotationTransform = `rotation(${rotation}deg)`
-
+function SVGLine({ points, width, rotation, color, duration }) {
   return (
     <PathLine
-      points={curve}
+      points={points}
       stroke={color}
-      strokeWidth='1'
+      strokeWidth={width}
       fill='none'
-      transform={`rotate(${rotation})`}
-      r={30}
+      transform={`rotate(${rotation}, 0, 0)`}
+      r={60}
     />
   )
 }
@@ -31,8 +27,7 @@ export default function SVGPetals({
   duration,
   flowerSize,
 }) {
-  const angleRange = 20
-  const depthRange = 0.02
+  const angleRange = 130
 
   stems = parseInt(stems)
   iterations = parseInt(iterations)
@@ -41,42 +36,40 @@ export default function SVGPetals({
   const lines = useMemo(
     () =>
       new Array(stems).fill().map((_, index) => {
-        const pos = { x: 0, y: 0 }
-        let increment = 0.3
-        let pointX = 0.1
-        let pointY = 0
+        let increment = 0.5
+        let pointX = 1
+        let pointY = 1
 
         const points = new Array(iterations).fill().map((_, index) => {
           const angle = calcMap(
             simplex.noise2D(increment, 0),
-            -1,
-            1,
+            -10,
+            10,
             -angleRange,
             angleRange,
           )
 
           const angleX = Math.cos(angle)
-          const newY = flowerSize / iterations
+          const newY = flowerSize / (iterations - 1)
 
-          const newX = pointX + calcClamp(angleX, -1, 1)
+          const newX = pointX + angleX * (angle * 4)
 
-          pointX += newX / 100
+          pointX += newX
           pointY += newY
 
-          increment += calcMap(simplex.noise2D(increment, 0), 1, -1, 0, 1)
-          return pos
-            .add({
-              newX, // force last points to offset
-              newY,
-            })
-            .clone()
+          increment += simplex.noise2D(increment, 10)
+          if (index == 0 || index == iterations - 1) {
+            return { x: -flowerSize / 30, y: flowerSize / 30 }
+          } else {
+            return { x: newX, y: newY }
+          }
         })
 
         return {
           color: color[index] ? color[index] : color[0],
-          width: 1,
+          width: 1.5,
           duration: duration,
-          rotation: calcMap(index, 0, stems, 0, Math.PI * 2),
+          rotation: (360 / stems) * index,
           points,
           index,
         }
@@ -84,11 +77,13 @@ export default function SVGPetals({
     [color, duration, iterations, simplex, stems],
   )
 
+  console.log(lines)
+
   return (
-    <group>
+    <>
       {lines.map((props, index) => (
-        <SVGLine key={index} animate={animate} {...props} />
+        <SVGLine key={index} {...props} />
       ))}
-    </group>
+    </>
   )
 }

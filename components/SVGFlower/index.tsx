@@ -7,23 +7,11 @@ type Props = {
   stems?: string | number | string[]
   iterations?: string | number | string[]
   color?: Array<string>
-  particleCount?: string | number | string[]
-  maxWidth: string
-  maxHeight: string
-  minWidth: string
-  minHeight: string
-  flowerSize?: string | number | string[]
+  flowerSize?: number
   background?: string
   seed: string | number | string[]
   asBackground?: boolean
   className?: string
-  topLeft?: React.ReactNode
-  topRight?: React.ReactNode
-  bottomLeft?: React.ReactNode
-  bottomRight?: React.ReactNode
-  hasProfitCurve?: boolean
-  allowExport?: boolean
-  positionRight?: boolean
 }
 
 const SVGFlower = ({
@@ -39,22 +27,28 @@ const SVGFlower = ({
   seed = seed ?? 123456
   stems = stems ?? 14
   iterations = iterations ?? 12
-  flowerSize = flowerSize ?? 3.4
+  flowerSize = flowerSize ?? 300
 
   return (
-    <svg>
-      {hasMounted && (
-        <Suspense fallback={null}>
-          <SVGPetals
-            stems={stems}
-            iterations={iterations}
-            flowerSize={flowerSize}
-            color={color}
-            seed={seed}
-            duration={800}
-          />
-        </Suspense>
-      )}
+    <svg
+      width={flowerSize}
+      height={flowerSize}
+      xmlns='http://www.w3.org/2000/svg'
+    >
+      <g transform={`translate(${flowerSize / 2} ${flowerSize / 2})`}>
+        {hasMounted && (
+          <Suspense fallback={null}>
+            <SVGPetals
+              stems={stems}
+              iterations={iterations}
+              flowerSize={flowerSize}
+              color={color}
+              seed={seed}
+              duration={800}
+            />
+          </Suspense>
+        )}
+      </g>
     </svg>
   )
 }
