@@ -137,7 +137,6 @@ function useUserPositions(): Token[] | null {
               } catch (e) {
                 // Catch error from reward estimation. This probably means that the Vanilla router hasn't been deployed on the used network.
                 reward = null
-                console.log(parsedOwnedAmount)
               }
 
               // Parse the minimum profitable price from the reward estimate

@@ -95,6 +95,23 @@ export function addLogoColor(tokens: Token[]): Promise<Token[]> {
   )
 }
 
+/**
+ * Calculate USD price of each token based on ETH price
+ */
+export function addUSDPrice(
+  tokens: Token[],
+  ethPrice: number | null,
+): Promise<Token[]> {
+  return Promise.all(
+    tokens.map(async (t) => {
+      if (ethPrice && ethPrice > 0 && t.price) {
+        t.priceUSD = t.price * ethPrice
+      }
+      return t
+    }),
+  )
+}
+
 function calcPriceChange(newPrice: number, oldPrice: number): number {
   if (oldPrice === 0) return 0
   return (newPrice - oldPrice) / oldPrice
@@ -104,6 +121,7 @@ export function addData(
   tokens: Token[],
   data: TokenInfoQueryResponse[],
   historical = false,
+  ethPrice?: number,
 ): Token[] {
   return tokens.map((t) => {
     const d = data.find(
@@ -114,6 +132,10 @@ export function addData(
     if (!d) return t
 
     const price = !historical ? parseFloat(d.price) : t.price ?? 0
+    const priceUSD =
+      ethPrice && !historical
+        ? parseFloat(d.price) * ethPrice
+        : (t.price && ethPrice && t.price * ethPrice) ?? 0
     const liquidity = !historical ? parseFloat(d.reserveUSD) : t.liquidity
     const priceHistorical = historical ? parseFloat(d.price) : t.priceHistorical
     const priceChange = priceHistorical
@@ -124,6 +146,7 @@ export function addData(
       ...t,
       pairId: d.pairId ?? t.pairId,
       price,
+      priceUSD,
       priceHistorical,
       priceChange,
       liquidity,
@@ -134,6 +157,7 @@ export function addData(
 export async function addGraphInfo(
   tokens: Token[],
   blockNumber = 0,
+  ethPrice?: number,
 ): Promise<Token[]> {
   if (!weth) {
     throw new Error(
@@ -161,7 +185,7 @@ export async function addGraphInfo(
       ...response?.tokensBA,
     ]
 
-    return addData(tokens, data, historical)
+    return addData(tokens, data, historical, ethPrice)
   } catch (e) {
     console.error(e)
     return tokens
@@ -176,9 +200,9 @@ export async function getBalance(
   return balance
 }
 
-export async function getETHPrice(): Promise<string | null> {
+export async function getETHPrice(): Promise<number | null> {
   const { data }: ETHPriceResponse = await thegraphClient.request(ETHPrice)
-  return data?.bundle?.ethPrice ?? null
+  return parseFloat(data?.bundle?.ethPrice) ?? null
 }
 
 // returns the checksummed address if the address is valid, otherwise returns false

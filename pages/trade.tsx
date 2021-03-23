@@ -17,6 +17,7 @@ import { getAverageBlockCountPerHour, getCurrentBlockNumber } from 'lib/block'
 import {
   addGraphInfo,
   addLogoColor,
+  addUSDPrice,
   getAllTokens,
   getETHPrice,
 } from 'lib/tokens'
@@ -105,9 +106,7 @@ const HeaderContent = (): JSX.Element => {
           <Column width={Width.EIGHT}>
             <Title>Start Trading</Title>
             <HugeMonospace>
-              Buy a token below to start #ProfitMining. When you sell the token
-              through Vanilla later and you make a profit in ETH, you mine some
-              VNL tokens.
+              Buy a token below to start #ProfitMining.
             </HugeMonospace>
             <div className='buttonWrapper'>
               {wallet.status !== 'connected' && (
@@ -438,11 +437,17 @@ export async function getStaticProps(): Promise<
     addGraphInfo(tokens),
   ])
 
+  tokens = await addUSDPrice(tokens, ethPrice)
+
   const block24hAgo = currentBlockNumber - 24 * blocksPerHour
 
   // Add historical data (price change)
   if (block24hAgo > 0) {
-    tokens = await addGraphInfo(_tokens, block24hAgo)
+    tokens = await addGraphInfo(
+      _tokens,
+      block24hAgo,
+      (ethPrice && ethPrice) ?? undefined,
+    )
   } else {
     tokens = _tokens
   }

@@ -5,7 +5,7 @@ export const currentBlockNumberState = atom<number>({
   default: 0,
 })
 
-export const currentETHPrice = atom<string>({
+export const currentETHPrice = atom<number>({
   key: 'currentETHPrice',
-  default: '0',
+  default: 0,
 })

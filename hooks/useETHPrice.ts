@@ -19,7 +19,7 @@ function useETHPrice(): void {
         data?.bundle?.ethPrice !== null &&
         Number(data?.bundle?.ethPrice) > 0
       ) {
-        set(currentETHPrice, data.bundle.ethPrice)
+        set(currentETHPrice, parseFloat(data.bundle.ethPrice))
       }
     },
     [],

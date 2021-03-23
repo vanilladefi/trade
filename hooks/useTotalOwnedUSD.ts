@@ -25,7 +25,7 @@ function useTotalOwnedUSD(): number {
       )
 
     if (tokenSum) {
-      return tokenSum + parsedETHBalance * parseFloat(ethPrice)
+      return tokenSum + parsedETHBalance * ethPrice
     } else {
       return 0
     }

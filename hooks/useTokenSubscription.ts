@@ -3,7 +3,7 @@ import { thegraphClientSub, TokenInfoSubAB, TokenInfoSubBA } from 'lib/graphql'
 import { addData, addGraphInfo, getAllTokens, weth } from 'lib/tokens'
 import { useEffect } from 'react'
 import { useRecoilCallback, useRecoilValue } from 'recoil'
-import { currentBlockNumberState } from 'state/meta'
+import { currentBlockNumberState, currentETHPrice } from 'state/meta'
 import { allTokensStoreState } from 'state/tokens'
 import type { TokenInfoQueryResponse } from 'types/trade'
 
@@ -18,11 +18,14 @@ interface subReturnValue {
 
 export default function useTokenSubscription(): void {
   const currentBlockNumber = useRecoilValue(currentBlockNumberState)
+  const ethPrice = useRecoilValue(currentETHPrice)
 
   const handleNewData = useRecoilCallback(
     ({ set }) => ({ data }: subReturnValue) => {
-      if (data?.tokens?.length) {
-        set(allTokensStoreState, (tokens) => addData(tokens, data.tokens))
+      if (data?.tokens?.length && ethPrice > 0) {
+        set(allTokensStoreState, (tokens) =>
+          addData(tokens, data.tokens, false, ethPrice),
+        )
       }
     },
     [],
@@ -31,8 +34,11 @@ export default function useTokenSubscription(): void {
   const addHistoricalData = useRecoilCallback(
     ({ snapshot, set }) => async (blockNumber: number) => {
       const tokens = await snapshot.getPromise(allTokensStoreState)
-      if (blockNumber > 0 && tokens?.length) {
-        set(allTokensStoreState, await addGraphInfo(tokens, blockNumber))
+      if (blockNumber > 0 && tokens?.length && ethPrice > 0) {
+        set(
+          allTokensStoreState,
+          await addGraphInfo(tokens, blockNumber, ethPrice),
+        )
       }
     },
     [],

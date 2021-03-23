@@ -1,4 +1,4 @@
-import type { Token, ListColumn } from 'types/trade'
+import type { ListColumn, Token } from 'types/trade'
 import * as Cells from './Cells'
 
 export const LogoTicker: ListColumn<Token> = {
@@ -31,13 +31,13 @@ export const Ticker: ListColumn<Token> = {
 export const Price: ListColumn<Token> = {
   id: 'price',
   Header: 'Price',
-  accessor: 'price',
+  accessor: 'priceUSD',
   width: 3,
   sortDescFirst: true,
   sortType: 'basic',
   disableGlobalFilter: true,
   align: 'right',
-  Cell: Cells.ValueETH,
+  Cell: Cells.ValueUSD,
 }
 
 export const Liquidity: ListColumn<Token> = {

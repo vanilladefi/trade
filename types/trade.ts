@@ -24,6 +24,7 @@ export interface UniSwapToken {
 export interface Token extends UniSwapToken {
   pairId: string | null
   price?: number | null
+  priceUSD?: number | null
   priceHistorical?: number | null
   priceChange?: number | null
   liquidity?: number | null
