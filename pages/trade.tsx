@@ -11,13 +11,13 @@ import { Title } from 'components/typography/Titles'
 import Wrapper from 'components/Wrapper'
 import useMetaSubscription from 'hooks/useMetaSubscription'
 import useTokenSubscription from 'hooks/useTokenSubscription'
-import useTotalOwnedUSD from 'hooks/useTotalOwnedUSD'
-import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
+import useTotalOwned from 'hooks/useTotalOwned'
 import { getAverageBlockCountPerHour, getCurrentBlockNumber } from 'lib/block'
 import {
   addGraphInfo,
   addLogoColor,
   addUSDPrice,
+  addVnlEligibility,
   getAllTokens,
   getETHPrice,
 } from 'lib/tokens'
@@ -41,12 +41,12 @@ import { useWallet } from 'use-wallet'
 
 type PageProps = {
   allTokens: Token[]
-  ethPrice: string
+  ethPrice: number
 }
 
 type BodyProps = {
   initialTokens: Token[]
-  ethPrice: string
+  ethPrice: number
   setModalOpen: Dispatch<SetStateAction<boolean>>
 }
 
@@ -57,20 +57,8 @@ const TradeModal = dynamic(() => import('components/Trade/Modal'), {
 const HeaderContent = (): JSX.Element => {
   const wallet = useWallet()
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
-  const { balance: vnlBalance, userMintedTotal } = useVanillaGovernanceToken()
-  const totalOwnedUSD = useTotalOwnedUSD()
+  const { USD: totalOwnedUSD, ETH: totalOwnedETH } = useTotalOwned()
   const userTokens = useRecoilValue(userTokensState)
-
-  const totalUnrealizedProfit = useCallback(() => {
-    const profits = userTokens
-      ? userTokens.map((token) =>
-          token.value && token.profit && token.value > 0
-            ? parseFloat(token.profit.toString()) / token.value
-            : 0,
-        )
-      : null
-    return profits ? profits.reduce((a, b) => a + b).toFixed(2) : null
-  }, [userTokens])
 
   const totalUnrealizedVnl = useCallback(() => {
     const vnlAmounts = userTokens ? userTokens.map((token) => token.vnl) : null
@@ -130,29 +118,19 @@ const HeaderContent = (): JSX.Element => {
             <Title>My trading</Title>
             <div className='stats-grid'>
               <div className='stats-grid-item'>
-                <h2 className='title'>TOTAL BALANCE</h2>
+                <h2 className='title'>MY POSITIONS</h2>
                 <h3 className='subTitle'>${totalOwnedUSD.toLocaleString()}</h3>
                 <span className='details'>
-                  {Number(vnlBalance).toLocaleString()} VNL
+                  {totalOwnedETH.toLocaleString()} ETH
                 </span>
               </div>
               <div className='stats-grid-item'>
-                <h2 className='title'>VNL MINED</h2>
+                <h2 className='title'>UNREALIZED VNL</h2>
                 <h3 className='subTitle'>
-                  {Number(userMintedTotal).toLocaleString()} VNL
-                </h3>
-              </div>
-              <div className='stats-grid-item'>
-                <h2 className='title'>UNREALIZED PROFIT</h2>
-                <h3 className='subTitle'>
-                  {totalUnrealizedProfit() ? (
-                    `${totalUnrealizedProfit()} %`
-                  ) : (
-                    <Spinner />
-                  )}
+                  {totalUnrealizedVnl()?.toLocaleString()} VNL
                 </h3>
                 <span className='details'>
-                  {totalUnrealizedVnl()?.toLocaleString()} VNL
+                  from {userTokens.length} positions
                 </span>
               </div>
             </div>
@@ -179,7 +157,7 @@ const HeaderContent = (): JSX.Element => {
           width: 100%;
           display: grid;
           gap: 70px;
-          grid: auto / 1fr 1fr 1fr;
+          grid: auto / 1fr 1fr;
           margin-bottom: 2rem;
           margin-top: 2rem;
         }
@@ -438,6 +416,7 @@ export async function getStaticProps(): Promise<
   ])
 
   tokens = await addUSDPrice(tokens, ethPrice)
+  tokens = await addVnlEligibility(tokens)
 
   const block24hAgo = currentBlockNumber - 24 * blocksPerHour
 
@@ -455,7 +434,7 @@ export async function getStaticProps(): Promise<
   return {
     props: {
       allTokens: tokens,
-      ethPrice: ethPrice || '0',
+      ethPrice: ethPrice || 0,
     },
     revalidate: 60,
   }
