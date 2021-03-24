@@ -67,6 +67,7 @@ const SoMeLinks = (): JSX.Element => (
         <div>
           <Image
             src='/images/telegram.svg'
+            alt='Telegram logo'
             layout='fixed'
             width='30px'
             height='30px'
@@ -84,6 +85,7 @@ const SoMeLinks = (): JSX.Element => (
         <div>
           <Image
             src='/images/twitter.svg'
+            alt='Twitter logo'
             layout='fixed'
             width='30px'
             height='30px'
@@ -101,6 +103,7 @@ const SoMeLinks = (): JSX.Element => (
         <div>
           <Image
             src='/images/github.svg'
+            alt='Github logo'
             layout='fixed'
             width='30px'
             height='30px'
@@ -118,6 +121,7 @@ const SoMeLinks = (): JSX.Element => (
         <div>
           <Image
             src='/images/medium.svg'
+            alt='Medium logo'
             layout='fixed'
             width='30px'
             height='30px'

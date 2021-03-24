@@ -246,7 +246,7 @@ const IndexPage = (): JSX.Element => (
             <div className='tradeLendAutomateImage'>
               <Image
                 src='/images/illustration_trade.svg'
-                alt='Staking Infographic'
+                alt='Trading'
                 height='240px'
                 width='260px'
               />
@@ -265,7 +265,7 @@ const IndexPage = (): JSX.Element => (
             <div className='tradeLendAutomateImage'>
               <Image
                 src='/images/illustration_lend.svg'
-                alt='Staking Infographic'
+                alt='Lending'
                 height='240px'
                 width='260px'
               />

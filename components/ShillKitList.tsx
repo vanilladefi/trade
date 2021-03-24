@@ -91,6 +91,7 @@ const ShillKitList = (): JSX.Element => {
             href={shill.giphy ? shill.giphy : shill.url}
             target='_blank'
             rel='noopener noreferrer'
+            aria-label={shill.description}
           >
             {shill.giphy ? (
               <video
