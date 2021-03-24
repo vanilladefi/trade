@@ -5,7 +5,7 @@ import { currentETHPrice } from 'state/meta'
 import { userTokensState } from 'state/tokens'
 import { useWallet } from 'use-wallet'
 
-function useTotalOwnedUSD(): number {
+function useTotalOwned(): { USD: number; ETH: string } {
   const userTokens = useRecoilValue(userTokensState)
   const ethPrice = useRecoilValue(currentETHPrice)
   const { balance } = useWallet()
@@ -25,11 +25,14 @@ function useTotalOwnedUSD(): number {
       )
 
     if (tokenSum) {
-      return tokenSum + parsedETHBalance * ethPrice
+      return {
+        USD: tokenSum + parsedETHBalance * ethPrice,
+        ETH: parsedETHBalance.toString(),
+      }
     } else {
-      return 0
+      return { USD: 0, ETH: '0' }
     }
   }, [balance, ethPrice, userTokens])
 }
 
-export default useTotalOwnedUSD
+export default useTotalOwned
