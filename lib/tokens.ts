@@ -122,12 +122,17 @@ export async function addVnlEligibility(tokens: Token[]): Promise<Token[]> {
     : null
   return Promise.all(
     tokens.map(async (t) => {
-      if (router && router.isTokenRewarded) {
-        const eligibility = await router.isTokenRewarded(t.address)
-        t.eligible = eligibility
-          ? Eligibility.Eligible
-          : Eligibility.NotEligible
+      try {
+        if (router && router.isTokenRewarded) {
+          const eligibility = await router.isTokenRewarded(t.address)
+          t.eligible = eligibility
+            ? Eligibility.Eligible
+            : Eligibility.NotEligible
+        }
+      } catch (e) {
+        t.eligible = Eligibility.NotEligible
       }
+
       return t
     }),
   )
