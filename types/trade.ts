@@ -11,6 +11,11 @@ export enum Operation {
   Sell = 'sell',
 }
 
+export enum Eligibility {
+  NotEligible,
+  Eligible,
+}
+
 export interface UniSwapToken {
   [index: string]: string | number | null | undefined
   name?: string
@@ -34,6 +39,7 @@ export interface Token extends UniSwapToken {
   value?: number | null
   profit?: number | string | null
   vnl?: number | null
+  eligible?: Eligibility
 }
 
 export interface TokenInfoQueryResponse {

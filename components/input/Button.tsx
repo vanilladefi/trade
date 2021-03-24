@@ -102,7 +102,7 @@ const Button = ({
     'roundedTopLeft roundedBottomLeft': rounded === Rounding.LEFT,
     'roundedTopRight roundedBottomRight': rounded === Rounding.RIGHT,
   })
-  const stateIndicator = (): JSX.Element | undefined => {
+  const StateIndicator = (): JSX.Element => {
     const Wrapper = ({ children }: Props) => (
       <div>
         {children}
@@ -122,7 +122,7 @@ const Button = ({
     )
     switch (buttonState) {
       case ButtonState.NORMAL:
-        return undefined
+        return <></>
       case ButtonState.LOADING:
         return (
           <Wrapper>
@@ -136,7 +136,7 @@ const Button = ({
           </Wrapper>
         )
       default:
-        return undefined
+        return <></>
     }
   }
   return (
@@ -146,7 +146,7 @@ const Button = ({
         onClick={!disabled ? onClick : () => null}
         title={title}
       >
-        {stateIndicator()}
+        <StateIndicator />
         {children}
       </button>
       <style jsx>{`

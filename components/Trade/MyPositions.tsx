@@ -77,8 +77,8 @@ function getColumns({
     Columns.LogoTicker,
     Columns.LogoName,
     Columns.Ticker,
-    Columns.OwnedAmount,
     Columns.MarketValue,
+    Columns.OwnedAmount,
     Columns.Profit,
     Columns.UnrealizedVNL,
     {

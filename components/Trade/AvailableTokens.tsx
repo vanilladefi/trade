@@ -44,6 +44,7 @@ function getColumns(onBuyClick: HandleBuyClick): ListColumn<Token>[] {
     Columns.Price,
     Columns.Liquidity,
     Columns.PriceChange,
+    Columns.Eligibility,
     {
       id: 'trade',
       width: 1,

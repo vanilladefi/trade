@@ -21,7 +21,7 @@ export default function useTokenSubscription(): void {
   const ethPrice = useRecoilValue(currentETHPrice)
 
   const handleNewData = useRecoilCallback(
-    ({ set }) => ({ data }: subReturnValue) => {
+    ({ set }) => async ({ data }: subReturnValue) => {
       if (data?.tokens?.length && ethPrice > 0) {
         set(allTokensStoreState, (tokens) =>
           addData(tokens, data.tokens, false, ethPrice),

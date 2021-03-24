@@ -9,4 +9,5 @@ export const userTokensState = atom<Token[] | null>({
 export const allTokensStoreState = atom<Token[]>({
   key: 'allTokensStoreState',
   default: [],
+  dangerouslyAllowMutability: true,
 })

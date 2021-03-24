@@ -94,7 +94,7 @@ function useUserPositions(): Token[] | null {
                 tokenAmount.greaterThan('0') && token.price
                   ? parseFloat(tokenAmount.toSignificant()) *
                     token.price *
-                    parseFloat(ETHPrice)
+                    ETHPrice
                   : 0
 
               // Get current best trade from Uniswap to calculate available rewards

@@ -11,8 +11,9 @@ import {
 } from 'lib/graphql'
 import { ipfsToHttp } from 'lib/ipfs'
 import Vibrant from 'node-vibrant'
-import type { Token, TokenInfoQueryResponse } from 'types/trade'
-import { chainId } from 'utils/config'
+import VanillaRouter from 'types/abis/vanillaRouter.json'
+import { Eligibility, Token, TokenInfoQueryResponse } from 'types/trade'
+import { chainId, defaultProvider, vanillaRouterAddress } from 'utils/config'
 
 export { chainId }
 
@@ -106,6 +107,26 @@ export function addUSDPrice(
     tokens.map(async (t) => {
       if (ethPrice && ethPrice > 0 && t.price) {
         t.priceUSD = t.price * ethPrice
+      }
+      return t
+    }),
+  )
+}
+
+/**
+ * Add profit mining eligibility from Vanilla
+ */
+export async function addVnlEligibility(tokens: Token[]): Promise<Token[]> {
+  const router = defaultProvider
+    ? new Contract(vanillaRouterAddress, VanillaRouter.abi, defaultProvider)
+    : null
+  return Promise.all(
+    tokens.map(async (t) => {
+      if (router && router.isTokenRewarded) {
+        const eligibility = await router.isTokenRewarded(t.address)
+        t.eligible = eligibility
+          ? Eligibility.Eligible
+          : Eligibility.NotEligible
       }
       return t
     }),
