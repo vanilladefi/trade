@@ -21,7 +21,7 @@ const HeaderContent = (
         <Column width={Width.TWELVE}>
           <Title>
             One Interface <br />
-            For All DeFi
+            For DeFi
           </Title>
           <HugeMonospace>
             Trade, lend and participate in #ProfitMining
