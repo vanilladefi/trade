@@ -57,8 +57,11 @@ export function ValuePercent({ value }: CellProps<Token>): React.ReactNode {
   })
 }
 
-export function UnrealizedVnl({ value }: CellProps<Token>): React.ReactNode {
-  return value ? (
+export function UnrealizedVnl({
+  value,
+  row,
+}: CellProps<Token>): React.ReactNode {
+  return row.original.eligible ? (
     value.toLocaleString('en-US', {
       style: 'decimal',
       maximumFractionDigits: 10, // TODO

@@ -130,9 +130,9 @@ export async function addVnlEligibility(tokens: Token[]): Promise<Token[]> {
             : Eligibility.NotEligible
         }
       } catch (e) {
+        console.error(e)
         t.eligible = Eligibility.NotEligible
       }
-
       return t
     }),
   )

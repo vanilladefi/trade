@@ -1,6 +1,12 @@
 import { getAverageBlockCountPerHour } from 'lib/block'
 import { thegraphClientSub, TokenInfoSubAB, TokenInfoSubBA } from 'lib/graphql'
-import { addData, addGraphInfo, getAllTokens, weth } from 'lib/tokens'
+import {
+  addData,
+  addGraphInfo,
+  addVnlEligibility,
+  getAllTokens,
+  weth,
+} from 'lib/tokens'
 import { useEffect } from 'react'
 import { useRecoilCallback, useRecoilValue } from 'recoil'
 import { currentBlockNumberState, currentETHPrice } from 'state/meta'
@@ -21,12 +27,13 @@ export default function useTokenSubscription(): void {
   const ethPrice = useRecoilValue(currentETHPrice)
 
   const handleNewData = useRecoilCallback(
-    ({ set }) => async ({ data }: subReturnValue) => {
+    ({ snapshot, set }) => async ({ data }: subReturnValue) => {
+      let tokens = await snapshot.getPromise(allTokensStoreState)
+      tokens = await addVnlEligibility(tokens)
       if (data?.tokens?.length && ethPrice > 0) {
-        set(allTokensStoreState, (tokens) =>
-          addData(tokens, data.tokens, false, ethPrice),
-        )
+        tokens = addData(tokens, data.tokens, false, ethPrice)
       }
+      set(allTokensStoreState, tokens)
     },
     [],
   )

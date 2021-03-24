@@ -66,7 +66,8 @@ function useVanillaGovernanceToken(): {
               })
               setMints(mintEvents)
             })
-            .catch(() => {
+            .catch((e) => {
+              console.error(e)
               setMints([BigNumber.from('0')])
             })
         })
