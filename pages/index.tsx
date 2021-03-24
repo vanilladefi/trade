@@ -1,5 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
+import { InView } from 'react-intersection-observer'
+
 import BoxSection, { Color } from '../components/BoxSection'
 import { Column, Row, Width } from '../components/grid/Flex'
 import { GridItem, GridTemplate } from '../components/grid/Grid'
@@ -10,9 +13,10 @@ import HugeMonospace from '../components/typography/HugeMonospace'
 import { Highlight } from '../components/typography/Text'
 import { Title } from '../components/typography/Titles'
 import Wrapper from '../components/Wrapper'
-import Flower from '../components/Flower'
+import SVGFlower from '../components/SVGFlower'
 import { BreakPoint } from '../components/GlobalStyles/Breakpoints'
-import ShillKitList from '../components/ShillKitList'
+
+const ShillKitList = dynamic(import('../components/ShillKitList'))
 
 const HeaderContent = (
   <div className='heroContainer'>
@@ -32,24 +36,23 @@ const HeaderContent = (
         </Column>
       </Row>
     </Column>
-    <Flower
-      asBackground
+    <SVGFlower
       color={['#2C1929']}
-      minWidth='1000px'
-      minHeight='450px'
-      maxWidth='1000px'
-      maxHeight='450px'
-      seed={Math.random() * 1337}
-      hasProfitCurve
-      positionRight
+      iterations={5}
+      stems={12}
+      seed={Math.random() * 166}
       className='heroFlower'
+      flowerSize={400}
+      hasProfitCurve
+      profitCurveHeight={500}
     />
     <style jsx>{`
       .heroFlower {
-        right: -40rem;
-        bottom: -6.5rem;
-        transform: scale(0.9);
-        transform-origin: bottom center;
+        position: absolute;
+        right: -300px;
+        transform: scale(0.7);
+        bottom: -120px;
+        z-index: -1;
       }
       .heroContainer {
         position: relative;
@@ -60,12 +63,12 @@ const HeaderContent = (
         --buttonmargin: 0.5rem 0 10vh 0;
         padding-bottom: 0vh;
         max-width: 38rem;
-        width: 70%;
+        width: 90%;
       }
       @media (min-width: ${BreakPoint.sm}px) {
         .heroFlower {
-          right: -30rem;
-          bottom: -0.95rem;
+          right: -100px;
+          bottom: -70px;
           transform: scale(1);
         }
         .landingHero {
@@ -79,13 +82,15 @@ const HeaderContent = (
 
       @media (min-width: ${BreakPoint.md}px) {
         .heroFlower {
-          right: -13%;
+          right: -80px;
+          bottom: -20px;
         }
       }
 
       @media (min-width: ${BreakPoint.lg}px) {
         .heroFlower {
-          right: -15%;
+          right: 0;
+          bottom: -20px;
         }
       }
     `}</style>
@@ -110,28 +115,24 @@ const IndexPage = (): JSX.Element => (
         <BoxSection color={Color.DARK}>
           <div className='flowerWrapper'>
             <div className='whiteFlower'>
-              <Flower
-                asBackground
+              <SVGFlower
                 color={['#FFFFFF']}
-                minWidth='80vw'
-                minHeight='80vw'
-                maxWidth='400px'
-                maxHeight='400px'
+                iterations={4}
+                stems={16}
                 seed={Math.random() * 12566}
                 className='whiteFlowers'
+                flowerSize={260}
               />
             </div>
 
             <div className='whiteFlower2'>
-              <Flower
-                asBackground
+              <SVGFlower
                 color={['#FFFFFF']}
-                minWidth='80vw'
-                minHeight='80vw'
-                maxWidth='400px'
-                maxHeight='400px'
-                seed={Math.random() * 12566}
+                iterations={5}
+                stems={12}
+                seed={Math.random() * 166}
                 className='whiteFlowers'
+                flowerSize={260}
               />
             </div>
           </div>
@@ -159,9 +160,17 @@ const IndexPage = (): JSX.Element => (
         .whiteFlower2 {
           position: absolute;
           display: none;
-          width: 400px;
-          height: 400px;
+          width: 260px;
+          height: 260px;
+          animation: rotate 380s linear infinite;
         }
+
+        @keyframes rotate {
+          to {
+            transform: translateX(-50%) rotate(-360deg);
+          }
+        }
+
         .flowerWrapper {
           display: none;
           position: relative;
@@ -175,13 +184,13 @@ const IndexPage = (): JSX.Element => (
 
         @media (min-width: ${BreakPoint.md}px) {
           .whiteFlower {
-            left: -210px;
-            bottom: -130px;
+            left: -150px;
+            bottom: -90px;
             display: block;
           }
           .whiteFlower2 {
-            top: -40px;
-            left: -20px;
+            top: -35px;
+            left: 20px;
             display: block;
           }
           .flowerWrapper {
@@ -406,18 +415,18 @@ const IndexPage = (): JSX.Element => (
             }}
           >
             <div className='governaceFlowerHolder'>
-              <Flower
-                stems={15}
-                iterations={10}
-                color={['#ffde8e']}
-                minWidth='100%'
-                minHeight='480px'
-                maxWidth='480px'
-                maxHeight='480px'
-                asBackground
-                flowerSize={1.5}
-                seed={Math.random() * 12566}
-                background={`url('images/governace_token_holder.jpg')`}
+              <div className='governaceFlower'>
+                <SVGFlower
+                  color={['#ffde8e']}
+                  iterations={4}
+                  seed={Math.random() * 12566}
+                  flowerSize={200}
+                />
+              </div>
+              <Image
+                src='/images/governace_token_holder.jpg'
+                width='980'
+                height='980'
               />
             </div>
           </div>
@@ -447,6 +456,22 @@ const IndexPage = (): JSX.Element => (
           max-width: 480px;
           margin: calc(-1 * var(--boxpadding)) auto;
         }
+        .governaceFlower {
+          position: absolute;
+          width: 200px;
+          height: 200px;
+          z-index: 2;
+          transform: translateX(-50%) rotate(0deg);
+          margin-left: 50%;
+          margin-top: 15%;
+          animation: rotate 160s linear infinite;
+        }
+
+        @keyframes rotate {
+          to {
+            transform: translateX(-50%) rotate(-360deg)
+          }
+        }
         @media (min-width: ${BreakPoint.md}px) {
           .governaceFlowerHolder {
             margin: 0 0 0 calc(-0.4 * var(--boxpadding));
@@ -456,6 +481,7 @@ const IndexPage = (): JSX.Element => (
             justify-content: center;
           
         }
+
       `}</style>
     </Wrapper>
 
@@ -553,7 +579,11 @@ const IndexPage = (): JSX.Element => (
     <Wrapper>
       <BoxSection>
         <Title>Shill kit</Title>
-        <ShillKitList />
+        <InView triggerOnce>
+          {({ inView, ref }) => (
+            <div ref={ref}>{inView && <ShillKitList />}</div>
+          )}
+        </InView>
       </BoxSection>
     </Wrapper>
   </Layout>
