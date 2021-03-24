@@ -24,23 +24,27 @@ function useTotalOwned(): { USD: number; ETH: number } {
         accumulator && current ? accumulator + current : accumulator,
       )
 
-    const tokenValueInEth =
-      (userTokens &&
-        userTokens
-          .map((token) => {
-            if (!!token.value && !!token.price) {
-              return token.value * token.price
-            } else {
-              return 0
-            }
-          })
-          .reduce((accumulator, current) => accumulator + current)) ||
+    const tokenValuesInEth =
+      userTokens &&
+      userTokens.map((token) => {
+        if (!!token.value && !!token.price) {
+          return token.value * token.price
+        } else {
+          return 0
+        }
+      })
+    const totalTokenValueInEth =
+      (tokenValuesInEth &&
+        tokenValuesInEth.length > 0 &&
+        tokenValuesInEth.reduce(
+          (accumulator, current) => accumulator + current,
+        )) ||
       0
 
     if (tokenSum) {
       return {
         USD: tokenSum + parsedETHBalance * ethPrice,
-        ETH: parsedETHBalance + tokenValueInEth,
+        ETH: parsedETHBalance + totalTokenValueInEth,
       }
     } else {
       return { USD: 0, ETH: 0 }
