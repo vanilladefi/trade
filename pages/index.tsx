@@ -509,7 +509,7 @@ const IndexPage = (): JSX.Element => (
           <GridTemplate gap={'32px'} colMinWidth={'280px'}>
             <GridItem>
               <a
-                href='https://github.com/vanilladefi'
+                href='https://github.com/vanilladefi/contracts/tree/main/audits'
                 target='_blank'
                 rel='noopener noreferrer'
                 style={{
