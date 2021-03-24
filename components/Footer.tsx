@@ -9,6 +9,16 @@ import { BreakPoint } from './GlobalStyles/Breakpoints'
 const LawLinks = (): JSX.Element => (
   <ul>
     <li>
+      <Link href='/shill-kit'>
+        <a>Shill kit</a>
+      </Link>
+    </li>
+    <li>
+      <Link href='/bug-bounty'>
+        <a>Bug Bounty</a>
+      </Link>
+    </li>
+    <li>
       <Link href='/terms'>
         <a>Terms of Use</a>
       </Link>
@@ -18,11 +28,7 @@ const LawLinks = (): JSX.Element => (
         <a>Privacy Policy</a>
       </Link>
     </li>
-    <li>
-      <Link href='/cookies'>
-        <a>Cookie Policy</a>
-      </Link>
-    </li>
+
     <style jsx>{`
       ul,
       li {

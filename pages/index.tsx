@@ -527,23 +527,22 @@ const IndexPage = (): JSX.Element => (
               </a>
             </GridItem>
             <GridItem>
-              <a
-                href='https://github.com/vanilladefi'
-                target='_blank'
-                rel='noopener noreferrer'
-                style={{
-                  minWidth: '200px',
-                  maxWidth: '20rem',
-                  margin: '0 auto',
-                }}
-              >
-                <Image
-                  src='/images/bug-bounty.svg'
-                  width='400'
-                  height='286'
-                  alt='Bug bounties'
-                />
-              </a>
+              <Link href='/bug-bounty'>
+                <div
+                  style={{
+                    minWidth: '200px',
+                    maxWidth: '20rem',
+                    margin: '0 auto',
+                  }}
+                >
+                  <Image
+                    src='/images/bug-bounty.svg'
+                    width='400'
+                    height='286'
+                    alt='Bug bounties'
+                  />
+                </div>
+              </Link>
             </GridItem>
           </GridTemplate>
         </Column>
