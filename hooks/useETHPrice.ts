@@ -3,7 +3,13 @@ import { useEffect } from 'react'
 import { useRecoilCallback } from 'recoil'
 import { currentETHPrice } from 'state/meta'
 
-export interface ETHPriceResponse {
+export interface ETHPriceQueryResponse {
+  bundle: {
+    ethPrice: string
+  }
+}
+
+export interface ETHPriceSubResponse {
   data: {
     bundle: {
       ethPrice: string
@@ -13,7 +19,7 @@ export interface ETHPriceResponse {
 
 function useETHPrice(): void {
   const handleNewData = useRecoilCallback(
-    ({ set }) => ({ data }: ETHPriceResponse) => {
+    ({ set }) => ({ data }: ETHPriceSubResponse) => {
       if (
         data?.bundle?.ethPrice !== undefined &&
         data?.bundle?.ethPrice !== null &&

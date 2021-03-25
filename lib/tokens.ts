@@ -2,7 +2,7 @@ import uniswapTokens from '@uniswap/default-token-list'
 import additionalTokens from 'data/tokens.json'
 import { BigNumber, constants, Contract, providers, Signer } from 'ethers'
 import { getAddress } from 'ethers/lib/utils'
-import { ETHPriceResponse } from 'hooks/useETHPrice'
+import { ETHPriceQueryResponse } from 'hooks/useETHPrice'
 import {
   ETHPrice,
   thegraphClient,
@@ -105,6 +105,7 @@ export function addUSDPrice(
 ): Promise<Token[]> {
   return Promise.all(
     tokens.map(async (t) => {
+      console.log(t)
       if (ethPrice && ethPrice > 0 && t.price) {
         t.priceUSD = t.price * ethPrice
       }
@@ -130,7 +131,6 @@ export async function addVnlEligibility(tokens: Token[]): Promise<Token[]> {
             : Eligibility.NotEligible
         }
       } catch (e) {
-        console.error(e)
         t.eligible = Eligibility.NotEligible
       }
       return t
@@ -227,8 +227,11 @@ export async function getBalance(
 }
 
 export async function getETHPrice(): Promise<number | null> {
-  const { data }: ETHPriceResponse = await thegraphClient.request(ETHPrice)
-  return parseFloat(data?.bundle?.ethPrice) ?? null
+  const { bundle }: ETHPriceQueryResponse = await thegraphClient.request(
+    ETHPrice,
+  )
+  const parsedPrice = parseFloat(bundle?.ethPrice)
+  return (parsedPrice !== NaN && parsedPrice) || null
 }
 
 // returns the checksummed address if the address is valid, otherwise returns false
