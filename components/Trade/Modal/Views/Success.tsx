@@ -1,14 +1,35 @@
-import { Column } from 'components/grid/Flex'
+import { Column, Row, Width } from 'components/grid/Flex'
 import Button, { ButtonSize } from 'components/input/Button'
+import { Spinner } from 'components/Spinner'
 import TradeFlower from 'components/TradeFlower'
 import { SmallTitle } from 'components/typography/Titles'
 import { formatUnits } from 'ethers/lib/utils'
 import useTransaction from 'hooks/useTransaction'
+import React, { Suspense } from 'react'
 
 type Props = {
   id: string
   closeModal: () => void
 }
+
+const Loading = (): JSX.Element => (
+  <Row>
+    <Column width={Width.TWELVE}>
+      <div>
+        <Spinner />
+      </div>
+      <style jsx>{`
+        div {
+          width: 30rem;
+          height: 400px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+      `}</style>
+    </Column>
+  </Row>
+)
 
 const SuccessView = ({ id, closeModal }: Props): JSX.Element => {
   const transaction = useTransaction(id)
@@ -39,27 +60,31 @@ const SuccessView = ({ id, closeModal }: Props): JSX.Element => {
       <div className='row noBottomMargin'>
         <SmallTitle>TRADE SUCCESSFUL!</SmallTitle>
       </div>
-      {transaction && (
+      {transaction ? (
         <div className='row noBottomMargin'>
-          <TradeFlower
-            received={{
-              symbol: transaction.received?.symbol ?? '',
-              amount: amountReceived,
-            }}
-            paid={{
-              symbol: transaction.paid?.symbol ?? '',
-              amount: amountPaid,
-            }}
-            reward={{
-              symbol: 'VNL',
-              amount: reward ? parseFloat(reward) : 0.0,
-            }}
-            tradeURL={{
-              domain: 'vnl.com',
-              transactionHash: transaction.hash,
-            }}
-          />
+          <Suspense fallback={<Loading />}>
+            <TradeFlower
+              received={{
+                symbol: transaction.received?.symbol ?? '',
+                amount: amountReceived,
+              }}
+              paid={{
+                symbol: transaction.paid?.symbol ?? '',
+                amount: amountPaid,
+              }}
+              reward={{
+                symbol: 'VNL',
+                amount: reward ? parseFloat(reward) : 0.0,
+              }}
+              tradeURL={{
+                domain: 'vnl.com',
+                transactionHash: transaction.hash,
+              }}
+            />
+          </Suspense>
         </div>
+      ) : (
+        <Loading />
       )}
       <div className='row'>
         <Button
