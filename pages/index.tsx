@@ -25,7 +25,7 @@ const HeaderContent = (
         <Column width={Width.TWELVE}>
           <Title>
             One Interface <br />
-            For All DeFi
+            For DeFi
           </Title>
           <HugeMonospace>
             Trade, lend and participate in #ProfitMining
@@ -255,7 +255,7 @@ const IndexPage = (): JSX.Element => (
             <div className='tradeLendAutomateImage'>
               <Image
                 src='/images/illustration_trade.svg'
-                alt='Staking Infographic'
+                alt='Trading'
                 height='240px'
                 width='260px'
               />
@@ -274,7 +274,7 @@ const IndexPage = (): JSX.Element => (
             <div className='tradeLendAutomateImage'>
               <Image
                 src='/images/illustration_lend.svg'
-                alt='Staking Infographic'
+                alt='Lending'
                 height='240px'
                 width='260px'
               />
@@ -535,7 +535,7 @@ const IndexPage = (): JSX.Element => (
           <GridTemplate gap={'32px'} colMinWidth={'280px'}>
             <GridItem>
               <a
-                href='https://github.com/vanilladefi'
+                href='https://github.com/vanilladefi/contracts/tree/main/audits'
                 target='_blank'
                 rel='noopener noreferrer'
                 style={{
@@ -553,23 +553,22 @@ const IndexPage = (): JSX.Element => (
               </a>
             </GridItem>
             <GridItem>
-              <a
-                href='https://github.com/vanilladefi'
-                target='_blank'
-                rel='noopener noreferrer'
-                style={{
-                  minWidth: '200px',
-                  maxWidth: '20rem',
-                  margin: '0 auto',
-                }}
-              >
-                <Image
-                  src='/images/bug-bounty.svg'
-                  width='400'
-                  height='286'
-                  alt='Bug bounties'
-                />
-              </a>
+              <Link href='/bug-bounty'>
+                <div
+                  style={{
+                    minWidth: '200px',
+                    maxWidth: '20rem',
+                    margin: '0 auto',
+                  }}
+                >
+                  <Image
+                    src='/images/bug-bounty.svg'
+                    width='400'
+                    height='286'
+                    alt='Bug bounties'
+                  />
+                </div>
+              </Link>
             </GridItem>
           </GridTemplate>
         </Column>

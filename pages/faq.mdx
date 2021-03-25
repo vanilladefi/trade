@@ -1,4 +1,6 @@
 import ResponsiveImage from 'components/typography/ResponsiveImage'
+import Link from 'next/link'
+import Button from 'components/input/Button'
 import StaticPage from 'components/StaticPage'
 
 <StaticPage title='FAQ'>
@@ -11,7 +13,9 @@ Vanilla is a trustless interface for DeFi that rewards you for making a profit t
 
 Vanilla is launching with support for trading on [Uniswap](https://uniswap.org/) as the first way to make profit. Lending the tokens you've bought on [Aave](https://aave.com/) or [Compound](https://compound.finance/) to further increase your profits is coming soon after.
 
-Start #ProfitMining.
+<Link href='/trade'>
+  <Button>Start #ProfitMining</Button>
+</Link>
 
 ## What is #ProfitMining?
 
@@ -63,7 +67,7 @@ Vanilla was developed by [Equilibrium](https://equilibrium.co/) and the smart co
 
 ## Is Vanilla secure?
 
-The Vanilla system has been security audited extensively and there is an active bug bounty, but it is still experimental beta software as with most things built on Ethereum. We take the safety of your funds extremely seriously, but perfect security doesn't exist so tread carefully.
+The Vanilla system has been security audited extensively and there is an active <Link href="/bug-bounty">bug bounty</Link>, but it is still experimental beta software as with most things built on Ethereum. We take the safety of your funds extremely seriously, but perfect security doesn't exist so tread carefully.
 
 ## Is Vanilla decentralized?
 

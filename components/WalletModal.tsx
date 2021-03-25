@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import React from 'react'
 import { Connectors, useWallet } from 'use-wallet'
 import { useRecoilState } from 'recoil'
@@ -76,7 +75,14 @@ const ProviderOptions = (): JSX.Element => {
       </div>
       <div className='modalFooter'>
         <span>
-          New to Ethereum? <Link href='/learn'>Learn more about wallets</Link>
+          New to Ethereum?{' '}
+          <a
+            href='https://ethereum.org/en/wallets/'
+            target='_blank'
+            rel='noreferrer noopener'
+          >
+            Learn more about wallets
+          </a>
         </span>
       </div>
       <style jsx>{`
@@ -110,7 +116,7 @@ const ProviderOptions = (): JSX.Element => {
           font-size: var(--minisize);
         }
         span > * {
-          color: var(--beige);
+          color: var(--link-on-white);
         }
       `}</style>
     </Column>
@@ -170,9 +176,6 @@ const WalletView = (): JSX.Element => {
             )}
           </div>
         </div>
-      </div>
-      <div className='modalFooter'>
-        <span>Your transactions will appear here</span>
       </div>
       <style jsx>{`
         div {
