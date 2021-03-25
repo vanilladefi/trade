@@ -105,7 +105,6 @@ export function addUSDPrice(
 ): Promise<Token[]> {
   return Promise.all(
     tokens.map(async (t) => {
-      console.log(t)
       if (ethPrice && ethPrice > 0 && t.price) {
         t.priceUSD = t.price * ethPrice
       }
