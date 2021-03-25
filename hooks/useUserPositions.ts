@@ -4,7 +4,7 @@ import {
   Trade,
   TradeType,
 } from '@uniswap/sdk'
-import { BigNumber, Contract } from 'ethers'
+import { BigNumber } from 'ethers'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
 import { tokenListChainId } from 'lib/tokens'
 import { constructTrade } from 'lib/uniswap/trade'
@@ -15,10 +15,8 @@ import { currentETHPrice } from 'state/meta'
 import { allTokensStoreState, userTokensState } from 'state/tokens'
 import { selectedCounterAsset, selectedSlippageTolerance } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
-import VanillaRouter from 'types/abis/vanillaRouter.json'
-import { Eligibility, Token } from 'types/trade'
+import { Token } from 'types/trade'
 import { useWallet } from 'use-wallet'
-import { vanillaRouterAddress } from 'utils/config'
 import useETHPrice from './useETHPrice'
 import useVanillaGovernanceToken from './useVanillaGovernanceToken'
 import useVanillaRouter from './useVanillaRouter'
@@ -151,29 +149,6 @@ function useUserPositions(): Token[] | null {
                   ? -(profitablePrice - parsedAmountOut) / parsedAmountOut
                   : 0
 
-              const router = provider
-                ? new Contract(
-                    vanillaRouterAddress,
-                    VanillaRouter.abi,
-                    provider,
-                  )
-                : null
-
-              let eligible: Eligibility = Eligibility.NotEligible
-              try {
-                if (router && router.isTokenRewarded) {
-                  const eligibility = await router.isTokenRewarded(
-                    token.address,
-                  )
-                  eligible = eligibility
-                    ? Eligibility.Eligible
-                    : Eligibility.NotEligible
-                }
-              } catch (e) {
-                console.error(e)
-                eligible = Eligibility.NotEligible
-              }
-
               // Parse the available VNL reward
               const parsedVnl = reward
                 ? parseFloat(
@@ -186,7 +161,6 @@ function useUserPositions(): Token[] | null {
 
               return {
                 ...token,
-                eligible: eligible,
                 owned: parsedOwnedAmount,
                 ownedRaw: tokenAmount.raw.toString(),
                 value: parsedValue,
