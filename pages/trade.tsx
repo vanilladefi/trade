@@ -403,18 +403,13 @@ export async function getStaticProps(): Promise<
   tokens = await addLogoColor(tokens)
 
   // Fetch these simultaneously
-  const [
-    blocksPerHour,
-    currentBlockNumber,
-    ethPrice,
-    _tokens,
-  ] = await Promise.all([
+  const [blocksPerHour, currentBlockNumber, ethPrice] = await Promise.all([
     getAverageBlockCountPerHour(),
     getCurrentBlockNumber(),
     getETHPrice(),
-    addGraphInfo(tokens),
   ])
 
+  tokens = await addGraphInfo(tokens)
   tokens = await addUSDPrice(tokens, ethPrice)
   tokens = await addVnlEligibility(tokens)
 
@@ -422,13 +417,7 @@ export async function getStaticProps(): Promise<
 
   // Add historical data (price change)
   if (block24hAgo > 0) {
-    tokens = await addGraphInfo(
-      _tokens,
-      block24hAgo,
-      (ethPrice && ethPrice) ?? undefined,
-    )
-  } else {
-    tokens = _tokens
+    tokens = await addGraphInfo(tokens, block24hAgo, ethPrice)
   }
 
   return {

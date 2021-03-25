@@ -1,6 +1,6 @@
 import classNames from 'classnames'
-import Image from 'next/image'
 import useKeyboardInputListener from 'hooks/useKeyboardInputListener'
+import Image from 'next/image'
 import React, { ReactNode, useEffect, useState } from 'react'
 
 type Callback = () => void
@@ -63,7 +63,7 @@ const Modal = ({
           height: 100vh;
           background: ${isOpen ? 'var(--curtain-background)' : 'transparent'};
           backdrop-filter: ${isOpen ? 'var(--curtain-backdropfilter)' : 'none'};
-          z-index: 999;
+          z-index: 9999;
 
           transition: 0.2s ease backdrop-filter, 0.2s ease background;
           overflow: auto;

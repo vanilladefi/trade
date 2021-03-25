@@ -226,12 +226,12 @@ export async function getBalance(
   return balance
 }
 
-export async function getETHPrice(): Promise<number | null> {
+export async function getETHPrice(): Promise<number> {
   const { bundle }: ETHPriceQueryResponse = await thegraphClient.request(
     ETHPrice,
   )
   const parsedPrice = parseFloat(bundle?.ethPrice)
-  return (parsedPrice !== NaN && parsedPrice) || null
+  return (parsedPrice !== NaN && parsedPrice) || 0
 }
 
 // returns the checksummed address if the address is valid, otherwise returns false
