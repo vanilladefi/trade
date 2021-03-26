@@ -1,13 +1,14 @@
 import Head from 'next/head'
 import React, { ReactNode } from 'react'
-import { UseWalletProvider } from 'use-wallet'
 import { RecoilRoot } from 'recoil'
-import { WalletConnector } from './WalletConnector'
+import { UseWalletProvider } from 'use-wallet'
+import { chainId, rpcUrl } from 'utils/config'
 import Footer from './Footer'
 import GlobalStyles from './GlobalStyles'
 import Header from './Header'
-import WalletModal from './WalletModal'
 import { MobileWalletFloater } from './SmallWalletInfo'
+import { WalletConnector } from './WalletConnector'
+import WalletModal from './WalletModal'
 
 type RenderFunction = () => ReactNode
 
@@ -41,12 +42,10 @@ const Layout = ({
   return (
     <RecoilRoot>
       <UseWalletProvider
-        chainId={parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || '1')}
+        chainId={chainId}
         connectors={{
           walletconnect: {
-            rpcUrl:
-              process.env.NEXT_PUBLIC_RPC_URL ||
-              'https://mainnet.infura.io/v3/2b58be24601f4086baef24488838c239',
+            rpcUrl: rpcUrl,
           },
         }}
       >

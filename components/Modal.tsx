@@ -1,4 +1,5 @@
 import classNames from 'classnames'
+import useKeyboardInputListener from 'hooks/useKeyboardInputListener'
 import Image from 'next/image'
 import React, { ReactNode, useEffect, useState } from 'react'
 
@@ -16,9 +17,17 @@ const Modal = ({
 }: Props): JSX.Element => {
   const [isOpen, setOpen] = useState(false)
   const curtainClasses = classNames('curtain', { closed: !isOpen })
+
+  const close = () => {
+    setOpen(false)
+    setTimeout(() => onRequestClose && onRequestClose(), 200)
+  }
+
+  useKeyboardInputListener(['Escape', 'Esc'], close)
   useEffect(() => {
     setOpen(open)
   }, [open])
+
   return (
     <>
       {open && (
@@ -26,7 +35,6 @@ const Modal = ({
           <div
             className='modal'
             onClick={(e) => {
-              e.preventDefault()
               e.stopPropagation()
             }}
           >
@@ -34,8 +42,7 @@ const Modal = ({
               className='closeButton'
               onClick={(e) => {
                 e.preventDefault()
-                setOpen(false)
-                setTimeout(() => onRequestClose && onRequestClose(), 200)
+                close()
               }}
             >
               <Image src='/images/close-button.svg' width='44' height='44' />
@@ -56,12 +63,14 @@ const Modal = ({
           height: 100vh;
           background: ${isOpen ? 'var(--curtain-background)' : 'transparent'};
           backdrop-filter: ${isOpen ? 'var(--curtain-backdropfilter)' : 'none'};
-          z-index: 999;
+          z-index: 9999;
 
           transition: 0.2s ease backdrop-filter, 0.2s ease background;
+          overflow: auto;
         }
         .modal {
-          width: 30rem;
+          width: var(--modalwidth);
+          max-width: fit-content;
           height: auto;
           position: relative;
           border-radius: 1.5rem;
@@ -71,6 +80,7 @@ const Modal = ({
           opacity: ${isOpen ? 1 : 0};
           transition: 0.1s ease opacity;
           pointer-events: all;
+          --iconsize: 2rem;
         }
         .closeButton {
           position: absolute;

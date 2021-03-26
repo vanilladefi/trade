@@ -1,32 +1,33 @@
-import type { CellProps } from 'react-table'
-import { useMemo } from 'react'
-import { useRecoilValue } from 'recoil'
-import type {
-  HandleBuyClick,
-  HandleSellClick,
-  Token,
-  ListColumn,
-} from 'types/trade'
-import { userTokensState } from 'state/tokens'
-import useTokenSearch from 'hooks/useTokenSearch'
-import { Table, Columns } from 'components/Table'
 import Button, {
   ButtonColor,
   ButtonGroup,
   ButtonSize,
   Rounding,
 } from 'components/input/Button'
+import { Spinner } from 'components/Spinner'
+import { Columns, Table } from 'components/Table'
+import useTokenSearch from 'hooks/useTokenSearch'
+import useUserPositions from 'hooks/useUserPositions'
+import React, { useMemo } from 'react'
+import type { CellProps } from 'react-table'
+import type {
+  HandleBuyClick,
+  HandleSellClick,
+  ListColumn,
+  Token,
+} from 'types/trade'
 
 interface Props {
   onBuyClick: HandleBuyClick
   onSellClick: HandleSellClick
+  initialTokens?: Token[]
 }
 
 export default function MyPositions({
   onBuyClick,
   onSellClick,
 }: Props): JSX.Element {
-  const userTokens = useRecoilValue(userTokensState)
+  const userPositions = useUserPositions()
 
   const [query, clearQuery] = useTokenSearch()
 
@@ -35,11 +36,11 @@ export default function MyPositions({
     onSellClick,
   ])
 
-  const initialSortBy = useMemo(() => [{ id: 'logoName', desc: false }], [])
+  const initialSortBy = useMemo(() => [{ id: 'value', desc: true }], [])
 
-  return (
+  return userPositions ? (
     <Table
-      data={userTokens}
+      data={userPositions}
       columns={columns}
       initialSortBy={initialSortBy}
       query={query}
@@ -47,6 +48,21 @@ export default function MyPositions({
       colorize
       pagination
     />
+  ) : (
+    <div className='spinnerWrapper'>
+      <Spinner />
+      <style jsx>{`
+        .spinnerWrapper {
+          display: flex;
+          width: 100%;
+          flex-direction: row;
+          justify-content: center;
+          align-items: center;
+          height: 80px;
+          --iconsize: 2rem;
+        }
+      `}</style>
+    </div>
   )
 }
 
@@ -61,8 +77,8 @@ function getColumns({
     Columns.LogoTicker,
     Columns.LogoName,
     Columns.Ticker,
-    Columns.OwnedAmount,
     Columns.MarketValue,
+    Columns.OwnedAmount,
     Columns.Profit,
     Columns.UnrealizedVNL,
     {
@@ -81,10 +97,6 @@ function getColumns({
             onClick={() =>
               onSellClick({
                 pairId: row.original.pairId,
-                token: {
-                  address: row.original.address,
-                  symbol: row.original.symbol,
-                },
               })
             }
           >
@@ -103,10 +115,6 @@ function getColumns({
             onClick={() =>
               onBuyClick({
                 pairId: row.original.pairId,
-                token: {
-                  address: row.original.address,
-                  symbol: row.original.symbol,
-                },
               })
             }
           >

@@ -1,7 +1,8 @@
 import React from 'react'
-import { Connectors, useWallet } from 'use-wallet'
-import { useRecoilState } from 'recoil'
+import { useRecoilState, useSetRecoilState } from 'recoil'
+import { userTokensState } from 'state/tokens'
 import { walletModalOpenState } from 'state/wallet'
+import { Connectors, useWallet } from 'use-wallet'
 import { ModalGradient } from './backgrounds/gradient'
 import { Alignment, Column, Justification, Row, Width } from './grid/Flex'
 import Button, { ButtonColor, ButtonSize } from './input/Button'
@@ -101,7 +102,7 @@ const ProviderOptions = (): JSX.Element => {
         }
         .modalMain {
           position: relative;
-          width: 100%;
+          width: 30rem;
         }
         .buttons {
           display: flex;
@@ -125,8 +126,12 @@ const ProviderOptions = (): JSX.Element => {
 
 const WalletView = (): JSX.Element => {
   const wallet = useWallet()
+  const { account, connector } = wallet
+  const setTokens = useSetRecoilState(userTokensState)
 
   const resetWallet = (): void => {
+    // Reset user owned tokens status
+    setTokens([])
     wallet.reset()
   }
 
@@ -140,16 +145,16 @@ const WalletView = (): JSX.Element => {
         <div className='mainWrapper'>
           <div className='innerBox'>
             <div className='topRow'>
-              {wallet.account ? 'Connected with ' : 'Connecting with '}
-              {wallet.connector === 'injected' ? 'Metamask' : wallet.connector}
+              {account ? 'Connected with ' : 'Connecting with '}
+              {connector === 'injected' ? 'Metamask' : connector}
               <Button onClick={() => resetWallet()} size={ButtonSize.SMALL}>
                 Disconnect
               </Button>
             </div>
             <div className='middleSection'>
-              {wallet.account ? (
+              {account ? (
                 <>
-                  <WalletIcon walletType={wallet.connector} />
+                  <WalletIcon walletType={connector} />
                   <Spacer />
                   <WalletAddress wallet={wallet} />
                 </>
@@ -157,18 +162,17 @@ const WalletView = (): JSX.Element => {
                 'Connecting...'
               )}
             </div>
-            {wallet.account && (
+            {account && (
               <div className='bottomSection'>
                 <button
                   onClick={() =>
-                    wallet.account &&
-                    navigator.clipboard.writeText(wallet.account)
+                    account && navigator.clipboard.writeText(account)
                   }
                 >
                   <Icon src={IconUrls.COPY} />
                   Copy address
                 </button>
-                <a href={`https://etherscan.io/address/${wallet.account}`}>
+                <a href={`https://etherscan.io/address/${account}`}>
                   <Icon src={IconUrls.ARROW_UP_RIGHT} />
                   View on Etherscan
                 </a>
@@ -177,6 +181,7 @@ const WalletView = (): JSX.Element => {
           </div>
         </div>
       </div>
+      <div className='modalFooter'>{/* <TransactionList /> */}</div>
       <style jsx>{`
         div {
           display: flex;
@@ -199,7 +204,7 @@ const WalletView = (): JSX.Element => {
           display: flex;
           flex-direction: column;
           padding: 1rem 1.5rem;
-          width: 100%;
+          width: 30rem;
           font-size: var(--minisize);
         }
         span {
@@ -249,6 +254,7 @@ const WalletView = (): JSX.Element => {
           align-items: center;
           justify-content: space-between;
           padding: 1rem 1.5rem;
+          --iconsize: 1rem;
         }
         .bottomSection button,
         .bottomSection a {
@@ -281,7 +287,7 @@ const WalletView = (): JSX.Element => {
 }
 
 const WalletModal = (): JSX.Element => {
-  const wallet = useWallet()
+  const { status } = useWallet()
 
   const [walletModalOpen, setWalletModalOpen] = useRecoilState(
     walletModalOpenState,
@@ -294,8 +300,8 @@ const WalletModal = (): JSX.Element => {
         setWalletModalOpen(false)
       }}
     >
-      {['disconnected', 'error'].includes(wallet.status) && <ProviderOptions />}
-      {['connected', 'connecting'].includes(wallet.status) && <WalletView />}
+      {['disconnected', 'error'].includes(status) && <ProviderOptions />}
+      {['connected', 'connecting'].includes(status) && <WalletView />}
     </Modal>
   )
 }

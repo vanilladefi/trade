@@ -1,87 +1,152 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import type { GetStaticPropsResult } from 'next'
-import { useWallet } from 'use-wallet'
-import { useSetRecoilState } from 'recoil'
-import { walletModalOpenState } from 'state/wallet'
-import { AvailableTokens, MyPositions } from 'components/Trade'
-import TokenSearch from 'components/TokenSearch'
+// import { Token } from '@uniswap/sdk'
 import { TopGradient } from 'components/backgrounds/gradient'
 import { Column, Row, Width } from 'components/grid/Flex'
 import Button, { ButtonSize } from 'components/input/Button'
 import Layout from 'components/Layout'
-import Modal from 'components/Modal'
-import TradeFlower from 'components/TradeFlower'
+import { Spinner } from 'components/Spinner'
+import TokenSearch from 'components/TokenSearch'
+import { AvailableTokens, MyPositions } from 'components/Trade'
 import HugeMonospace from 'components/typography/HugeMonospace'
-import { SmallTitle, Title } from 'components/typography/Titles'
+import { Title } from 'components/typography/Titles'
 import Wrapper from 'components/Wrapper'
-import { thegraphClient, PairByIdQuery } from 'lib/graphql'
-import type {
-  HandleBuyClick,
-  HandleSellClick,
-  PairByIdQueryResponse,
-  Token,
-} from 'types/trade'
-import { allTokensStoreState } from 'state/tokens'
-import { addGraphInfo, addLogoColor, getAllTokens } from 'lib/tokens'
-import { getCurrentBlockNumber, getAverageBlockCountPerHour } from 'lib/block'
-import useTokenSubscription from 'hooks/useTokenSubscription'
 import useMetaSubscription from 'hooks/useMetaSubscription'
+import useTokenSubscription from 'hooks/useTokenSubscription'
+import useTotalOwned from 'hooks/useTotalOwned'
+import { getAverageBlockCountPerHour, getCurrentBlockNumber } from 'lib/block'
+import {
+  addGraphInfo,
+  addLogoColor,
+  addUSDPrice,
+  addVnlEligibility,
+  getAllTokens,
+  getETHPrice,
+} from 'lib/tokens'
+import type { GetStaticPropsResult } from 'next'
+import dynamic from 'next/dynamic'
+import Link from 'next/link'
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
+import { currentETHPrice } from 'state/meta'
+import { allTokensStoreState, userTokensState } from 'state/tokens'
+import { selectedOperation, selectedPairIdState } from 'state/trade'
+import { walletModalOpenState } from 'state/wallet'
+import { HandleBuyClick, HandleSellClick, Operation, Token } from 'types/trade'
+import { useWallet } from 'use-wallet'
 
 type PageProps = {
   allTokens: Token[]
+  ethPrice: number
 }
 
 type BodyProps = {
-  allTokens: Token[]
-  onBuyClick: HandleBuyClick
-  onSellClick: HandleSellClick
+  initialTokens: Token[]
+  ethPrice: number
+  setModalOpen: Dispatch<SetStateAction<boolean>>
 }
+
+const TradeModal = dynamic(() => import('components/Trade/Modal'), {
+  ssr: false,
+})
 
 const HeaderContent = (): JSX.Element => {
   const wallet = useWallet()
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
+  const { USD: totalOwnedUSD, ETH: totalOwnedETH } = useTotalOwned()
+  const userTokens = useRecoilValue(userTokensState)
+
+  const totalUnrealizedVnl = useCallback(() => {
+    const vnlAmounts = userTokens ? userTokens.map((token) => token.vnl) : null
+    return vnlAmounts
+      ? vnlAmounts.reduce((accumulator, current) => {
+          if (
+            accumulator !== undefined &&
+            current !== undefined &&
+            accumulator !== null &&
+            current !== null
+          ) {
+            return accumulator + current
+          } else {
+            return 0
+          }
+        })
+      : 0
+  }, [userTokens])
 
   return (
     <>
       <TopGradient />
       <Row className='subpageHeader'>
-        {wallet.status !== 'connected' ? (
+        {wallet.status === 'connected' && !userTokens && (
+          <Column width={Width.TWELVE}>
+            <div className='spinnerWrapper'>
+              <Spinner />
+            </div>
+          </Column>
+        )}
+        {(wallet.status === 'disconnected' ||
+          (userTokens && userTokens.length === 0)) && (
           <Column width={Width.EIGHT}>
             <Title>Start Trading</Title>
             <HugeMonospace>
-              Make trades, see your profits blossom and mine VNL.
+              Buy a token below to start #ProfitMining.
             </HugeMonospace>
-            <Button
-              size={ButtonSize.LARGE}
-              onClick={() => {
-                setWalletModalOpen(true)
-              }}
-            >
-              Connect wallet
-            </Button>
+            <div className='buttonWrapper'>
+              {wallet.status !== 'connected' && (
+                <Button
+                  size={ButtonSize.LARGE}
+                  onClick={() => {
+                    setWalletModalOpen(true)
+                  }}
+                >
+                  Connect wallet
+                </Button>
+              )}
+              <Link href='/faq'>
+                <Button size={ButtonSize.LARGE}>Learn more</Button>
+              </Link>
+            </div>
           </Column>
-        ) : (
+        )}
+        {userTokens && userTokens.length > 0 && (
           <Column width={Width.TWELVE}>
             <Title>My trading</Title>
             <div className='stats-grid'>
               <div className='stats-grid-item'>
-                <h2 className='title'>TOTAL BALANCE</h2>
-                <h3 className='subTitle'>$324</h3>
-                <span className='details'>5.1275 ETH (+4%)</span>
+                <h2 className='title'>MY POSITIONS</h2>
+                <h3 className='subTitle'>${totalOwnedUSD.toLocaleString()}</h3>
+                <span className='details'>
+                  {totalOwnedETH.toLocaleString()} ETH
+                </span>
               </div>
               <div className='stats-grid-item'>
-                <h2 className='title'>PROFITABLE POSITIONS</h2>
-                <h3 className='subTitle'>24/34</h3>
-              </div>
-              <div className='stats-grid-item'>
-                <h2 className='title'>UNREALIZED PROFIT</h2>
-                <h3 className='subTitle'>12%</h3>
-                <span className='details'>1.15 VNL</span>
+                <h2 className='title'>UNREALIZED VNL</h2>
+                <h3 className='subTitle'>
+                  {totalUnrealizedVnl()?.toLocaleString()} VNL
+                </h3>
+                <span className='details'>
+                  from {userTokens.length} positions
+                </span>
               </div>
             </div>
           </Column>
         )}
       </Row>
+      <style jsx>{`
+        .spinnerWrapper {
+          width: 100%;
+          height: 300px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          --iconsize: 2rem;
+        }
+      `}</style>
       <style jsx global>{`
         .subpageHeader {
           --buttonmargin: var(--subpage-buttonmargin);
@@ -92,8 +157,9 @@ const HeaderContent = (): JSX.Element => {
           width: 100%;
           display: grid;
           gap: 70px;
-          grid: auto / 1fr 1fr 1fr;
+          grid: auto / 1fr 1fr;
           margin-bottom: 2rem;
+          margin-top: 2rem;
         }
         .stats-grid .title,
         .stats-grid .subTitle,
@@ -131,6 +197,11 @@ const HeaderContent = (): JSX.Element => {
 
         .stats-grid .details {
           grid-area: details;
+        }
+
+        .buttonWrapper {
+          display: flex;
+          flex-direction: row;
         }
 
         @media(max-width: 680px){
@@ -174,50 +245,71 @@ const HeaderContent = (): JSX.Element => {
   )
 }
 
-const ModalContent = (): JSX.Element => (
-  <Column>
-    <div>
-      <SmallTitle>TRADE SUCCESSFUL!</SmallTitle>
-    </div>
-    <TradeFlower
-      received={{ ticker: 'DAI', amount: 2.5 }}
-      paid={{ ticker: 'ETH', amount: 0.0056572 }}
-      tradeURL={{
-        domain: 'vnl.com',
-        transactionHash:
-          '0x05c7cedb4b6a234a92fcc9e396661cbed6d89e301899af6569dae3ff32a48acb',
-      }}
-    />
-    <div>
-      <Column>
-        <SmallTitle>Share for more VNL</SmallTitle>
-        <span>Learn more</span>
-      </Column>
-      <span>links here</span>
-    </div>
-    <style jsx>{`
-      div {
-        display: flex;
-        flex-direction: row;
-        padding: 1.1rem 1.2rem;
-        justify-content: space-between;
-      }
-    `}</style>
-  </Column>
-)
-
 const BodyContent = ({
-  allTokens,
-  onBuyClick,
-  onSellClick,
+  initialTokens,
+  ethPrice,
+  setModalOpen,
 }: BodyProps): JSX.Element => {
   useMetaSubscription()
   useTokenSubscription()
+
+  const setETHPrice = useSetRecoilState(currentETHPrice)
   const setTokens = useSetRecoilState(allTokensStoreState)
+  const setSelectedPairId = useSetRecoilState(selectedPairIdState)
+  const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
+  const setOperation = useSetRecoilState(selectedOperation)
+  const userPositions = useRecoilValue(userTokensState)
+  const { account } = useWallet()
 
   useEffect(() => {
-    setTokens(allTokens)
-  }, [setTokens, allTokens])
+    setTokens(initialTokens)
+    setETHPrice(ethPrice)
+  }, [setTokens, initialTokens, setETHPrice, ethPrice])
+
+  const profitablePositions = useCallback(() => {
+    return userPositions?.filter((token) => token.profit && token.profit > 0)
+      .length
+  }, [userPositions])
+
+  const handleBuyClick: HandleBuyClick = useCallback(
+    (pairInfo) => {
+      if (account === null) {
+        setWalletModalOpen(true)
+      } else {
+        setWalletModalOpen(false)
+        setOperation(Operation.Buy)
+        setSelectedPairId(pairInfo?.pairId ?? null)
+        setModalOpen(true)
+      }
+    },
+    [
+      account,
+      setModalOpen,
+      setOperation,
+      setSelectedPairId,
+      setWalletModalOpen,
+    ],
+  )
+
+  const handleSellClick: HandleSellClick = useCallback(
+    (pairInfo) => {
+      if (account === null) {
+        setWalletModalOpen(true)
+      } else {
+        setWalletModalOpen(false)
+        setOperation(Operation.Sell)
+        setSelectedPairId(pairInfo?.pairId ?? null)
+        setModalOpen(true)
+      }
+    },
+    [
+      account,
+      setModalOpen,
+      setOperation,
+      setSelectedPairId,
+      setWalletModalOpen,
+    ],
+  )
 
   return (
     <Wrapper>
@@ -227,15 +319,38 @@ const BodyContent = ({
             <TokenSearch placeholder='Search tokens by name or ticker' />
           </div>
 
-          <h2>MY POSITIONS</h2>
-          <MyPositions onBuyClick={onBuyClick} onSellClick={onSellClick} />
+          {account && (
+            <>
+              <h2>
+                MY POSITIONS
+                {userPositions && userPositions.length > 0 && (
+                  <small>{`${profitablePositions()} of ${
+                    userPositions ? userPositions.length : 0
+                  } profitable`}</small>
+                )}
+              </h2>
+              <MyPositions
+                onBuyClick={handleBuyClick}
+                onSellClick={handleSellClick}
+              />
+            </>
+          )}
 
           <h2>AVAILABLE TOKENS</h2>
           {/* Pass "initialTokens" so this page is statically rendered with tokens */}
-          <AvailableTokens initialTokens={allTokens} onBuyClick={onBuyClick} />
+          <AvailableTokens
+            initialTokens={initialTokens}
+            onBuyClick={handleBuyClick}
+          />
         </Column>
       </Row>
       <style jsx>{`
+        h2 small {
+          margin-left: 1rem;
+          font-weight: 400;
+          font-family: var(--bodyfont);
+          font-size: 1rem;
+        }
         .token-search {
           width: calc(100% + 2 * var(--outermargin));
           margin-left: calc(-1 * var(--outermargin));
@@ -247,7 +362,10 @@ const BodyContent = ({
   )
 }
 
-export default function TradePage({ allTokens }: PageProps): JSX.Element {
+export default function TradePage({
+  allTokens,
+  ethPrice,
+}: PageProps): JSX.Element {
   // NOTE: allTokens here will be stale after a while
   // allTokens here is only used to populate the state on first render (static)
   // Updates to allTokens happen in recoil
@@ -255,44 +373,6 @@ export default function TradePage({ allTokens }: PageProps): JSX.Element {
   // because this is a page component
 
   const [modalOpen, setModalOpen] = useState(false)
-  const [selectedPairId, setSelectedPairId] = useState('')
-  const [, setLoadingPair] = useState(false)
-  const [, setSelectedPair] = useState<PairByIdQueryResponse | null>(null)
-
-  const handleBuyClick: HandleBuyClick = useCallback((pairInfo) => {
-    setSelectedPairId(pairInfo?.pairId ?? '')
-    setModalOpen(true)
-  }, [])
-
-  const handleSellClick: HandleSellClick = useCallback((pairInfo) => {
-    setSelectedPairId(pairInfo?.pairId ?? '')
-    setModalOpen(true)
-  }, [])
-
-  // Retrieve pair info from The Graph when 'selectedPairId' changes
-  useEffect(() => {
-    let mounted = true
-    const getPairData = async () => {
-      if (mounted) setLoadingPair(true)
-      let pair: PairByIdQueryResponse | null = null
-      try {
-        const response = await thegraphClient.request(PairByIdQuery, {
-          pairId: selectedPairId,
-        })
-        pair = response?.pairs?.[0] || null
-      } catch (e) {
-      } finally {
-        if (mounted) {
-          setLoadingPair(false)
-          setSelectedPair(pair)
-        }
-      }
-    }
-    if (selectedPairId) getPairData()
-    return () => {
-      mounted = false
-    }
-  }, [selectedPairId])
 
   return (
     <Layout
@@ -301,13 +381,16 @@ export default function TradePage({ allTokens }: PageProps): JSX.Element {
       shareImg='/social/social-share-trade.png'
       heroRenderer={HeaderContent}
     >
-      <Modal open={modalOpen} onRequestClose={() => setModalOpen(false)}>
-        <ModalContent />
-      </Modal>
+      <TradeModal
+        open={modalOpen}
+        onRequestClose={() => {
+          setModalOpen(false)
+        }}
+      />
       <BodyContent
-        allTokens={allTokens}
-        onBuyClick={handleBuyClick}
-        onSellClick={handleSellClick}
+        initialTokens={allTokens}
+        ethPrice={ethPrice}
+        setModalOpen={setModalOpen}
       />
     </Layout>
   )
@@ -320,24 +403,27 @@ export async function getStaticProps(): Promise<
   tokens = await addLogoColor(tokens)
 
   // Fetch these simultaneously
-  const [blocksPerHour, currentBlockNumber, _tokens] = await Promise.all([
+  const [blocksPerHour, currentBlockNumber, ethPrice] = await Promise.all([
     getAverageBlockCountPerHour(),
     getCurrentBlockNumber(),
-    addGraphInfo(tokens),
+    getETHPrice(),
   ])
+
+  tokens = await addGraphInfo(tokens)
+  tokens = await addUSDPrice(tokens, ethPrice)
+  tokens = await addVnlEligibility(tokens)
 
   const block24hAgo = currentBlockNumber - 24 * blocksPerHour
 
   // Add historical data (price change)
   if (block24hAgo > 0) {
-    tokens = await addGraphInfo(_tokens, block24hAgo)
-  } else {
-    tokens = _tokens
+    tokens = await addGraphInfo(tokens, block24hAgo, ethPrice)
   }
 
   return {
     props: {
       allTokens: tokens,
+      ethPrice: ethPrice || 0,
     },
     revalidate: 60,
   }

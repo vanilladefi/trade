@@ -1,6 +1,7 @@
+import useKeyboardInputListener from 'hooks/useKeyboardInputListener'
+import { Search } from 'react-feather'
 import { useRecoilState } from 'recoil'
 import { tokenSearchQuery } from 'state/tokenSearch'
-import { Search } from 'react-feather'
 
 interface Props {
   placeholder: string
@@ -8,7 +9,7 @@ interface Props {
 
 export default function TokenSearch({ placeholder }: Props): JSX.Element {
   const [value, setValue] = useRecoilState(tokenSearchQuery)
-
+  useKeyboardInputListener(['Escape', 'Esc'], () => setValue(''))
   return (
     <div className='container'>
       <Search />

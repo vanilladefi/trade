@@ -2,7 +2,7 @@ import { gql } from 'graphql-request'
 
 const TokenCommonFragment = gql`
   fragment TokenCommonFragment on Pair {
-    pairdId: id
+    pairId: id
     reserveUSD
   }
 `
@@ -40,6 +40,7 @@ export const TokenInfoQuery = gql`
   ${TokenABFragment}
   ${TokenBAFragment}
 `
+
 export const TokenInfoQueryHistorical = gql`
   query tokenInfo($blockNumber: Int, $weth: String, $tokenAddresses: [String]) {
     tokensAB: pairs(
@@ -65,23 +66,27 @@ export const TokenInfoQueryHistorical = gql`
 export const TokenInfoSubAB = gql`
   subscription tokenInfoAB($weth: String, $tokenAddresses: [String]) {
     tokens: pairs(where: { token0: $weth, token1_in: $tokenAddresses }) {
-      ...TokenCommonFragment
-      ...TokenABFragment
+      pairId: id
+      reserveUSD
+      token: token1 {
+        id
+      }
+      price: token0Price
     }
   }
-  ${TokenCommonFragment}
-  ${TokenABFragment}
 `
 
 export const TokenInfoSubBA = gql`
   subscription tokenInfoBA($weth: String, $tokenAddresses: [String]) {
     tokens: pairs(where: { token1: $weth, token0_in: $tokenAddresses }) {
-      ...TokenCommonFragment
-      ...TokenBAFragment
+      pairId: id
+      reserveUSD
+      token: token0 {
+        id
+      }
+      price: token1Price
     }
   }
-  ${TokenCommonFragment}
-  ${TokenBAFragment}
 `
 
 export const PairByIdQuery = gql`
@@ -91,11 +96,40 @@ export const PairByIdQuery = gql`
       token0 {
         id
         symbol
+        decimals
       }
       token1 {
         id
         symbol
+        decimals
       }
+    }
+  }
+`
+
+export const TokenDayData = gql`
+  query tokenDayData($tokenAddresses: [String]) {
+    tokenDayDatas(where: { token_in: $tokenAddresses }) {
+      token {
+        id
+      }
+      priceUSD
+    }
+  }
+`
+
+export const ETHPrice = gql`
+  query ethPrice {
+    bundle(id: 1) {
+      ethPrice
+    }
+  }
+`
+
+export const ETHPriceSub = gql`
+  subscription ethPrice {
+    bundle(id: 1) {
+      ethPrice
     }
   }
 `

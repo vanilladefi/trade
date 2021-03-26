@@ -1,11 +1,11 @@
-import type { CellProps } from 'react-table'
-import { useMemo } from 'react'
-import { useRecoilValue } from 'recoil'
-import type { HandleBuyClick, Token, ListColumn } from 'types/trade'
-import { allTokensStoreState } from 'state/tokens'
-import useTokenSearch from 'hooks/useTokenSearch'
-import { Table, Columns } from 'components/Table'
 import Button, { ButtonColor, ButtonSize } from 'components/input/Button'
+import { Columns, Table } from 'components/Table'
+import useTokenSearch from 'hooks/useTokenSearch'
+import { useMemo } from 'react'
+import type { CellProps } from 'react-table'
+import { useRecoilValue } from 'recoil'
+import { allTokensStoreState } from 'state/tokens'
+import type { HandleBuyClick, ListColumn, Token } from 'types/trade'
 
 interface Props {
   onBuyClick: HandleBuyClick
@@ -26,7 +26,7 @@ export default function AvailableTokens({
 
   return (
     <Table
-      data={tokens.length ? tokens : initialTokens}
+      data={tokens?.length ? tokens : initialTokens}
       columns={columns}
       initialSortBy={initialSortBy}
       query={query}
@@ -44,6 +44,7 @@ function getColumns(onBuyClick: HandleBuyClick): ListColumn<Token>[] {
     Columns.Price,
     Columns.Liquidity,
     Columns.PriceChange,
+    Columns.Eligibility,
     {
       id: 'trade',
       width: 1,
@@ -57,10 +58,6 @@ function getColumns(onBuyClick: HandleBuyClick): ListColumn<Token>[] {
           onClick={() =>
             onBuyClick({
               pairId: row.original.pairId,
-              token: {
-                address: row.original.address,
-                symbol: row.original.symbol,
-              },
             })
           }
         >

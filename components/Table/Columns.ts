@@ -1,4 +1,4 @@
-import type { Token, ListColumn } from 'types/trade'
+import type { ListColumn, Token } from 'types/trade'
 import * as Cells from './Cells'
 
 export const LogoTicker: ListColumn<Token> = {
@@ -31,13 +31,13 @@ export const Ticker: ListColumn<Token> = {
 export const Price: ListColumn<Token> = {
   id: 'price',
   Header: 'Price',
-  accessor: 'price',
+  accessor: 'priceUSD',
   width: 3,
   sortDescFirst: true,
   sortType: 'basic',
   disableGlobalFilter: true,
   align: 'right',
-  Cell: Cells.ValueETH,
+  Cell: Cells.ValueUSD,
 }
 
 export const Liquidity: ListColumn<Token> = {
@@ -54,7 +54,7 @@ export const Liquidity: ListColumn<Token> = {
 
 export const PriceChange: ListColumn<Token> = {
   id: 'priceChange',
-  Header: 'Price Change (24h)',
+  Header: 'Price Change in ETH (24h) %',
   accessor: 'priceChange',
   sortDescFirst: true,
   disableGlobalFilter: true,
@@ -66,7 +66,7 @@ export const PriceChange: ListColumn<Token> = {
 
 export const OwnedAmount: ListColumn<Token> = {
   id: 'owned',
-  Header: 'Amount owned',
+  Header: 'Amount',
   accessor: 'owned',
   width: 1,
   sortDescFirst: true,
@@ -90,7 +90,7 @@ export const MarketValue: ListColumn<Token> = {
 
 export const Profit: ListColumn<Token> = {
   id: 'profit',
-  Header: 'Profit %',
+  Header: 'Profit in ETH %',
   accessor: 'profit',
   width: 1,
   sortDescFirst: true,
@@ -110,5 +110,15 @@ export const UnrealizedVNL: ListColumn<Token> = {
   disableGlobalFilter: true,
   align: 'right',
   hideBelow: 'md',
-  Cell: Cells.ValueDecimal,
+  Cell: Cells.UnrealizedVnl,
+}
+
+export const Eligibility: ListColumn<Token> = {
+  id: 'eligible',
+  Header: 'Profit Mining',
+  accessor: 'eligible',
+  width: 1,
+  sortType: 'basic',
+  align: 'right',
+  Cell: Cells.ProfitMining,
 }

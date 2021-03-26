@@ -15,6 +15,9 @@ const Variables = (): JSX.Element => (
       --curtain-backdropfilter: blur(40px);
       --roadmapcolor: #ffd866;
       --link-on-white: #be6700;
+      --bordercolor: var(--dark);
+      --alertcolor: rgb(193, 22, 63);
+      --alertbackground: rgba(193, 22, 63, 0.1);
 
       /* Gradients */
       --topgradient: radial-gradient(
@@ -37,9 +40,16 @@ const Variables = (): JSX.Element => (
         #ffedab 8.09%,
         #ededed 89.18%
       );
+      --toggleWrapperGradient: radial-gradient(
+        59.84% 223.83% at 50% 50%,
+        #ffedab 0%,
+        #ededed 100%
+      );
 
       /* Dimensions */
       --maxlayoutwidth: 1280px;
+      --iconsize: 1rem;
+      --modalwidth: fit-content;
 
       /* Border radiuses */
       --tradeflowerborderradius: 9px;
@@ -68,7 +78,7 @@ const Variables = (): JSX.Element => (
       --subpage-titlemargin: 56px 0 1.5rem 0;
       --box-titlemargin: 0 0 32px 0;
       --box-hugemonomargin: 0 0 20px 0;
-      --subpage-buttonmargin: 0 0 76px 0;
+      --subpage-buttonmargin: 0 1rem 4rem 0;
 
       /* Fonts */
       --rootfontsize: 12px;

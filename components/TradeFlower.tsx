@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic'
 const Flower = dynamic(import('../components/Flower'))
 
 export type Token = {
-  ticker: string
+  symbol: string
   amount: number
 }
 
@@ -29,7 +29,7 @@ const TradeFlower = ({
     <>
       +{received.amount}
       <br />
-      {received.ticker}
+      {received.symbol}
     </>
   )
 
@@ -37,7 +37,7 @@ const TradeFlower = ({
     <>
       +{reward.amount}
       <br />
-      {reward.ticker}
+      {reward.symbol}
     </>
   )
 
@@ -53,9 +53,17 @@ const TradeFlower = ({
     <>
       -{paid.amount}
       <br />
-      {paid.ticker}
+      {paid.symbol}
     </>
   )
+
+  const rawParticleCount = received
+    ? received.amount * 100
+    : reward
+    ? reward.amount * 100
+    : 0
+  const particleCount = rawParticleCount > 10000 ? 10000 : rawParticleCount
+
   return (
     <>
       <div className='tradeWrapper'>
@@ -66,9 +74,7 @@ const TradeFlower = ({
           maxWidth='100%'
           maxHeight='100%'
           seed={tradeURL.transactionHash}
-          particleCount={
-            received ? received.amount * 100 : reward ? reward.amount * 100 : 0
-          }
+          particleCount={particleCount}
           topLeft={receivedData}
           topRight={rewardData}
           bottomLeft={tradeURLData}

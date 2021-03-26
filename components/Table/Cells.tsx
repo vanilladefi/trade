@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import type { CellProps } from 'react-table'
-import type { Token } from 'types/trade'
+import { Eligibility, Token } from 'types/trade'
 
 export function TokenLogo({ value, row }: CellProps<Token>): JSX.Element {
   const imgSrc = row.original.logoURI || null
@@ -52,6 +52,29 @@ export function ValuePercent({ value }: CellProps<Token>): React.ReactNode {
   return (value ?? 0).toLocaleString('en-US', {
     style: 'percent',
     maximumFractionDigits: 2,
+    minimumFractionDigits: 2,
     signDisplay: 'always',
   })
+}
+
+export function UnrealizedVnl({
+  value,
+  row,
+}: CellProps<Token>): React.ReactNode {
+  return row.original.eligible ? (
+    value.toLocaleString('en-US', {
+      style: 'decimal',
+      maximumFractionDigits: 10, // TODO
+    })
+  ) : (
+    <i>{'Not eligible'}</i>
+  )
+}
+
+export function ProfitMining({ value }: CellProps<Token>): React.ReactNode {
+  return value === Eligibility.Eligible ? (
+    <div style={{ color: '#3B870C' }}>Yes</div>
+  ) : (
+    <div style={{ color: '#C30936' }}>No</div>
+  )
 }

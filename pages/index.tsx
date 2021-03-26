@@ -1,20 +1,19 @@
+import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
-import dynamic from 'next/dynamic'
 import { InView } from 'react-intersection-observer'
-
 import BoxSection, { Color } from '../components/BoxSection'
+import { BreakPoint } from '../components/GlobalStyles/Breakpoints'
 import { Column, Row, Width } from '../components/grid/Flex'
 import { GridItem, GridTemplate } from '../components/grid/Grid'
 import Button from '../components/input/Button'
 import Layout from '../components/Layout'
+import SVGFlower from '../components/SVGFlower'
 import Timeline from '../components/Timeline'
 import HugeMonospace from '../components/typography/HugeMonospace'
 import { Highlight } from '../components/typography/Text'
 import { Title } from '../components/typography/Titles'
 import Wrapper from '../components/Wrapper'
-import SVGFlower from '../components/SVGFlower'
-import { BreakPoint } from '../components/GlobalStyles/Breakpoints'
 
 const ShillKitList = dynamic(import('../components/ShillKitList'))
 
@@ -408,7 +407,7 @@ const IndexPage = (): JSX.Element => (
       <BoxSection color={Color.DARK}>
         <Row>
           <div
-            className='governaceColumn governaceBg'
+            className='governanceColumn governanceBg'
             style={{
               height: '480px',
               textAlign: 'center',
@@ -430,7 +429,7 @@ const IndexPage = (): JSX.Element => (
               />
             </div>
           </div>
-          <div className='governaceColumn'>
+          <div className='governanceColumn'>
             <Title>
               VNL is the governance token of the Vanilla economic system.
             </Title>
@@ -441,16 +440,18 @@ const IndexPage = (): JSX.Element => (
               other ecosystem efforts.
             </Highlight>
             <br />
-            <Button>Learn more</Button>
+            <Link href='/faq'>
+              <Button>Learn more</Button>
+            </Link>
           </div>
         </Row>
       </BoxSection>
       <style jsx>{`
-        .governaceColumn {
+        .governanceColumn {
           position: relative;
           width: 100%;
         }
-        .governaceFlowerHolder {
+        .governanceFlowerHolder {
           position: relative;
           width: 100%;
           max-width: 480px;
@@ -469,19 +470,18 @@ const IndexPage = (): JSX.Element => (
 
         @keyframes rotate {
           to {
-            transform: translateX(-50%) rotate(-360deg)
+            transform: translateX(-50%) rotate(-360deg);
           }
         }
         @media (min-width: ${BreakPoint.md}px) {
-          .governaceFlowerHolder {
+          .governanceFlowerHolder {
             margin: 0 0 0 calc(-0.4 * var(--boxpadding));
           }
-          .governaceColumn {
+          .governanceColumn {
             width: 50%;
             justify-content: center;
-          
+          }
         }
-
       `}</style>
     </Wrapper>
 

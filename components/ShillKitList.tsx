@@ -100,6 +100,7 @@ const ShillKitList = (): JSX.Element => {
                 loop
                 muted
                 playsInline
+                webkit-playsinline='true'
               >
                 <source src={shill.url} type='video/mp4' />
               </video>

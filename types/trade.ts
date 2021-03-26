@@ -1,31 +1,45 @@
-import type { Column } from 'react-table'
 import type { BreakPointOptions } from 'components/GlobalStyles/Breakpoints'
+import { ethers } from 'ethers'
+import type { Column } from 'react-table'
 
 export interface PairInfo {
   pairId: string | null
-  token: {
-    address: string
-    symbol: string
-  }
+}
+
+export enum Operation {
+  Buy = 'buy',
+  Sell = 'sell',
+}
+
+export enum Eligibility {
+  NotEligible,
+  Eligible,
 }
 
 export interface UniSwapToken {
-  [index: string]: string | number | null
-  name: string
+  [index: string]: string | number | null | undefined
+  name?: string
   address: string
-  symbol: string
+  symbol?: string
   decimals: number
   chainId: number
-  logoURI: string
+  logoURI?: string
 }
 
 export interface Token extends UniSwapToken {
   pairId: string | null
-  price: number | null
-  priceHistorical: number | null
-  priceChange: number | null
-  liquidity: number | null
+  price?: number | null
+  priceUSD?: number | null
+  priceHistorical?: number | null
+  priceChange?: number | null
+  liquidity?: number | null
   logoColor: string | null
+  owned?: string | null
+  ownedRaw?: string | null
+  value?: number | null
+  profit?: number | string | null
+  vnl?: number | null
+  eligible?: Eligibility
 }
 
 export interface TokenInfoQueryResponse {
@@ -42,10 +56,12 @@ export interface PairByIdQueryResponse {
   token0: {
     id: string
     symbol: string
+    decimals: string
   }
   token1: {
     id: string
     symbol: string
+    decimals: string
   }
 }
 
@@ -57,6 +73,32 @@ export interface MetaQueryResponse {
     }
     deployment: string
   }
+}
+
+export interface Call {
+  address: string
+  callData: string
+}
+
+export enum Action {
+  PURCHASE = 'purchase',
+  SALE = 'sale',
+  APPROVAL = 'approval',
+}
+
+export interface TransactionDetails {
+  hash: string
+  action: Action
+  approval?: { tokenAddress: string; spender: string }
+  receipt?: ethers.providers.TransactionReceipt
+  from: string
+  blockNumber?: number
+  paid?: UniSwapToken
+  received?: UniSwapToken
+  amountPaid?: string
+  amountReceived?: string
+  addedTime?: number
+  reward?: string
 }
 
 export type HandleBuyClick = (pairInfo: PairInfo) => void
