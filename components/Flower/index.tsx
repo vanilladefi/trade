@@ -1,8 +1,8 @@
-import React, { useCallback, useRef } from 'react'
-import { Canvas } from 'react-three-fiber' // https://github.com/pmndrs/react-three-fiber
-import { InView } from 'react-intersection-observer'
+import { BreakPoint } from 'components/GlobalStyles/Breakpoints'
 import domtoimage from 'dom-to-image'
-
+import React, { useCallback, useRef } from 'react'
+import { InView } from 'react-intersection-observer'
+import { Canvas } from 'react-three-fiber' // https://github.com/pmndrs/react-three-fiber
 import Particles from './Particles'
 import Petals from './Petals'
 import ProfitCurve from './ProfitCurve'
@@ -85,22 +85,7 @@ const Flower = ({
       {({ inView, ref }) => (
         <div ref={ref}>
           {asBackground ? (
-            <div
-              {...rest}
-              style={{
-                width: minWidth,
-                height: minHeight,
-                maxWidth: maxWidth,
-                maxHeight: maxHeight,
-                position: 'absolute',
-                zIndex: 0,
-                pointerEvents: 'none',
-                background: background ? background : 'none',
-                backgroundSize: '100%',
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'bottom',
-              }}
-            >
+            <div {...rest} className='flowerBackgroundWrapper'>
               <Canvas
                 pixelRatio={
                   typeof window !== 'undefined'
@@ -129,21 +114,7 @@ const Flower = ({
           ) : (
             <div>
               <div style={{ position: 'relative' }} ref={flowerRef}>
-                <div
-                  style={{
-                    width: minWidth,
-                    height: minHeight,
-                    maxWidth: maxWidth,
-                    maxHeight: maxHeight,
-                    background: background
-                      ? background
-                      : 'var(--tradeflowergradient)',
-                    borderRadius: '16px',
-                    backgroundSize: '100%',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'bottom',
-                  }}
-                >
+                <div className='flowerWrapper'>
                   <Canvas
                     pixelRatio={
                       typeof window !== 'undefined'
@@ -197,6 +168,32 @@ const Flower = ({
             </div>
           )}
           <style jsx>{`
+            .flowerBackgroundWrapper {
+              width: ${minWidth};
+              height: ${minHeight};
+              max-width: ${maxWidth};
+              max-height: ${maxHeight};
+              position: absolute;
+              z-index: 0;
+              pointer-events: 'none';
+              background: ${background ? background : 'none'};
+              background-size: 100%;
+              background-repeat: no-repeat;
+              background-position: bottom;
+            }
+            .flowerWrapper {
+              width: ${minWidth};
+              height: ${minHeight};
+              max-width: ${maxWidth};
+              max-height: ${maxHeight};
+              border-radius: 16px;
+              background: ${background
+                ? background
+                : 'var(--tradeflowergradient)'};
+              background-size: 100%;
+              background-repeat: no-repeat;
+              background-position: bottom;
+            }
             .data-text {
               font-family: var(--monofont);
               font-weight: 300;
@@ -235,6 +232,14 @@ const Flower = ({
               white-space: nowrap;
               overflow: hidden;
               text-overflow: ellipsis;
+            }
+            @media (max-width: ${BreakPoint.md}px) {
+              .flowerWrapper {
+                width: 80vw;
+                height: 80vw;
+                max-height: 60vh;
+                max-width: 400px;
+              }
             }
           `}</style>
         </div>
