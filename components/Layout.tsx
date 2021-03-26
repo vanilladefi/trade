@@ -85,6 +85,12 @@ const Layout = ({
           <meta property='og:title' content={`${title} - Vanilla `} />
           <meta property='og:description' content={description} />
           <meta property='og:image' content={`${origin}${shareImg}`} />
+          <script
+            async
+            defer
+            data-domain='vanilladefi.com'
+            src='https://plausible.io/js/plausible.js'
+          ></script>
         </Head>
 
         <WalletModal />
