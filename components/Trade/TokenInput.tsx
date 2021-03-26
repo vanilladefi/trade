@@ -40,24 +40,27 @@ const TokenInput = ({
   const [amount1, setAmount1] = useState<string | null | undefined>()
   const [focused, setFocused] = useState<number | undefined>(undefined)
 
-  const { formatted: eligibleBalance0 } = useEligibleTokenBalance(
-    token0?.address,
-  )
+  const {
+    formatted: eligibleBalance0,
+    raw: eligibleBalance0Raw,
+  } = useEligibleTokenBalance(token0?.address)
   const { formatted: balance0, raw: balance0Raw } = useTokenBalance(
     token0?.address,
     token0?.decimals,
   )
-  const { formatted: balance1 } = useTokenBalance(
+  const { formatted: balance1, raw: balance1Raw } = useTokenBalance(
     token1?.address,
     token1?.decimals,
     true,
   )
 
   const ethBalance = useWethProxy
-    ? parseFloat(formatUnits(wallet.balance, 18)).toFixed(6)
-    : balance1 &&
-      token1 &&
-      parseFloat(formatUnits(balance1, token1.decimals)).toFixed(6)
+    ? formatUnits(wallet.balance, 18)
+    : balance1 && token1 && formatUnits(balance1, token1.decimals)
+
+  const ethBalanceRaw = useWethProxy
+    ? ethBalance
+    : balance1 && token1 && formatUnits(balance1Raw, token1.decimals)
 
   useEffect(() => {
     token0Amount &&
@@ -134,9 +137,12 @@ const TokenInput = ({
                   <button
                     className='maxButton'
                     onClick={() =>
+                      token0 &&
                       handleAmountChange(
                         0,
-                        !balance0Raw.isZero() ? balance0 : eligibleBalance0,
+                        !balance0Raw.isZero()
+                          ? formatUnits(balance0Raw, token0.decimals)
+                          : formatUnits(eligibleBalance0Raw, token0.decimals),
                       )
                     }
                   >
@@ -149,9 +155,12 @@ const TokenInput = ({
               <div className='tokenSelector'>
                 <span
                   onClick={() =>
+                    token0 &&
                     handleAmountChange(
                       0,
-                      !balance0Raw.isZero() ? balance0 : eligibleBalance0,
+                      !balance0Raw.isZero()
+                        ? formatUnits(balance0Raw, token0.decimals)
+                        : formatUnits(eligibleBalance0Raw, token0.decimals),
                     )
                   }
                   title={!balance0Raw.isZero() ? balance0 : eligibleBalance0}
@@ -193,7 +202,7 @@ const TokenInput = ({
                   <button
                     className='maxButton'
                     onClick={() =>
-                      handleAmountChange(1, ethBalance || balance1)
+                      ethBalanceRaw && handleAmountChange(1, ethBalanceRaw)
                     }
                   >
                     max
@@ -204,7 +213,9 @@ const TokenInput = ({
             <Column width={Width.FIVE} overflowY={'hidden'}>
               <div className='tokenSelector'>
                 <span
-                  onClick={() => handleAmountChange(1, ethBalance || balance1)}
+                  onClick={() =>
+                    ethBalanceRaw && handleAmountChange(1, ethBalanceRaw)
+                  }
                   title={ethBalance || balance1}
                 >
                   Balance: {ethBalance}
