@@ -45,7 +45,7 @@ function useTotalOwned(): { USD: number; ETH: number } {
     if (tokenSum) {
       return {
         USD: tokenSum + parsedETHBalance * ethPrice,
-        ETH: totalTokenValueInEth,
+        ETH: totalTokenValueInEth + parsedETHBalance,
       }
     } else {
       return { USD: 0, ETH: 0 }
