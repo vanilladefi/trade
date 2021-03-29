@@ -17,6 +17,7 @@ function useTotalOwned(): { USD: number; ETH: number } {
       userTokens &&
       userTokens.filter((token) => !!token.value).map((token) => token.value)
 
+    // Total value of tokens in USD
     const tokenSum =
       values &&
       values.length > 0 &&
@@ -27,8 +28,8 @@ function useTotalOwned(): { USD: number; ETH: number } {
     const tokenValuesInEth =
       userTokens &&
       userTokens.map((token) => {
-        if (!!token.value && !!token.price) {
-          return token.value * token.price
+        if (!!token.owned && token.price) {
+          return parseFloat(token.owned) * token.price
         } else {
           return 0
         }
@@ -44,7 +45,7 @@ function useTotalOwned(): { USD: number; ETH: number } {
     if (tokenSum) {
       return {
         USD: tokenSum + parsedETHBalance * ethPrice,
-        ETH: parsedETHBalance + totalTokenValueInEth,
+        ETH: totalTokenValueInEth + parsedETHBalance,
       }
     } else {
       return { USD: 0, ETH: 0 }
