@@ -21,7 +21,9 @@ Vanilla is launching with support for trading on [Uniswap](https://uniswap.org/)
 
 Profit mining is a novel token distribution mechanism, where you "mine" VNL tokens by making a profit calculated in ETH. The more profit you make and the longer you've held your positions before selling, the more VNL you mine. Mining difficulty also increases over time, making early mining more lucrative.
 
-While you can trade almost anything through Vanilla, only tokens with enough liquidity are eligible for profit mining to protect against price manipulation attacks. Liquidity is calculated from WETH reserves on Uniswap and the more liquidity there is, the higher the rewards are. You can see which tokens are eligible for profit mining on the Trade page.
+While you can trade almost anything through Vanilla, only tokens with enough liquidity are eligible for profit mining to protect against price manipulation attacks. Liquidity is calculated from WETH reserves on Uniswap and the more liquidity there is, the higher the rewards are. Profit mining also takes into account how long you hold your position. The longer you hold, the more VNL you mine. 
+
+You can see which tokens are eligible for profit mining on the Trade page.
 
 ## Why would I use Vanilla?
 
@@ -85,7 +87,7 @@ where
 - `Hᵢ` is the _Holding/Trading Ratio (Squared)_
 
 
-## How is the profit calculated
+## How is profit calculated?
 
 Profit is determined by the positive difference of how much WETH the trader used to buy tokens and how much WETH the trader got back when selling those tokens. For example, buying 1000 USDC with 1 WETH, and selling them all for 2 WETH would equal 1 WETH profit.
 
@@ -110,7 +112,7 @@ For reference, the quote for the average purchase price is calculated simply as 
 ![P_{i}^{avg}=\frac{T_{token}}{T_{eth}}](https://render.githubusercontent.com/render/math?math=P_{i}^{avg}=\frac{T_{n}}{E_{n}})
 
 
-## What is the Value-Protection Coefficient and why Vanilla uses it
+## What is the Value-Protection Coefficient and why does Vanilla use it?
 
 With constant function market makers like Uniswap, the price manipulation of a single token is always possible. Given that VNL rewards are based solely on profit,  price manipulation may be used to influence the VNL distribution and therefore its value. Vanilla uses a Value-Protection Coefficient to incentivize trades in tokens that are costlier to manipulate. The idea is based on the guarantee that the manipulation of a constant-product price has [a cost relative to the liquidity pool size](https://arxiv.org/abs/1911.03380).
 
@@ -128,7 +130,7 @@ To further protect the token value against the more sophisticated market manipul
 
 In summary, the purpose of the Value-Protection Coefficient is to protect the VNL generation from all kinds of Uniswap price manipulation attempts by making it costlier and less rewarding.
 
-## What is the Holding/Trading Ratio (Squared) and why Vanilla uses it
+## What is the Holding/Trading Ratio (Squared) and why does Vanilla use it?
 
 
 For each token you trade, Vanilla maintains _Weighted Average Purchase Block_ (WAPB) or (![B_{w,i}](https://render.githubusercontent.com/render/math?math=B_{w,i})).
