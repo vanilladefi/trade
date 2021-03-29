@@ -50,6 +50,7 @@ export const buy = async ({
     amountReceived,
     tokenReceived.decimals,
   )
+
   const amountPaidParsed = parseUnits(amountPaid, tokenPaid.decimals)
 
   const router = getContract(

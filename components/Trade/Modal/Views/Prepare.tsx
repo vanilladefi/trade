@@ -317,11 +317,11 @@ const PrepareView = ({
   useEffect(() => {
     const updateTradeAndToken1 = async () => {
       const trade = await updateTrade(0, token0Amount)
-      if (trade && trade.minimumAmountOut && trade.maximumAmountIn) {
+      if (trade && trade.inputAmount && trade.outputAmount) {
         const newToken1Amount =
           operation === Operation.Buy
-            ? trade.maximumAmountIn(slippageTolerance).toSignificant()
-            : trade.minimumAmountOut(slippageTolerance).toSignificant()
+            ? trade.inputAmount.toSignificant(6)
+            : trade.outputAmount.toSignificant(6)
         setToken1Amount(newToken1Amount)
       }
     }
@@ -371,12 +371,8 @@ const PrepareView = ({
         if (trade) {
           const newToken1Amount =
             operation === Operation.Buy
-              ? (trade.maximumAmountIn &&
-                  trade.maximumAmountIn(slippageTolerance).toSignificant()) ||
-                (trade.inputAmount && trade.inputAmount.toSignificant())
-              : (trade.minimumAmountOut &&
-                  trade.minimumAmountOut(slippageTolerance).toSignificant()) ||
-                (trade.outputAmount && trade.outputAmount.toSignificant())
+              ? trade.inputAmount && trade.inputAmount.toSignificant(6)
+              : trade.outputAmount && trade.outputAmount.toSignificant(6)
           setToken1Amount(newToken1Amount)
         } else {
           setToken1Amount('0.0')
@@ -389,18 +385,14 @@ const PrepareView = ({
         if (trade) {
           const newToken0Amount =
             operation === Operation.Buy
-              ? (trade.minimumAmountOut &&
-                  trade.minimumAmountOut(slippageTolerance).toSignificant()) ||
-                (trade.outputAmount && trade.outputAmount.toSignificant())
-              : (trade.maximumAmountIn &&
-                  trade.maximumAmountIn(slippageTolerance).toSignificant()) ||
-                (trade.inputAmount && trade.inputAmount.toSignificant())
+              ? trade.outputAmount && trade.outputAmount.toSignificant(6)
+              : trade.inputAmount && trade.inputAmount.toSignificant(6)
           setToken0Amount(newToken0Amount)
+        } else {
+          setToken0Amount('0.0')
         }
-      } else {
-        setToken0Amount('0.0')
+        setToken1Amount(value)
       }
-      setToken1Amount(value)
     }
   }
 
