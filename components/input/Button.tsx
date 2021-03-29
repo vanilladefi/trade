@@ -171,6 +171,7 @@ const Button = ({
           position: relative;
           opacity: 1;
           transition: 0.3s eased opacity;
+          max-width: 100%;
         }
         button.large {
           padding: var(--largebuttonpadding);
