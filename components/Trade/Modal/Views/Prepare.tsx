@@ -52,6 +52,51 @@ enum TransactionState {
   DONE,
 }
 
+type ButtonAmountDisplayProps = {
+  operationText: string
+  tokenAmount: string
+  tokenSymbol: string
+}
+
+const ButtonAmountDisplay = ({
+  operationText,
+  tokenAmount,
+  tokenSymbol,
+}: ButtonAmountDisplayProps): JSX.Element => (
+  <>
+    <div>
+      {operationText} <span>{tokenAmount}</span> {tokenSymbol}
+    </div>
+    <style jsx>{`
+      div {
+        position: relative;
+        display: inline-flex;
+        max-width: 100%;
+        font-family: inherit;
+        font-weight: inherit;
+        font-size: inherit;
+        line-height: inherit;
+        margin: 0;
+        padding: 0;
+        white-space: nowrap;
+      }
+      div span {
+        display: inline-block;
+        position: relative;
+        font-family: inherit;
+        font-weight: inherit;
+        font-size: inherit;
+        line-height: inherit;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        margin-right: 0.2rem;
+        margin-left: 0.2rem;
+      }
+    `}</style>
+  </>
+)
+
 const PrepareView = ({
   operation,
   setOperation,
@@ -101,16 +146,20 @@ const PrepareView = ({
   const [token1Amount, setToken1Amount] = useState<string>('0')
 
   const isOverFlow = useCallback(() => {
-    if (
-      (operation === Operation.Buy &&
-        parseUnits(token1Amount, token1?.decimals).gt(balance1Raw)) ||
-      (operation === Operation.Sell &&
-        parseUnits(token0Amount, token0?.decimals).gt(balance0Raw) &&
-        parseUnits(token0Amount, token0?.decimals).gt(eligibleBalance0Raw))
-    ) {
+    try {
+      if (
+        (operation === Operation.Buy &&
+          parseUnits(token1Amount, token1?.decimals).gt(balance1Raw)) ||
+        (operation === Operation.Sell &&
+          parseUnits(token0Amount, token0?.decimals).gt(balance0Raw) &&
+          parseUnits(token0Amount, token0?.decimals).gt(eligibleBalance0Raw))
+      ) {
+        return true
+      } else {
+        return false
+      }
+    } catch (e) {
       return true
-    } else {
-      return false
     }
   }, [
     operation,
@@ -196,20 +245,24 @@ const PrepareView = ({
 
   // Estimate LP fees
   useEffect(() => {
-    if (token1 && token0) {
-      const token = operation === Operation.Buy ? token1 : token0
-      const amountParsed =
-        operation === Operation.Buy
-          ? parseUnits(token1Amount, token1?.decimals)
-          : parseUnits(token0Amount, token0?.decimals)
-      const feeAmount = amountParsed
-        .mul(lpFeePercentage.numerator.toString())
-        .div(lpFeePercentage.denominator.toString())
-      const feeTokenAmount = new TokenAmount(
-        new Token(token.chainId, token.address, token.decimals),
-        feeAmount.toString(),
-      )
-      setEstimatedFees(feeTokenAmount.toSignificant())
+    try {
+      if (token1 && token0) {
+        const token = operation === Operation.Buy ? token1 : token0
+        const amountParsed =
+          operation === Operation.Buy
+            ? parseUnits(token1Amount, token1?.decimals)
+            : parseUnits(token0Amount, token0?.decimals)
+        const feeAmount = amountParsed
+          .mul(lpFeePercentage.numerator.toString())
+          .div(lpFeePercentage.denominator.toString())
+        const feeTokenAmount = new TokenAmount(
+          new Token(token.chainId, token.address, token.decimals),
+          feeAmount.toString(),
+        )
+        setEstimatedFees(feeTokenAmount.toSignificant())
+      }
+    } catch (e) {
+      console.error(e)
     }
   }, [
     lpFeePercentage.denominator,
@@ -538,9 +591,13 @@ const PrepareView = ({
                 ) : isOverFlow() ? (
                   'Not enough funds'
                 ) : transactionState === TransactionState.PREPARE ? (
-                  `${
-                    operation.charAt(0).toUpperCase() + operation.slice(1)
-                  }ing ${token0Amount} ${token0?.symbol}`
+                  <ButtonAmountDisplay
+                    operationText={`${
+                      operation.charAt(0).toUpperCase() + operation.slice(1)
+                    }ing`}
+                    tokenAmount={token0Amount}
+                    tokenSymbol={token0?.symbol ?? ''}
+                  />
                 ) : transactionState === TransactionState.PROCESSING ? (
                   'Processing'
                 ) : (
