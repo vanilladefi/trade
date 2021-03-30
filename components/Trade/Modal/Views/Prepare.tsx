@@ -200,7 +200,7 @@ const PrepareView = ({
               parseUnits(token0Amount, token0?.decimals),
               blockDeadline,
               {
-                value: parseUnits(token1Amount, token1?.decimals),
+                value: parseUnits(token1Amount, token0?.decimals),
               },
             )
             .then((value) => {

@@ -57,12 +57,6 @@ function useUserPositions(): Token[] | null {
                   userAddress,
                   token.address,
                 )
-                console.log(
-                  priceResponse,
-                  vanillaRouter.address,
-                  token.address,
-                  userAddress,
-                )
                 tokenSum = priceResponse.tokenSum
               } catch (e) {
                 tokenSum = BigNumber.from('0')
@@ -116,7 +110,6 @@ function useUserPositions(): Token[] | null {
                 trade = null
               }
 
-              console.log(trade)
               // Amount out from the trade as a Bignumber gwei string and an ether float
               const amountOut = trade?.outputAmount.raw ?? undefined
               const parsedAmountOut =
