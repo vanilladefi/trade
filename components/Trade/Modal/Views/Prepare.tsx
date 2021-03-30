@@ -510,7 +510,7 @@ const PrepareView = ({
               </div>
             </div>
 
-            <div className='modalMain'>
+            <section className='modalMain'>
               <div className='row noBottomMargin'>
                 <TokenInput
                   operation={operation}
@@ -564,7 +564,7 @@ const PrepareView = ({
                   </Column>
                 </div>
               )}
-            </div>
+            </section>
           </section>
 
           <div className='row'>
