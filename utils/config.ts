@@ -20,4 +20,4 @@ export const defaultProvider = new providers.JsonRpcProvider(rpcUrl, chainId)
 
 export const ethersOverrides = { gasLimit: 350000 }
 
-export const blockTimeoutThreshold = 600 // 600 blocks added to currentBlock
+export const blockDeadlineThreshold = 600 // 600 blocks added to currentBlock

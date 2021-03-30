@@ -34,7 +34,7 @@ import {
 } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
 import { Operation } from 'types/trade'
-import { blockTimeoutThreshold } from 'utils/config'
+import { blockDeadlineThreshold } from 'utils/config'
 
 type ContentProps = {
   operation: Operation
@@ -195,14 +195,14 @@ const PrepareView = ({
         !parseUnits(token0Amount, token0?.decimals).isZero() &&
         !parseUnits(token1Amount, token1?.decimals).isZero()
       ) {
-        const blockTimeout =
-          (await provider.getBlockNumber()) + blockTimeoutThreshold
+        const blockDeadline =
+          (await provider.getBlockNumber()) + blockDeadlineThreshold
         if (operation === Operation.Buy) {
           vanillaRouter.estimateGas
             .depositAndBuy(
               token0.address,
               parseUnits(token0Amount, token0?.decimals),
-              blockTimeout,
+              blockDeadline,
               {
                 value: parseUnits(token1Amount, token1?.decimals),
               },
@@ -221,7 +221,7 @@ const PrepareView = ({
               token0.address,
               parseUnits(token0Amount, token0?.decimals),
               parseUnits(token1Amount, token1?.decimals),
-              blockTimeout,
+              blockDeadline,
             )
             .then((value) => {
               provider.getGasPrice().then((price) => {
@@ -449,8 +449,8 @@ const PrepareView = ({
     ) {
       let hash: string | undefined
       try {
-        const blockTimeout =
-          (await provider.getBlockNumber()) + blockTimeoutThreshold
+        const blockDeadline =
+          (await provider.getBlockNumber()) + blockDeadlineThreshold
         setTransactionState(TransactionState.PROCESSING)
 
         if (operation === Operation.Buy) {
@@ -460,7 +460,7 @@ const PrepareView = ({
             tokenPaid: token1,
             tokenReceived: token0,
             signer: signer,
-            blockTimeout: blockTimeout,
+            blockDeadline: blockDeadline,
           })
         } else {
           hash = await sell({
@@ -469,7 +469,7 @@ const PrepareView = ({
             tokenPaid: token0,
             tokenReceived: token1,
             signer: signer,
-            blockTimeout: blockTimeout,
+            blockDeadline: blockDeadline,
           })
         }
 

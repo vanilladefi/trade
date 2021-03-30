@@ -26,7 +26,7 @@ export interface BuyProps {
   tokenReceived: UniSwapToken
   tokenPaid: UniSwapToken
   signer?: providers.JsonRpcSigner
-  blockTimeout: number
+  blockDeadline: number
 }
 
 export interface SellProps {
@@ -35,7 +35,7 @@ export interface SellProps {
   tokenPaid: UniSwapToken
   tokenReceived: UniSwapToken
   signer?: providers.JsonRpcSigner
-  blockTimeout: number
+  blockDeadline: number
 }
 
 export const buy = async ({
@@ -44,7 +44,7 @@ export const buy = async ({
   tokenReceived,
   tokenPaid,
   signer,
-  blockTimeout,
+  blockDeadline,
 }: BuyProps): Promise<Transaction> => {
   const amountReceivedParsed = parseUnits(
     amountReceived,
@@ -61,7 +61,7 @@ export const buy = async ({
   const receipt = await router.depositAndBuy(
     tokenReceived.address,
     amountReceivedParsed,
-    blockTimeout,
+    blockDeadline,
     { value: amountPaidParsed, ...ethersOverrides },
   )
 
@@ -74,7 +74,7 @@ export const sell = async ({
   tokenPaid,
   tokenReceived,
   signer,
-  blockTimeout,
+  blockDeadline,
 }: SellProps): Promise<Transaction> => {
   const amountReceivedParsed = parseUnits(
     amountReceived,
@@ -92,7 +92,7 @@ export const sell = async ({
     tokenPaid.address,
     amountPaidParsed,
     amountReceivedParsed,
-    blockTimeout,
+    blockDeadline,
     { ...ethersOverrides },
   )
 

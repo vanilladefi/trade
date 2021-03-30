@@ -16,7 +16,7 @@ const useTradeEngine = (): {
     amountReceived,
     tokenPaid,
     tokenReceived,
-    blockTimeout,
+    blockDeadline,
   }: BuyProps) => {
     if (signer) {
       const transaction = await buy({
@@ -25,7 +25,7 @@ const useTradeEngine = (): {
         tokenPaid: tokenPaid,
         tokenReceived: tokenReceived,
         signer: signer,
-        blockTimeout: blockTimeout,
+        blockDeadline: blockDeadline,
       })
       transaction.hash &&
         transaction.from &&
@@ -48,7 +48,7 @@ const useTradeEngine = (): {
     amountReceived,
     tokenPaid,
     tokenReceived,
-    blockTimeout,
+    blockDeadline,
   }: SellProps) => {
     if (signer) {
       const transaction = await sell({
@@ -57,7 +57,7 @@ const useTradeEngine = (): {
         tokenPaid: tokenPaid,
         tokenReceived: tokenReceived,
         signer: signer,
-        blockTimeout: blockTimeout,
+        blockDeadline: blockDeadline,
       })
       transaction.hash &&
         transaction.from &&
