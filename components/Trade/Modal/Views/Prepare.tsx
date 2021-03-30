@@ -200,7 +200,7 @@ const PrepareView = ({
               parseUnits(token0Amount, token0?.decimals),
               blockDeadline,
               {
-                value: parseUnits(token1Amount, token0?.decimals),
+                value: trade?.maximumAmountIn(slippageTolerance).raw,
               },
             )
             .then((value) => {
@@ -216,7 +216,7 @@ const PrepareView = ({
             .sellAndWithdraw(
               token0.address,
               parseUnits(token0Amount, token0?.decimals),
-              parseUnits(token1Amount, token1?.decimals),
+              trade?.minimumAmountOut(slippageTolerance).raw,
               blockDeadline,
             )
             .then((value) => {
@@ -240,6 +240,7 @@ const PrepareView = ({
     token1,
     vanillaRouter,
     slippageTolerance,
+    trade,
   ])
 
   // Estimate LP fees
