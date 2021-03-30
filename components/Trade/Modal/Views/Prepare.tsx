@@ -341,19 +341,11 @@ const PrepareView = ({
         token0Amount &&
         token1Amount
       ) {
-        const hundredPercent = new Percent('100')
-        const amountOutMultiplier = hundredPercent.subtract(slippageTolerance)
-        const slippageAdjustedReceived = parseUnits(
-          token0Amount,
-          token0?.decimals,
-        )
-          .mul(amountOutMultiplier.numerator.toString())
-          .div(amountOutMultiplier.denominator.toString())
         estimateReward(
           signer,
           token0,
           token1,
-          slippageAdjustedReceived.toString(),
+          parseUnits(token0Amount, token0?.decimals).toString(),
           token1Amount,
         ).then((reward) => {
           const formattedReward = reward
