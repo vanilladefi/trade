@@ -17,3 +17,5 @@ export const rpcUrl: string =
   'http://localhost:8545'
 
 export const defaultProvider = new providers.JsonRpcProvider(rpcUrl, chainId)
+
+export const ethersOverrides = { gasLimit: 350000 }
