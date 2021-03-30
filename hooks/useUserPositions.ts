@@ -57,6 +57,12 @@ function useUserPositions(): Token[] | null {
                   userAddress,
                   token.address,
                 )
+                console.log(
+                  priceResponse,
+                  vanillaRouter.address,
+                  token.address,
+                  userAddress,
+                )
                 tokenSum = priceResponse.tokenSum
               } catch (e) {
                 tokenSum = BigNumber.from('0')
