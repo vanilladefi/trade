@@ -12,7 +12,7 @@ import { BigNumber, constants, providers, Transaction } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import type { UniSwapToken } from 'types/trade'
-import { vanillaRouterAddress } from 'utils/config'
+import { ethersOverrides, vanillaRouterAddress } from 'utils/config'
 import { getContract, tokenListChainId } from '../tokens'
 
 export enum Field {
@@ -59,7 +59,7 @@ export const buy = async ({
     tokenReceived.address,
     amountReceivedParsed,
     constants.MaxUint256,
-    { value: amountPaidParsed },
+    { value: amountPaidParsed, ...ethersOverrides },
   )
 
   return receipt
@@ -89,6 +89,7 @@ export const sell = async ({
     amountPaidParsed,
     amountReceivedParsed,
     constants.MaxUint256,
+    { ...ethersOverrides },
   )
 
   return receipt
