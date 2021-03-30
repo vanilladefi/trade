@@ -1,12 +1,15 @@
 import { Contract } from 'ethers'
 import { useRecoilValue } from 'recoil'
-import { providerState } from 'state/wallet'
+import { providerState, signerState } from 'state/wallet'
 import VanillaRouter from 'types/abis/vanillaRouter.json'
 import { vanillaRouterAddress } from 'utils/config'
 
 function useVanillaRouter(): Contract | null {
+  const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
-  return provider
+  return signer
+    ? new Contract(vanillaRouterAddress, VanillaRouter.abi, signer)
+    : provider
     ? new Contract(vanillaRouterAddress, VanillaRouter.abi, provider)
     : null
 }
