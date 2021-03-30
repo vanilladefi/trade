@@ -26,6 +26,8 @@ const Modal = ({
   useKeyboardInputListener(['Escape', 'Esc'], close)
   useEffect(() => {
     setOpen(open)
+    // Prevent page from scrolling on background when modal is open
+    document.body.style.overflowY = open ? 'hidden' : 'auto'
   }, [open])
 
   return (

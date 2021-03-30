@@ -510,59 +510,61 @@ const PrepareView = ({
               </div>
             </div>
 
-            <div className='row noBottomMargin'>
-              <TokenInput
-                operation={operation}
-                onAmountChange={handleAmountChanged}
-                token0Amount={token0Amount}
-                token1Amount={token1Amount}
-              />
-            </div>
-
-            {/* TODO: Trade info */}
-            {token0Amount && trade?.executionPrice && vanillaRouter && (
-              <div className='row'>
-                <Column width={Width.TWELVE}>
-                  <div className='tradeInfoRow'>
-                    <span>
-                      Price per{' '}
-                      {operation === Operation.Buy
-                        ? token1?.symbol
-                        : token0?.symbol}
-                    </span>
-                    <span>
-                      {trade?.executionPrice.toSignificant()}{' '}
-                      {operation === Operation.Buy
-                        ? token0?.symbol
-                        : token1?.symbol}
-                    </span>
-                  </div>
-                  <div className='tradeInfoRow'>
-                    <span>Estimated gas</span>
-                    <span>{estimatedGas} ETH</span>
-                  </div>
-                  <div className='tradeInfoRow'>
-                    <span>Liquidity provider fees</span>
-                    <span>
-                      {estimatedFees}{' '}
-                      {operation === Operation.Buy
-                        ? token1?.symbol
-                        : token0?.symbol}
-                    </span>
-                  </div>
-                  <div className='tradeInfoRow'>
-                    <span>Slippage tolerance</span>
-                    <span>{slippageTolerance.toSignificant()} %</span>
-                  </div>
-                  {estimatedReward && (
-                    <div className='tradeInfoRow'>
-                      <span>Unclaimed rewards</span>
-                      <span>{estimatedReward} VNL</span>
-                    </div>
-                  )}
-                </Column>
+            <div className='modalMain'>
+              <div className='row noBottomMargin'>
+                <TokenInput
+                  operation={operation}
+                  onAmountChange={handleAmountChanged}
+                  token0Amount={token0Amount}
+                  token1Amount={token1Amount}
+                />
               </div>
-            )}
+
+              {/* TODO: Trade info */}
+              {token0Amount && trade?.executionPrice && vanillaRouter && (
+                <div className='row'>
+                  <Column width={Width.TWELVE}>
+                    <div className='tradeInfoRow'>
+                      <span>
+                        Price per{' '}
+                        {operation === Operation.Buy
+                          ? token1?.symbol
+                          : token0?.symbol}
+                      </span>
+                      <span>
+                        {trade?.executionPrice.toSignificant()}{' '}
+                        {operation === Operation.Buy
+                          ? token0?.symbol
+                          : token1?.symbol}
+                      </span>
+                    </div>
+                    <div className='tradeInfoRow'>
+                      <span>Estimated gas</span>
+                      <span>{estimatedGas} ETH</span>
+                    </div>
+                    <div className='tradeInfoRow'>
+                      <span>Liquidity provider fees</span>
+                      <span>
+                        {estimatedFees}{' '}
+                        {operation === Operation.Buy
+                          ? token1?.symbol
+                          : token0?.symbol}
+                      </span>
+                    </div>
+                    <div className='tradeInfoRow'>
+                      <span>Slippage tolerance</span>
+                      <span>{slippageTolerance.toSignificant()} %</span>
+                    </div>
+                    {estimatedReward && (
+                      <div className='tradeInfoRow'>
+                        <span>Unclaimed rewards</span>
+                        <span>{estimatedReward} VNL</span>
+                      </div>
+                    )}
+                  </Column>
+                </div>
+              )}
+            </div>
           </section>
 
           <div className='row'>
@@ -653,6 +655,15 @@ const PrepareView = ({
             section.inputWrapper.disabled {
               pointer-events: none;
               opacity: 0.5;
+            }
+            .modalMain {
+              overflow-y: scroll;
+              max-height: var(--modal-maxheight);
+              -ms-overflow-style: none;
+              scrollbar-width: none;
+            }
+            .modalMain::-webkit-scrollbar {
+              display: none;
             }
             .row {
               position: relative;

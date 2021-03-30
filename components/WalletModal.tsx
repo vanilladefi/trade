@@ -103,6 +103,13 @@ const ProviderOptions = (): JSX.Element => {
         .modalMain {
           position: relative;
           width: 30rem;
+          overflow-y: scroll;
+          max-height: var(--modal-maxheight);
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .modalMain::-webkit-scrollbar {
+          display: none;
         }
         .buttons {
           display: flex;
@@ -199,6 +206,13 @@ const WalletView = (): JSX.Element => {
         .modalMain {
           position: relative;
           width: 100%;
+          overflow-y: scroll;
+          max-height: var(--modal-maxheight);
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .modalMain::-webkit-scrollbar {
+          display: none;
         }
         .mainWrapper {
           display: flex;
