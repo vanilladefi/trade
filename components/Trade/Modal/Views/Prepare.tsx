@@ -8,7 +8,6 @@ import Button, {
 } from 'components/input/Button'
 import { Spinner } from 'components/Spinner'
 import Icon, { IconUrls } from 'components/typography/Icon'
-import { constants } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import useEligibleTokenBalance from 'hooks/useEligibleTokenBalance'
 import useTokenBalance from 'hooks/useTokenBalance'
@@ -35,6 +34,7 @@ import {
 } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
 import { Operation } from 'types/trade'
+import { blockTimeoutThreshold } from 'utils/config'
 
 type ContentProps = {
   operation: Operation
@@ -184,7 +184,7 @@ const PrepareView = ({
 
   // Estimate gas fees
   useEffect(() => {
-    const estimateGas = debounce(() => {
+    const estimateGas = debounce(async () => {
       if (
         provider &&
         vanillaRouter &&
@@ -195,12 +195,14 @@ const PrepareView = ({
         !parseUnits(token0Amount, token0?.decimals).isZero() &&
         !parseUnits(token1Amount, token1?.decimals).isZero()
       ) {
+        const blockTimeout =
+          (await provider.getBlockNumber()) + blockTimeoutThreshold
         if (operation === Operation.Buy) {
           vanillaRouter.estimateGas
             .depositAndBuy(
               token0.address,
               parseUnits(token0Amount, token0?.decimals),
-              constants.MaxUint256,
+              blockTimeout,
               {
                 value: parseUnits(token1Amount, token1?.decimals),
               },
@@ -219,7 +221,7 @@ const PrepareView = ({
               token0.address,
               parseUnits(token0Amount, token0?.decimals),
               parseUnits(token1Amount, token1?.decimals),
-              constants.MaxUint256,
+              blockTimeout,
             )
             .then((value) => {
               provider.getGasPrice().then((price) => {
@@ -437,9 +439,18 @@ const PrepareView = ({
   }
 
   const handleClick = async () => {
-    if (token0 && token1 && token1Amount && token0Amount && signer) {
+    if (
+      token0 &&
+      token1 &&
+      token1Amount &&
+      token0Amount &&
+      signer &&
+      provider
+    ) {
       let hash: string | undefined
       try {
+        const blockTimeout =
+          (await provider.getBlockNumber()) + blockTimeoutThreshold
         setTransactionState(TransactionState.PROCESSING)
 
         if (operation === Operation.Buy) {
@@ -449,6 +460,7 @@ const PrepareView = ({
             tokenPaid: token1,
             tokenReceived: token0,
             signer: signer,
+            blockTimeout: blockTimeout,
           })
         } else {
           hash = await sell({
@@ -457,6 +469,7 @@ const PrepareView = ({
             tokenPaid: token0,
             tokenReceived: token1,
             signer: signer,
+            blockTimeout: blockTimeout,
           })
         }
 
