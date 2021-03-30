@@ -118,7 +118,7 @@ function useUserPositions(): Token[] | null {
 
               console.log(trade)
               // Amount out from the trade as a Bignumber gwei string and an ether float
-              const amountOut = trade?.outputAmount ?? undefined
+              const amountOut = trade?.outputAmount.raw ?? undefined
               const parsedAmountOut =
                 amountOut &&
                 parseFloat(
