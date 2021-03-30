@@ -567,7 +567,7 @@ const PrepareView = ({
             </section>
           </section>
 
-          <div className='row'>
+          <div className='row footer'>
             {token0Amount !== '0' ? (
               <Button
                 onClick={() => handleClick()}
@@ -655,6 +655,9 @@ const PrepareView = ({
             section.inputWrapper.disabled {
               pointer-events: none;
               opacity: 0.5;
+            }
+            .footer {
+              box-shadow: 0px -4px 12px rgba(0, 0, 0, 0.08);
             }
             .modalMain {
               overflow-y: scroll;
