@@ -239,6 +239,7 @@ const PrepareView = ({
     token0,
     token1,
     vanillaRouter,
+    slippageTolerance,
   ])
 
   // Estimate LP fees
@@ -340,20 +341,40 @@ const PrepareView = ({
         token0Amount &&
         token1Amount
       ) {
-        estimateReward(signer, token0, token1, token0Amount, token1Amount).then(
-          (reward) => {
-            const formattedReward = reward
-              ? formatUnits(reward?.reward, 12)
-              : undefined
-            setEstimatedReward(formattedReward)
-          },
+        const hundredPercent = new Percent('100')
+        const amountOutMultiplier = hundredPercent.subtract(slippageTolerance)
+        const slippageAdjustedReceived = parseUnits(
+          token0Amount,
+          token0?.decimals,
         )
+          .mul(amountOutMultiplier.numerator.toString())
+          .div(amountOutMultiplier.denominator.toString())
+        estimateReward(
+          signer,
+          token0,
+          token1,
+          slippageAdjustedReceived.toString(),
+          token1Amount,
+        ).then((reward) => {
+          const formattedReward = reward
+            ? formatUnits(reward?.reward, 12)
+            : undefined
+          setEstimatedReward(formattedReward)
+        })
       } else {
         setEstimatedReward(undefined)
       }
     }, 500)
     estimateRewards()
-  }, [operation, token0Amount, token1Amount, signer, token0, token1])
+  }, [
+    operation,
+    token0Amount,
+    token1Amount,
+    signer,
+    token0,
+    token1,
+    slippageTolerance,
+  ])
 
   // Disable closing of the trade modal when a trade is being processed
   useEffect(() => {
