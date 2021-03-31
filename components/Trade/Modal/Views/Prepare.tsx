@@ -411,14 +411,7 @@ const PrepareView = ({
   }
 
   const handleClick = async () => {
-    if (
-      token0 &&
-      token1 &&
-      token1Amount &&
-      token0Amount &&
-      signer &&
-      provider
-    ) {
+    if (token0 && token1 && trade && signer && provider) {
       let hash: string | undefined
       try {
         const block = await provider.getBlock('latest')
@@ -427,8 +420,10 @@ const PrepareView = ({
 
         if (operation === Operation.Buy) {
           hash = await buy({
-            amountPaid: token1Amount,
-            amountReceived: token0Amount,
+            amountPaid: trade.inputAmount.raw.toString(),
+            amountReceived: trade
+              .minimumAmountOut(slippageTolerance)
+              .raw.toString(),
             tokenPaid: token1,
             tokenReceived: token0,
             signer: signer,
@@ -436,8 +431,10 @@ const PrepareView = ({
           })
         } else {
           hash = await sell({
-            amountPaid: token0Amount,
-            amountReceived: token1Amount,
+            amountPaid: trade.inputAmount.raw.toString(),
+            amountReceived: trade
+              .minimumAmountOut(slippageTolerance)
+              .raw.toString(),
             tokenPaid: token0,
             tokenReceived: token1,
             signer: signer,
