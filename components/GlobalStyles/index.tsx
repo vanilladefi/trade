@@ -85,6 +85,24 @@ const GlobalStyles = (): JSX.Element => (
       .content a {
         color: var(--link-on-white);
       }
+
+      .icon {
+        width: 1rem;
+        height: 1rem;
+        display: inline-block;
+        margin-right: 0.5rem;
+      }
+      .icon-link {
+        background-image: url('/images/icon-link.svg');
+        background-size: 24px 24px;
+        background-position: center center;
+        background-repeat: no-repeat;
+        opacity: 0.5;
+        transition: opacity 0.3s;
+      }
+      .icon-link:hover {
+        opacity: 1;
+      }
     `}</style>
   </>
 )

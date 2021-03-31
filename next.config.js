@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 const slug = require('remark-slug')
+const headings = require('remark-autolink-headings')
+
 const withMDX = require('@next/mdx')({
   extension: /\.mdx?$/,
   options: {
-    remarkPlugins: [slug],
+    remarkPlugins: [slug, headings],
   },
 })
 

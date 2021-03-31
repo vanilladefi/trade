@@ -3,15 +3,23 @@ import Wrapper from 'components/Wrapper'
 
 type Props = {
   children: React.ReactChild
-  title: string
+  pageTitle: string
+  SEOTitle: string
 }
 
-export default function StaticPage({ children, title }: Props): JSX.Element {
+export default function StaticPage({
+  children,
+  pageTitle,
+  SEOTitle,
+}: Props): JSX.Element {
   return (
-    <Layout title={`${title} | Vanilla`}>
+    <Layout title={`${SEOTitle} | Vanilla`}>
       <Wrapper>
         <div className='staticPage'>
-          <div className='content'>{children}</div>
+          <div className='content'>
+            <h1>{pageTitle}</h1>
+            {children}
+          </div>
         </div>
       </Wrapper>
       <style jsx>{`
@@ -20,6 +28,9 @@ export default function StaticPage({ children, title }: Props): JSX.Element {
           max-width: 48rem;
           line-height: 1.6;
           margin: 0 auto;
+        }
+        .icon {
+          border: 1px solid red;
         }
       `}</style>
     </Layout>
