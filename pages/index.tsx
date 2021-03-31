@@ -543,31 +543,33 @@ const IndexPage = (): JSX.Element => (
                   maxWidth: '20rem',
                   margin: '0 auto',
                 }}
+                aria-label='View information about audit reports'
               >
                 <Image
                   src='/images/audit-reports.svg'
                   width='400'
                   height='286'
-                  alt='Audit Reports'
+                  alt='View Audit Reports'
                 />
               </a>
             </GridItem>
             <GridItem>
               <Link href='/bug-bounty'>
-                <div
+                <a
                   style={{
                     minWidth: '200px',
                     maxWidth: '20rem',
                     margin: '0 auto',
                   }}
+                  aria-label='View information about bug bounties'
                 >
                   <Image
                     src='/images/bug-bounty.svg'
                     width='400'
                     height='286'
-                    alt='Bug bounties'
+                    alt='View Bug bounties'
                   />
-                </div>
+                </a>
               </Link>
             </GridItem>
           </GridTemplate>

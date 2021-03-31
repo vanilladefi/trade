@@ -14,7 +14,7 @@ const Variables = (): JSX.Element => (
       --curtain-background: rgba(44, 21, 45, 0.83);
       --curtain-backdropfilter: blur(40px);
       --roadmapcolor: #ffd866;
-      --link-on-white: #be6700;
+      --link-on-white: #854900;
       --bordercolor: var(--dark);
       --alertcolor: rgb(193, 22, 63);
       --alertbackground: rgba(193, 22, 63, 0.1);

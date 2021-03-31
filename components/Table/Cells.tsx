@@ -5,7 +5,14 @@ import { Eligibility, Token } from 'types/trade'
 export function TokenLogo({ value, row }: CellProps<Token>): JSX.Element {
   const imgSrc = row.original.logoURI || null
   const Logo = imgSrc ? (
-    <Image src={imgSrc} height='30px' width='30px' layout='fixed' />
+    <Image
+      src={imgSrc}
+      height='30px'
+      width='30px'
+      layout='fixed'
+      alt={String(value)}
+      aria-hidden='true'
+    />
   ) : null
   return (
     <div className='container'>
