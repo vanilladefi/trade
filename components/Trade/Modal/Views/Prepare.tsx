@@ -186,8 +186,7 @@ const PrepareView = ({
         vanillaRouter &&
         token0 &&
         token1 &&
-        token1Amount &&
-        token0Amount &&
+        trade &&
         !parseUnits(token0Amount, token0?.decimals).isZero() &&
         !parseUnits(token1Amount, token1?.decimals).isZero()
       ) {
@@ -197,10 +196,10 @@ const PrepareView = ({
           vanillaRouter.estimateGas
             .depositAndBuy(
               token0.address,
-              parseUnits(token0Amount, token0?.decimals),
+              trade?.minimumAmountOut(slippageTolerance).raw.toString(),
               blockDeadline,
               {
-                value: trade?.maximumAmountIn(slippageTolerance).raw,
+                value: trade?.inputAmount.raw.toString(),
               },
             )
             .then((value) => {
@@ -215,7 +214,7 @@ const PrepareView = ({
           vanillaRouter.estimateGas
             .sellAndWithdraw(
               token0.address,
-              parseUnits(token0Amount, token0?.decimals),
+              trade?.inputAmount.raw.toString(),
               trade?.minimumAmountOut(slippageTolerance).raw,
               blockDeadline,
             )
@@ -229,7 +228,7 @@ const PrepareView = ({
             })
         }
       }
-    }, 200)
+    }, 500)
     estimateGas()
   }, [
     operation,
@@ -342,18 +341,14 @@ const PrepareView = ({
         token0Amount &&
         token1Amount
       ) {
-        estimateReward(
-          signer,
-          token0,
-          token1,
-          parseUnits(token0Amount, token0?.decimals).toString(),
-          token1Amount,
-        ).then((reward) => {
-          const formattedReward = reward
-            ? formatUnits(reward?.reward, 12)
-            : undefined
-          setEstimatedReward(formattedReward)
-        })
+        estimateReward(signer, token0, token1, token0Amount, token1Amount).then(
+          (reward) => {
+            const formattedReward = reward
+              ? formatUnits(reward?.reward, 12)
+              : undefined
+            setEstimatedReward(formattedReward)
+          },
+        )
       } else {
         setEstimatedReward(undefined)
       }

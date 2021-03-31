@@ -4,6 +4,9 @@ import { signerState } from 'state/wallet'
 import { Action } from 'types/trade'
 import useAllTransactions from './useAllTransactions'
 
+/**
+ * A wrapper to handle state whenever user buys or sells tokens.
+ */
 const useTradeEngine = (): {
   buy: (options: TransactionProps) => Promise<string | undefined>
   sell: (options: TransactionProps) => Promise<string | undefined>
