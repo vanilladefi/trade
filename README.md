@@ -6,7 +6,7 @@ By default, this dApp runs on a local testnet, of which parameters are defined i
 
 ### How to run the local testnet over mainnet fork 
 
-1. Clone the repo `vanilla-contracts`: https://github.com/eqlabs/vanilla-contracts
+1. Clone the repo `vanilladefi/contracts`: https://github.com/vanilladefi/contracts
 2. Run `npm install` inside the newly cloned contracts repo
 3. Run `cp .secrets.env.example .secrets.env` and edit the API_KEYs into `.secrets.env`   
 4. Run `npm run node:mainnet-fork`. This runs a local Hardhat testnet in `localhost:8545` with **chainid 1** , creates test accounts with 10k ETH each and deploys the Vanilla contracts automatically.
