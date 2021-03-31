@@ -12,6 +12,7 @@ export enum ButtonColor {
 }
 
 export enum ButtonSize {
+  XSMALL = 'xsmall',
   SMALL = 'small',
   NORMAL = 'normal',
   LARGE = 'large',
@@ -156,6 +157,7 @@ const Button = ({
           padding: var(--buttonpadding);
           margin: var(--buttonmargin);
           border: 0;
+          min-width: 40px;
           font-family: var(--bodyfont);
           font-size: var(--buttonsize);
           font-weight: var(--buttonweight);
@@ -177,6 +179,10 @@ const Button = ({
         button.large {
           padding: var(--largebuttonpadding);
           font-size: var(--largebuttonsize);
+        }
+        button.xsmall {
+          padding: var(--xsmallbuttonpadding);
+          font-size: var(--xsmallbuttonsize);
         }
         button.small {
           padding: var(--smallbuttonpadding);
@@ -201,7 +207,7 @@ const Button = ({
           cursor: wait;
         }
         button.bordered {
-          border-width: 3px;
+          border-width: 2px;
           border-style: solid;
           border-image: var(--bordercolor);
         }
@@ -220,9 +226,10 @@ const Button = ({
         button.noRightBorder {
           border-right-width: 0;
         }
-        button:hover {
+        button:hover :not(.bordered) {
           box-shadow: 0 0 0px 2px var(--dark);
         }
+
         ${injectedStyles}
       `}</style>
     </>

@@ -20,6 +20,7 @@ export default function StaticPage({ children, title }: Props): JSX.Element {
           max-width: 48rem;
           line-height: 1.6;
           margin: 0 auto;
+          font-size: var(--static-page-fontsize);
         }
       `}</style>
     </Layout>

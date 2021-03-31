@@ -225,6 +225,7 @@ export default function Table<D extends Record<string, unknown>>({
         .td,
         .th {
           padding: var(--tablepadding);
+          font-variant-numeric: tabular-nums;
         }
         .th {
           font-weight: var(--theadweight);
@@ -235,7 +236,7 @@ export default function Table<D extends Record<string, unknown>>({
         .tr {
           margin-bottom: 0.4rem;
           border-radius: 9999px;
-          min-height: 60px;
+          min-height: var(--tablerow-minheight);
         }
 
         .tbody .tr {

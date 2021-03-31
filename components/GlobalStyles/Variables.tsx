@@ -62,10 +62,12 @@ const Variables = (): JSX.Element => (
       --boxpadding-md: 3rem;
       --boxpadding-lg: 4rem;
       --boxpadding-xl: 5rem;
-      --tablepadding: 0.25rem 0.75rem 0.3rem;
+      --tablepadding: 0.1rem 0.75rem 0.1rem;
+      --tablerow-minheight: 44px;
 
       --headerpadding: var(--outermargin);
 
+      --xsmallbuttonpadding: 0.45rem 1rem 0.5rem;
       --smallbuttonpadding: 0.78rem 1rem 0.91rem;
       --buttonpadding: 1rem 1.4rem 1.15rem;
       --buttonmargin: 0;
@@ -113,10 +115,13 @@ const Variables = (): JSX.Element => (
       --highlightsize: 1.2rem;
       --highlightlineheight: 1.8;
 
+      --static-page-fontsize: 16px;
+
       --theadweight: 500;
       --buttonweight: 600;
 
       --buttonsize: 1.2rem;
+      --xsmallbuttonsize: 0.85rem;
       --smallbuttonsize: 0.85rem;
       --largebuttonsize: 1.2rem;
       --mobilebuttonsize: 1.2rem;
@@ -139,6 +144,9 @@ const Variables = (): JSX.Element => (
         --hugemonolineheight: 2.4rem;
         --hugemonomargin: 0.5rem 0 1.8rem 0;
         --medium-titlesize: 2.8rem;
+        --tablepadding: 0.25rem 0.75rem 0.3rem;
+        --tablerow-minheight: 60px;
+        --static-page-fontsize: 18px;
       }
     }
 

@@ -322,7 +322,7 @@ const BodyContent = ({
           <Column width={Width.TWELVE}>
             {account && (
               <>
-                <h2>
+                <h2 style={{ marginBottom: 0 }}>
                   MY POSITIONS
                   {userPositions && userPositions.length > 0 && (
                     <small>{`${profitablePositions()} of ${

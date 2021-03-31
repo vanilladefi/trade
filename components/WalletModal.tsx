@@ -288,6 +288,11 @@ const WalletView = (): JSX.Element => {
           outline: none;
           margin: 0;
           padding: 0;
+          transition: opacity 0.3s;
+        }
+        .bottomSection button:hover,
+        .bottomSection a:hover {
+          opacity: 1;
         }
         .modalFooter {
           font-style: italic;

@@ -60,10 +60,6 @@ const GlobalStyles = (): JSX.Element => (
         color: var(--link-on-white);
       }
 
-      .content {
-        font-size: 16px;
-      }
-
       .content > img {
         max-width: 100%;
       }

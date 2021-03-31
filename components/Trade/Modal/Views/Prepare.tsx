@@ -477,7 +477,7 @@ const PrepareView = ({
 
   return (
     <Suspense fallback={() => <div>Fetching pair data...</div>}>
-      <section style={{ minWidth: '360px', maxWidth: '30rem' }}>
+      <section style={{ minWidth: '320px', maxWidth: '30rem' }}>
         <Column>
           <section
             className={`inputWrapper${
