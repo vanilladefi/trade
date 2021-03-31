@@ -215,7 +215,7 @@ const PrepareView = ({
             .sellAndWithdraw(
               token0.address,
               trade?.inputAmount.raw.toString(),
-              trade?.minimumAmountOut(slippageTolerance).raw,
+              trade?.minimumAmountOut(slippageTolerance).raw.toString(),
               blockDeadline,
             )
             .then((value) => {
