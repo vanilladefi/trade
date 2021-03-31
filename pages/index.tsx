@@ -1,3 +1,4 @@
+import InViewWrapper from 'components/InViewWrapper'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -12,7 +13,7 @@ import SVGFlower from '../components/SVGFlower'
 import Timeline from '../components/Timeline'
 import HugeMonospace from '../components/typography/HugeMonospace'
 import { Highlight } from '../components/typography/Text'
-import { Title } from '../components/typography/Titles'
+import { Title, MediumTitle } from '../components/typography/Titles'
 import Wrapper from '../components/Wrapper'
 
 const ShillKitList = dynamic(import('../components/ShillKitList'))
@@ -22,16 +23,22 @@ const HeaderContent = (
     <Column className='landingHero'>
       <Row>
         <Column width={Width.TWELVE}>
-          <Title>
-            One Interface <br />
-            For DeFi
-          </Title>
-          <HugeMonospace>
-            Trade, lend and participate in #ProfitMining
-          </HugeMonospace>
-          <Link href='/trade'>
-            <Button>Start trading</Button>
-          </Link>
+          <InViewWrapper delay={0}>
+            <Title>
+              One Interface <br />
+              For DeFi
+            </Title>
+          </InViewWrapper>
+          <InViewWrapper delay={0.15}>
+            <HugeMonospace>
+              Trade, lend and participate in #ProfitMining
+            </HugeMonospace>
+          </InViewWrapper>
+          <InViewWrapper delay={0.3}>
+            <Link href='/trade'>
+              <Button>Start trading</Button>
+            </Link>
+          </InViewWrapper>
         </Column>
       </Row>
     </Column>
@@ -137,20 +144,22 @@ const IndexPage = (): JSX.Element => (
           </div>
 
           <div className='contentWrapper'>
-            <Column width={Width.TWELVE} className='profitMiningHeader'>
-              <Title>#ProfitMining</Title>
-              <HugeMonospace>
-                Mine VNL by making a profit trading tokens
-              </HugeMonospace>
-              <p>
-                Profit mining is the only way to create VNL tokens and mining
-                difficulty increases over time.
-              </p>
-              <br />
-              <Link href='/faq'>
-                <Button>Learn more</Button>
-              </Link>
-            </Column>
+            <InViewWrapper>
+              <Column width={Width.TWELVE} className='profitMiningHeader'>
+                <MediumTitle>#ProfitMining</MediumTitle>
+                <HugeMonospace>
+                  Mine VNL by making a profit trading tokens
+                </HugeMonospace>
+                <p style={{ margin: 0 }}>
+                  Profit mining is the only way to create VNL tokens and mining
+                  difficulty increases over time.
+                </p>
+                <br />
+                <Link href='/faq'>
+                  <Button>Learn more</Button>
+                </Link>
+              </Column>
+            </InViewWrapper>
           </div>
         </BoxSection>
       </div>
@@ -202,55 +211,54 @@ const IndexPage = (): JSX.Element => (
         }
       `}</style>
     </Wrapper>
+
     <Wrapper>
       <BoxSection color={Color.GRADIENT}>
-        <div style={{ width: '100%' }}>
-          <div
-            style={{
-              display: 'flex',
-              width: '100%',
-              alignItems: 'stretch',
-              borderBottom: '1px solid #2C1929',
-              flexWrap: 'wrap',
-              padding: '0 0 3rem 0',
-            }}
-          >
+        <div
+          style={{ width: '100%', margin: 'calc(-1 * var(--boxpadding)) 0' }}
+        >
+          <div className='tradeLendAutomateRow'>
             <div className='tradeLendAutomateContent'>
-              <div className='titleStatus'>
-                <Title>Trade</Title>
-                <div className='tokenStatus'>
-                  <div>
-                    <Image
-                      src='/images/tokens/uniswap.png'
-                      width='48'
-                      height='48'
-                      alt='Uniswap'
-                    />
-                  </div>
-                  <div className='tokenStatusContent'>
-                    <span className='tokenStatus-token'>Uniswap</span>
-                    <span className='tokenStatus-status'>
-                      <strong>Live</strong>
-                    </span>
+              <InViewWrapper>
+                <div className='titleStatus'>
+                  <MediumTitle>Trade</MediumTitle>
+                  <div style={{ display: 'flex' }}>
+                    <div className='tokenStatus'>
+                      <div className='tokenStatusIcon'>
+                        <Image
+                          src='/images/tokens/uniswap.png'
+                          width='40'
+                          height='40'
+                          alt='Uniswap'
+                        />
+                      </div>
+                      <div className='tokenStatusContent'>
+                        <span className='tokenStatus-token'>Uniswap</span>
+                        <span className='tokenStatus-status'>
+                          <strong>Live</strong>
+                        </span>
+                      </div>
+                    </div>
+                    <div className='tokenStatus tokenComingSoon'>
+                      <div className='tokenStatusIcon'>
+                        <Image
+                          src='/images/tokens/balancer.png'
+                          width='40'
+                          height='40'
+                          alt='Balancer'
+                        />
+                      </div>
+                      <div className='tokenStatusContent'>
+                        <span className='tokenStatus-token'>Balancer</span>
+                        <span className='tokenStatus-status'>Soon</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className='tokenStatus tokenComingSoon'>
-                  <div>
-                    <Image
-                      src='/images/tokens/balancer.png'
-                      width='48'
-                      height='48'
-                      alt='Balancer'
-                    />
-                  </div>
-                  <div className='tokenStatusContent'>
-                    <span className='tokenStatus-token'>Balancer</span>
-                    <span className='tokenStatus-status'>Soon</span>
-                  </div>
-                </div>
-              </div>
-              <p>Trade tokens through decentralised exchanges.</p>
+                <p>Trade tokens through decentralised exchanges.</p>
+              </InViewWrapper>
             </div>
+
             <div className='tradeLendAutomateImage'>
               <Image
                 src='/images/illustration_trade.svg'
@@ -261,15 +269,7 @@ const IndexPage = (): JSX.Element => (
             </div>
           </div>
 
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'stretch',
-              borderBottom: '1px solid #2C1929',
-              flexWrap: 'wrap',
-              padding: '3rem 0',
-            }}
-          >
+          <div className='tradeLendAutomateRow'>
             <div className='tradeLendAutomateImage'>
               <Image
                 src='/images/illustration_lend.svg'
@@ -279,61 +279,58 @@ const IndexPage = (): JSX.Element => (
               />
             </div>
             <div className='tradeLendAutomateContent'>
-              <div className='titleStatus'>
-                <Title>Lend</Title>
-                <div style={{ display: 'flex' }}>
-                  <div className='tokenStatus tokenComingSoon'>
-                    <div>
-                      <Image
-                        src='/images/tokens/aave.png'
-                        width='48'
-                        height='48'
-                        alt='Aave'
-                      />
+              <InViewWrapper>
+                <div className='titleStatus'>
+                  <MediumTitle>Lend</MediumTitle>
+                  <div style={{ display: 'flex' }}>
+                    <div className='tokenStatus tokenComingSoon'>
+                      <div className='tokenStatusIcon'>
+                        <Image
+                          src='/images/tokens/aave.png'
+                          width='40'
+                          height='40'
+                          alt='Aave'
+                        />
+                      </div>
+                      <div className='tokenStatusContent'>
+                        <span className='tokenStatus-token'>Aave</span>
+                        <span className='tokenStatus-status'>Soon</span>
+                      </div>
                     </div>
-                    <div className='tokenStatusContent'>
-                      <span className='tokenStatus-token'>Aave</span>
-                      <span className='tokenStatus-status'>Soon</span>
-                    </div>
-                  </div>
-                  <div className='tokenStatus tokenComingSoon'>
-                    <div>
-                      <Image
-                        src='/images/tokens/compound.png'
-                        width='48'
-                        height='48'
-                        alt='Compound'
-                      />
-                    </div>
-                    <div className='tokenStatusContent'>
-                      <span className='tokenStatus-token'>Compound</span>
-                      <span className='tokenStatus-status'>Soon</span>
+                    <div className='tokenStatus tokenComingSoon'>
+                      <div className='tokenStatusIcon'>
+                        <Image
+                          src='/images/tokens/compound.png'
+                          width='40'
+                          height='40'
+                          alt='Compound'
+                        />
+                      </div>
+                      <div className='tokenStatusContent'>
+                        <span className='tokenStatus-token'>Compound</span>
+                        <span className='tokenStatus-status'>Soon</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <p>
-                Earn interest on your tokens using decentralised lending
-                protocols.
-              </p>
+                <p>
+                  Earn interest on your tokens using decentralised lending
+                  protocols.
+                </p>
+              </InViewWrapper>
             </div>
           </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'stretch',
-              padding: '3rem 0 0 0',
-              flexWrap: 'wrap',
-            }}
-          >
+          <div className='tradeLendAutomateRow'>
             <div className='tradeLendAutomateContent'>
-              <div className='titleStatus'>
-                <Title>Automate</Title>
-              </div>
-              <p>
-                Build automated portfolio optimisation systems and decentralised
-                financial instruments.
-              </p>
+              <InViewWrapper>
+                <div className='titleStatus'>
+                  <MediumTitle>Automate</MediumTitle>
+                </div>
+                <p>
+                  Build automated portfolio optimisation systems and
+                  decentralised financial instruments.
+                </p>
+              </InViewWrapper>
             </div>
             <div className='tradeLendAutomateImage'>
               <Image
@@ -347,16 +344,32 @@ const IndexPage = (): JSX.Element => (
         </div>
       </BoxSection>
       <style jsx>{`
+        .tradeLendAutomateRow {
+          max-width: 1100px;
+          margin: 0 auto;
+          display: flex;
+          border-bottom: 1px solid #2c1929;
+          flex-wrap: nowrap;
+          padding: 3rem 0;
+          align-items: center;
+          justify-content: center;
+        }
+        .tradeLendAutomateRow:last-child {
+          border-bottom: 0px solid #2c1929;
+          padding-bottom: 4rem;
+        }
         .tradeLendAutomateImage {
           order: 1;
-          width: 30%;
+          width: 50%;
           display: flex;
           align-items: flex-start;
-          padding: 0 1.8rem 0 0;
+          padding: 0 1rem 0 0;
+          margin-left: -20%;
+          max-height: 240px;
         }
         .tradeLendAutomateContent {
           order: 2;
-          width: 70%;
+          width: 80%;
           display: flex;
           flex-direction: column;
         }
@@ -369,18 +382,36 @@ const IndexPage = (): JSX.Element => (
           display: flex;
           margin-right: 1rem;
         }
+        .tokenStatusIcon {
+          min-width: 30px;
+          min-height: 30px;
+        }
         .tokenStatusContent {
           display: flex;
           flex-direction: column;
           text-transform: uppercase;
           align-items: left;
           justify-content: center;
-          height: 48px;
+          height: 40px;
           line-height: 1.15rem;
           font-size: 0.8rem;
           padding: 0.2rem 0.5rem;
         }
-        @media (min-width: ${BreakPoint.md}px) {
+        @media (min-width: 400px) {
+          .tradeLendAutomateImage {
+            margin-left: 0;
+            padding: 0 1.8rem 0 0;
+          }
+        }
+        @media (min-width: ${BreakPoint.sm}px) {
+          .titleStatus {
+            flex-direction: row;
+          }
+          .tokenStatus {
+            display: flex;
+            margin-left: 1.5rem;
+            margin-right: 0;
+          }
           .tradeLendAutomateImage,
           .tradeLendAutomateContent {
             order: 0;
@@ -389,15 +420,6 @@ const IndexPage = (): JSX.Element => (
           }
           .tradeLendAutomateImage {
             align-items: center;
-          }
-
-          .titleStatus {
-            flex-direction: row;
-          }
-          .tokenStatus {
-            display: flex;
-            margin-left: 1.5rem;
-            margin-right: 0;
           }
         }
       `}</style>
@@ -409,7 +431,6 @@ const IndexPage = (): JSX.Element => (
           <div
             className='governanceColumn governanceBg'
             style={{
-              height: '480px',
               textAlign: 'center',
             }}
           >
@@ -422,27 +443,34 @@ const IndexPage = (): JSX.Element => (
                   flowerSize={200}
                 />
               </div>
-              <Image
-                src='/images/governace_token_holder.jpg'
-                width='980'
-                height='980'
-              />
+              <div className='governaceHandHolder'>
+                <Image
+                  src='/images/governace_token_holder.jpg'
+                  width='980'
+                  height='980'
+                />
+              </div>
             </div>
           </div>
           <div className='governanceColumn'>
-            <Title>
-              VNL is the governance token of the Vanilla economic system.
-            </Title>
-            <Highlight>
-              Holders of VNL determine the direction of Vanilla by voting on a
-              variety of things such as changes to the profit mining algorithm,
-              new trading and lending venues, treasury grant allocations and
-              other ecosystem efforts.
-            </Highlight>
-            <br />
-            <Link href='/faq'>
-              <Button>Learn more</Button>
-            </Link>
+            <InViewWrapper delay={0}>
+              <MediumTitle>
+                VNL is the governance token of the Vanilla economic system.
+              </MediumTitle>
+            </InViewWrapper>
+            <InViewWrapper delay={0.15}>
+              <Highlight>
+                Holders of VNL determine the direction of Vanilla by voting on a
+                variety of things such as changes to the profit mining
+                algorithm, new trading and lending venues, treasury grant
+                allocations and other ecosystem efforts.
+              </Highlight>
+            </InViewWrapper>
+            <InViewWrapper delay={0.3}>
+              <Link href='/faq'>
+                <Button>Learn more</Button>
+              </Link>
+            </InViewWrapper>
           </div>
         </Row>
       </BoxSection>
@@ -450,6 +478,13 @@ const IndexPage = (): JSX.Element => (
         .governanceColumn {
           position: relative;
           width: 100%;
+        }
+        .governaceHandHolder {
+          width: 90%;
+          margin: 0 auto;
+          max-width: 420px;
+          max-height: 420px;
+          margin-bottom: 2rem;
         }
         .governanceFlowerHolder {
           position: relative;
@@ -459,12 +494,13 @@ const IndexPage = (): JSX.Element => (
         }
         .governaceFlower {
           position: absolute;
-          width: 200px;
-          height: 200px;
+          width: 40%;
+          max-width: 180px;
+          height: 40%;
           z-index: 2;
           transform: translateX(-50%) rotate(0deg);
           margin-left: 50%;
-          margin-top: 15%;
+          margin-top: 5%;
           animation: rotate 160s linear infinite;
         }
 
@@ -474,6 +510,9 @@ const IndexPage = (): JSX.Element => (
           }
         }
         @media (min-width: ${BreakPoint.md}px) {
+          .governaceHandHolder {
+            margin-bottom: 0;
+          }
           .governanceFlowerHolder {
             margin: 0 0 0 calc(-0.4 * var(--boxpadding));
           }
@@ -492,6 +531,7 @@ const IndexPage = (): JSX.Element => (
             <Title>Roadmap</Title>
           </div>
         </Wrapper>
+
         <Timeline milestones={milestones} />
       </div>
       <style jsx>{`

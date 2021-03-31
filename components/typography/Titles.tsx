@@ -19,6 +19,21 @@ export const Title = ({ children }: Props): JSX.Element => (
   </>
 )
 
+export const MediumTitle = ({ children }: Props): JSX.Element => (
+  <>
+    <h1>{children}</h1>
+    <style jsx>{`
+      h1 {
+        font-size: var(--medium-titlesize);
+        font-weight: var(--titleweight);
+        line-height: 0.89;
+        padding: 0;
+        margin: var(--medium-titlemargin);
+      }
+    `}</style>
+  </>
+)
+
 export const SmallTitle = ({ children }: Props): JSX.Element => (
   <>
     <h2>{children}</h2>

@@ -62,11 +62,11 @@ const Variables = (): JSX.Element => (
       --boxpadding-md: 3rem;
       --boxpadding-lg: 4rem;
       --boxpadding-xl: 5rem;
-      --tablepadding: 0.6rem 1rem;
+      --tablepadding: 0.25rem 0.75rem 0.3rem;
 
       --headerpadding: var(--outermargin);
 
-      --smallbuttonpadding: 0.8rem 1rem 0.95rem;
+      --smallbuttonpadding: 0.78rem 1rem 0.91rem;
       --buttonpadding: 1rem 1.4rem 1.15rem;
       --buttonmargin: 0;
       --largebuttonpadding: 1.3rem 1.5rem 1.4rem;
@@ -75,29 +75,31 @@ const Variables = (): JSX.Element => (
       --tradeflowerpadding: 18px 23px;
 
       --titlemargin: 0;
-      --hugemonomargin: 0 0 1.8rem 0;
+      --medium-titlemargin: 0 0 1.2rem;
+      --hugemonomargin: 0 0 1.1rem 0;
       --subpage-titlemargin: 56px 0 1.5rem 0;
       --box-titlemargin: 0 0 32px 0;
       --box-hugemonomargin: 0 0 20px 0;
       --subpage-buttonmargin: 0 1rem 4rem 0;
 
       /* Fonts */
-      --rootfontsize: 12px;
+      --rootfontsize: 14px;
       --rootfontsize-md: 14px;
       --rootfontsize-lg: 16px;
-      --rootfontsize-xl: 18px;
+      --rootfontsize-xl: 17px;
       --rootfontsize-xxl: 18px;
 
       --titlefont: 'Darker Grotesque', sans-serif;
       --titleweight: 700;
       --titlesize: 2.4rem;
+      --medium-titlesize: 2.4rem;
       --hugetitlesize: 2.8rem;
       --boxtitlesize: 3rem;
 
       --monofont: 'Fira Code', monospace;
       --monoweight: 400;
-      --hugemonosize: 2rem;
-      --hugemonolineheight: 2.8rem;
+      --hugemonosize: 1.5rem;
+      --hugemonolineheight: 2.1rem;
 
       --bodyfont: 'Inter', sans-serif;
       --bodyweight: 400;
@@ -115,7 +117,7 @@ const Variables = (): JSX.Element => (
       --buttonweight: 600;
 
       --buttonsize: 1.2rem;
-      --smallbuttonsize: 1rem;
+      --smallbuttonsize: 0.85rem;
       --largebuttonsize: 1.2rem;
       --mobilebuttonsize: 1.2rem;
 
@@ -133,6 +135,10 @@ const Variables = (): JSX.Element => (
       :root {
         --rootfontsize: var(--rootfontsize-lg);
         --boxpadding: var(--boxpadding-lg);
+        --hugemonosize: 1.78rem;
+        --hugemonolineheight: 2.4rem;
+        --hugemonomargin: 0.5rem 0 1.8rem 0;
+        --medium-titlesize: 2.8rem;
       }
     }
 

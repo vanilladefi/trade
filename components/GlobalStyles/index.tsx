@@ -60,6 +60,10 @@ const GlobalStyles = (): JSX.Element => (
         color: var(--link-on-white);
       }
 
+      .content {
+        font-size: 16px;
+      }
+
       .content > img {
         max-width: 100%;
       }
@@ -70,8 +74,9 @@ const GlobalStyles = (): JSX.Element => (
       .content > h2 {
         font-size: 1.8rem;
         line-height: 1.1;
+        margin: 2.5rem 0 1rem;
         padding-bottom: 1rem;
-        border-bottom: 1px solid black;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.25);
       }
       .content h3 {
         font-size: 1.8rem;
@@ -84,6 +89,24 @@ const GlobalStyles = (): JSX.Element => (
       }
       .content a {
         color: var(--link-on-white);
+      }
+
+      .animate-flower-svg path {
+        stroke-dasharray: 400;
+        stroke-dashoffset: 400;
+        animation: dash 2s cubic-bezier(0.85, 0, 0.15, 1) forwards;
+      }
+
+      .animated-profitcurve-flower path {
+        stroke-dasharray: 400;
+        stroke-dashoffset: 400;
+        animation: dash 2s cubic-bezier(0.85, 0, 0.15, 1) forwards;
+      }
+
+      @keyframes dash {
+        to {
+          stroke-dashoffset: 0;
+        }
       }
     `}</style>
   </>

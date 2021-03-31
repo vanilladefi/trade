@@ -21,6 +21,8 @@ export function TokenLogo({ value, row }: CellProps<Token>): JSX.Element {
           width: 30px;
           height: 30px;
           margin-right: 1rem;
+          border-radius: 100%;
+          overflow: hidden;
         }
       `}</style>
     </div>

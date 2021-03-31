@@ -152,6 +152,7 @@ const Button = ({
       <style jsx>{`
         button {
           display: flex;
+          box-sizing: border-box;
           padding: var(--buttonpadding);
           margin: var(--buttonmargin);
           border: 0;
@@ -170,7 +171,7 @@ const Button = ({
           justify-content: ${justifyContent};
           position: relative;
           opacity: 1;
-          transition: 0.3s eased opacity;
+          transition: 0.3s ease box-shadow;
           max-width: 100%;
         }
         button.large {
@@ -220,7 +221,7 @@ const Button = ({
           border-right-width: 0;
         }
         button:hover {
-          opacity: 0.9;
+          box-shadow: 0 0 0px 2px var(--dark);
         }
         ${injectedStyles}
       `}</style>

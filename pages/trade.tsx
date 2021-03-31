@@ -99,7 +99,6 @@ const HeaderContent = (): JSX.Element => {
             <div className='buttonWrapper'>
               {wallet.status !== 'connected' && (
                 <Button
-                  size={ButtonSize.LARGE}
                   onClick={() => {
                     setWalletModalOpen(true)
                   }}
@@ -108,7 +107,7 @@ const HeaderContent = (): JSX.Element => {
                 </Button>
               )}
               <Link href='/faq'>
-                <Button size={ButtonSize.LARGE}>Learn more</Button>
+                <Button>Learn more</Button>
               </Link>
             </div>
           </Column>
@@ -312,38 +311,41 @@ const BodyContent = ({
   )
 
   return (
-    <Wrapper>
-      <Row>
-        <Column width={Width.TWELVE}>
-          <div className='token-search'>
-            <TokenSearch placeholder='Search tokens by name or ticker' />
-          </div>
+    <>
+      <div className='token-search'>
+        <div className='token-search-container'>
+          <TokenSearch placeholder='Search tokens by name or ticker' />
+        </div>
+      </div>
+      <Wrapper>
+        <Row>
+          <Column width={Width.TWELVE}>
+            {account && (
+              <>
+                <h2>
+                  MY POSITIONS
+                  {userPositions && userPositions.length > 0 && (
+                    <small>{`${profitablePositions()} of ${
+                      userPositions ? userPositions.length : 0
+                    } profitable`}</small>
+                  )}
+                </h2>
+                <MyPositions
+                  onBuyClick={handleBuyClick}
+                  onSellClick={handleSellClick}
+                />
+              </>
+            )}
 
-          {account && (
-            <>
-              <h2>
-                MY POSITIONS
-                {userPositions && userPositions.length > 0 && (
-                  <small>{`${profitablePositions()} of ${
-                    userPositions ? userPositions.length : 0
-                  } profitable`}</small>
-                )}
-              </h2>
-              <MyPositions
-                onBuyClick={handleBuyClick}
-                onSellClick={handleSellClick}
-              />
-            </>
-          )}
-
-          <h2>AVAILABLE TOKENS</h2>
-          {/* Pass "initialTokens" so this page is statically rendered with tokens */}
-          <AvailableTokens
-            initialTokens={initialTokens}
-            onBuyClick={handleBuyClick}
-          />
-        </Column>
-      </Row>
+            <h2 style={{ marginBottom: 0 }}>AVAILABLE TOKENS</h2>
+            {/* Pass "initialTokens" so this page is statically rendered with tokens */}
+            <AvailableTokens
+              initialTokens={initialTokens}
+              onBuyClick={handleBuyClick}
+            />
+          </Column>
+        </Row>
+      </Wrapper>
       <style jsx>{`
         h2 small {
           margin-left: 1rem;
@@ -352,13 +354,17 @@ const BodyContent = ({
           font-size: 1rem;
         }
         .token-search {
-          width: calc(100% + 2 * var(--outermargin));
-          margin-left: calc(-1 * var(--outermargin));
           padding: 0.7rem 1rem;
+          width: 100%;
           border-bottom: 2px solid #f2f0e9;
         }
+        .token-search-container {
+          width: 100%;
+          max-width: var(--maxlayoutwidth);
+          margin: 0 auto;
+        }
       `}</style>
-    </Wrapper>
+    </>
   )
 }
 
