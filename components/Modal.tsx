@@ -26,6 +26,8 @@ const Modal = ({
   useKeyboardInputListener(['Escape', 'Esc'], close)
   useEffect(() => {
     setOpen(open)
+    // Prevent page from scrolling on background when modal is open
+    document.body.style.overflowY = open ? 'hidden' : 'auto'
   }, [open])
 
   return (
@@ -57,16 +59,21 @@ const Modal = ({
           position: fixed;
           top: 0;
           left: 0;
-          align-items: center;
-          justify-content: center;
           width: 100%;
+          align-items: start;
+          justify-content: flex-start;
           height: 100vh;
           background: ${isOpen ? 'var(--curtain-background)' : 'transparent'};
           backdrop-filter: ${isOpen ? 'var(--curtain-backdropfilter)' : 'none'};
           z-index: 9999;
-
           transition: 0.2s ease backdrop-filter, 0.2s ease background;
           overflow: auto;
+        }
+        @media (min-height: 600px) {
+          .curtain {
+            align-items: center;
+            justify-content: center;
+          }
         }
         .modal {
           width: var(--modalwidth);
@@ -81,6 +88,7 @@ const Modal = ({
           transition: 0.1s ease opacity;
           pointer-events: all;
           --iconsize: 2rem;
+          margin: 1rem auto 1.5rem;
         }
         .closeButton {
           position: absolute;
