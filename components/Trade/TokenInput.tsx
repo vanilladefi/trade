@@ -77,21 +77,25 @@ const TokenInput = ({
     // Set the values
     if (tokenIndex === 0) {
       setAmount0(parsedValue)
-      if (parsedValue && parseFloat(parsedValue) > 0) {
+      if (
+        parsedValue &&
+        parseFloat(parsedValue) > 0 &&
+        parsedValue !== amount0
+      ) {
         setAmount1(null)
-      } else {
-        setAmount1(undefined)
+        onAmountChange(tokenIndex, parsedValue)
       }
     } else {
       setAmount1(parsedValue)
-      if (parsedValue && parseFloat(parsedValue) > 0) {
+      if (
+        parsedValue &&
+        parseFloat(parsedValue) > 0 &&
+        parsedValue !== amount1
+      ) {
         setAmount0(null)
-      } else {
-        setAmount0(undefined)
+        onAmountChange(tokenIndex, parsedValue)
       }
     }
-
-    parsedValue && onAmountChange(tokenIndex, parsedValue)
   }
 
   const setFocusAtIndex = (focusIndex: 0 | 1, focusState: boolean) => {
