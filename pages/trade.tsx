@@ -1,7 +1,7 @@
 // import { Token } from '@uniswap/sdk'
 import { TopGradient } from 'components/backgrounds/gradient'
 import { Column, Row, Width } from 'components/grid/Flex'
-import Button, { ButtonSize } from 'components/input/Button'
+import Button from 'components/input/Button'
 import Layout from 'components/Layout'
 import { Spinner } from 'components/Spinner'
 import TokenSearch from 'components/TokenSearch'
