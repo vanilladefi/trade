@@ -11,6 +11,7 @@ const BottomFloater = ({ children }: Props): JSX.Element => {
       <style jsx>{`
         .bottomFloater {
           position: fixed;
+          box-shadow: 0 0 16px rgba(0, 0, 0, 0.2);
           bottom: 0;
           left: 0;
           width: 100%;

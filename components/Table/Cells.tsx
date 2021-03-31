@@ -28,6 +28,14 @@ export function TokenLogo({ value, row }: CellProps<Token>): JSX.Element {
           width: 30px;
           height: 30px;
           margin-right: 1rem;
+          border-radius: 100%;
+          overflow: hidden;
+          display: none;
+        }
+        @media (min-width: 370px) {
+          div.logo-wrapper {
+            display: inline-block;
+          }
         }
       `}</style>
     </div>

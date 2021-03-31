@@ -94,7 +94,7 @@ export const MobileWalletFloater = (): JSX.Element => {
         .walletInfoWrapper {
           width: 100%;
           background: var(--white);
-          padding: 1rem;
+          padding: 0.6rem;
           display: flex;
           flex-direction: row;
           justify-content: center;

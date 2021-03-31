@@ -1,4 +1,5 @@
 import React from 'react'
+import InViewWrapper from './InViewWrapper'
 import Wrapper from './Wrapper'
 
 export type Milestone = {
@@ -17,14 +18,16 @@ const Timeline = ({ milestones }: Props): JSX.Element => {
       <div className='timeline'>
         <Wrapper>
           <div className='milestones'>
-            {milestones.map((milestone) => (
+            {milestones.map((milestone, index) => (
               <div
                 className='milestone'
                 key={`${milestone.name}-${milestone.time}`}
               >
                 <div className='ball'></div>
-                <h2>{milestone.name}</h2>
-                <h3>{milestone.time}</h3>
+                <InViewWrapper delay={0.05 * index}>
+                  <h2>{milestone.name}</h2>
+                  <h3>{milestone.time}</h3>
+                </InViewWrapper>
               </div>
             ))}
           </div>
@@ -35,6 +38,7 @@ const Timeline = ({ milestones }: Props): JSX.Element => {
           display: flex;
           flex-direction: row;
           width: 100%;
+          margin-top: -1rem;
           padding: 0 4rem;
           overflow: hidden;
         }
@@ -56,6 +60,18 @@ const Timeline = ({ milestones }: Props): JSX.Element => {
           border: 4px solid var(--white);
           margin-bottom: 53px;
         }
+        h3 {
+          font-family: var(--monofont);
+          font-weight: var(--monoweight);
+          font-size: 1rem;
+          line-height: 1;
+          margin: 0;
+        }
+        h2 {
+          font-size: 1.5rem;
+          line-height: 1.68;
+          margin: 1.5rem 0 0.5rem;
+        }
         @media screen and (min-width: 540px) {
           .timeline {
             display: flex;
@@ -70,6 +86,7 @@ const Timeline = ({ milestones }: Props): JSX.Element => {
             padding-left: 0;
             padding-right: 0;
             left: 0;
+            margin-top: 0rem;
           }
           .line {
             flex-shrink: 0;
@@ -105,8 +122,6 @@ const Timeline = ({ milestones }: Props): JSX.Element => {
             margin: 0;
           }
           h3 {
-            font-family: var(--monofont);
-            font-weight: var(--monoweight);
             font-size: 1rem;
             line-height: 1.8;
             margin: 0;

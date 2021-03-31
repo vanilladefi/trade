@@ -182,7 +182,11 @@ export default function Table<D extends Record<string, unknown>>({
                 {query ? (
                   <>
                     No results matching &quot;{query}&quot;.{' '}
-                    {clearQuery && <a onClick={clearQuery}>Clear search</a>}
+                    {clearQuery && (
+                      <a className='clear-search' onClick={clearQuery}>
+                        Clear search
+                      </a>
+                    )}
                   </>
                 ) : (
                   <>No tokens</>
@@ -221,6 +225,7 @@ export default function Table<D extends Record<string, unknown>>({
         .td,
         .th {
           padding: var(--tablepadding);
+          font-variant-numeric: tabular-nums;
         }
         .th {
           font-weight: var(--theadweight);
@@ -229,12 +234,18 @@ export default function Table<D extends Record<string, unknown>>({
           color: var(--dark);
         }
         .tr {
-          margin-bottom: 0.8rem;
+          margin-bottom: 0.4rem;
           border-radius: 9999px;
-          min-height: 60px;
+          min-height: var(--tablerow-minheight);
         }
+
         .tbody .tr {
           background: var(--beige);
+          box-shadow: inset 0 0px 20px rgba(254, 222, 54, 0);
+          transition: box-shadow 0.3s;
+        }
+        .tbody .tr:hover {
+          box-shadow: inset 0 -20px 20px rgba(254, 222, 54, 0.2);
         }
         .tr.list-empty {
           display: flex;
@@ -242,12 +253,16 @@ export default function Table<D extends Record<string, unknown>>({
           justify-content: center;
           align-items: center;
           color: var(--dark);
-          opacity: 0.8;
+          opacity: 0.9;
         }
         .tr.list-empty a {
           display: inline-block;
           cursor: pointer;
           border-bottom: 1px solid var(--dark);
+        }
+        .clear-search {
+          color: var(--dark);
+          margin-left: 0.5rem;
         }
       `}</style>
     </>
@@ -272,6 +287,7 @@ const getHeaderStyles = <D extends Record<string, unknown>>(
   return {
     style: {
       textAlign: column?.align === 'right' ? 'right' : 'inherit',
+      alignItems: 'flex-end',
     },
   }
 }

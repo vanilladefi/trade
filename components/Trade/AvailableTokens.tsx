@@ -54,7 +54,7 @@ function getColumns(onBuyClick: HandleBuyClick): ListColumn<Token>[] {
       Cell: ({ row }: CellProps<Token>) => (
         <Button
           color={ButtonColor.DARK}
-          size={ButtonSize.SMALL}
+          size={ButtonSize.XSMALL}
           onClick={() =>
             onBuyClick({
               pairId: row.original.pairId,
