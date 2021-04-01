@@ -186,8 +186,7 @@ const PrepareView = ({
         vanillaRouter &&
         token0 &&
         token1 &&
-        token1Amount &&
-        token0Amount &&
+        trade &&
         !parseUnits(token0Amount, token0?.decimals).isZero() &&
         !parseUnits(token1Amount, token1?.decimals).isZero()
       ) {
@@ -197,10 +196,10 @@ const PrepareView = ({
           vanillaRouter.estimateGas
             .depositAndBuy(
               token0.address,
-              parseUnits(token0Amount, token0?.decimals),
+              trade?.minimumAmountOut(slippageTolerance).raw.toString(),
               blockDeadline,
               {
-                value: parseUnits(token1Amount, token1?.decimals),
+                value: trade?.inputAmount.raw.toString(),
               },
             )
             .then((value) => {
@@ -215,8 +214,8 @@ const PrepareView = ({
           vanillaRouter.estimateGas
             .sellAndWithdraw(
               token0.address,
-              parseUnits(token0Amount, token0?.decimals),
-              parseUnits(token1Amount, token1?.decimals),
+              trade?.inputAmount.raw.toString(),
+              trade?.minimumAmountOut(slippageTolerance).raw.toString(),
               blockDeadline,
             )
             .then((value) => {
@@ -229,7 +228,7 @@ const PrepareView = ({
             })
         }
       }
-    }, 200)
+    }, 500)
     estimateGas()
   }, [
     operation,
@@ -239,6 +238,8 @@ const PrepareView = ({
     token0,
     token1,
     vanillaRouter,
+    slippageTolerance,
+    trade,
   ])
 
   // Estimate LP fees
@@ -317,11 +318,11 @@ const PrepareView = ({
   useEffect(() => {
     const updateTradeAndToken1 = async () => {
       const trade = await updateTrade(0, token0Amount)
-      if (trade && trade.minimumAmountOut && trade.maximumAmountIn) {
+      if (trade && trade.inputAmount && trade.outputAmount) {
         const newToken1Amount =
           operation === Operation.Buy
-            ? trade.maximumAmountIn(slippageTolerance).toSignificant()
-            : trade.minimumAmountOut(slippageTolerance).toSignificant()
+            ? trade.inputAmount.toSignificant(6)
+            : trade.outputAmount.toSignificant(6)
         setToken1Amount(newToken1Amount)
       }
     }
@@ -353,7 +354,15 @@ const PrepareView = ({
       }
     }, 500)
     estimateRewards()
-  }, [operation, token0Amount, token1Amount, signer, token0, token1])
+  }, [
+    operation,
+    token0Amount,
+    token1Amount,
+    signer,
+    token0,
+    token1,
+    slippageTolerance,
+  ])
 
   // Disable closing of the trade modal when a trade is being processed
   useEffect(() => {
@@ -371,12 +380,8 @@ const PrepareView = ({
         if (trade) {
           const newToken1Amount =
             operation === Operation.Buy
-              ? (trade.maximumAmountIn &&
-                  trade.maximumAmountIn(slippageTolerance).toSignificant()) ||
-                (trade.inputAmount && trade.inputAmount.toSignificant())
-              : (trade.minimumAmountOut &&
-                  trade.minimumAmountOut(slippageTolerance).toSignificant()) ||
-                (trade.outputAmount && trade.outputAmount.toSignificant())
+              ? trade.inputAmount && trade.inputAmount.toSignificant(6)
+              : trade.outputAmount && trade.outputAmount.toSignificant(6)
           setToken1Amount(newToken1Amount)
         } else {
           setToken1Amount('0.0')
@@ -389,30 +394,19 @@ const PrepareView = ({
         if (trade) {
           const newToken0Amount =
             operation === Operation.Buy
-              ? (trade.minimumAmountOut &&
-                  trade.minimumAmountOut(slippageTolerance).toSignificant()) ||
-                (trade.outputAmount && trade.outputAmount.toSignificant())
-              : (trade.maximumAmountIn &&
-                  trade.maximumAmountIn(slippageTolerance).toSignificant()) ||
-                (trade.inputAmount && trade.inputAmount.toSignificant())
+              ? trade.outputAmount && trade.outputAmount.toSignificant(6)
+              : trade.inputAmount && trade.inputAmount.toSignificant(6)
           setToken0Amount(newToken0Amount)
+        } else {
+          setToken0Amount('0.0')
         }
-      } else {
-        setToken0Amount('0.0')
+        setToken1Amount(value)
       }
-      setToken1Amount(value)
     }
   }
 
   const handleClick = async () => {
-    if (
-      token0 &&
-      token1 &&
-      token1Amount &&
-      token0Amount &&
-      signer &&
-      provider
-    ) {
+    if (token0 && token1 && trade && signer && provider) {
       let hash: string | undefined
       try {
         const block = await provider.getBlock('latest')
@@ -421,8 +415,10 @@ const PrepareView = ({
 
         if (operation === Operation.Buy) {
           hash = await buy({
-            amountPaid: token1Amount,
-            amountReceived: token0Amount,
+            amountPaid: trade.inputAmount.raw.toString(),
+            amountReceived: trade
+              .minimumAmountOut(slippageTolerance)
+              .raw.toString(),
             tokenPaid: token1,
             tokenReceived: token0,
             signer: signer,
@@ -430,8 +426,10 @@ const PrepareView = ({
           })
         } else {
           hash = await sell({
-            amountPaid: token0Amount,
-            amountReceived: token1Amount,
+            amountPaid: trade.inputAmount.raw.toString(),
+            amountReceived: trade
+              .minimumAmountOut(slippageTolerance)
+              .raw.toString(),
             tokenPaid: token0,
             tokenReceived: token1,
             signer: signer,

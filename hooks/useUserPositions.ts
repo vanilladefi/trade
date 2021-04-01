@@ -13,7 +13,7 @@ import { useEffect, useMemo } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { currentETHPrice } from 'state/meta'
 import { allTokensStoreState, userTokensState } from 'state/tokens'
-import { selectedCounterAsset, selectedSlippageTolerance } from 'state/trade'
+import { selectedCounterAsset } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
 import { Token } from 'types/trade'
 import { useWallet } from 'use-wallet'
@@ -32,7 +32,6 @@ function useUserPositions(): Token[] | null {
   const { long: userAddress } = useWalletAddress()
   const provider = useRecoilValue(providerState)
   const signer = useRecoilValue(signerState)
-  const slippageTolerance = useRecoilValue(selectedSlippageTolerance)
   const wallet = useWallet()
   const vnl = useVanillaGovernanceToken()
 
@@ -112,10 +111,7 @@ function useUserPositions(): Token[] | null {
               }
 
               // Amount out from the trade as a Bignumber gwei string and an ether float
-              const amountOut =
-                trade && trade.minimumAmountOut
-                  ? trade.minimumAmountOut(slippageTolerance).raw
-                  : undefined
+              const amountOut = trade?.outputAmount.raw ?? undefined
               const parsedAmountOut =
                 amountOut &&
                 parseFloat(

@@ -1,12 +1,15 @@
-import { buy, BuyProps, sell, SellProps } from 'lib/uniswap/trade'
+import { buy, sell, TransactionProps } from 'lib/uniswap/trade'
 import { useRecoilValue } from 'recoil'
 import { signerState } from 'state/wallet'
 import { Action } from 'types/trade'
 import useAllTransactions from './useAllTransactions'
 
+/**
+ * A wrapper to handle state whenever user buys or sells tokens.
+ */
 const useTradeEngine = (): {
-  buy: (options: BuyProps) => Promise<string | undefined>
-  sell: (options: SellProps) => Promise<string | undefined>
+  buy: (options: TransactionProps) => Promise<string | undefined>
+  sell: (options: TransactionProps) => Promise<string | undefined>
 } => {
   const signer = useRecoilValue(signerState)
   const { addTransaction } = useAllTransactions()
@@ -17,7 +20,7 @@ const useTradeEngine = (): {
     tokenPaid,
     tokenReceived,
     blockDeadline,
-  }: BuyProps) => {
+  }: TransactionProps) => {
     if (signer) {
       const transaction = await buy({
         amountReceived: amountReceived,
@@ -49,7 +52,7 @@ const useTradeEngine = (): {
     tokenPaid,
     tokenReceived,
     blockDeadline,
-  }: SellProps) => {
+  }: TransactionProps) => {
     if (signer) {
       const transaction = await sell({
         amountReceived: amountReceived,
