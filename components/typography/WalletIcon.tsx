@@ -24,8 +24,8 @@ const matchWalletTypeToIcon = (walletType: keyof Connectors): string => {
 
 const WalletIcon = ({
   walletType,
-  height = '30px',
-  width = '30px',
+  height = '22px',
+  width = '22px',
 }: Props): JSX.Element => {
   const iconSrc = matchWalletTypeToIcon(walletType)
   return iconSrc !== '' ? (

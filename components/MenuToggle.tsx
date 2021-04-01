@@ -23,7 +23,7 @@ const Path = (props: PathProps) => (
 
 const MenuToggle = ({ toggle }: MenuToggleProps): JSX.Element => (
   <>
-    <button className='menuButton' onClick={toggle}>
+    <button className='menuButton' aria-label='Open menu' onClick={toggle}>
       <svg width='32' height='24' viewBox='0 0 32 24'>
         <Path
           d='M 2 7 L 30 7'

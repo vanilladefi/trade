@@ -5,8 +5,8 @@ type Props = {
 }
 
 export enum IconUrls {
-  COPY = '/images/icons/Copy.png',
-  ARROW_UP_RIGHT = '/images/icons/ArrowCircleUpRight.png',
+  COPY = '/images/icons/Copy.svg',
+  ARROW_UP_RIGHT = '/images/icons/ArrowCircleUpRight.svg',
   CHECK = '/images/icons/check.svg',
   ALERT = '/images/icons/Alert.svg',
 }

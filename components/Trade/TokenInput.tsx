@@ -265,7 +265,7 @@ const TokenInput = ({
             text-overflow: ellipsis;
           }
           .numberInput {
-            border-right: 1px solid #332931;
+            border-right: 2px solid #332931;
             width: 100%;
             height: 100%;
             display: flex;
@@ -321,6 +321,7 @@ const TokenInput = ({
             padding: 0.2rem 0.5rem;
             cursor: pointer;
             outline: 0;
+            min-width: 40px;
           }
           .maxButton:hover {
             background: var(--dark);

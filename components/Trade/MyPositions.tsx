@@ -92,7 +92,7 @@ function getColumns({
           <Button
             color={ButtonColor.DARK}
             rounded={Rounding.LEFT}
-            size={ButtonSize.SMALL}
+            size={ButtonSize.XSMALL}
             title='Sell'
             onClick={() =>
               onSellClick({
@@ -110,7 +110,7 @@ function getColumns({
           <Button
             color={ButtonColor.DARK}
             rounded={Rounding.RIGHT}
-            size={ButtonSize.SMALL}
+            size={ButtonSize.XSMALL}
             title='Buy'
             onClick={() =>
               onBuyClick({

@@ -42,14 +42,15 @@ const SVGFlower = ({
     <>
       {/* Single flower without profit curves */}
       {!hasProfitCurve && (
-        <InView rootMargin='0px' triggerOnce>
+        <InView threshold={0.65} triggerOnce>
           {({ inView, ref }) => (
             <svg
               ref={ref}
-              width={flowerSize}
-              height={flowerSize}
               xmlns='http://www.w3.org/2000/svg'
-              className={`${className} ${inView ? 'animate-flower-svg' : ''} `}
+              className={`${className} ${
+                inView ? 'animate-flower-svg' : 'hidden'
+              } `}
+              viewBox={`0 0 ${flowerSize} ${flowerSize}`}
             >
               <g transform={singleFlowerPos}>
                 {hasMounted && (
@@ -104,16 +105,13 @@ const SVGFlower = ({
         </svg>
       )}
       <style jsx>{`
+        .hidden {
+          opacity: 0;
+        }
         .animate-flower-svg {
           opacity: 0;
           transform: scale(0.9) rotate(20deg);
           animation: animateSVG 1.7s cubic-bezier(0.85, 0, 0.15, 1) forwards;
-        }
-
-        .animate-flower-svg path {
-          stroke-dasharray: 1000;
-          stroke-dashoffset: 1000;
-          animation: dash 1.8s cubic-bezier(0.85, 0, 0.15, 1) forwards;
         }
 
         .animated-profitcurve-flower {
@@ -123,11 +121,7 @@ const SVGFlower = ({
           animation: animateSVG 1.7s cubic-bezier(0.85, 0, 0.15, 1) 0.8s
             forwards;
         }
-        .animated-profitcurve-flower path {
-          stroke-dasharray: 1000;
-          stroke-dashoffset: 1000;
-          animation: dash 1.8s cubic-bezier(0.85, 0, 0.15, 1) forwards;
-        }
+
         .animated-profitcurve-curve {
           stroke-dasharray: 1000;
           stroke-dashoffset: 1000;

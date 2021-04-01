@@ -28,6 +28,7 @@ export default function StaticPage({
           max-width: 48rem;
           line-height: 1.6;
           margin: 0 auto;
+          font-size: var(--static-page-fontsize);
         }
         .icon {
           border: 1px solid red;

@@ -52,6 +52,7 @@ export default function PageControl({
             className='select-ball'
             onClick={() => previousPage()}
             disabled={!canPreviousPage}
+            aria-label='Previous page'
           >
             <ChevronLeft />
           </button>
@@ -77,6 +78,7 @@ export default function PageControl({
             className='select-ball'
             onClick={() => nextPage()}
             disabled={!canNextPage}
+            aria-label='Next page'
           >
             <ChevronRight />
           </button>
@@ -158,11 +160,16 @@ export default function PageControl({
         a.select-ball,
         button.select-ball {
           cursor: pointer;
+          color: var(--dark);
         }
 
         .select-ball.active {
           background: var(--dark);
           color: #fff;
+        }
+
+        .select-ball:disabled {
+          opacity: 0.1;
         }
 
         @media (max-width: ${BreakPoint.sm}px) {
