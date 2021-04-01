@@ -302,7 +302,7 @@ const PrepareView = ({
           setTrade(trade)
           return trade
         } catch (e) {
-          setError(e.message)
+          setError(e.data.message)
         }
       }
     }
@@ -363,65 +363,35 @@ const PrepareView = ({
   const handleAmountChanged = async (tokenIndex: 0 | 1, value: string) => {
     if (tokenIndex === 0) {
       if (parseFloat(value) > 0) {
-        try {
-          const trade = await updateTrade(tokenIndex, value)
-          if (trade) {
-            if (trade instanceof Error) {
-              const error = trade as Error
-              setError(`Could not construct trade. Error: ${error.message}`)
-            } else {
-              const newToken1Amount =
-                operation === Operation.Buy
-                  ? (trade.maximumAmountIn &&
-                      trade
-                        .maximumAmountIn(slippageTolerance)
-                        .toSignificant()) ||
-                    trade.inputAmount.toSignificant()
-                  : (trade.minimumAmountOut &&
-                      trade
-                        .minimumAmountOut(slippageTolerance)
-                        .toSignificant()) ||
-                    trade.outputAmount.toSignificant()
-              setToken1Amount(newToken1Amount)
-            }
-          } else {
-            setToken1Amount('0.0')
-          }
-        } catch (e) {
-          if (e.message.includes('toSignificant')) {
-            setError('IO overflow error, reduce traded amounts')
-          }
+        const trade = await updateTrade(tokenIndex, value)
+        if (trade) {
+          const newToken1Amount =
+            operation === Operation.Buy
+              ? (trade.maximumAmountIn &&
+                  trade.maximumAmountIn(slippageTolerance).toSignificant()) ||
+                (trade.inputAmount && trade.inputAmount.toSignificant())
+              : (trade.minimumAmountOut &&
+                  trade.minimumAmountOut(slippageTolerance).toSignificant()) ||
+                (trade.outputAmount && trade.outputAmount.toSignificant())
+          setToken1Amount(newToken1Amount)
+        } else {
+          setToken1Amount('0.0')
         }
       }
       setToken0Amount(value)
     } else {
       if (parseFloat(value) > 0) {
-        try {
-          const trade = await updateTrade(tokenIndex, value)
-          if (trade) {
-            if (trade instanceof Error) {
-              const error = trade as Error
-              setError(`Could not construct trade. Error: ${error.message}`)
-            } else {
-              const newToken0Amount =
-                operation === Operation.Buy
-                  ? (trade.minimumAmountOut &&
-                      trade
-                        .minimumAmountOut(slippageTolerance)
-                        .toSignificant()) ||
-                    trade.outputAmount.toSignificant()
-                  : (trade.maximumAmountIn &&
-                      trade
-                        .maximumAmountIn(slippageTolerance)
-                        .toSignificant()) ||
-                    trade.inputAmount.toSignificant()
-              setToken0Amount(newToken0Amount)
-            }
-          }
-        } catch (e) {
-          if (e.message.includes('toSignificant')) {
-            setError('IO overflow error, reduce traded amounts')
-          }
+        const trade = await updateTrade(tokenIndex, value)
+        if (trade) {
+          const newToken0Amount =
+            operation === Operation.Buy
+              ? (trade.minimumAmountOut &&
+                  trade.minimumAmountOut(slippageTolerance).toSignificant()) ||
+                (trade.outputAmount && trade.outputAmount.toSignificant())
+              : (trade.maximumAmountIn &&
+                  trade.maximumAmountIn(slippageTolerance).toSignificant()) ||
+                (trade.inputAmount && trade.inputAmount.toSignificant())
+          setToken0Amount(newToken0Amount)
         }
       } else {
         setToken0Amount('0.0')

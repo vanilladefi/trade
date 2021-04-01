@@ -133,7 +133,7 @@ export async function constructTrade(
 
     return trade
   } catch (error) {
-    return error
+    throw error
   }
 }
 
