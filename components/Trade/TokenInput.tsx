@@ -74,7 +74,6 @@ const TokenInput = ({
 
   const handleAmountChange = (tokenIndex: 0 | 1, value: string) => {
     const parsedValue = value || undefined
-    // Set the values
     if (tokenIndex === 0) {
       setAmount0(parsedValue)
       if (
@@ -84,6 +83,8 @@ const TokenInput = ({
       ) {
         setAmount1(null)
         onAmountChange(tokenIndex, parsedValue)
+      } else {
+        setAmount1(undefined)
       }
     } else {
       setAmount1(parsedValue)
@@ -94,6 +95,8 @@ const TokenInput = ({
       ) {
         setAmount0(null)
         onAmountChange(tokenIndex, parsedValue)
+      } else {
+        setAmount0(undefined)
       }
     }
   }
