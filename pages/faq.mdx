@@ -19,7 +19,7 @@ Vanilla is launching with support for trading on [Uniswap](https://uniswap.org/)
 
 Profit mining is a novel token distribution mechanism, where you "mine" VNL tokens by making a profit calculated in ETH. The more profit you make and the longer you've held your positions before selling, the more VNL you mine. Mining difficulty also increases over time, making early mining more lucrative.
 
-While you can trade almost anything through Vanilla, only tokens with enough liquidity are eligible for profit mining to protect against price manipulation attacks. Liquidity is calculated from WETH reserves on Uniswap and the more liquidity there is, the higher the rewards are. Profit mining also takes into account how long you hold your position. The longer you hold, the more VNL you mine. 
+While you can trade almost anything through Vanilla, only tokens with enough liquidity are eligible for profit mining to protect against price manipulation attacks. Liquidity is calculated from WETH reserves on Uniswap and the more liquidity there is, the higher the rewards are. Profit mining also takes into account how long you hold your position. The longer you hold, the more VNL you mine.
 
 You can see which tokens are eligible for profit mining on the Trade page.
 
@@ -70,6 +70,33 @@ The Vanilla system has been security audited extensively by [Peckshield](https:/
 ## Is Vanilla decentralized?
 
 Yes. All of Vanilla's profit mining logic and algorithms are built into its smart contracts, which are non-upgradable, meaning no-one can change how they function and no-one can stop anyone else from using the system.
+
+## Can I profit-mine with any ERC-20?
+
+No. Vanilla defines a _safe-list_ of tokens, which are the only ERC-20s that are eligible for profit mining rewards. While trading non-safe-listed tokens is possible, profitable trading with them will not generate VNL.
+
+To know which tokens are eligible for profit mining rewards, check out the _"Profit Mining"_ column in the [Trade page](/trade) - the eligible ones are marked "Yes".
+
+## Why is the safe-list needed?
+
+For security reasons. Safe-listing protects the VNL distribution against customized ERC-20s that have been created for malicious purposes.
+
+Profit mining is based on profit which is calculated from the purchasing and selling prices. If prices can be easily manipulated, then profits and subsequently VNL distribution can be easily manipulated. When using Uniswap, prices can be manipulated in many ways.
+
+The [_Value-Protection Coefficient_](#what-is-the-value-protection-coefficient-and-why-does-vanilla-use-it) in the reward algorithm protects against the unavoidable Uniswap price manipulation by incentivizing the trades in tokens whose prices are more expensive to manipulate (i.e. have more WETH liquidity in Uniswap). However, when price manipulation happens in an ERC-20 that has been purpose built for manipulation, the liquidity-based protections are not enough. The safe-list is a solution to this.
+
+## Why is token X on the safe-list and not token Y?
+
+As contracts are non-upgradeable and have no owners, the safe-list had to be immutable and therefore selected before the deployment. Instead of hand-picking ERC-20s to the safe-list, the Vanilla team decided to use a selection criteria which should be more fair and verifiable. The criteria we picked was as follows - a token got safe-listed if it had:
+
+- over 500 WETH liquidity in Uniswap, **and**
+- **either** over 500 WETH liquidity in Sushiswap,
+- **or** over 250 WETH cumulative, weight-normalized liquidity in all public Balancer bpools with over 10 holders,
+- in a fixed block close to code freeze and mainnet launch (finally, that block was **12110000**)
+
+For the safe-list criteria to be effective, the selected tokens needed to be less prone to price manipulation. This is the reason why the selection criteria emphasizes sufficient liquidity (manipulation gets more expensive) in more than one market (manipulation gets harder when ownership and liquidity are more decentralized).
+
+Obviously, even though this selection criteria is verifiable and deterministic, it's still an arbitrary criteria and a lot of rightfully safe and honest ERC-20s were excluded. When governance goes live, this problem will be resolved as the governance will be able to change the safe-list.
 
 ## How are profit mining rewards calculated for trading?
 
