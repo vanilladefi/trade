@@ -87,6 +87,27 @@ const GlobalStyles = (): JSX.Element => (
         color: var(--link-on-white);
       }
 
+      .icon {
+        width: 1.1rem;
+        height: 1.1rem;
+        min-width: 16px;
+        min-height: 16px;
+        display: inline-block;
+        margin-right: 0.5rem;
+      }
+      .icon-link {
+        background-image: url('/images/icon-link.svg');
+        background-size: 100%;
+        background-position: center center;
+        background-repeat: no-repeat;
+        opacity: 0.5;
+        transition: opacity 0.3s;
+      }
+      .icon-link:hover,
+      .icon-link:active {
+        opacity: 1;
+      }
+
       .animate-flower-svg path {
         stroke-dasharray: 400;
         stroke-dashoffset: 400;
