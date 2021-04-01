@@ -137,9 +137,7 @@ const TokenInput = ({
                       eligibleBalance0Raw &&
                       handleAmountChange(
                         0,
-                        (!eligibleBalance0Raw.isZero() &&
-                          formatUnits(eligibleBalance0Raw, token0.decimals)) ||
-                          '0',
+                        formatUnits(eligibleBalance0Raw, token0.decimals),
                       )
                     }
                   >
@@ -153,22 +151,18 @@ const TokenInput = ({
                 <span
                   onClick={() =>
                     token0 &&
-                    eligibleBalance0Raw &&
                     handleAmountChange(
                       0,
-                      (!eligibleBalance0Raw.isZero() &&
-                        formatUnits(eligibleBalance0Raw, token0.decimals)) ||
-                        '0',
+                      formatUnits(eligibleBalance0Raw, token0.decimals),
                     )
                   }
                   title={
                     (token0 &&
-                      !eligibleBalance0Raw.isZero() &&
                       formatUnits(eligibleBalance0Raw, token0.decimals)) ||
                     '0'
                   }
                 >
-                  Balance: {!eligibleBalance0Raw.isZero() && eligibleBalance0}
+                  Balance: {eligibleBalance0}
                 </span>
                 <div className='tokenIndicator'>
                   {token0?.logoURI && <Icon src={token0.logoURI} />}
