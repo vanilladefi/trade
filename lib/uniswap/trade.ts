@@ -8,7 +8,7 @@ import {
   Trade,
   TradeType,
 } from '@uniswap/sdk'
-import { BigNumber, constants, providers, Transaction } from 'ethers'
+import { BigNumber, providers, Transaction } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import type { UniSwapToken } from 'types/trade'
@@ -26,6 +26,7 @@ export interface BuyProps {
   tokenReceived: UniSwapToken
   tokenPaid: UniSwapToken
   signer?: providers.JsonRpcSigner
+  blockDeadline: number
 }
 
 export interface SellProps {
@@ -34,6 +35,7 @@ export interface SellProps {
   tokenPaid: UniSwapToken
   tokenReceived: UniSwapToken
   signer?: providers.JsonRpcSigner
+  blockDeadline: number
 }
 
 export const buy = async ({
@@ -42,6 +44,7 @@ export const buy = async ({
   tokenReceived,
   tokenPaid,
   signer,
+  blockDeadline,
 }: BuyProps): Promise<Transaction> => {
   const amountReceivedParsed = parseUnits(
     amountReceived,
@@ -58,7 +61,7 @@ export const buy = async ({
   const receipt = await router.depositAndBuy(
     tokenReceived.address,
     amountReceivedParsed,
-    constants.MaxUint256,
+    blockDeadline,
     { value: amountPaidParsed, ...ethersOverrides },
   )
 
@@ -71,6 +74,7 @@ export const sell = async ({
   tokenPaid,
   tokenReceived,
   signer,
+  blockDeadline,
 }: SellProps): Promise<Transaction> => {
   const amountReceivedParsed = parseUnits(
     amountReceived,
@@ -88,7 +92,7 @@ export const sell = async ({
     tokenPaid.address,
     amountPaidParsed,
     amountReceivedParsed,
-    constants.MaxUint256,
+    blockDeadline,
     { ...ethersOverrides },
   )
 

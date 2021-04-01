@@ -8,7 +8,6 @@ import Button, {
 } from 'components/input/Button'
 import { Spinner } from 'components/Spinner'
 import Icon, { IconUrls } from 'components/typography/Icon'
-import { constants } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import useEligibleTokenBalance from 'hooks/useEligibleTokenBalance'
 import useTokenBalance from 'hooks/useTokenBalance'
@@ -36,6 +35,7 @@ import {
 } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
 import { Operation } from 'types/trade'
+import { blockDeadlineThreshold } from 'utils/config'
 
 type ContentProps = {
   operation: Operation
@@ -180,7 +180,7 @@ const PrepareView = ({
 
   // Estimate gas fees
   useEffect(() => {
-    const estimateGas = debounce(() => {
+    const estimateGas = debounce(async () => {
       if (
         provider &&
         vanillaRouter &&
@@ -191,12 +191,14 @@ const PrepareView = ({
         !parseUnits(token0Amount, token0?.decimals).isZero() &&
         !parseUnits(token1Amount, token1?.decimals).isZero()
       ) {
+        const block = await provider.getBlock('latest')
+        const blockDeadline = block.timestamp + blockDeadlineThreshold
         if (operation === Operation.Buy) {
           vanillaRouter.estimateGas
             .depositAndBuy(
               token0.address,
               parseUnits(token0Amount, token0?.decimals),
-              constants.MaxUint256,
+              blockDeadline,
               {
                 value: parseUnits(token1Amount, token1?.decimals),
               },
@@ -215,7 +217,7 @@ const PrepareView = ({
               token0.address,
               parseUnits(token0Amount, token0?.decimals),
               parseUnits(token1Amount, token1?.decimals),
-              constants.MaxUint256,
+              blockDeadline,
             )
             .then((value) => {
               provider.getGasPrice().then((price) => {
@@ -403,9 +405,18 @@ const PrepareView = ({
   }
 
   const handleClick = async () => {
-    if (token0 && token1 && token1Amount && token0Amount && signer) {
+    if (
+      token0 &&
+      token1 &&
+      token1Amount &&
+      token0Amount &&
+      signer &&
+      provider
+    ) {
       let hash: string | undefined
       try {
+        const block = await provider.getBlock('latest')
+        const blockDeadline = block.timestamp + blockDeadlineThreshold
         setTransactionState(TransactionState.PROCESSING)
 
         if (operation === Operation.Buy) {
@@ -415,6 +426,7 @@ const PrepareView = ({
             tokenPaid: token1,
             tokenReceived: token0,
             signer: signer,
+            blockDeadline: blockDeadline,
           })
         } else {
           hash = await sell({
@@ -423,6 +435,7 @@ const PrepareView = ({
             tokenPaid: token0,
             tokenReceived: token1,
             signer: signer,
+            blockDeadline: blockDeadline,
           })
         }
 
