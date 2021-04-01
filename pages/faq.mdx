@@ -87,7 +87,7 @@ The _Value-Protection Coefficient_ in reward algorithm protects against the unav
 
 ## Why is token X on the safe-list and not token Y?
 
-As contracts are non-upgradeable and have no owners, there was no choice except pre-selecting the safe-listed tokens. Instead of hand-picking ERC-20s to the safe-list, the Vanilla team decided to use a selection criteria which should be more fair and verifiable. The criteria we picked was as follows - token got safe-listed if it had:
+As contracts are non-upgradeable and have no owners, the safe-list had to be immutable and therefore selected before the deployment. Instead of hand-picking ERC-20s to the safe-list, the Vanilla team decided to use a selection criteria which should be more fair and verifiable. The criteria we picked was as follows - token got safe-listed if it had:
 
 - over 500 WETH liquidity in Uniswap, **and**
 - **either** over 500 WETH liquidity in Sushiswap,
@@ -96,7 +96,7 @@ As contracts are non-upgradeable and have no owners, there was no choice except 
 
 For a proper safe-listing criteria, the selected tokens needed to be less prone to price manipulation. This is the reason why the selection criteria emphasizes sufficient liquidity (manipulation gets more expensive) in more than one markets (manipulation gets harder when the ownership is more decentralized).
 
-Obviously, even if this selection criteria is verifiable and deterministic, it's still an arbitrary criteria and a lot of rightfully safe and honest ERC-20s were excluded. When the governance is installed, this problem will be resolved as safe-list is then no longer immutable.
+Obviously, even if this selection criteria is verifiable and deterministic, it's still an arbitrary criteria and a lot of rightfully safe and honest ERC-20s were excluded. When the governance is installed, this problem will be resolved as the governance will be able to change the safe-list.
 
 ## How are profit mining rewards calculated for trading?
 
