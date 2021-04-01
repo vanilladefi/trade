@@ -195,8 +195,8 @@ const PrepareView = ({
         !parseUnits(token0Amount, token0?.decimals).isZero() &&
         !parseUnits(token1Amount, token1?.decimals).isZero()
       ) {
-        const blockDeadline =
-          (await provider.getBlockNumber()) + blockDeadlineThreshold
+        const block = await provider.getBlock('latest')
+        const blockDeadline = block.timestamp + blockDeadlineThreshold
         if (operation === Operation.Buy) {
           vanillaRouter.estimateGas
             .depositAndBuy(
@@ -449,8 +449,8 @@ const PrepareView = ({
     ) {
       let hash: string | undefined
       try {
-        const blockDeadline =
-          (await provider.getBlockNumber()) + blockDeadlineThreshold
+        const block = await provider.getBlock('latest')
+        const blockDeadline = block.timestamp + blockDeadlineThreshold
         setTransactionState(TransactionState.PROCESSING)
 
         if (operation === Operation.Buy) {
