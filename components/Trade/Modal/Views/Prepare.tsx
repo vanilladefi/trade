@@ -28,6 +28,7 @@ import React, {
   useState,
 } from 'react'
 import { useRecoilValue } from 'recoil'
+import { currentETHPrice } from 'state/meta'
 import {
   selectedSlippageTolerance,
   token0Selector,
@@ -103,6 +104,7 @@ const PrepareView = ({
   setModalCloseEnabled,
 }: ContentProps): JSX.Element => {
   const lpFeePercentage = new Percent('3', '1000')
+  const ethPrice = useRecoilValue(currentETHPrice)
   const slippageTolerance = useRecoilValue(selectedSlippageTolerance)
 
   const router = useRouter()
@@ -536,6 +538,21 @@ const PrepareView = ({
                         {operation === Operation.Buy
                           ? token0?.symbol
                           : token1?.symbol}
+                      </span>
+                    </div>
+                    <div className='tradeInfoRow'>
+                      <span>Trade value</span>
+                      <span>
+                        {operation === Operation.Buy
+                          ? (
+                              parseFloat(trade?.inputAmount.toSignificant()) *
+                              ethPrice
+                            ).toLocaleString()
+                          : (
+                              parseFloat(trade?.outputAmount.toSignificant()) *
+                              ethPrice
+                            ).toLocaleString()}{' '}
+                        USD
                       </span>
                     </div>
                     <div className='tradeInfoRow'>
