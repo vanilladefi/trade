@@ -133,10 +133,6 @@ const PrepareView = ({
   )
 
   const { raw: eligibleBalance0Raw } = useEligibleTokenBalance(token0?.address)
-  const { raw: balance0Raw } = useTokenBalance(
-    token0?.address,
-    token0?.decimals,
-  )
   const { raw: balance1Raw } = useTokenBalance(
     token1?.address,
     token1?.decimals,
@@ -151,7 +147,6 @@ const PrepareView = ({
         (operation === Operation.Buy &&
           parseUnits(token1Amount, token1?.decimals).gt(balance1Raw)) ||
         (operation === Operation.Sell &&
-          parseUnits(token0Amount, token0?.decimals).gt(balance0Raw) &&
           parseUnits(token0Amount, token0?.decimals).gt(eligibleBalance0Raw))
       ) {
         return true
@@ -166,7 +161,6 @@ const PrepareView = ({
     token1Amount,
     token1?.decimals,
     balance1Raw,
-    balance0Raw,
     token0Amount,
     token0?.decimals,
     eligibleBalance0Raw,
@@ -501,9 +495,7 @@ const PrepareView = ({
                     operation === Operation.Sell ? 'active' : undefined
                   }
                   onClick={() => setOperation(Operation.Sell)}
-                  disabled={
-                    balance0Raw.isZero() && eligibleBalance0Raw.isZero()
-                  }
+                  disabled={eligibleBalance0Raw.isZero()}
                 >
                   Sell
                 </button>

@@ -58,7 +58,9 @@ const SuccessView = ({ id, closeModal }: Props): JSX.Element => {
   return (
     <Column>
       <div className='row noBottomMargin'>
-        <SmallTitle>TRADE {transaction ? 'SUCCESSFUL' : 'SUBMITTED'}!</SmallTitle>
+        <SmallTitle>
+          TRADE {transaction ? 'SUCCESSFUL' : 'SUBMITTED'}!
+        </SmallTitle>
       </div>
       {transaction ? (
         <div className='row noBottomMargin'>
@@ -86,7 +88,9 @@ const SuccessView = ({ id, closeModal }: Props): JSX.Element => {
       ) : (
         <Column>
           <div>
-            <a href={`https://etherscan.io/tx/${id}`} target='_blank'>Check out the transaction on etherscan</a>
+            <a href={`https://etherscan.io/tx/${id}`} target='_blank'>
+              Check out the transaction on etherscan
+            </a>
           </div>
           <Loading />
         </Column>
