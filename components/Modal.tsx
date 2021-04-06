@@ -65,7 +65,7 @@ const Modal = ({
           height: 100vh;
           background: ${isOpen ? 'var(--curtain-background)' : 'transparent'};
           backdrop-filter: ${isOpen ? 'var(--curtain-backdropfilter)' : 'none'};
-          z-index: 9999;
+          z-index: 5;
           transition: 0.2s ease backdrop-filter, 0.2s ease background;
           overflow: auto;
         }
@@ -82,7 +82,7 @@ const Modal = ({
           position: relative;
           border-radius: 1.5rem;
           background: var(--white);
-          z-index: 1000;
+          z-index: 6;
           cursor: default;
           opacity: ${isOpen ? 1 : 0};
           transition: 0.1s ease opacity;
@@ -95,7 +95,7 @@ const Modal = ({
           top: -14px;
           cursor: pointer;
           right: -14px;
-          z-index: 99;
+          z-index: 7;
           width: 44px;
           height: 44px;
           line-height: 0;

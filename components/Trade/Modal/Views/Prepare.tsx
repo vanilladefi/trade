@@ -37,6 +37,7 @@ import {
 import { providerState, signerState } from 'state/wallet'
 import { Operation } from 'types/trade'
 import { blockDeadlineThreshold } from 'utils/config'
+import SlippageSelector from '../SlippageSelector'
 
 type ContentProps = {
   operation: Operation
@@ -554,7 +555,7 @@ const PrepareView = ({
                     </div>
                     <div className='tradeInfoRow'>
                       <span>Slippage tolerance</span>
-                      <span>{slippageTolerance.toSignificant()} %</span>
+                      <SlippageSelector />
                     </div>
                     {estimatedReward && (
                       <div className='tradeInfoRow'>
