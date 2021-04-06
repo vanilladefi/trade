@@ -24,9 +24,12 @@ export default function AvailableTokens({
 
   const initialSortBy = useMemo(() => [{ id: 'liquidity', desc: true }], [])
 
+  const filterMinableTokens = (input: Token[]) =>
+    input.filter((token) => token.eligible)
+
   return (
     <Table
-      data={tokens?.length ? tokens : initialTokens}
+      data={filterMinableTokens(tokens?.length ? tokens : initialTokens)}
       columns={columns}
       initialSortBy={initialSortBy}
       query={query}
