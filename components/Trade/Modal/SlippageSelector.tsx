@@ -131,6 +131,8 @@ const SlippageSelector = (): JSX.Element => {
           height: 200px;
         }
         .Dropdown-option {
+          position: relative;
+          width: max-content;
           z-index: 9;
         }
       `}</style>
