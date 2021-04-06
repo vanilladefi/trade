@@ -12,6 +12,7 @@ import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import useEligibleTokenBalance from 'hooks/useEligibleTokenBalance'
 import useTokenBalance from 'hooks/useTokenBalance'
 import useTradeEngine from 'hooks/useTradeEngine'
+import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import useVanillaRouter from 'hooks/useVanillaRouter'
 import { constructTrade } from 'lib/uniswap/trade'
 import { estimateReward } from 'lib/vanilla'
@@ -112,6 +113,7 @@ const PrepareView = ({
   const { buy, sell } = useTradeEngine()
   const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
+  const { price } = useVanillaGovernanceToken()
 
   const [trade, setTrade] = useState<Trade>()
   const token0 = useRecoilValue(token0Selector)
@@ -167,6 +169,15 @@ const PrepareView = ({
     token0?.decimals,
     eligibleBalance0Raw,
   ])
+
+  const estimatedRewardInUsd = useCallback(() => {
+    const unrealizedVnl = estimatedReward
+    if (unrealizedVnl) {
+      return parseFloat(unrealizedVnl) * parseFloat(price) * ethPrice
+    } else {
+      return 0
+    }
+  }, [estimatedReward, ethPrice, price])
 
   const notEnoughLiquidity = useCallback(() => {
     if (trade instanceof Error) {
@@ -548,7 +559,10 @@ const PrepareView = ({
                     {estimatedReward && (
                       <div className='tradeInfoRow'>
                         <span>Unclaimed rewards</span>
-                        <span>{estimatedReward} VNL</span>
+                        <span>
+                          {estimatedReward} VNL{' '}
+                          <small>${estimatedRewardInUsd()}</small>
+                        </span>
                       </div>
                     )}
                   </Column>
