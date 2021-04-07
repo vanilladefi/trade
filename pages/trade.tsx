@@ -340,14 +340,19 @@ const BodyContent = ({
           <Column width={Width.TWELVE}>
             {account && (
               <>
-                <h2 style={{ marginBottom: 0 }}>
-                  MY POSITIONS
-                  {userPositions && userPositions.length > 0 && (
-                    <small>{`${profitablePositions()} of ${
-                      userPositions ? userPositions.length : 0
-                    } profitable`}</small>
-                  )}
-                </h2>
+                <div className='tableHeaderWrapper'>
+                  <h2 style={{ marginBottom: 0 }}>
+                    MY POSITIONS
+                    {userPositions && userPositions.length > 0 && (
+                      <small>{`${profitablePositions()} of ${
+                        userPositions ? userPositions.length : 0
+                      } profitable`}</small>
+                    )}
+                  </h2>
+                  <button onClick={() => setHodlMode(!hodlMode)}>
+                    Toggle HODL mode
+                  </button>
+                </div>
                 <MyPositions
                   onBuyClick={handleBuyClick}
                   onSellClick={handleSellClick}
@@ -356,9 +361,6 @@ const BodyContent = ({
             )}
 
             <h2 style={{ marginBottom: 0 }}>AVAILABLE TOKENS</h2>
-            <button onClick={() => setHodlMode(!hodlMode)}>
-              Toggle HODL mode
-            </button>
             {/* Pass "initialTokens" so this page is statically rendered with tokens */}
             <AvailableTokens
               initialTokens={initialTokens}
@@ -383,6 +385,12 @@ const BodyContent = ({
           width: 100%;
           max-width: var(--maxlayoutwidth);
           margin: 0 auto;
+        }
+        .tableHeaderWrapper {
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between:
+          align-items: flex-end;
         }
       `}</style>
     </>
