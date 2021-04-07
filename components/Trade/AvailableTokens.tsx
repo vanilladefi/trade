@@ -25,9 +25,7 @@ export default function AvailableTokens({
   const initialSortBy = useMemo(() => [{ id: 'liquidity', desc: true }], [])
 
   const filterMinableTokens = (input: Token[]) =>
-    input.filter((token) =>
-      process.env.NODE_ENV === 'development' ? true : token.eligible,
-    )
+    input.filter((token) => token.eligible)
 
   return (
     <Table
@@ -42,36 +40,32 @@ export default function AvailableTokens({
 }
 
 function getColumns(onBuyClick: HandleBuyClick): ListColumn<Token>[] {
-  let columns = [
+  return [
     Columns.LogoTicker,
     Columns.LogoName,
     Columns.Ticker,
     Columns.Price,
     Columns.Liquidity,
     Columns.PriceChange,
+    {
+      id: 'trade',
+      width: 1,
+      disableSortBy: true,
+      disableGlobalFilter: true,
+      align: 'right',
+      Cell: ({ row }: CellProps<Token>) => (
+        <Button
+          color={ButtonColor.DARK}
+          size={ButtonSize.XSMALL}
+          onClick={() =>
+            onBuyClick({
+              pairId: row.original.pairId,
+            })
+          }
+        >
+          BUY
+        </Button>
+      ),
+    },
   ]
-  if (process.env.NODE_ENV === 'development') {
-    columns.push(Columns.Eligibility)
-  }
-  columns = columns.concat({
-    id: 'trade',
-    width: 1,
-    disableSortBy: true,
-    disableGlobalFilter: true,
-    align: 'right',
-    Cell: ({ row }: CellProps<Token>) => (
-      <Button
-        color={ButtonColor.DARK}
-        size={ButtonSize.XSMALL}
-        onClick={() =>
-          onBuyClick({
-            pairId: row.original.pairId,
-          })
-        }
-      >
-        BUY
-      </Button>
-    ),
-  })
-  return columns
 }
