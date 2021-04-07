@@ -105,7 +105,7 @@ const PrepareView = ({
   setModalCloseEnabled,
 }: ContentProps): JSX.Element => {
   const lpFeePercentage = new Percent('3', '1000')
-  const ethPrice = useRecoilValue(currentETHPrice)
+  const ethUsdPrice = useRecoilValue(currentETHPrice)
   const slippageTolerance = useRecoilValue(selectedSlippageTolerance)
 
   const router = useRouter()
@@ -113,7 +113,7 @@ const PrepareView = ({
   const { buy, sell } = useTradeEngine()
   const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
-  const { price } = useVanillaGovernanceToken()
+  const { price: vnlEthPrice } = useVanillaGovernanceToken()
 
   const [trade, setTrade] = useState<Trade>()
   const token0 = useRecoilValue(token0Selector)
@@ -173,11 +173,11 @@ const PrepareView = ({
   const estimatedRewardInUsd = useCallback(() => {
     const unrealizedVnl = estimatedReward
     if (unrealizedVnl) {
-      return parseFloat(unrealizedVnl) * parseFloat(price) * ethPrice
+      return parseFloat(unrealizedVnl) * parseFloat(vnlEthPrice) * ethUsdPrice
     } else {
       return 0
     }
-  }, [estimatedReward, ethPrice, price])
+  }, [estimatedReward, ethUsdPrice, vnlEthPrice])
 
   const notEnoughLiquidity = useCallback(() => {
     if (trade instanceof Error) {
@@ -530,11 +530,11 @@ const PrepareView = ({
                         {operation === Operation.Buy
                           ? (
                               parseFloat(trade?.inputAmount.toSignificant()) *
-                              ethPrice
+                              ethUsdPrice
                             ).toLocaleString()
                           : (
                               parseFloat(trade?.outputAmount.toSignificant()) *
-                              ethPrice
+                              ethUsdPrice
                             ).toLocaleString()}{' '}
                         USD
                       </span>
