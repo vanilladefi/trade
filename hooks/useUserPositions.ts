@@ -136,8 +136,8 @@ function useUserPositions(): Token[] | null {
               }
 
               // Parse the HODL mode stats
-              const htrs = formatUnits(reward?.htrs.toString() ?? '0', 6)
-              const vpc = formatUnits(reward?.vpc.toString() ?? '0', 6)
+              const htrs = reward?.htrs.toString() ?? '0'
+              const vpc = reward?.vpc.toString() ?? '0'
 
               // Parse the minimum profitable price from the reward estimate
               const profitablePrice =
