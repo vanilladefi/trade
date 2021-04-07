@@ -32,9 +32,13 @@ import React, {
   useEffect,
   useState,
 } from 'react'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
+import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil'
 import { currentETHPrice } from 'state/meta'
-import { allTokensStoreState, userTokensState } from 'state/tokens'
+import {
+  allTokensStoreState,
+  hodlModeState,
+  userTokensState,
+} from 'state/tokens'
 import { selectedOperation, selectedPairIdState } from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
 import { HandleBuyClick, HandleSellClick, Operation, Token } from 'types/trade'
@@ -270,6 +274,7 @@ const BodyContent = ({
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const setOperation = useSetRecoilState(selectedOperation)
+  const [hodlMode, setHodlMode] = useRecoilState(hodlModeState)
   const userPositions = useRecoilValue(userTokensState)
   const { account } = useWallet()
 
@@ -351,6 +356,9 @@ const BodyContent = ({
             )}
 
             <h2 style={{ marginBottom: 0 }}>AVAILABLE TOKENS</h2>
+            <button onClick={() => setHodlMode(!hodlMode)}>
+              Toggle HODL mode
+            </button>
             {/* Pass "initialTokens" so this page is statically rendered with tokens */}
             <AvailableTokens
               initialTokens={initialTokens}

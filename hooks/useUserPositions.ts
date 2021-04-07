@@ -135,6 +135,10 @@ function useUserPositions(): Token[] | null {
                 reward = null
               }
 
+              // Parse the HODL mode stats
+              const htrs = formatUnits(reward?.htrs.toString() ?? '0', 6)
+              const vpc = formatUnits(reward?.vpc.toString() ?? '0', 6)
+
               // Parse the minimum profitable price from the reward estimate
               const profitablePrice =
                 reward && parseFloat(formatUnits(reward?.profitablePrice))
@@ -160,6 +164,8 @@ function useUserPositions(): Token[] | null {
                 owned: parsedOwnedAmount,
                 ownedRaw: tokenAmount.raw.toString(),
                 value: parsedValue,
+                htrs: htrs,
+                vpc: vpc,
                 profit: profitPercentage,
                 vnl: parsedVnl,
               }
