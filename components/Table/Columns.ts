@@ -61,7 +61,7 @@ export const PriceChange: ListColumn<Token> = {
   sortType: 'basic',
   align: 'right',
   colorBasedOnValue: true,
-  Cell: Cells.ValuePercent,
+  Cell: Cells.ProfitPercent,
 }
 
 export const OwnedAmount: ListColumn<Token> = {
