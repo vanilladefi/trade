@@ -2,7 +2,8 @@ import { Token, TokenAmount } from '@uniswap/sdk'
 import ERC20 from '@uniswap/v2-periphery/build/ERC20.json'
 import { BigNumber, constants } from 'ethers'
 import { Interface, isAddress, Result } from 'ethers/lib/utils'
-import { tokenListChainId } from 'lib/tokens'
+import { thegraphClient, TokenInfoQuery } from 'lib/graphql'
+import { tokenListChainId, weth } from 'lib/tokens'
 import { getVnlTokenAddress } from 'lib/vanilla'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue } from 'recoil'
@@ -15,12 +16,14 @@ function useVanillaGovernanceToken(): {
   address: string
   decimals: number
   balance: string
+  price: string
   userMintedTotal: string
 } {
   const provider = useRecoilValue(providerState)
   const decimals = 12
 
   const [vnlTokenAddress, setVnlTokenAddress] = useState('')
+  const [vnlEthPrice, setVnlEthPrice] = useState('0')
   const { long: userAddress } = useWalletAddress()
   const [mints, setMints] = useState<Array<BigNumber>>()
 
@@ -83,14 +86,30 @@ function useVanillaGovernanceToken(): {
       )
   }, [provider, vnlTokenAddress])
 
+  useEffect(() => {
+    const getTokenPrice = async () => {
+      if (isAddress(vnlTokenAddress)) {
+        const variables = {
+          weth: weth.address.toLowerCase(),
+          tokenAddresses: [vnlTokenAddress.toLowerCase()],
+        }
+        const response = await thegraphClient.request(TokenInfoQuery, variables)
+        const data = [...response?.tokensAB, ...response?.tokensBA]
+        setVnlEthPrice(data[0].price)
+      }
+    }
+    getTokenPrice()
+  }, [vnlTokenAddress])
+
   return useMemo(() => {
     return {
       address: vnlTokenAddress,
       decimals: 12,
       balance: vnlBalance !== '' ? vnlBalance : '0',
+      price: vnlEthPrice,
       userMintedTotal: userMintedTotal(),
     }
-  }, [userMintedTotal, vnlBalance, vnlTokenAddress])
+  }, [userMintedTotal, vnlBalance, vnlEthPrice, vnlTokenAddress])
 }
 
 export default useVanillaGovernanceToken

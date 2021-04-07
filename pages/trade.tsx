@@ -12,6 +12,7 @@ import Wrapper from 'components/Wrapper'
 import useMetaSubscription from 'hooks/useMetaSubscription'
 import useTokenSubscription from 'hooks/useTokenSubscription'
 import useTotalOwned from 'hooks/useTotalOwned'
+import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import { getAverageBlockCountPerHour, getCurrentBlockNumber } from 'lib/block'
 import {
   addGraphInfo,
@@ -59,6 +60,8 @@ const HeaderContent = (): JSX.Element => {
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const { USD: totalOwnedUSD, ETH: totalOwnedETH } = useTotalOwned()
   const userTokens = useRecoilValue(userTokensState)
+  const { price } = useVanillaGovernanceToken()
+  const ethPrice = useRecoilValue(currentETHPrice)
 
   const totalUnrealizedVnl = useCallback(() => {
     const vnlAmounts = userTokens ? userTokens.map((token) => token.vnl) : null
@@ -77,6 +80,15 @@ const HeaderContent = (): JSX.Element => {
         })
       : 0
   }, [userTokens])
+
+  const unrealizedVnlInUsd = useCallback(() => {
+    const unrealizedVnl = totalUnrealizedVnl()
+    if (unrealizedVnl) {
+      return unrealizedVnl * parseFloat(price) * ethPrice
+    } else {
+      return 0
+    }
+  }, [ethPrice, price, totalUnrealizedVnl])
 
   return (
     <>
@@ -127,6 +139,7 @@ const HeaderContent = (): JSX.Element => {
                 <h2 className='title'>UNREALIZED VNL</h2>
                 <h3 className='subTitle'>
                   {totalUnrealizedVnl()?.toLocaleString()} VNL
+                  <small> ${unrealizedVnlInUsd().toLocaleString()}</small>
                 </h3>
                 <span className='details'>
                   from {userTokens.length} positions
