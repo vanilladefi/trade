@@ -388,6 +388,8 @@ const BodyContent = ({
         }
         .tableHeaderWrapper {
           display: flex;
+          position: relative;
+          width: 100%;
           flex-direction: row;
           justify-content: space-between:
           align-items: flex-end;
