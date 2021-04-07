@@ -85,7 +85,7 @@ export const MarketValue: ListColumn<Token> = {
   disableGlobalFilter: true,
   align: 'right',
   hideBelow: 'md',
-  Cell: Cells.ValueUSD,
+  Cell: Cells.ValueUSDHighlighted,
 }
 
 export const Profit: ListColumn<Token> = {

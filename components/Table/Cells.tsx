@@ -47,6 +47,18 @@ export function ValueETH(props: CellProps<Token>): React.ReactNode {
 }
 
 export function ValueUSD({ value }: CellProps<Token>): React.ReactNode {
+  return (value ?? 0).toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    notation: 'compact',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+}
+
+export function ValueUSDHighlighted({
+  value,
+}: CellProps<Token>): React.ReactNode {
   return (
     <b>
       {(value ?? 0).toLocaleString('en-US', {
