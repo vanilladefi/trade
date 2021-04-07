@@ -24,9 +24,12 @@ export default function AvailableTokens({
 
   const initialSortBy = useMemo(() => [{ id: 'liquidity', desc: true }], [])
 
+  const filterMinableTokens = (input: Token[]) =>
+    input.filter((token) => token.eligible)
+
   return (
     <Table
-      data={tokens?.length ? tokens : initialTokens}
+      data={filterMinableTokens(tokens?.length ? tokens : initialTokens)}
       columns={columns}
       initialSortBy={initialSortBy}
       query={query}
@@ -44,7 +47,6 @@ function getColumns(onBuyClick: HandleBuyClick): ListColumn<Token>[] {
     Columns.Price,
     Columns.Liquidity,
     Columns.PriceChange,
-    Columns.Eligibility,
     {
       id: 'trade',
       width: 1,
