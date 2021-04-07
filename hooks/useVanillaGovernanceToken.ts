@@ -21,7 +21,6 @@ function useVanillaGovernanceToken(): {
 } {
   const provider = useRecoilValue(providerState)
   const decimals = 12
-  // const uniswapPairAddress = '0xC9cd42b3389A4Ec03c1984282FB139514e10b48d'
 
   const [vnlTokenAddress, setVnlTokenAddress] = useState('')
   const [vnlEthPrice, setVnlEthPrice] = useState('0')
