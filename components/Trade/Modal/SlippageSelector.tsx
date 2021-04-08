@@ -104,7 +104,7 @@ const SlippageSelector = (): JSX.Element => {
           position: relative;
           box-shadow: none;
           background: var(--white);
-          transition: 0.3s eased box-shadow;
+          transition: 0.3s ease box-shadow;
         }
         .slippageSelector.is-open {
           box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);
@@ -129,15 +129,23 @@ const SlippageSelector = (): JSX.Element => {
           display: flex;
           flex-direction: column;
           background: var(--white);
-          padding: 1rem;
+          padding: 0.2rem 0;
+          width: 100%;
           z-index: 8;
           top: 100%;
-          height: 200px;
+          height: max-content;
+          box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);
         }
         .Dropdown-option {
           position: relative;
-          width: max-content;
+          width: 100%;
           z-index: 9;
+          padding: 0.2rem 0.5rem;
+          background: inherit;
+          transition: 0.1s ease background;
+        }
+        .Dropdown-option:hover {
+          background: rgba(0, 0, 0, 0.1);
         }
       `}</style>
     </>
