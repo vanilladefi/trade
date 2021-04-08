@@ -32,7 +32,7 @@ import React, {
   useEffect,
   useState,
 } from 'react'
-import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { currentETHPrice } from 'state/meta'
 import {
   allTokensStoreState,
@@ -349,9 +349,15 @@ const BodyContent = ({
                       } profitable`}</small>
                     )}
                   </h2>
-                  <button onClick={() => setHodlMode(!hodlMode)}>
-                    Toggle HODL mode
-                  </button>
+                  <div className='hodlWrapper'>
+                    <span>HODL</span>
+                    <button
+                      className={`hodlToggle${hodlMode ? ' active' : ''}`}
+                      onClick={() => setHodlMode(!hodlMode)}
+                    >
+                      <div className='handle'></div>
+                    </button>
+                  </div>
                 </div>
                 <MyPositions
                   onBuyClick={handleBuyClick}
@@ -391,8 +397,48 @@ const BodyContent = ({
           position: relative;
           width: 100%;
           flex-direction: row;
-          justify-content: space-between:
           align-items: flex-end;
+          justify-content: space-between;
+        }
+        .hodlWrapper {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+        }
+        .hodlWrapper span {
+          font-size: var(--minisize);
+          font-weight: var(--buttonweight);
+          margin-right: 0.4rem;
+        }
+        .hodlToggle {
+          cursor: pointer;
+          height: 28px;
+          width: 60px;
+          background: var(--inactivelink);
+          border-radius: 9999px;
+          position: relative;
+          display: flex;
+          border: 2px solid var(--bordercolor);
+          outline: 0;
+          padding: 2px;
+          transition: 0.2s ease background;
+        }
+        .hodlToggle.active {
+          background: var(--buttongradient);
+        }
+        .hodlToggle .handle {
+          display: flex;
+          position: relative;
+          width: 20px;
+          height: 20px;
+          flex-shrink: 0;
+          border-radius: 50%;
+          background: var(--white);
+          margin-left: 0;
+          transition: 0.2s ease margin-left;
+        }
+        .hodlToggle.active .handle {
+          margin-left: calc(100% - 20px);
         }
       `}</style>
     </>
