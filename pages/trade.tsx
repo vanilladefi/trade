@@ -350,7 +350,7 @@ const BodyContent = ({
                     )}
                   </h2>
                   <div className='hodlWrapper'>
-                    <span>HODL</span>
+                    <span>ADVANCED HODL MODE</span>
                     <button
                       className={`hodlToggle${hodlMode ? ' active' : ''}`}
                       onClick={() => setHodlMode(!hodlMode)}
