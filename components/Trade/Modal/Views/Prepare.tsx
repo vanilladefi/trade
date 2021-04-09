@@ -736,6 +736,7 @@ const PrepareView = ({
               display: flex;
               flex-direction: row;
               justify-content: space-between;
+              align-items: center;
               width: 100%;
               border-bottom: 1px solid #d4d4d4;
               padding-left: 0;
