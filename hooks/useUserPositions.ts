@@ -142,30 +142,38 @@ function useUserPositions(): Token[] | null {
                 reward = null
               }
 
-              // Parse the HODL mode stats
-
               // Parse VPC
               const vpcNum = reward?.vpc.toNumber() ?? 0
               const vpc: string = (vpcNum / million).toString()
 
-              // Parse HTRS
-              const priceData = await getPriceData(signer, token.address)
-              const blockNumber = await provider.getBlockNumber()
-              const epoch = await getEpoch(signer)
-              const avgBlock =
-                priceData?.weightedBlockSum.div(priceData?.tokenSum) ??
-                BigNumber.from('0')
-              const bhold = BigNumber.from(blockNumber.toString()).sub(avgBlock)
-              const btrade = epoch
-                ? BigNumber.from(blockNumber.toString()).sub(epoch)
-                : BigNumber.from('0')
-              const htrs: string = (
-                bhold
-                  .mul(bhold)
-                  .mul(million)
-                  .div(btrade.mul(btrade))
-                  .toNumber() / million
-              ).toString()
+              // Calculate HTRS
+              let priceData,
+                blockNumber,
+                epoch: BigNumber | null = BigNumber.from('0')
+              let htrs: string
+              try {
+                priceData = await getPriceData(signer, token.address)
+                blockNumber = await provider.getBlockNumber()
+                epoch = await getEpoch(signer)
+                const avgBlock =
+                  priceData?.weightedBlockSum.div(priceData?.tokenSum) ??
+                  BigNumber.from('0')
+                const bhold = BigNumber.from(blockNumber.toString()).sub(
+                  avgBlock,
+                )
+                const btrade = epoch
+                  ? BigNumber.from(blockNumber.toString()).sub(epoch)
+                  : BigNumber.from('0')
+                htrs = (
+                  bhold
+                    .mul(bhold)
+                    .mul(million)
+                    .div(btrade.mul(btrade))
+                    .toNumber() / million
+                ).toString()
+              } catch (e) {
+                htrs = '0'
+              }
 
               // Parse the minimum profitable price from the reward estimate
               const profitablePrice =
