@@ -11,7 +11,6 @@ type slippageOptions = {
   '0.5': Percent
   '1': Percent
   '2': Percent
-  '5': Percent
 }
 
 const slippageOptions = {
@@ -19,7 +18,6 @@ const slippageOptions = {
   '0.5': new Percent('5', slippagePrecision),
   '1': new Percent('10', slippagePrecision),
   '2': new Percent('20', slippagePrecision),
-  '5': new Percent('50', slippagePrecision),
 }
 
 const returnOptionWithLabel = (
