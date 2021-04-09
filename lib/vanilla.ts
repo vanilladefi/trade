@@ -68,3 +68,41 @@ export const estimateReward = async (
 
   return reward
 }
+
+export const getPriceData = async (
+  signer: Signer,
+  tokenAddress: string,
+): Promise<TokenPriceResponse | null> => {
+  const owner = await signer.getAddress()
+  const router = new ethers.Contract(
+    vanillaRouterAddress,
+    JSON.stringify(vanillaRouter.abi),
+    signer,
+  )
+  let priceData: TokenPriceResponse | null
+
+  try {
+    priceData = await router.tokenPriceData(owner, tokenAddress)
+  } catch (e) {
+    priceData = null
+  }
+
+  return priceData
+}
+
+export const getEpoch = async (signer: Signer): Promise<BigNumber | null> => {
+  const router = new ethers.Contract(
+    vanillaRouterAddress,
+    JSON.stringify(vanillaRouter.abi),
+    signer,
+  )
+  let epoch: BigNumber | null
+
+  try {
+    epoch = await router.epoch()
+  } catch (e) {
+    epoch = null
+  }
+
+  return epoch
+}

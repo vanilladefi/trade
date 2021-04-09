@@ -8,7 +8,13 @@ import { BigNumber } from 'ethers'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
 import { tokenListChainId } from 'lib/tokens'
 import { constructTrade } from 'lib/uniswap/trade'
-import { estimateReward, RewardResponse, TokenPriceResponse } from 'lib/vanilla'
+import {
+  estimateReward,
+  getEpoch,
+  getPriceData,
+  RewardResponse,
+  TokenPriceResponse,
+} from 'lib/vanilla'
 import { useEffect, useMemo } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { currentETHPrice } from 'state/meta'
@@ -34,6 +40,7 @@ function useUserPositions(): Token[] | null {
   const signer = useRecoilValue(signerState)
   const wallet = useWallet()
   const vnl = useVanillaGovernanceToken()
+  const million = 1000000
 
   useEffect(() => {
     const filterUserTokens = async (
@@ -135,6 +142,39 @@ function useUserPositions(): Token[] | null {
                 reward = null
               }
 
+              // Parse VPC
+              const vpcNum = reward?.vpc.toNumber() ?? 0
+              const vpc: string = (vpcNum / million).toString()
+
+              // Calculate HTRS
+              let priceData,
+                blockNumber,
+                epoch: BigNumber | null = BigNumber.from('0')
+              let htrs: string
+              try {
+                priceData = await getPriceData(signer, token.address)
+                blockNumber = await provider.getBlockNumber()
+                epoch = await getEpoch(signer)
+                const avgBlock =
+                  priceData?.weightedBlockSum.div(priceData?.tokenSum) ??
+                  BigNumber.from('0')
+                const bhold = BigNumber.from(blockNumber.toString()).sub(
+                  avgBlock,
+                )
+                const btrade = epoch
+                  ? BigNumber.from(blockNumber.toString()).sub(epoch)
+                  : BigNumber.from('0')
+                htrs = (
+                  bhold
+                    .mul(bhold)
+                    .mul(million)
+                    .div(btrade.mul(btrade))
+                    .toNumber() / million
+                ).toString()
+              } catch (e) {
+                htrs = '0'
+              }
+
               // Parse the minimum profitable price from the reward estimate
               const profitablePrice =
                 reward && parseFloat(formatUnits(reward?.profitablePrice))
@@ -160,6 +200,8 @@ function useUserPositions(): Token[] | null {
                 owned: parsedOwnedAmount,
                 ownedRaw: tokenAmount.raw.toString(),
                 value: parsedValue,
+                htrs: htrs,
+                vpc: vpc,
                 profit: profitPercentage,
                 vnl: parsedVnl,
               }

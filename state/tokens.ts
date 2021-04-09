@@ -6,6 +6,11 @@ export const userTokensState = atom<Token[] | null>({
   default: null,
 })
 
+export const hodlModeState = atom<boolean>({
+  key: 'hodlModeState',
+  default: false,
+})
+
 export const allTokensStoreState = atom<Token[]>({
   key: 'allTokensStoreState',
   default: [],

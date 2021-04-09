@@ -40,6 +40,8 @@ export interface Token extends UniSwapToken {
   profit?: number | string | null
   vnl?: number | null
   eligible?: Eligibility
+  vpc?: string | null
+  htrs?: string | null
 }
 
 export interface TokenInfoQueryResponse {

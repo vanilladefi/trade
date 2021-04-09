@@ -113,6 +113,30 @@ export const UnrealizedVNL: ListColumn<Token> = {
   Cell: Cells.UnrealizedVnl,
 }
 
+export const VPC: ListColumn<Token> = {
+  id: 'vpc',
+  Header: 'VPC',
+  accessor: 'vpc',
+  width: 1,
+  sortDescFirst: true,
+  sortType: 'basic',
+  disableGlobalFilter: true,
+  align: 'right',
+  Cell: Cells.ValueDecimal,
+}
+
+export const HTRS: ListColumn<Token> = {
+  id: 'htrs',
+  Header: 'HTRS',
+  accessor: 'htrs',
+  width: 1,
+  sortDescFirst: true,
+  sortType: 'basic',
+  disableGlobalFilter: true,
+  align: 'right',
+  Cell: Cells.ValueDecimal,
+}
+
 export const Eligibility: ListColumn<Token> = {
   id: 'eligible',
   Header: 'Profit Mining',
