@@ -492,6 +492,10 @@ export async function getStaticProps(): Promise<
     getETHPrice(),
   ])
 
+  if (ethPrice === 0) {
+    throw Error('Invalid value for ETH/USD price!')
+  }
+
   tokens = await addGraphInfo(tokens)
   tokens = addUSDPrice(tokens, ethPrice)
   tokens = await addVnlEligibility(tokens)
