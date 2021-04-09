@@ -96,10 +96,22 @@ export function ProfitPercent({ value }: CellProps<Token>): React.ReactNode {
     minimumFractionDigits: 2,
     signDisplay: 'always',
   })
-  return profitable ? (
-    <div style={{ color: '#3B870C' }}>{profitPercent}</div>
-  ) : (
-    <div style={{ color: '#C30936' }}>{profitPercent}</div>
+  return (
+    <>
+      {profitable ? (
+        <div className='profitable'>{profitPercent}</div>
+      ) : (
+        <div>{profitPercent}</div>
+      )}
+      <style jsx>{`
+        div {
+          color: var(--alertcolor);
+        }
+        div.profitable {
+          color: var(--successcolor);
+        }
+      `}</style>
+    </>
   )
 }
 
@@ -118,9 +130,21 @@ export function UnrealizedVnl({
 }
 
 export function ProfitMining({ value }: CellProps<Token>): React.ReactNode {
-  return value === Eligibility.Eligible ? (
-    <div style={{ color: '#3B870C' }}>Yes</div>
-  ) : (
-    <div style={{ color: '#C30936' }}>No</div>
+  return (
+    <>
+      {value === Eligibility.Eligible ? (
+        <div className='positive'>Yes</div>
+      ) : (
+        <div>No</div>
+      )}
+      <style jsx>{`
+        div {
+          color: var(--alertcolor);
+        }
+        div.positive {
+          color: var(--successcolor);
+        }
+      `}</style>
+    </>
   )
 }
