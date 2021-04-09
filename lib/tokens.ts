@@ -99,18 +99,13 @@ export function addLogoColor(tokens: Token[]): Promise<Token[]> {
 /**
  * Calculate USD price of each token based on ETH price
  */
-export function addUSDPrice(
-  tokens: Token[],
-  ethPrice: number | null,
-): Promise<Token[]> {
-  return Promise.all(
-    tokens.map(async (t) => {
-      if (ethPrice && ethPrice > 0 && t.price) {
-        t.priceUSD = t.price * ethPrice
-      }
-      return t
-    }),
-  )
+export function addUSDPrice(tokens: Token[], ethPrice: number | null): Token[] {
+  return tokens.map((t) => {
+    if (ethPrice && ethPrice > 0 && t.price) {
+      t.priceUSD = t.price * ethPrice
+    }
+    return t
+  })
 }
 
 /**
