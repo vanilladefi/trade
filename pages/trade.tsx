@@ -145,13 +145,9 @@ const HeaderContent = (): JSX.Element => {
                 <h2 className='title'>UNREALIZED VNL</h2>
                 <h3 className='subTitle'>
                   {totalUnrealizedVnl()?.toLocaleString('en-US')} VNL
-                  <small>
-                    {' '}
-                    ${unrealizedVnlInUsd().toLocaleString('en-US')}
-                  </small>
                 </h3>
                 <span className='details'>
-                  from {userTokens.length} positions
+                  ${unrealizedVnlInUsd().toLocaleString('en-US')}
                 </span>
               </div>
             </div>

@@ -37,6 +37,7 @@ import {
 import { providerState, signerState } from 'state/wallet'
 import { Operation } from 'types/trade'
 import { blockDeadlineThreshold } from 'utils/config'
+import SlippageSelector from '../SlippageSelector'
 
 type ContentProps = {
   operation: Operation
@@ -554,7 +555,7 @@ const PrepareView = ({
                     </div>
                     <div className='tradeInfoRow'>
                       <span>Slippage tolerance</span>
-                      <span>{slippageTolerance.toSignificant()} %</span>
+                      <SlippageSelector />
                     </div>
                     {estimatedReward && (
                       <div className='tradeInfoRow'>
@@ -735,6 +736,7 @@ const PrepareView = ({
               display: flex;
               flex-direction: row;
               justify-content: space-between;
+              align-items: center;
               width: 100%;
               border-bottom: 1px solid #d4d4d4;
               padding-left: 0;
@@ -742,6 +744,9 @@ const PrepareView = ({
             }
             .tradeInfoRow:last-of-type {
               border-bottom: 0;
+            }
+            .tradeInfoRow span:last-of-type {
+              text-align: right;
             }
             .buttonContent {
               font-family: inherit;
