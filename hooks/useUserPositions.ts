@@ -5,7 +5,7 @@ import {
   TradeType,
 } from '@uniswap/sdk'
 import { BigNumber } from 'ethers'
-import { formatUnits, isAddress } from 'ethers/lib/utils'
+import { formatUnits, getAddress, isAddress } from 'ethers/lib/utils'
 import { tokenListChainId } from 'lib/tokens'
 import { constructTrade } from 'lib/uniswap/trade'
 import {
@@ -69,141 +69,145 @@ function useUserPositions(): Token[] | null {
                 tokenSum = BigNumber.from('0')
               }
 
-              // VNL governance token
-              const vnlToken = new UniswapToken(
-                tokenListChainId,
-                vnl.address,
-                vnl.decimals,
-              )
-
-              // Construct helpers for upcoming calculations
-              const parsedUniToken = new UniswapToken(
-                token.chainId,
-                token.address,
-                token.decimals,
-              )
-
-              // Construct token amount from Vanilla router reported amounts
-              const tokenAmount = new TokenAmount(
-                parsedUniToken,
-                tokenSum.toString(),
-              )
-
-              // Owned amount. By default, use the total owned amount.
-              // If zero, exclude from user's owned tokens
-              const parsedOwnedAmount = tokenAmount.greaterThan('0')
-                ? tokenAmount.toSignificant()
-                : undefined
-
-              // Parse value of owned token in USD
-              const parsedValue =
-                tokenAmount.greaterThan('0') && token.price
-                  ? parseFloat(tokenAmount.toSignificant()) *
-                    token.price *
-                    ETHPrice
-                  : 0
-
-              // Get current best trade from Uniswap to calculate available rewards
-              let trade: Trade | null
-              try {
-                trade = await constructTrade(
-                  tokenAmount.toSignificant(),
-                  counterAsset,
-                  token,
-                  provider,
-                  TradeType.EXACT_INPUT,
-                )
-              } catch (e) {
-                trade = null
-              }
-
-              // Amount out from the trade as a Bignumber gwei string and an ether float
-              const amountOut = trade?.outputAmount.raw ?? undefined
-              const parsedAmountOut =
-                amountOut &&
-                parseFloat(
-                  formatUnits(amountOut.toString(), counterAsset.decimals),
+              if (!tokenSum.isZero()) {
+                // VNL governance token
+                const vnlToken = new UniswapToken(
+                  tokenListChainId,
+                  getAddress(vnl.address),
+                  vnl.decimals,
                 )
 
-              let reward: RewardResponse | null
-              try {
-                // Get reward estimate from Vanilla router
-                reward = amountOut
-                  ? await estimateReward(
-                      signer,
-                      token,
-                      counterAsset,
-                      tokenAmount.toSignificant(),
-                      parsedAmountOut?.toString() || '0',
-                    )
-                  : null
-              } catch (e) {
-                // Catch error from reward estimation. This probably means that the Vanilla router hasn't been deployed on the used network.
-                reward = null
-              }
-
-              // Parse VPC
-              const vpcNum = reward?.vpc.toNumber() ?? 0
-              const vpc: string = (vpcNum / million).toString()
-
-              // Calculate HTRS
-              let priceData,
-                blockNumber,
-                epoch: BigNumber | null = BigNumber.from('0')
-              let htrs: string
-              try {
-                priceData = await getPriceData(signer, token.address)
-                blockNumber = await provider.getBlockNumber()
-                epoch = await getEpoch(signer)
-                const avgBlock =
-                  priceData?.weightedBlockSum.div(priceData?.tokenSum) ??
-                  BigNumber.from('0')
-                const bhold = BigNumber.from(blockNumber.toString()).sub(
-                  avgBlock,
+                // Construct helpers for upcoming calculations
+                const parsedUniToken = new UniswapToken(
+                  token.chainId,
+                  getAddress(token.address),
+                  token.decimals,
                 )
-                const btrade = epoch
-                  ? BigNumber.from(blockNumber.toString()).sub(epoch)
-                  : BigNumber.from('0')
-                htrs = (
-                  bhold
-                    .mul(bhold)
-                    .mul(million)
-                    .div(btrade.mul(btrade))
-                    .toNumber() / million
-                ).toString()
-              } catch (e) {
-                htrs = '0'
-              }
 
-              // Parse the minimum profitable price from the reward estimate
-              const profitablePrice =
-                reward && parseFloat(formatUnits(reward?.profitablePrice))
+                // Construct token amount from Vanilla router reported amounts
+                const tokenAmount = new TokenAmount(
+                  parsedUniToken,
+                  tokenSum.toString(),
+                )
 
-              // Calculate profit percentage
-              const profitPercentage =
-                reward && profitablePrice && parsedAmountOut
-                  ? -(profitablePrice - parsedAmountOut) / parsedAmountOut
-                  : 0
+                // Owned amount. By default, use the total owned amount.
+                // If zero, exclude from user's owned tokens
+                const parsedOwnedAmount = tokenAmount.greaterThan('0')
+                  ? tokenAmount.toSignificant()
+                  : undefined
 
-              // Parse the available VNL reward
-              const parsedVnl = reward
-                ? parseFloat(
-                    new TokenAmount(
-                      vnlToken,
-                      reward.reward.toString(),
-                    ).toSignificant(),
+                // Parse value of owned token in USD
+                const parsedValue =
+                  tokenAmount.greaterThan('0') && token.price
+                    ? parseFloat(tokenAmount.toSignificant()) *
+                      token.price *
+                      ETHPrice
+                    : 0
+
+                // Get current best trade from Uniswap to calculate available rewards
+                let trade: Trade | null
+                try {
+                  trade = await constructTrade(
+                    tokenAmount.toSignificant(),
+                    counterAsset,
+                    token,
+                    provider,
+                    TradeType.EXACT_INPUT,
                   )
-                : 0
+                } catch (e) {
+                  trade = null
+                }
 
-              return {
-                ...token,
-                owned: parsedOwnedAmount,
-                ownedRaw: tokenAmount.raw.toString(),
-                value: parsedValue,
-                htrs: htrs,
-                vpc: vpc,
-                profit: profitPercentage,
-                vnl: parsedVnl,
+                // Amount out from the trade as a Bignumber gwei string and an ether float
+                const amountOut = trade?.outputAmount.raw ?? undefined
+                const parsedAmountOut =
+                  amountOut &&
+                  parseFloat(
+                    formatUnits(amountOut.toString(), counterAsset.decimals),
+                  )
+
+                let reward: RewardResponse | null
+                try {
+                  // Get reward estimate from Vanilla router
+                  reward = amountOut
+                    ? await estimateReward(
+                        signer,
+                        token,
+                        counterAsset,
+                        tokenAmount.toSignificant(),
+                        parsedAmountOut?.toString() || '0',
+                      )
+                    : null
+                } catch (e) {
+                  // Catch error from reward estimation. This probably means that the Vanilla router hasn't been deployed on the used network.
+                  reward = null
+                }
+
+                // Parse VPC
+                const vpcNum = reward?.vpc.toNumber() ?? 0
+                const vpc: string = (vpcNum / million).toString()
+
+                // Calculate HTRS
+                let priceData,
+                  blockNumber,
+                  epoch: BigNumber | null = BigNumber.from('0')
+                let htrs: string
+                try {
+                  priceData = await getPriceData(signer, token.address)
+                  blockNumber = await provider.getBlockNumber()
+                  epoch = await getEpoch(signer)
+                  const avgBlock =
+                    priceData?.weightedBlockSum.div(priceData?.tokenSum) ??
+                    BigNumber.from('0')
+                  const bhold = BigNumber.from(blockNumber.toString()).sub(
+                    avgBlock,
+                  )
+                  const btrade = epoch
+                    ? BigNumber.from(blockNumber.toString()).sub(epoch)
+                    : BigNumber.from('0')
+                  htrs = (
+                    bhold
+                      .mul(bhold)
+                      .mul(million)
+                      .div(btrade.mul(btrade))
+                      .toNumber() / million
+                  ).toString()
+                } catch (e) {
+                  htrs = '0'
+                }
+
+                // Parse the minimum profitable price from the reward estimate
+                const profitablePrice =
+                  reward && parseFloat(formatUnits(reward?.profitablePrice))
+
+                // Calculate profit percentage
+                const profitPercentage =
+                  reward && profitablePrice && parsedAmountOut
+                    ? -(profitablePrice - parsedAmountOut) / parsedAmountOut
+                    : 0
+
+                // Parse the available VNL reward
+                const parsedVnl = reward
+                  ? parseFloat(
+                      new TokenAmount(
+                        vnlToken,
+                        reward.reward.toString(),
+                      ).toSignificant(),
+                    )
+                  : 0
+
+                return {
+                  ...token,
+                  owned: parsedOwnedAmount,
+                  ownedRaw: tokenAmount.raw.toString(),
+                  value: parsedValue,
+                  htrs: htrs,
+                  vpc: vpc,
+                  profit: profitPercentage,
+                  vnl: parsedVnl,
+                }
+              } else {
+                return token
               }
             }),
           )

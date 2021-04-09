@@ -99,18 +99,13 @@ export function addLogoColor(tokens: Token[]): Promise<Token[]> {
 /**
  * Calculate USD price of each token based on ETH price
  */
-export function addUSDPrice(
-  tokens: Token[],
-  ethPrice: number | null,
-): Promise<Token[]> {
-  return Promise.all(
-    tokens.map(async (t) => {
-      if (ethPrice && ethPrice > 0 && t.price) {
-        t.priceUSD = t.price * ethPrice
-      }
-      return t
-    }),
-  )
+export function addUSDPrice(tokens: Token[], ethPrice: number | null): Token[] {
+  return tokens.map((t) => {
+    if (ethPrice && ethPrice > 0 && t.price) {
+      t.priceUSD = t.price * ethPrice
+    }
+    return t
+  })
 }
 
 /**
@@ -226,11 +221,21 @@ export async function getBalance(
 }
 
 export async function getETHPrice(): Promise<number> {
-  const { bundle }: ETHPriceQueryResponse = await thegraphClient.request(
-    ETHPrice,
-  )
-  const parsedPrice = parseFloat(bundle?.ethPrice)
-  return (parsedPrice !== NaN && parsedPrice) || 0
+  let parsedPrice: number
+  try {
+    const { bundle }: ETHPriceQueryResponse = await thegraphClient.request(
+      ETHPrice,
+    )
+    parsedPrice = parseFloat(bundle?.ethPrice)
+    if (parsedPrice === NaN) {
+      throw Error(
+        'Could not parse ETH/USD price from response, falling back to 0!',
+      )
+    }
+  } catch (e) {
+    parsedPrice = 0
+  }
+  return parsedPrice
 }
 
 // returns the checksummed address if the address is valid, otherwise returns false
