@@ -745,6 +745,9 @@ const PrepareView = ({
             .tradeInfoRow:last-of-type {
               border-bottom: 0;
             }
+            .tradeInfoRow span:last-of-type {
+              text-align: right;
+            }
             .buttonContent {
               font-family: inherit;
               font-size: inherit;
