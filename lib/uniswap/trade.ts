@@ -9,7 +9,7 @@ import {
   TradeType,
 } from '@uniswap/sdk'
 import { BigNumber, providers, Transaction } from 'ethers'
-import { parseUnits } from 'ethers/lib/utils'
+import { getAddress, parseUnits } from 'ethers/lib/utils'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import type { UniSwapToken } from 'types/trade'
 import { ethersOverrides, vanillaRouterAddress } from 'utils/config'
@@ -103,12 +103,12 @@ export async function constructTrade(
 
     const convertedTokenReceived = new Token(
       tokenReceived.chainId,
-      tokenReceived.address,
+      getAddress(tokenReceived.address),
       tokenReceived.decimals,
     )
     const convertedTokenPaid = new Token(
       tokenPaid.chainId,
-      tokenPaid.address,
+      getAddress(tokenPaid.address),
       tokenPaid.decimals,
     )
     const pair = await Fetcher.fetchPairData(
@@ -137,7 +137,7 @@ export function tryParseAmount(
   try {
     const convertedToken = new Token(
       tokenListChainId,
-      currency.address,
+      getAddress(currency.address),
       currency.decimals,
     )
     const typedValueParsed = parseUnits(value, currency.decimals).toString()

@@ -493,7 +493,7 @@ export async function getStaticProps(): Promise<
   ])
 
   tokens = await addGraphInfo(tokens)
-  tokens = await addUSDPrice(tokens, ethPrice)
+  tokens = addUSDPrice(tokens, ethPrice)
   tokens = await addVnlEligibility(tokens)
 
   const block24hAgo = currentBlockNumber - 24 * blocksPerHour
