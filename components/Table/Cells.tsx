@@ -88,33 +88,6 @@ export function ValuePercent({ value }: CellProps<Token>): React.ReactNode {
   })
 }
 
-export function ProfitPercent({ value }: CellProps<Token>): React.ReactNode {
-  const profitable = parseFloat(value) > 0
-  const profitPercent = (value ?? 0).toLocaleString('en-US', {
-    style: 'percent',
-    maximumFractionDigits: 2,
-    minimumFractionDigits: 2,
-    signDisplay: 'always',
-  })
-  return (
-    <>
-      {profitable ? (
-        <div className='profitable'>{profitPercent}</div>
-      ) : (
-        <div>{profitPercent}</div>
-      )}
-      <style jsx>{`
-        div {
-          color: var(--alertcolor);
-        }
-        div.profitable {
-          color: var(--successcolor);
-        }
-      `}</style>
-    </>
-  )
-}
-
 export function UnrealizedVnl({
   value,
   row,
@@ -130,21 +103,5 @@ export function UnrealizedVnl({
 }
 
 export function ProfitMining({ value }: CellProps<Token>): React.ReactNode {
-  return (
-    <>
-      {value === Eligibility.Eligible ? (
-        <div className='positive'>Yes</div>
-      ) : (
-        <div>No</div>
-      )}
-      <style jsx>{`
-        div {
-          color: var(--alertcolor);
-        }
-        div.positive {
-          color: var(--successcolor);
-        }
-      `}</style>
-    </>
-  )
+  return value === Eligibility.Eligible ? 'Yes' : 'No'
 }

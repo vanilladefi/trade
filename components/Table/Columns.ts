@@ -61,7 +61,7 @@ export const PriceChange: ListColumn<Token> = {
   sortType: 'basic',
   align: 'right',
   colorBasedOnValue: true,
-  Cell: Cells.ProfitPercent,
+  Cell: Cells.ValuePercent,
 }
 
 export const OwnedAmount: ListColumn<Token> = {
@@ -97,6 +97,7 @@ export const Profit: ListColumn<Token> = {
   sortType: 'basic',
   disableGlobalFilter: true,
   align: 'right',
+  colorBasedOnValue: true,
   Cell: Cells.ValuePercent,
 }
 
@@ -144,5 +145,6 @@ export const Eligibility: ListColumn<Token> = {
   width: 1,
   sortType: 'basic',
   align: 'right',
+  colorBasedOnValue: true,
   Cell: Cells.ProfitMining,
 }
