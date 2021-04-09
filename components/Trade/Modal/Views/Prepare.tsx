@@ -531,11 +531,11 @@ const PrepareView = ({
                           ? (
                               parseFloat(trade?.inputAmount.toSignificant()) *
                               ethUsdPrice
-                            ).toLocaleString()
+                            ).toLocaleString('en-US')
                           : (
                               parseFloat(trade?.outputAmount.toSignificant()) *
                               ethUsdPrice
-                            ).toLocaleString()}{' '}
+                            ).toLocaleString('en-US')}{' '}
                         USD
                       </span>
                     </div>

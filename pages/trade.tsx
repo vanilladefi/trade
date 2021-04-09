@@ -134,16 +134,21 @@ const HeaderContent = (): JSX.Element => {
             <div className='stats-grid'>
               <div className='stats-grid-item'>
                 <h2 className='title'>MY POSITIONS</h2>
-                <h3 className='subTitle'>${totalOwnedUSD.toLocaleString()}</h3>
+                <h3 className='subTitle'>
+                  ${totalOwnedUSD.toLocaleString('en-US')}
+                </h3>
                 <span className='details'>
-                  {totalOwnedETH.toLocaleString()} ETH
+                  {totalOwnedETH.toLocaleString('en-US')} ETH
                 </span>
               </div>
               <div className='stats-grid-item'>
                 <h2 className='title'>UNREALIZED VNL</h2>
                 <h3 className='subTitle'>
-                  {totalUnrealizedVnl()?.toLocaleString()} VNL
-                  <small> ${unrealizedVnlInUsd().toLocaleString()}</small>
+                  {totalUnrealizedVnl()?.toLocaleString('en-US')} VNL
+                  <small>
+                    {' '}
+                    ${unrealizedVnlInUsd().toLocaleString('en-US')}
+                  </small>
                 </h3>
                 <span className='details'>
                   from {userTokens.length} positions

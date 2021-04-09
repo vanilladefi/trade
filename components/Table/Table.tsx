@@ -219,8 +219,6 @@ export default function Table<D extends Record<string, unknown>>({
           font-size: var(--bodysize);
           --buttonmargin: 0;
           margin-bottom: 2rem;
-          --negativeValue: red;
-          --positiveValue: green;
         }
         .td,
         .th {

@@ -13,7 +13,7 @@ import SVGFlower from '../components/SVGFlower'
 import Timeline from '../components/Timeline'
 import HugeMonospace from '../components/typography/HugeMonospace'
 import { Highlight } from '../components/typography/Text'
-import { Title, MediumTitle } from '../components/typography/Titles'
+import { MediumTitle, Title } from '../components/typography/Titles'
 import Wrapper from '../components/Wrapper'
 
 const ShillKitList = dynamic(import('../components/ShillKitList'))
@@ -25,8 +25,8 @@ const HeaderContent = (
         <Column width={Width.TWELVE}>
           <InViewWrapper delay={0}>
             <Title>
-              One Interface <br />
-              For DeFi
+              The most profitable <br />
+              way to DeFi
             </Title>
           </InViewWrapper>
           <InViewWrapper delay={0.15}>

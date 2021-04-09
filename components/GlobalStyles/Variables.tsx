@@ -17,6 +17,9 @@ const Variables = (): JSX.Element => (
       --link-on-white: #854900;
       --bordercolor: var(--dark);
       --alertcolor: rgb(193, 22, 63);
+      --successcolor: #3b870c;
+      --negativeValue: var(--alertcolor);
+      --positiveValue: var(--successcolor);
       --alertbackground: rgba(193, 22, 63, 0.1);
 
       /* Gradients */

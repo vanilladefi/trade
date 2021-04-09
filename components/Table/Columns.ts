@@ -54,7 +54,7 @@ export const Liquidity: ListColumn<Token> = {
 
 export const PriceChange: ListColumn<Token> = {
   id: 'priceChange',
-  Header: 'Price Change in ETH (24h) %',
+  Header: '24h% ETH',
   accessor: 'priceChange',
   sortDescFirst: true,
   disableGlobalFilter: true,
@@ -85,24 +85,25 @@ export const MarketValue: ListColumn<Token> = {
   disableGlobalFilter: true,
   align: 'right',
   hideBelow: 'md',
-  Cell: Cells.ValueUSD,
+  Cell: Cells.ValueUSDHighlighted,
 }
 
 export const Profit: ListColumn<Token> = {
   id: 'profit',
-  Header: 'Profit in ETH %',
+  Header: 'Profit% ETH',
   accessor: 'profit',
   width: 1,
   sortDescFirst: true,
   sortType: 'basic',
   disableGlobalFilter: true,
   align: 'right',
+  colorBasedOnValue: true,
   Cell: Cells.ValuePercent,
 }
 
 export const UnrealizedVNL: ListColumn<Token> = {
   id: 'vnl',
-  Header: 'Unrealized VNL',
+  Header: 'VNL',
   accessor: 'vnl',
   width: 1,
   sortDescFirst: true,
@@ -139,10 +140,11 @@ export const HTRS: ListColumn<Token> = {
 
 export const Eligibility: ListColumn<Token> = {
   id: 'eligible',
-  Header: 'Profit Mining',
+  Header: 'ProfitMining',
   accessor: 'eligible',
   width: 1,
   sortType: 'basic',
   align: 'right',
+  colorBasedOnValue: true,
   Cell: Cells.ProfitMining,
 }

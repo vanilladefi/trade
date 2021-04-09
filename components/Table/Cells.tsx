@@ -56,6 +56,22 @@ export function ValueUSD({ value }: CellProps<Token>): React.ReactNode {
   })
 }
 
+export function ValueUSDHighlighted({
+  value,
+}: CellProps<Token>): React.ReactNode {
+  return (
+    <b>
+      {(value ?? 0).toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        notation: 'compact',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}
+    </b>
+  )
+}
+
 export function ValueDecimal({ value }: CellProps<Token>): React.ReactNode {
   return (value ?? 0).toLocaleString('en-US', {
     style: 'decimal',
@@ -87,9 +103,5 @@ export function UnrealizedVnl({
 }
 
 export function ProfitMining({ value }: CellProps<Token>): React.ReactNode {
-  return value === Eligibility.Eligible ? (
-    <div style={{ color: '#3B870C' }}>Yes</div>
-  ) : (
-    <div style={{ color: '#C30936' }}>No</div>
-  )
+  return value === Eligibility.Eligible ? 'Yes' : 'No'
 }
