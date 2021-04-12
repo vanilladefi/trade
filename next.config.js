@@ -20,4 +20,10 @@ module.exports = withMDX({
   images: {
     domains: ['raw.githubusercontent.com', 'ipfs.io', 'assets.coingecko.com'],
   },
+  headers: [
+    {
+      key: 'X-Frame-Options',
+      value: 'DENY',
+    },
+  ],
 })
