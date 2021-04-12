@@ -32,7 +32,7 @@ module.exports = withMDX({
           {
             key: 'Content-Security-Policy',
             value:
-              'default-src https://vanilladefi.com http://vanilladefi.com https://plausible.io; img-src https://raw.githubusercontent.com https://ipfs.io https://assets.coingecko.com https://vanilladefi.com; connect-src ',
+              "default-src 'self' https://vanilladefi.com https://plausible.io *equilibriumco.vercel.app; img-src https://raw.githubusercontent.com https://ipfs.io https://assets.coingecko.com https://vanilladefi.com; connect-src ",
           },
           {
             key: 'X-XSS-Protection',
