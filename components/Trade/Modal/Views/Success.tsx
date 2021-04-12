@@ -79,7 +79,7 @@ const SuccessView = ({ id, closeModal }: Props): JSX.Element => {
                 amount: reward ? parseFloat(reward) : 0.0,
               }}
               tradeURL={{
-                domain: 'vnl.com',
+                domain: 'vanilladefi.com',
                 transactionHash: transaction.hash,
               }}
             />
@@ -88,7 +88,11 @@ const SuccessView = ({ id, closeModal }: Props): JSX.Element => {
       ) : (
         <Column>
           <div>
-            <a href={`https://etherscan.io/tx/${id}`} target='_blank'>
+            <a
+              href={`https://etherscan.io/tx/${id}`}
+              target='_blank'
+              rel='noopener noreferrer'
+            >
               Check out the transaction on etherscan
             </a>
           </div>
