@@ -32,7 +32,7 @@ module.exports = withMDX({
           {
             key: 'Content-Security-Policy',
             value:
-              "default-src 'none'; img-src 'self' data: https://assets.coingecko.com https://ipfs.io https://raw.githubusercontent.com https://render.githubusercontent.com; script-src 'self' https://plausible.io; font-src 'self'; style-src 'self' 'unsafe-inline'; prefetch-src https://vanilladefi.com *equilibriumco.vercel.app; connect-src 'self' https://api.thegraph.com wss://api.thegraph.com https://eth-mainnet.alchemyapi.io wss://eth-mainnet.alchemyapi.io https://plausible.io; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; manifest-src 'self';",
+              "default-src 'self'; img-src 'self' data: https://assets.coingecko.com https://ipfs.io https://raw.githubusercontent.com https://render.githubusercontent.com https://media.giphy.com; media-src 'self' https://media.giphy.com; script-src 'self' https://plausible.io; font-src 'self'; style-src 'self' 'unsafe-inline'; prefetch-src https://vanilladefi.com *equilibriumco.vercel.app; connect-src 'self' https://api.thegraph.com wss://api.thegraph.com https://eth-mainnet.alchemyapi.io wss://eth-mainnet.alchemyapi.io https://plausible.io; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; manifest-src 'self';",
           },
           {
             key: 'X-XSS-Protection',
