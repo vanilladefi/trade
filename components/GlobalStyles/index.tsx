@@ -1,6 +1,7 @@
 import React from 'react'
 import Fonts from './Fonts'
 import Variables from './Variables'
+import Katex from './Katex'
 
 /* type Props = {
   children?: ReactNode
@@ -10,6 +11,7 @@ const GlobalStyles = (): JSX.Element => (
   <>
     <Fonts />
     <Variables />
+    <Katex />
     <style jsx global>{`
       * {
         box-sizing: border-box;
@@ -118,10 +120,6 @@ const GlobalStyles = (): JSX.Element => (
         stroke-dasharray: 400;
         stroke-dashoffset: 400;
         animation: dash 2s cubic-bezier(0.85, 0, 0.15, 1) forwards;
-      }
-
-      .math .katex-html {
-        display: none;
       }
 
       @keyframes dash {
