@@ -2,11 +2,14 @@
 
 const slug = require('remark-slug')
 const headings = require('remark-autolink-headings')
+const remarkMath = require('remark-math')
+const rehypeKatex = require('rehype-katex')
 
 const withMDX = require('@next/mdx')({
   extension: /\.mdx?$/,
   options: {
-    remarkPlugins: [slug, headings],
+    remarkPlugins: [slug, headings, remarkMath],
+    rehypePlugins: [rehypeKatex],
   },
 })
 

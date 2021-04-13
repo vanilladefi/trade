@@ -120,6 +120,10 @@ const GlobalStyles = (): JSX.Element => (
         animation: dash 2s cubic-bezier(0.85, 0, 0.15, 1) forwards;
       }
 
+      .math .katex-html {
+        display: none;
+      }
+
       @keyframes dash {
         to {
           stroke-dashoffset: 0;
