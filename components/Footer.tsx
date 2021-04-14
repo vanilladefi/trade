@@ -61,6 +61,19 @@ const SoMeLinks = (): JSX.Element => (
   <ul>
     <li>
       <a
+        href='http://www.vnlanalyzer.com/app'
+        target='_blank'
+        rel='noopener noreferrer'
+      >
+        <Icon
+          src={IconUrls.ARROW_UP_RIGHT}
+          injectedStyles='filter: invert(1);'
+        />
+        <b>Vanilla Calculator</b>
+      </a>
+    </li>
+    <li>
+      <a
         href='https://etherscan.io/token/0x1017b147b05942ead495e2ad6d606ef3c94b8fd0'
         target='_blank'
         rel='noopener noreferrer'
