@@ -183,6 +183,11 @@ const Katex = (): JSX.Element => (
     //  font-style: normal;
     //}
 
+    .math,
+    .math span {
+      font-family: KaTeX_Main, Times New Roman, serif;
+    }
+
     .katex {
       font: normal 1.21em KaTeX_Main, Times New Roman, serif;
       line-height: 1.2;
