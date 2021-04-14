@@ -1,7 +1,6 @@
 import React from 'react'
 import Fonts from './Fonts'
 import Variables from './Variables'
-import Katex from './Katex'
 
 /* type Props = {
   children?: ReactNode
@@ -11,7 +10,6 @@ const GlobalStyles = (): JSX.Element => (
   <>
     <Fonts />
     <Variables />
-    <Katex />
     <style jsx global>{`
       * {
         box-sizing: border-box;
