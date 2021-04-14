@@ -120,7 +120,7 @@ where
 
 Profit is determined by the positive difference of how much WETH the trader used to buy tokens and how much WETH the trader got back when selling those tokens. For example, buying 1000 USDC with 1 WETH, and selling them all for 2 WETH would equal 1 WETH profit.
 
-To calculate the profit of the trade, the Vanilla contract must keep track of the purchase price. However, if the trader buys 1000 USDC for 1 WETH, then 1000 USDC for 0.5 WETH, and finally sells 1500 USDC for 1.5 WETH, what is the profit? Unfortunately, the traditionally used pricing conventions [FIFO and LIFO](https://en.wikipedia.org/wiki/FIFO_and_LIFO_accounting) are impractical to implement in smart contracts due to the gas costs of keeping track of all purchases. Instead, Vanilla uses a _Weighted Average Exchange Rate_ to maintain the average purchase price for all token inventory in a fair and gas efficient way.
+To calculate the profit of the trade, the Vanilla contract must keep track of the purchase price. However, if the trader buys 1000 USDC for 1 WETH, then 1000 USDC for 0.5 WETH, and finally sells 1500 USDC for 1.5 WETH, what is the profit? Unfortunately, the traditionally used pricing conventions ([FIFO and LIFO](https://en.wikipedia.org/wiki/FIFO_and_LIFO_accounting)) are impractical to implement in smart contracts due to the gas costs of keeping track of all purchases. Instead, Vanilla uses a _Weighted Average Exchange Rate_ to maintain the average purchase price for all token inventory in a fair and gas efficient way.
 
 Weighted Average Exchange Rate after `i` trades is calculated using two variables, ($E_{i}$) which represents the adjusted sum of WETHs used in trading and ($T_{i}$) which represents the trader's token balance.
 
@@ -136,7 +136,7 @@ $$
 When selling $Q_{token}$ tokens for $Q_{eth}$, Vanilla calculates the profit as:
 
 $$
-P_{i}=max(Q_{eth}-\frac{Q_{token}*E_{i-1}}{T_{i-1}},0))
+P_{i}=max(Q_{eth}-\frac{Q_{token}*E_{i-1}}{T_{i-1}},0)
 $$
 and updates the variables for the next trade as
 
@@ -239,14 +239,14 @@ A similar relationship can be seen by varying the WETH reserves of the tokens. T
 <ResponsiveImage src="/images/faq/VNL_vs_WETH_reserve.jpg"/>
 
 Thus, we sum up the mechanisms:
-- The profit `Pᵢ` made in ETH determines the theoretical maximum of VNL attributed for a particular trade
-- The Value-Protection Coefficient `Vᵢ` and Holding/Trading Ratio (Squared) `Hᵢ` scale the theoretical value downward.
+- The profit $P_i$ made in ETH determines the theoretical maximum of VNL attributed for a particular trade
+- The Value-Protection Coefficient $V_i$ and Holding/Trading Ratio (Squared) $H_i$ scale the theoretical value downward.
 
 A trader can increase VNL rewards by:
-- Making higher percentage returns on his trades or trading larger ETH positions, i.e. making higher absolute ETH returns -> Higher profit component `Pₙ`
-- Trading tokens with higher WETH reserves -> Higher Value-Protection Coefficient `Vᵢ`
-- Opening trades early as possible -> Higher Holding/Trading Ratio (Squared) `Hᵢ`
-- Holding the trades longer -> Higher Holding/Trading Ratio (Squared) `Hᵢ`
+- Making higher percentage returns on his trades or trading larger ETH positions, i.e. making higher absolute ETH returns -> Higher profit component $P_i$
+- Trading tokens with higher WETH reserves -> Higher Value-Protection Coefficient $V_i$
+- Opening trades early as possible -> Higher Holding/Trading Ratio (Squared) $H_i$
+- Holding the trades longer -> Higher Holding/Trading Ratio (Squared) $H_i$
 
 ## How will governance work in Vanilla?
 
