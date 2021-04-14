@@ -2,9 +2,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 import { Logo } from './Brand'
-import { DesktopNavigation } from './Navigation'
-import Wrapper from './Wrapper'
 import { BreakPoint } from './GlobalStyles/Breakpoints'
+import { DesktopNavigation } from './Navigation'
+import Icon, { IconUrls } from './typography/Icon'
+import Wrapper from './Wrapper'
 
 const LawLinks = (): JSX.Element => (
   <ul>
@@ -58,6 +59,47 @@ const LawLinks = (): JSX.Element => (
 
 const SoMeLinks = (): JSX.Element => (
   <ul>
+    <li>
+      <a
+        href='https://vnlanalyzer.herokuapp.com/app'
+        target='_blank'
+        rel='noopener noreferrer'
+      >
+        <Icon
+          src={IconUrls.ARROW_UP_RIGHT}
+          injectedStyles='filter: invert(1);'
+        />
+        <b>Vanilla Calculator</b>
+      </a>
+    </li>
+    <li>
+      <a
+        href='https://etherscan.io/token/0x1017b147b05942ead495e2ad6d606ef3c94b8fd0'
+        target='_blank'
+        rel='noopener noreferrer'
+      >
+        <Icon
+          src={IconUrls.ARROW_UP_RIGHT}
+          injectedStyles='filter: invert(1);'
+        />
+        $VNL ERC-20 Contract on Etherscan
+      </a>
+    </li>
+    <li>
+      <a
+        href='https://etherscan.io/address/0xe13e9010e818d48df1a0415021d9526ef845e2cd'
+        target='_blank'
+        rel='noopener noreferrer'
+      >
+        <Icon
+          src={IconUrls.ARROW_UP_RIGHT}
+          injectedStyles='filter: invert(1);'
+        />
+        Vanilla Router on Etherscan
+      </a>
+    </li>
+    <br />
+    <br />
     <li>
       <a
         href='https://t.me/vanilladefi'
@@ -137,6 +179,7 @@ const SoMeLinks = (): JSX.Element => (
         margin: 0;
         text-indent: 0;
         padding: 0;
+        color: var(--white);
       }
       li a {
         font-family: var(--bodyfont);
@@ -230,6 +273,7 @@ const Footer = (): JSX.Element => (
       }
       .copyright {
         margin-top: 3rem;
+        text-align: right;
       }
       @media (min-width: ${BreakPoint.mobileNav}px) {
         div.desktopNav {

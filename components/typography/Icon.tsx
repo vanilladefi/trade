@@ -2,6 +2,7 @@ import Image from 'next/image'
 
 type Props = {
   src: string
+  injectedStyles?: string
 }
 
 export enum IconUrls {
@@ -11,7 +12,7 @@ export enum IconUrls {
   ALERT = '/images/icons/Alert.svg',
 }
 
-const Icon = ({ src }: Props): JSX.Element => {
+const Icon = ({ src, injectedStyles }: Props): JSX.Element => {
   return (
     <div>
       <Image src={src} layout='fill' />
@@ -23,6 +24,7 @@ const Icon = ({ src }: Props): JSX.Element => {
           height: var(--iconsize);
           width: var(--iconsize);
           margin-right: 0.33rem;
+          ${injectedStyles}
         }
       `}</style>
     </div>
