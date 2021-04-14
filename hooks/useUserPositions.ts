@@ -65,7 +65,7 @@ function useUserPositions(): Token[] | null {
                 )
                 tokenSum = priceResponse.tokenSum
               } catch (e) {
-                tokenSum = BigNumber.from('0')
+                tokenSum = BigNumber.from(token.ownedRaw)
               }
 
               if (!tokenSum.isZero()) {
