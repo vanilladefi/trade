@@ -3,6 +3,8 @@ import Link from 'next/link'
 import Button from 'components/input/Button'
 import StaticPage from 'components/StaticPage'
 
+import Katex from 'components/typography/Katex'
+
 <StaticPage SEOTitle='FAQ' pageTitle='Frequently Asked Questions'>
 
 ## What is Vanilla?
@@ -102,93 +104,121 @@ Obviously, even though this selection criteria is verifiable and deterministic, 
 
 To calculate mining rewards in trade `i` which sells tokens, Vanilla uses the following algorithm:
 
-![R_{i}=P_{i}*V_{i}*H_{i}](https://render.githubusercontent.com/render/math?math=R_{i}=P_{i}*V_{i}*H_{i})
+$$
+  R_{i}=P_{i}*V_{i}*H_{i}
+$$
 
 where
 
-- `Rᵢ` is the amount of VNL reward the trader gets.
-- `Pᵢ` is the amount of Ether profit made in the trade.
-- `Vᵢ` is the _Value-Protection Coefficient_
-- `Hᵢ` is the _Holding/Trading Ratio (Squared)_
+- $R_{i}$ is the amount of VNL reward the trader gets.
+- $P_{i}$ is the amount of Ether profit made in the trade.
+- $V_{i}$ is the _Value-Protection Coefficient_
+- $H_{i}$ is the _Holding/Trading Ratio (Squared)_
 
 
 ## How is profit calculated?
 
 Profit is determined by the positive difference of how much WETH the trader used to buy tokens and how much WETH the trader got back when selling those tokens. For example, buying 1000 USDC with 1 WETH, and selling them all for 2 WETH would equal 1 WETH profit.
 
-To calculate the profit of the trade, the Vanilla contract must keep track of the purchase price. However, if the trader buys 1000 USDC for 1 WETH, then 1000 USDC for 0.5 WETH, and finally sells 1500 USDC for 1.5 WETH, what is the profit? Unfortunately, the traditionally used pricing conventions [FIFO and LIFO](https://en.wikipedia.org/wiki/FIFO_and_LIFO_accounting) are impractical to implement in smart contracts due to the gas costs of keeping track of all purchases. Instead, Vanilla uses a _Weighted Average Exchange Rate_ to maintain the average purchase price for all token inventory in a fair and gas efficient way.
+To calculate the profit of the trade, the Vanilla contract must keep track of the purchase price. However, if the trader buys 1000 USDC for 1 WETH, then 1000 USDC for 0.5 WETH, and finally sells 1500 USDC for 1.5 WETH, what is the profit? Unfortunately, the traditionally used pricing conventions ([FIFO and LIFO](https://en.wikipedia.org/wiki/FIFO_and_LIFO_accounting)) are impractical to implement in smart contracts due to the gas costs of keeping track of all purchases. Instead, Vanilla uses a _Weighted Average Exchange Rate_ to maintain the average purchase price for all token inventory in a fair and gas efficient way.
 
-Weighted Average Exchange Rate after `i` trades is calculated using two variables, (![E_{i}](https://render.githubusercontent.com/render/math?math=E_{i})) which represents the adjusted sum of WETHs used in trading and (![T_{i}](https://render.githubusercontent.com/render/math?math=T_{i})) which represents the trader's token balance.
+Weighted Average Exchange Rate after `i` trades is calculated using two variables, ($E_{i}$) which represents the adjusted sum of WETHs used in trading and ($T_{i}$) which represents the trader's token balance.
 
-When buying ![Q_{token}](https://render.githubusercontent.com/render/math?math=Q_{token})   tokens with ![Q_{eth}](https://render.githubusercontent.com/render/math?math=Q_{eth}), Vanilla updates the variables as:
+When buying $Q_{token}$ tokens with $Q_{eth}$, Vanilla updates the variables as:
 
-![T_{i}=T_{i-1}+Q_{token}\\E_{i}=E_{i-1}+Q_{eth}](https://render.githubusercontent.com/render/math?math=\begin{split}T_{i}=T_{i-1}%2BQ_{token}%5C%5CE_{i}=E_{i-1}%2BQ_{eth}\end{split})
+$$
+\begin{aligned}
+T_{i} &= T_{i-1} + Q_{token} \\
+E_{i} &= E_{i-1} + Q_{eth}
+\end{aligned}
+$$
 
-When selling ![Q_{token}](https://render.githubusercontent.com/render/math?math=Q_{token})   tokens for ![Q_{eth}](https://render.githubusercontent.com/render/math?math=Q_{eth}), Vanilla calculates the profit as:
+When selling $Q_{token}$ tokens for $Q_{eth}$, Vanilla calculates the profit as:
 
-![P_{i}=max(Q_{eth}-\frac{Q_{token}*E_{i-1}}{T_{i-1}}, 0)](https://render.githubusercontent.com/render/math?math=P=max(Q_{eth}-\frac{Q_{token}*E_{i-1}}{T_{i-1}},0))
-
+$$
+P_{i}=max(Q_{eth}-\frac{Q_{token}*E_{i-1}}{T_{i-1}},0)
+$$
 and updates the variables for the next trade as
 
-![\begin{split}T_{i}=T_{i-1}-Q_{token}%5C%5CE_{i}=\frac{E_{i-1}*T_{i}}{T_{i-1}}\end{split}](https://render.githubusercontent.com/render/math?math=\begin{split}T_{i}=T_{i-1}-Q_{token}%5C%5CE_{i}=\frac{E_{i-1}*T_{i}}{T_{i-1}}\end{split})
+$$
+\begin{aligned}
+T_{i}&=T_{i-1}-Q_{token} \\
+E_{i}&=\frac{E_{i-1}*T_{i}}{T_{i-1}}
+\end{aligned}
+$$
 
 For reference, the quote for the average purchase price is calculated simply as a ratio of the two variables:
 
-![P_{i}^{avg}=\frac{T_{token}}{T_{eth}}](https://render.githubusercontent.com/render/math?math=P_{i}^{avg}=\frac{T_{n}}{E_{n}})
-
+$$
+{price}_{i}^{avg}=\frac{T_{i}}{E_{i}}
+$$
 
 ## What is the Value-Protection Coefficient and why does Vanilla use it?
 
 With constant function market makers like Uniswap, the price manipulation of a single token is always possible. Given that VNL rewards are based solely on profit,  price manipulation may be used to influence the VNL distribution and therefore its value. Vanilla uses a Value-Protection Coefficient to incentivize trades in tokens that are costlier to manipulate. The idea is based on the guarantee that the manipulation of a constant-product price has [a cost relative to the liquidity pool size](https://arxiv.org/abs/1911.03380).
 
-The Coefficient formula is ![V=1-min(\frac{P+L}{W},1)](https://render.githubusercontent.com/render/math?math=V_{i}=1-min(\frac{P_{i}%2BL}{W_{i}},1)) where
+The Coefficient formula is
 
-- `L` is the immutable WETH reserve limit. Rewards are never minted when selling a token whose WETH liquidity reserves are lower than `L`. In mainnet, this reserve limit is set to _500 Ether_.
-- `Wᵢ` is the internally tracked WETH reserve size for the Uniswap liquidity pair. This means that trades of high-liquidity tokens will get a higher coefficient and reward than low-liquidity tokens.
+$$
+V_{i}=1-min(\frac{P_{i}+L}{W_{i}},1)
+$$
 
-For example, making a profit of 10ETH in a token A with 1000ETH reserves would result in `Vᵢ = 0.49`, but making the same profit in a token B with 10000ETH in reserves would result in `Vᵢ = 0.949`. Even if the Ether-denominated profits are the same, the VNL rewards will differ greatly.
+where
+- $L$ is the immutable WETH reserve limit. Rewards are never minted when selling a token whose WETH liquidity reserves are lower than $L$. In mainnet, this reserve limit is set to _500 Ether_.
+- $W_{i}$ is the internally tracked WETH reserve size for the Uniswap liquidity pair. This means that trades of high-liquidity tokens will get a higher coefficient and reward than low-liquidity tokens.
 
-To further protect the token value against the more sophisticated market manipulation, the internally tracked `Wᵢ` is updated using Uniswap WETH reserves for the traded token `Uᵢ` with the following rules:
+For example, making a profit of 10ETH in a token A with 1000ETH reserves would result in $V_{i} = 0.49$, but making the same profit in a token B with 10000ETH in reserves would result in $V_{i} = 0.949$. Even if the Ether-denominated profits are the same, the VNL rewards will differ greatly.
 
-- ![W_{i}=max(W_{i-1},U_{i})](https://render.githubusercontent.com/render/math?math=W_{i}=max(W_{i-1},U_{i})) when buying the token, which means that price manipulators can only manipulate the reserve upwards either by providing liquidity or buying token which drives price up, and
-- ![W_{i}=min(W_{i-1},U_{i})](https://render.githubusercontent.com/render/math?math=W_{i}=min(W_{i-1},U_{i})) when selling the token, which means that Uniswap reserves can only be manipulated downwards either by removing liquidity or selling token which drives the price down
+To further protect the token value against the more sophisticated market manipulation, the internally tracked $W_{i}$ is updated using Uniswap WETH reserves for the traded token $U_{i}$ with the following rules:
+
+- $W_{i}=max(W_{i-1},U_{i})$ when _buying the token_, which means that price manipulators can only manipulate the reserve upwards either by providing liquidity or buying token which drives price up, and
+- $W_{i}=min(W_{i-1},U_{i})$ when _selling the token_, which means that Uniswap reserves can only be manipulated downwards either by removing liquidity or selling token which drives the price down
 
 In summary, the purpose of the Value-Protection Coefficient is to protect the VNL generation from all kinds of Uniswap price manipulation attempts by making it costlier and less rewarding.
 
 ## What is the Holding/Trading Ratio (Squared) and why does Vanilla use it?
 
 
-For each token you trade, Vanilla maintains _Weighted Average Purchase Block_ (WAPB) or (![B_{w,i}](https://render.githubusercontent.com/render/math?math=B_{w,i})).
-The WAPB after `i` trades is calculated by using two variables, (![A_{i}](https://render.githubusercontent.com/render/math?math=A_{i})), which represents the token-volume weighted sum of block numbers of the purchases and (![T_{i}](https://render.githubusercontent.com/render/math?math=T_{i})), which represents the trader's token balance, used already in Weighted Average Exchange Rate- calculations.
+For each token you trade, Vanilla maintains the _Weighted Average Purchase Block_ (WAPB) or $B_{i}^{w}$.
+The WAPB after $i$ trades is calculated by using two variables, $A_{i}$ which represents the token-volume weighted sum of block numbers of the purchases and $T_{i}$, which represents the trader's token balance, used already in Weighted Average Exchange Rate- calculations.
 
-When buying ![Q_{token}](https://render.githubusercontent.com/render/math?math=Q_{token}) tokens with ![Q_{eth}](https://render.githubusercontent.com/render/math?math=Q_{eth}), Vanilla updates the variable as:
+When buying $Q_{token}$ tokens in a block number $B_{i}$, Vanilla updates the $A_{i}$ as:
 
-![A_{i}=A_{i-1}%2BQ_{token}B_i](https://render.githubusercontent.com/render/math?math=A_{i}=A_{i-1}%2BQ_{token}B_i), in which ![B_{i}](https://render.githubusercontent.com/render/math?math=B_{i}) represents the block number of the purchase.
+$$
+A_{i}=A_{i-1}+Q_{token}*B_{i}
+$$
 
-When selling ![Q_{token}](https://render.githubusercontent.com/render/math?math=Q_{token}) tokens for ![Q_{eth}](https://render.githubusercontent.com/render/math?math=Q_{eth}), updates the variable as:
+When selling $Q_{token}$ tokens, Vanilla updates the $A_{i}$ proportionally to token balance change as:
 
-![A_{i}=\frac{A_{i-1}T_i}{T_{i-1}}](https://render.githubusercontent.com/render/math?math=A_{i}=\frac{A_{i-1}T_i}{T_{i-1}})
+$$
+\begin{aligned}
+T_{i} &= T_{i-1}-Q_{token} \\
+A_{i} &= \frac{A_{i-1}*T_i}{T_{i-1}}
+\end{aligned}
+$$
 
-And like _WAER_, the quote for the WAPB is calculated as a ratio of the two variables:
+The Weighted Average Purchase Block is then calculated as a ratio of these two variables:
 
-![B_{w,i}=\frac{A_{i}}{T_{i}}](https://render.githubusercontent.com/render/math?math=B_{w,i}=\frac{A_{i}}{T_{i}})
+$$
+B_{i}^{w} = \frac{A_{i}}{T_{i}}
+$$
 
-The Holding/Trading Ratio (Squared) is calculated as:
+Knowing this average block, The Holding/Trading Ratio (Squared) is calculated as:
 
-![H_i=\frac{(B_s-B_{w,i})^2}{(B_s-B_f)^2}](https://render.githubusercontent.com/render/math?math=H_i=\frac{(B_s-B_{w,i})^2}{(B_s-B_f)^2})
+$$
+  H_i=(\frac{B_{sell}-B_{i}^{w}}{B_{sell}-B_{epoch}})^2
+$$
 
-- ![B_s](https://render.githubusercontent.com/render/math?math=B_s) is the block number, when a sell-transaction happens.
-- ![B_f](https://render.githubusercontent.com/render/math?math=B_f) is the first block number of Vanilla system.
+where
+- $B_{sell}$ is the block number, when a sell-transaction happens.
+- $B_{epoch}$ is the immutable _epoch block_ 12134736, in which the Vanilla contracts were [deployed to the mainnet](https://etherscan.io/tx/0x55d97be881ae9313cf78ebe1c28b15e6269b5938cc78fa3734c3769587cf6e7e).
 
-The Holding/Trading Ratio (Squared) component is in place to bootstrap usage by incentivizing early participation and longer holding periods.
+The Holding/Trading Ratio (Squared) component can be interpreted as a ratio of two times:
 
-The nominator describes the number of blocks the trade has been open. Keeping the trade open longer will yield higher rewards. If the duration is zero, i.e. the trade is closed in the same block it was initiated, the profit will be zero. This ensures that no flash loan attacks can be carried out.
-
-The denominator describes the number of blocks the Vanilla system itself has been operational. The denominator will increase over time as Ethereum block numbers increase and will decrease the ratio.
+- Nominator $B_{sell}-B_{i}^{w}$ is the _holding time_, the number of blocks the token has been held before selling. Keeping the trade open longer will yield higher rewards. If the duration is zero, i.e. the trade is closed in the same block it was initiated, the profit will be zero. This ensures that no flash loan attacks can be carried out.
+- Denominator $B_{sell}-B_{epoch}$ is the _total trading time_, the number of blocks the Vanilla system itself has been operational. The total trading time will always increase.
 
 In other words, the Holding/Trading Ratio (Squared) is just a ratio of times: The time the trade has been open compared to the time the system has been open. The times are measured in Ethereum blocks.
-
-The block numbers of Vanilla are Ethereum block numbers. The first block number is determined when Vanilla is launched.
 
 ## Simple heuristics to illustrate the core mechanisms
 
@@ -198,7 +228,7 @@ The first case observes the VNL attribution as a function of profits. We keep th
 
 <ResponsiveImage src="/images/faq/VNL_vs_profit.jpg"/>
 
-The second case observes the VNL attribution when we keep profits constant, but vary the Holidng/Trading Ratio (Squared). The ratio is determined by how early the trader is participating in the Vanilla system and how long they are keeping their positions before closing them. The following chart depicts a case in which we vary the sell block number and keep the weighted average block constant.
+The second case observes the VNL attribution when we keep profits constant, but vary the Holding/Trading Ratio (Squared). The ratio is determined by how early the trader is participating in the Vanilla system and how long they are keeping their positions before closing them. The following chart depicts a case in which we vary the sell block number and keep the weighted average block constant.
 
 <ResponsiveImage src="/images/faq/VNL_vs_holding_ratio.jpg"/>
 
@@ -209,18 +239,21 @@ A similar relationship can be seen by varying the WETH reserves of the tokens. T
 <ResponsiveImage src="/images/faq/VNL_vs_WETH_reserve.jpg"/>
 
 Thus, we sum up the mechanisms:
-- The profit `Pᵢ` made in ETH determines the theoretical maximum of VNL attributed for a particular trade
-- The Value-Protection Coefficient `Vᵢ` and Holding/Trading Ratio (Squared) `Hᵢ` scale the theoretical value downward.
+- The profit $P_i$ made in ETH determines the theoretical maximum of VNL attributed for a particular trade
+- The Value-Protection Coefficient $V_i$ and Holding/Trading Ratio (Squared) $H_i$ scale the theoretical value downward.
 
 A trader can increase VNL rewards by:
-- Making higher percentage returns on his trades or trading larger ETH positions, i.e. making higher absolute ETH returns -> Higher profit component `Pₙ`
-- Trading tokens with higher WETH reserves -> Higher Value-Protection Coefficient `Vᵢ`
-- Opening trades early as possible -> Higher Holding/Trading Ratio (Squared) `Hᵢ`
-- Holding the trades longer -> Higher Holding/Trading Ratio (Squared) `Hᵢ`
+- Making higher percentage returns on his trades or trading larger ETH positions, i.e. making higher absolute ETH returns -> Higher profit component $P_i$
+- Trading tokens with higher WETH reserves -> Higher Value-Protection Coefficient $V_i$
+- Opening trades early as possible -> Higher Holding/Trading Ratio (Squared) $H_i$
+- Holding the trades longer -> Higher Holding/Trading Ratio (Squared) $H_i$
 
 ## How will governance work in Vanilla?
 
 Once the governance structures are in place, VNL holders will be able to determine the direction of Vanilla by voting on a variety of things such as changes to the profit mining algorithm, new trading and lending venues, treasury grant allocations and other ecosystem efforts.
 
 Governance is planned to be implemented in Q3 2021 at which time we expect a reasonable amount of VNL token to have been mined and distributed around the ecosystem for voting to be feasible.
+<Katex />
 </StaticPage>
+
+
