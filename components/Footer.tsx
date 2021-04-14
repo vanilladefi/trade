@@ -61,7 +61,7 @@ const SoMeLinks = (): JSX.Element => (
   <ul>
     <li>
       <a
-        href='http://www.vnlanalyzer.com/app'
+        href='https://vnlanalyzer.herokuapp.com/app'
         target='_blank'
         rel='noopener noreferrer'
       >
