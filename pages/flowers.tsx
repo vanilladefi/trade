@@ -1,9 +1,8 @@
-import React from 'react'
 import { useRouter } from 'next/router'
-
+import React from 'react'
+import Flower from '../components/Flower'
 import Layout from '../components/Layout'
 import Wrapper from '../components/Wrapper'
-import Flower from '../components/Flower'
 
 const FlowerPage = (): JSX.Element => {
   const router = useRouter()
@@ -21,6 +20,14 @@ const FlowerPage = (): JSX.Element => {
     ? Math.floor(Number(router.query.particleCount))
     : 100
 
+  const tradeURLData = (
+    <>
+      {'vanilladefi.com'}
+      <br />
+      {'0x55d97be881ae9313cf78ebe1c28b15e6269b5938cc78fa3734c3769587cf6e7e'}
+    </>
+  )
+
   return (
     <Layout title='VNL Flower playground' hideFromSearch>
       <Wrapper>
@@ -37,7 +44,7 @@ const FlowerPage = (): JSX.Element => {
             particleCount={particleCount}
             topLeft={`Seed ${seed}`}
             topRight={`Iterations ${iterations}`}
-            bottomLeft={`Stems ${stems}`}
+            bottomLeft={tradeURLData}
             bottomRight='Flower dev'
             allowExport
           />
