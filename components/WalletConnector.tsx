@@ -34,11 +34,28 @@ const WalletConnector = (): null => {
 
   useEffect(() => {
     if (ethereum) {
-      const ethersProvider: providers.Web3Provider = new providers.Web3Provider(
-        ethereum as providers.ExternalProvider,
-      )
-      setProvider(ethersProvider)
-      setSigner(ethersProvider.getSigner())
+      let ethersProvider:
+        | providers.AlchemyWebSocketProvider
+        | providers.Web3Provider
+      let ethersSigner: providers.JsonRpcSigner
+      if (process.env.NODE_ENV === 'production') {
+        ethersProvider = new providers.AlchemyWebSocketProvider(
+          undefined,
+          process.env.NEXT_PUBLIC_API_KEY,
+        )
+        ethersSigner = new providers.Web3Provider(
+          ethereum as providers.ExternalProvider,
+        ).getSigner()
+        setProvider(ethersProvider)
+        setSigner(ethersSigner)
+      } else {
+        ethersProvider = new providers.Web3Provider(
+          ethereum as providers.ExternalProvider,
+        )
+        ethersSigner = ethersProvider.getSigner()
+        setProvider(ethersProvider)
+        setSigner(ethersSigner)
+      }
     } else {
       setSigner(null)
     }
