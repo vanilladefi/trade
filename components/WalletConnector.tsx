@@ -7,6 +7,7 @@ import {
   storedWalletConnectorState,
 } from 'state/wallet'
 import { useWallet, Wallet } from 'use-wallet'
+import { apiKey } from 'utils/config'
 
 type JsonRpcWallet = Wallet<providers.JsonRpcProvider>
 
@@ -38,10 +39,10 @@ const WalletConnector = (): null => {
         | providers.AlchemyWebSocketProvider
         | providers.Web3Provider
       let ethersSigner: providers.JsonRpcSigner
-      if (process.env.NODE_ENV === 'production') {
+      if (apiKey) {
         ethersProvider = new providers.AlchemyWebSocketProvider(
           undefined,
-          process.env.NEXT_PUBLIC_API_KEY,
+          apiKey,
         )
         ethersSigner = new providers.Web3Provider(
           ethereum as providers.ExternalProvider,

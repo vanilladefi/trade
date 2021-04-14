@@ -16,7 +16,11 @@ export const rpcUrl: string =
   process.env.NEXT_PUBLIC_RPC_URL ||
   'http://localhost:8545'
 
-export const defaultProvider = new providers.JsonRpcProvider(rpcUrl, chainId)
+export const apiKey: string | boolean = process.env.NEXT_PUBLIC_API_KEY || false
+
+export const defaultProvider = apiKey
+  ? new providers.AlchemyWebSocketProvider(undefined, apiKey)
+  : new providers.JsonRpcProvider(rpcUrl, chainId)
 
 export const blockDeadlineThreshold = 600 // 600 seconds added to the latest block timestamp (10 minutes)
 
