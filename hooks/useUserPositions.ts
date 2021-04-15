@@ -183,7 +183,7 @@ function useUserPositions(): Token[] | null {
                 // Calculate profit percentage
                 const profitPercentage =
                   reward && profitablePrice && parsedAmountOut
-                    ? -(profitablePrice - parsedAmountOut) / parsedAmountOut
+                    ? -(profitablePrice - parsedAmountOut) / profitablePrice
                     : 0
 
                 // Parse the available VNL reward
