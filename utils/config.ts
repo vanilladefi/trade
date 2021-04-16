@@ -22,9 +22,10 @@ export const rpcUrl: string =
   (apiKey && `https://eth-mainnet.alchemyapi.io/v2/${apiKey}`) ||
   'http://localhost:8545'
 
-export const defaultProvider = apiKey
-  ? new providers.AlchemyWebSocketProvider(undefined, apiKey)
-  : new providers.JsonRpcProvider(rpcUrl, chainId)
+export const defaultProvider =
+  useWebsocketRpc && apiKey
+    ? new providers.AlchemyWebSocketProvider(undefined, apiKey)
+    : new providers.JsonRpcProvider(rpcUrl, chainId)
 
 export const blockDeadlineThreshold = 600 // 600 seconds added to the latest block timestamp (10 minutes)
 

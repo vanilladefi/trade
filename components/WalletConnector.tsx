@@ -39,7 +39,7 @@ const WalletConnector = (): null => {
         | providers.AlchemyWebSocketProvider
         | providers.Web3Provider
       let ethersSigner: providers.JsonRpcSigner
-      if (useWebsocketRpc) {
+      if (useWebsocketRpc && apiKey) {
         ethersProvider = new providers.AlchemyWebSocketProvider(
           undefined,
           apiKey,
