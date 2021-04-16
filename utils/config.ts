@@ -15,7 +15,7 @@ export const vanillaRouterAddress: string =
 export const apiKey: string | boolean =
   process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || false
 
-export const ssrApiKey: string | undefined = process.env.SSR_API_KEY
+export const ssrApiKey: string | boolean = process.env.SSR_API_KEY || false
 
 export const rpcUrl: string =
   (ssrApiKey && `https://eth-mainnet.alchemyapi.io/v2/${ssrApiKey}`) ||
