@@ -24,7 +24,9 @@ export const rpcUrl: string =
 
 export const defaultProvider =
   useWebsocketRpc && apiKey
-    ? new providers.AlchemyWebSocketProvider(undefined, apiKey)
+    ? new providers.AlchemyWebSocketProvider(chainId, apiKey)
+    : useWebsocketRpc
+    ? new providers.WebSocketProvider('ws://localhost:8545', chainId)
     : new providers.JsonRpcProvider(rpcUrl, chainId)
 
 export const blockDeadlineThreshold = 600 // 600 seconds added to the latest block timestamp (10 minutes)
