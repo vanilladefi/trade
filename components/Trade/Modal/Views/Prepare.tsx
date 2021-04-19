@@ -14,6 +14,8 @@ import useTokenBalance from 'hooks/useTokenBalance'
 import useTradeEngine from 'hooks/useTradeEngine'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import useVanillaRouter from 'hooks/useVanillaRouter'
+import useWalletAddress from 'hooks/useWalletAddress'
+import { isAddress } from 'lib/tokens'
 import { constructTrade } from 'lib/uniswap/trade'
 import { estimateReward } from 'lib/vanilla'
 import debounce from 'lodash.debounce'
@@ -114,6 +116,7 @@ const PrepareView = ({
   const { buy, sell } = useTradeEngine()
   const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
+  const { long: userAddress } = useWalletAddress()
   const { price: vnlEthPrice } = useVanillaGovernanceToken()
 
   const [trade, setTrade] = useState<Trade>()
@@ -347,20 +350,26 @@ const PrepareView = ({
     const estimateRewards = debounce(() => {
       if (
         operation === Operation.Sell &&
-        signer &&
+        provider &&
         token0 &&
         token1 &&
         token0Amount &&
-        token1Amount
+        token1Amount &&
+        isAddress(userAddress)
       ) {
-        estimateReward(signer, token0, token1, token0Amount, token1Amount).then(
-          (reward) => {
-            const formattedReward = reward
-              ? formatUnits(reward?.reward, 12)
-              : undefined
-            setEstimatedReward(formattedReward)
-          },
-        )
+        estimateReward(
+          provider,
+          userAddress,
+          token0,
+          token1,
+          token0Amount,
+          token1Amount,
+        ).then((reward) => {
+          const formattedReward = reward
+            ? formatUnits(reward?.reward, 12)
+            : undefined
+          setEstimatedReward(formattedReward)
+        })
       } else {
         setEstimatedReward(undefined)
       }
@@ -370,10 +379,11 @@ const PrepareView = ({
     operation,
     token0Amount,
     token1Amount,
-    signer,
     token0,
     token1,
     slippageTolerance,
+    provider,
+    userAddress,
   ])
 
   // Disable closing of the trade modal when a trade is being processed

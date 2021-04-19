@@ -29,7 +29,9 @@ export const signerState = atom<providers.JsonRpcSigner | null>({
   dangerouslyAllowMutability: true, // If it works without, that'd be awesome. Here for now.
 })
 
-export const providerState = atom<providers.JsonRpcProvider | null>({
+export const providerState = atom<
+  providers.JsonRpcProvider | providers.AlchemyWebSocketProvider | null
+>({
   key: 'providerState',
   default: defaultProvider,
   dangerouslyAllowMutability: true, // If it works without, that'd be awesome. Here for now.

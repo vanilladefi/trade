@@ -1,4 +1,4 @@
-import { BigNumber, ethers, providers, Signer } from 'ethers'
+import { BigNumber, ethers, providers } from 'ethers'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import { UniSwapToken } from 'types/trade'
 import { vanillaRouterAddress } from 'utils/config'
@@ -36,7 +36,8 @@ export interface RewardResponse {
 }
 
 export const estimateReward = async (
-  signer: Signer,
+  provider: providers.AlchemyWebSocketProvider | providers.JsonRpcProvider,
+  userAddress: string,
   tokenSold: UniSwapToken,
   tokenReceived: UniSwapToken,
   amountSold: string,
@@ -47,17 +48,16 @@ export const estimateReward = async (
     tryParseAmount(amountReceived, tokenReceived),
   ]
 
-  const owner = await signer.getAddress()
   const router = new ethers.Contract(
     vanillaRouterAddress,
     JSON.stringify(vanillaRouter.abi),
-    signer,
+    provider,
   )
   let reward: RewardResponse | null
 
   try {
     reward = await router.estimateReward(
-      owner,
+      userAddress,
       tokenSold.address,
       parsedAmountReceived?.raw.toString(),
       parsedAmountSold?.raw.toString(),
@@ -70,19 +70,19 @@ export const estimateReward = async (
 }
 
 export const getPriceData = async (
-  signer: Signer,
+  provider: providers.AlchemyWebSocketProvider | providers.JsonRpcProvider,
+  userAddress: string,
   tokenAddress: string,
 ): Promise<TokenPriceResponse | null> => {
-  const owner = await signer.getAddress()
   const router = new ethers.Contract(
     vanillaRouterAddress,
     JSON.stringify(vanillaRouter.abi),
-    signer,
+    provider,
   )
   let priceData: TokenPriceResponse | null
 
   try {
-    priceData = await router.tokenPriceData(owner, tokenAddress)
+    priceData = await router.tokenPriceData(userAddress, tokenAddress)
   } catch (e) {
     priceData = null
   }
@@ -90,11 +90,13 @@ export const getPriceData = async (
   return priceData
 }
 
-export const getEpoch = async (signer: Signer): Promise<BigNumber | null> => {
+export const getEpoch = async (
+  provider: providers.AlchemyWebSocketProvider | providers.JsonRpcProvider,
+): Promise<BigNumber | null> => {
   const router = new ethers.Contract(
     vanillaRouterAddress,
     JSON.stringify(vanillaRouter.abi),
-    signer,
+    provider,
   )
   let epoch: BigNumber | null
 
