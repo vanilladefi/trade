@@ -7,6 +7,7 @@ import {
   storedWalletConnectorState,
 } from 'state/wallet'
 import { useWallet, Wallet } from 'use-wallet'
+import { apiKey, chainId, ssrApiKey, useWebsocketRpc } from 'utils/config'
 
 type JsonRpcWallet = Wallet<providers.JsonRpcProvider>
 
@@ -34,9 +35,32 @@ const WalletConnector = (): null => {
 
   useEffect(() => {
     if (ethereum) {
-      const ethersProvider: providers.Web3Provider = new providers.Web3Provider(
-        ethereum as providers.ExternalProvider,
-      )
+      let ethersProvider:
+        | providers.AlchemyWebSocketProvider
+        | providers.Web3Provider
+        | providers.WebSocketProvider
+      let ethersSigner: providers.JsonRpcSigner
+
+      if (useWebsocketRpc && apiKey) {
+        ethersProvider = new providers.AlchemyWebSocketProvider(chainId, apiKey)
+        ethersSigner = new providers.Web3Provider(
+          ethereum as providers.ExternalProvider,
+        ).getSigner()
+      } else if (useWebsocketRpc && !ssrApiKey) {
+        ethersProvider = new providers.WebSocketProvider(
+          'ws://localhost:8545',
+          chainId,
+        )
+        ethersSigner = new providers.Web3Provider(
+          ethereum as providers.ExternalProvider,
+        ).getSigner()
+      } else {
+        ethersProvider = new providers.Web3Provider(
+          ethereum as providers.ExternalProvider,
+        )
+        ethersSigner = ethersProvider.getSigner()
+      }
+
       setProvider(ethersProvider)
       setSigner(ethersProvider.getSigner())
     } else {
