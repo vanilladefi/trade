@@ -20,7 +20,7 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 import { currentETHPrice } from 'state/meta'
 import { allTokensStoreState, userTokensState } from 'state/tokens'
 import { selectedCounterAsset } from 'state/trade'
-import { providerState } from 'state/wallet'
+import { providerState, signerState } from 'state/wallet'
 import { Token } from 'types/trade'
 import { useWallet } from 'use-wallet'
 import useETHPrice from './useETHPrice'
@@ -37,6 +37,7 @@ function useUserPositions(): Token[] | null {
   const vanillaRouter = useVanillaRouter()
   const { long: userAddress } = useWalletAddress()
   const provider = useRecoilValue(providerState)
+  const signer = useRecoilValue(signerState)
   const wallet = useWallet()
   const vnl = useVanillaGovernanceToken()
   const million = 1000000
@@ -50,8 +51,8 @@ function useUserPositions(): Token[] | null {
         vanillaRouter &&
         userAddress &&
         provider &&
-        isAddress(vnl.address) &&
-        isAddress(userAddress)
+        signer &&
+        isAddress(vnl.address)
       ) {
         try {
           tokensWithBalance = await Promise.all(
@@ -65,7 +66,7 @@ function useUserPositions(): Token[] | null {
                 )
                 tokenSum = priceResponse.tokenSum
               } catch (e) {
-                tokenSum = BigNumber.from(token.ownedRaw)
+                tokenSum = BigNumber.from('0')
               }
 
               if (!tokenSum.isZero()) {
@@ -130,8 +131,7 @@ function useUserPositions(): Token[] | null {
                   // Get reward estimate from Vanilla router
                   reward = amountOut
                     ? await estimateReward(
-                        provider,
-                        userAddress,
+                        signer,
                         token,
                         counterAsset,
                         tokenAmount.toSignificant(),
@@ -153,13 +153,9 @@ function useUserPositions(): Token[] | null {
                   epoch: BigNumber | null = BigNumber.from('0')
                 let htrs: string
                 try {
-                  priceData = await getPriceData(
-                    provider,
-                    userAddress,
-                    token.address,
-                  )
+                  priceData = await getPriceData(signer, token.address)
                   blockNumber = await provider.getBlockNumber()
-                  epoch = await getEpoch(provider)
+                  epoch = await getEpoch(signer)
                   const avgBlock =
                     priceData?.weightedBlockSum.div(priceData?.tokenSum) ??
                     BigNumber.from('0')
