@@ -251,11 +251,7 @@ export function isAddress(value: string): string | false {
 export function getContract(
   address: string,
   ABI: any,
-  signerOrProvider?:
-    | providers.JsonRpcProvider
-    | providers.AlchemyWebSocketProvider
-    | Signer
-    | undefined,
+  signerOrProvider?: providers.JsonRpcProvider | Signer | undefined,
 ): Contract {
   if (!isAddress(address) || address === constants.AddressZero) {
     throw Error(`Invalid 'address' parameter '${address}'.`)

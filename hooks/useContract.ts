@@ -3,24 +3,24 @@ import ERC20 from '@uniswap/v2-periphery/build/ERC20.json'
 import { getContract } from 'lib/tokens'
 import { useMemo } from 'react'
 import { useRecoilValue } from 'recoil'
-import { providerState } from 'state/wallet'
+import { signerState } from 'state/wallet'
 import ABI from 'types/abis'
 
 export function useContract(
   address: string | undefined,
   ABI: ABI,
 ): Contract | null {
-  const provider = useRecoilValue(providerState)
+  const signer = useRecoilValue(signerState)
 
   return useMemo(() => {
-    if (!address || !ABI || !provider) return null
+    if (!address || !ABI || !signer) return null
     try {
-      return getContract(address, ABI, provider)
+      return getContract(address, ABI, signer)
     } catch (error) {
       console.error('Failed to get contract', error)
       return null
     }
-  }, [address, ABI, provider])
+  }, [address, ABI, signer])
 }
 
 export function useTokenContract(tokenAddress?: string): Contract | null {

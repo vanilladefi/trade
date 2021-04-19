@@ -1,4 +1,4 @@
-import { BigNumber, ethers, providers } from 'ethers'
+import { BigNumber, ethers, providers, Signer } from 'ethers'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import { UniSwapToken } from 'types/trade'
 import { vanillaRouterAddress } from 'utils/config'
@@ -36,8 +36,7 @@ export interface RewardResponse {
 }
 
 export const estimateReward = async (
-  provider: providers.AlchemyWebSocketProvider | providers.JsonRpcProvider,
-  userAddress: string,
+  signer: Signer,
   tokenSold: UniSwapToken,
   tokenReceived: UniSwapToken,
   amountSold: string,
@@ -48,16 +47,17 @@ export const estimateReward = async (
     tryParseAmount(amountReceived, tokenReceived),
   ]
 
+  const owner = await signer.getAddress()
   const router = new ethers.Contract(
     vanillaRouterAddress,
     JSON.stringify(vanillaRouter.abi),
-    provider,
+    signer,
   )
   let reward: RewardResponse | null
 
   try {
     reward = await router.estimateReward(
-      userAddress,
+      owner,
       tokenSold.address,
       parsedAmountReceived?.raw.toString(),
       parsedAmountSold?.raw.toString(),
@@ -70,19 +70,19 @@ export const estimateReward = async (
 }
 
 export const getPriceData = async (
-  provider: providers.AlchemyWebSocketProvider | providers.JsonRpcProvider,
-  userAddress: string,
+  signer: Signer,
   tokenAddress: string,
 ): Promise<TokenPriceResponse | null> => {
+  const owner = await signer.getAddress()
   const router = new ethers.Contract(
     vanillaRouterAddress,
     JSON.stringify(vanillaRouter.abi),
-    provider,
+    signer,
   )
   let priceData: TokenPriceResponse | null
 
   try {
-    priceData = await router.tokenPriceData(userAddress, tokenAddress)
+    priceData = await router.tokenPriceData(owner, tokenAddress)
   } catch (e) {
     priceData = null
   }
@@ -90,13 +90,11 @@ export const getPriceData = async (
   return priceData
 }
 
-export const getEpoch = async (
-  provider: providers.AlchemyWebSocketProvider | providers.JsonRpcProvider,
-): Promise<BigNumber | null> => {
+export const getEpoch = async (signer: Signer): Promise<BigNumber | null> => {
   const router = new ethers.Contract(
     vanillaRouterAddress,
     JSON.stringify(vanillaRouter.abi),
-    provider,
+    signer,
   )
   let epoch: BigNumber | null
 
