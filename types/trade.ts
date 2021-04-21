@@ -51,6 +51,7 @@ export interface TokenInfoQueryResponse {
   }
   price: string
   reserveUSD: string
+  reserveETH: string
 }
 
 export interface PairByIdQueryResponse {

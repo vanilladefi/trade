@@ -4,6 +4,7 @@ const TokenCommonFragment = gql`
   fragment TokenCommonFragment on Pair {
     pairId: id
     reserveUSD
+    reserveETH
   }
 `
 
