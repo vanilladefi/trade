@@ -18,10 +18,8 @@ import type {
   ListColumn,
   Token,
 } from 'types/trade'
-import { getEpoch, getPriceData } from 'lib/vanilla'
-import { BigNumber } from 'ethers'
 import { useRecoilValue } from 'recoil'
-import { providerState, signerState } from 'state/wallet'
+import { providerState } from 'state/wallet'
 import { currentBlockNumberState } from 'state/meta'
 import { Duration, formatDuration } from 'date-fns'
 
@@ -31,16 +29,18 @@ interface Props {
   initialTokens?: Token[]
 }
 
-const RowRenderer = (row: Row<Record<string, Token>>): JSX.Element => {
+const RowRenderer = (
+  row: Row<Record<string, string | number | null | undefined>>,
+): JSX.Element => {
   const [expanded, setExpanded] = useState(false)
   const provider = useRecoilValue(providerState)
   const blockNumber = useRecoilValue(currentBlockNumberState)
 
   const getTimeToHtrs: () => Duration = useCallback(() => {
     if (provider && row.original.htrs) {
-      console.log(Math.sqrt(parseFloat(Number(row.original.htrs))))
+      console.log(Math.sqrt(parseFloat(row.original.htrs.toString())))
       const estimatedBlockNumber =
-        blockNumber + Math.sqrt(Number(row.original.htrs))
+        blockNumber + Math.sqrt(parseFloat(row.original.htrs.toString()))
       const estimatedBlockDelta = estimatedBlockNumber - blockNumber
       const blockTime: Duration = { seconds: 13 }
       const estimatedDuration: Duration = {
@@ -76,7 +76,13 @@ const RowRenderer = (row: Row<Record<string, Token>>): JSX.Element => {
             <b>VPC: {row.original.vpc}</b>/1
           </span>
           <span>
-            Liquidity: ${row.original.liquidity.toLocaleString('en-US')}
+            Liquidity:{' '}
+            {(Number(row.original.liquidity) ?? 0).toLocaleString('en-US', {
+              style: 'currency',
+              currency: 'USD',
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </span>
         </div>
         <div className='cell'>
