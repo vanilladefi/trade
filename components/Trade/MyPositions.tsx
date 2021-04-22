@@ -226,11 +226,12 @@ export default function MyPositions({
                 rounded={Rounding.LEFT}
                 size={ButtonSize.XSMALL}
                 title='Sell'
-                onClick={() =>
-                  onSellClick({
+                onClick={(e: Event) => {
+                  e.stopPropagation()
+                  return onSellClick({
                     pairId: row.original.pairId,
                   })
-                }
+                }}
               >
                 <span style={{ fontSize: '1.5rem' }}>&minus;</span>
               </Button>
@@ -244,11 +245,12 @@ export default function MyPositions({
                 rounded={Rounding.RIGHT}
                 size={ButtonSize.XSMALL}
                 title='Buy'
-                onClick={() =>
-                  onBuyClick({
+                onClick={(e: Event) => {
+                  e.stopPropagation()
+                  return onBuyClick({
                     pairId: row.original.pairId,
                   })
-                }
+                }}
               >
                 <span style={{ fontSize: '1.5rem' }}>&#43;</span>
               </Button>
