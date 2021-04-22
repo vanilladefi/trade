@@ -21,7 +21,8 @@ import type {
 import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
 import { currentBlockNumberState } from 'state/meta'
-import { Duration, formatDuration } from 'date-fns'
+import { Duration, formatDistance } from 'date-fns'
+import { epoch } from 'utils/config'
 
 interface Props {
   onBuyClick: HandleBuyClick
@@ -29,23 +30,23 @@ interface Props {
   initialTokens?: Token[]
 }
 
-const RowRenderer = (
-  row: Row<Record<string, string | number | null | undefined>>,
-): JSX.Element => {
+const RowRenderer = (row: Row<Token>): JSX.Element => {
   const [expanded, setExpanded] = useState(false)
   const provider = useRecoilValue(providerState)
   const blockNumber = useRecoilValue(currentBlockNumberState)
 
   const getTimeToHtrs: () => Duration = useCallback(() => {
     if (provider && row.original.htrs) {
-      console.log(Math.sqrt(parseFloat(row.original.htrs.toString())))
       const estimatedBlockNumber =
-        blockNumber + Math.sqrt(parseFloat(row.original.htrs.toString()))
+        (-Math.sqrt(Number(row.original.htrs)) * epoch + blockNumber) /
+        (1 - Math.sqrt(Number(row.original.htrs)))
       const estimatedBlockDelta = estimatedBlockNumber - blockNumber
+
       const blockTime: Duration = { seconds: 13 }
       const estimatedDuration: Duration = {
         seconds: (blockTime.seconds || 0) * estimatedBlockDelta,
       }
+
       return estimatedDuration
     } else {
       return { seconds: 0 }
@@ -90,7 +91,11 @@ const RowRenderer = (
             <b>HTRS: {row.original.htrs}</b>/1
           </span>
           <span>
-            Est. {formatDuration(getTimeToHtrs())} to reach with a similar trade
+            Est.{' '}
+            {formatDistance(0, 1000 * (getTimeToHtrs()?.seconds ?? 0), {
+              includeSeconds: true,
+            })}{' '}
+            to reach with a similar trade
           </span>
         </div>
       </div>
