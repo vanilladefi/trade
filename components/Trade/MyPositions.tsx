@@ -72,18 +72,27 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
         ))}
       </div>
       <div className='hodlInfo' role='row'>
-        <div className='cell'>
+        <div
+          className={`cell${
+            row.original.reserve && row.original.reserve < 600
+              ? ' liquidityWarning'
+              : ''
+          }`}
+        >
           <span>
             <b>VPC: {row.original.vpc}</b>/1
           </span>
           <span>
-            Liquidity:{' '}
-            {(Number(row.original.liquidity) ?? 0).toLocaleString('en-US', {
-              style: 'currency',
-              currency: 'USD',
+            ETH reserves:{' '}
+            {(Number(row.original.reserve) ?? 0).toLocaleString('en-US', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
-            })}
+            })}{' '}
+          </span>
+          <span className='liquidityWarning'>
+            {row.original.reserve && row.original.reserve < 600
+              ? 'ETH reserve of 500 and under result in a VPC of 0.'
+              : ''}
           </span>
         </div>
         <div className='cell'>
@@ -117,6 +126,7 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
           cursor: pointer;
           box-shadow: 0 0 0 transparent;
           transition: 0.2s ease box-shadow;
+          overflow: hidden;
         }
         .expandableRow:hover,
         .expandableRow.expanded {
@@ -172,6 +182,13 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
         }
         .hodlInfo .cell:last-of-type {
           border-right: 0;
+        }
+        .cell.liquidityWarning {
+          background: var(--alertbackground);
+        }
+        span.liquidityWarning {
+          color: var(--alertcolor);
+          font-weight: bold;
         }
         @media (max-width: ${BreakPoint.sm}px) {
           .hodlInfo .cell {

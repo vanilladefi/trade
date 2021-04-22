@@ -46,7 +46,7 @@ export enum ButtonState {
   SUCCESS,
 }
 
-type Callback = (() => void) | ((e: Event) => void)
+type Callback = (() => void) | ((e: MouseEvent) => void)
 
 type Props = {
   children?: ReactNode

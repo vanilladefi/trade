@@ -161,6 +161,7 @@ export function addData(
     const priceChange = priceHistorical
       ? calcPriceChange(price, priceHistorical)
       : 0
+    const reserve = parseFloat(d.reserve) || t.reserve
 
     return {
       ...t,
@@ -170,6 +171,7 @@ export function addData(
       priceHistorical,
       priceChange,
       liquidity,
+      reserve,
     }
   })
 }

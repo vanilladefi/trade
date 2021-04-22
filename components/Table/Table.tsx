@@ -34,6 +34,7 @@ interface Props<D extends Record<string, unknown>> {
   clearQuery?: () => void
   pagination?: boolean
   colorize?: boolean
+  liquidityWarning?: boolean
   rowRenderer?: (row: Row<D>) => JSX.Element
 }
 
@@ -51,6 +52,7 @@ export default function Table<D extends Record<string, unknown>>({
   clearQuery,
   pagination = false,
   colorize = false,
+  liquidityWarning = false,
   rowRenderer,
 }: Props<D>): JSX.Element {
   const { isSmaller, isBigger } = useBreakpoints()
@@ -128,7 +130,9 @@ export default function Table<D extends Record<string, unknown>>({
             <>
               <div
                 className='tr'
-                {...row.getRowProps((...p) => rowProps(...p, { colorize }))}
+                {...row.getRowProps((...p) =>
+                  rowProps(...p, { colorize }, { liquidityWarning }),
+                )}
                 key={`tr-${row.id}`}
               >
                 {row.cells.map((cell) => (
@@ -178,7 +182,7 @@ export default function Table<D extends Record<string, unknown>>({
           )
         )
       }),
-    [colorize, prepareRow, rowRenderer, rows],
+    [colorize, liquidityWarning, prepareRow, rowRenderer, rows],
   )
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -405,12 +409,15 @@ export const rowProps = <D extends Record<string, unknown>>(
   props: Partial<TableKeyedProps>,
   { row }: Meta<D, { row: Row<D> }>,
   { colorize } = { colorize: false },
+  { liquidityWarning } = { liquidityWarning: false },
 ): Partial<TableKeyedProps>[] => {
   const defaultColor = colorize ? 'var(--yellow)' : 'var(--beige)'
 
   const background =
     colorize && row.original?.logoColor
       ? `linear-gradient(to right, ${row.original.logoColor} -20%, ${defaultColor} 20%)`
+      : liquidityWarning && Number(row.original?.reserve) < 600
+      ? 'var(--alertbackground)'
       : defaultColor
 
   return [
