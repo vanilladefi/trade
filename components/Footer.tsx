@@ -218,9 +218,28 @@ const Footer = (): JSX.Element => (
           </div>
           <div className='law'>
             <LawLinks />
-            <span className='copyright'>
-              Copyright © {new Date().getFullYear()} Vanilla
-            </span>
+          </div>
+        </div>
+      </Wrapper>
+      <Wrapper>
+        <div className='footerFooter'>
+          <div className='madeBy'>
+            <span>Made by</span>
+            <a
+              href='https://equilibrium.co'
+              target='_blank'
+              rel='noreferrer noopener'
+            >
+              <Image
+                src='/images/equilibrium-logo-horizontal.svg'
+                alt='Equilibrium'
+                width='121'
+                height='17'
+              />
+            </a>
+          </div>
+          <div className='copyright'>
+            Copyright © {new Date().getFullYear()} Vanilla
           </div>
         </div>
       </Wrapper>
@@ -235,13 +254,33 @@ const Footer = (): JSX.Element => (
         color: var(--white);
         width: 100%;
         font-size: var(--minisize);
-        padding: 2.3rem 1rem 4rem;
+        padding: 2.3rem 0.5rem 4rem;
         background-repeat: no-repeat;
         background-blend-mode: screen;
         background-position: bottom center;
       }
+      div.footerFooter {
+        border-top: 1px solid rgba(255, 255, 255, 0.5);
+        font-family: var(--bodyfont);
+        padding: 1.5rem 0;
+        margin: 1.5rem 0 0;
+        color: rgba(255, 255, 255, 0.8);
+      }
       div {
         display: flex;
+      }
+      div.madeBy {
+        flex: 1;
+        flex-wrap: wrap;
+        min-width: 120px;
+      }
+      div.madeBy span {
+        padding-right: 0.8rem;
+        margin-bottom: 0.6rem;
+      }
+      div.copyright {
+        flex-align: right;
+        text-align: right;
       }
       div.bottomFill {
         width: 100%;
@@ -271,16 +310,15 @@ const Footer = (): JSX.Element => (
         flex-direction: column;
         justify-content: space-between;
       }
-      .copyright {
-        margin-top: 3rem;
-        text-align: right;
-      }
       @media (min-width: ${BreakPoint.mobileNav}px) {
         div.desktopNav {
           display: block;
         }
         footer {
           padding: 2.3rem 2.8rem 4rem;
+        }
+        div.footerFooter {
+          padding-bottom: 0;
         }
       }
       @media (max-width: ${BreakPoint.xs}px) {
@@ -290,9 +328,6 @@ const Footer = (): JSX.Element => (
         }
         .law {
           margin-top: 2rem;
-        }
-        .copyright {
-          text-align: center;
         }
       }
     `}</style>
