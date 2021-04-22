@@ -10,7 +10,7 @@ import { cellProps, rowProps } from 'components/Table/Table'
 import { BreakPoint } from 'components/GlobalStyles/Breakpoints'
 import useTokenSearch from 'hooks/useTokenSearch'
 import useUserPositions from 'hooks/useUserPositions'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState, MouseEvent } from 'react'
 import type { CellProps, Row } from 'react-table'
 import type {
   HandleBuyClick,
@@ -243,9 +243,9 @@ export default function MyPositions({
                 rounded={Rounding.LEFT}
                 size={ButtonSize.XSMALL}
                 title='Sell'
-                onClick={(e: Event) => {
-                  e.stopPropagation()
-                  return onSellClick({
+                onClick={(event: MouseEvent) => {
+                  event.stopPropagation()
+                  onSellClick({
                     pairId: row.original.pairId,
                   })
                 }}
@@ -262,9 +262,9 @@ export default function MyPositions({
                 rounded={Rounding.RIGHT}
                 size={ButtonSize.XSMALL}
                 title='Buy'
-                onClick={(e: Event) => {
-                  e.stopPropagation()
-                  return onBuyClick({
+                onClick={(event: MouseEvent) => {
+                  event.stopPropagation()
+                  onBuyClick({
                     pairId: row.original.pairId,
                   })
                 }}
