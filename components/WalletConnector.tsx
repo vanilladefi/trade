@@ -62,7 +62,7 @@ const WalletConnector = (): null => {
       }
 
       setProvider(ethersProvider)
-      setSigner(ethersProvider.getSigner())
+      setSigner(ethersSigner)
     } else {
       setSigner(null)
     }
