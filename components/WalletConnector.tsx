@@ -7,7 +7,7 @@ import {
   storedWalletConnectorState,
 } from 'state/wallet'
 import { useWallet, Wallet } from 'use-wallet'
-import { apiKey, chainId, ssrApiKey, useWebsocketRpc } from 'utils/config'
+import { apiKey, chainId, useWebsocketRpc } from 'utils/config'
 
 type JsonRpcWallet = Wallet<providers.JsonRpcProvider>
 
@@ -46,7 +46,7 @@ const WalletConnector = (): null => {
         ethersSigner = new providers.Web3Provider(
           ethereum as providers.ExternalProvider,
         ).getSigner()
-      } else if (useWebsocketRpc && !ssrApiKey) {
+      } else if (useWebsocketRpc) {
         ethersProvider = new providers.WebSocketProvider(
           'ws://localhost:8545',
           chainId,
