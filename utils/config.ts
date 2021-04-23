@@ -23,9 +23,9 @@ export const rpcUrl: string =
   'http://localhost:8545'
 
 export const defaultProvider =
-  useWebsocketRpc && apiKey
+  useWebsocketRpc && apiKey && !ssrApiKey
     ? new providers.AlchemyWebSocketProvider(1, apiKey)
-    : useWebsocketRpc
+    : useWebsocketRpc && !ssrApiKey
     ? new providers.WebSocketProvider('ws://localhost:8545', 1)
     : new providers.JsonRpcProvider(rpcUrl, 1)
 
