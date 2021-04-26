@@ -11,14 +11,25 @@ Vanilla encourages the community to audit our contracts and security; we also en
 
 ## Scope
 
-The primary scope of the bug bounty program is for vulnerabilities affecting the on-chain Vanilla Protocol, deployed to the Ethereum Mainnet, for contract addresses listed in this developer documentation.
+The Primary scope of the bug bounty program is for vulnerabilities affecting the _on-chain Vanilla Protocol_ which currently includes only the following Ethereum Mainnet contracts:
 
-This list may change as new contracts are deployed, or as existing contracts are removed from usage. Vulnerabilities in contracts built on top of the Protocol by third-party developers (such as smart contract wallets) are not in scope, nor are vulnerabilities that require the ownership of an admin key.
+- VanillaRouter deployed at [0xE13E9010e818D48df1A0415021d9526ef845e2Cd](https://etherscan.io/address/0xe13e9010e818d48df1a0415021d9526ef845e2cd)
+- VanillaGovernanceToken deployed at [0x1017B147b05942EAd495E2ad6d606EF3C94B8FD0](https://etherscan.io/address/0x1017b147b05942ead495e2ad6d606ef3c94b8fd0)
 
-The secondary scope of the bug bounty program is for vulnerabilities in the Vanilla Interface code that could likely result in the unauthorized exploitation of users of Vanilla Trading Interface hosted at https://vanilladefi.com/trade.
+All other contracts and deployments are excluded from the scope, including but not limited to:
 
-Finally, test contracts (Rinkeby and other testnets) and staging servers are out of scope, unless the discovered vulnerability also affects the Vanilla Protocol or Interface, or could otherwise be exploited in a way that risks user funds.
+- Same contracts deployed in other addresses or networks (like testnets)
+- Other contracts in the Vanilla codebase (like test contracts)
+- Third-party contracts or platforms that interact with the Vanilla Protocol contracts (like smart contract wallets or exchanges)
 
+This list of addresses will change as the Vanilla Protocol evolves - as new contracts are taken into use or as existing contracts are displaced.
+
+The Secondary scope of the program is for vulnerabilities in the Vanilla Interface code that could likely result in an unauthorized exploitation of the users of Vanilla Trading Interface, hosted at https://vanilladefi.com/trade.
+
+All other user interfaces and third party interface code are excluded from the Secondary scope, including but not limited to:
+
+- All Vanilla trading interfaces hosted outside the vanilladefi.com domain
+- Third party wallet software
 
 ## Rewards
 
