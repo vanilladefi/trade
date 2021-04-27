@@ -104,7 +104,12 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
           }`}
         >
           <span>
-            <b>VPC: {getVpcOrEstimate()}</b>
+            <b>
+              {row.original.vpc && row.original.vpc !== '0'
+                ? 'VPC:'
+                : 'Estimated VPC @ 0.1 ETH profit:'}{' '}
+              {getVpcOrEstimate()}
+            </b>
           </span>
           <span>
             ETH reserves:{' '}
