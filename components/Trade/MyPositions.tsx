@@ -44,7 +44,6 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
     } else {
       vpcOrEstimate = Number(
         parseUnits(row.original.reserve?.toString() || '0')
-          .sub(parseUnits('0.1'))
           .sub(parseUnits('500'))
           .mul(million)
           .div(parseUnits(row.original.reserve?.toString() || '0'))
@@ -109,7 +108,7 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
             <b>
               {row.original.vpc && row.original.vpc !== '0'
                 ? 'VPC:'
-                : 'Estimated VPC @ 0.1 ETH profit:'}{' '}
+                : 'Estimated max VPC:'}{' '}
               {getVpcOrEstimate()}
             </b>
           </span>
