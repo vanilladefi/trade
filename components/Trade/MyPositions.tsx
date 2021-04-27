@@ -125,18 +125,20 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
           <span>
             <b>
               HTRS:{' '}
-              {blockNumber > 0 &&
-                Number(row.original.htrs ?? '0').toLocaleString('en-US', {
-                  style: 'percent',
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                  signDisplay: 'never',
-                })}
+              {blockNumber > 0 && getSecondsToHtrs() > 0
+                ? Number(row.original.htrs ?? '0').toLocaleString('en-US', {
+                    style: 'percent',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                    signDisplay: 'never',
+                  })
+                : 'Calculating...'}
             </b>
           </span>
           <span>
             A new position would take{' '}
             {blockNumber > 0 &&
+              getSecondsToHtrs() > 0 &&
               formatDistance(0, 1000 * getSecondsToHtrs(), {
                 includeSeconds: true,
               })}{' '}
