@@ -82,7 +82,9 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
       className={`expandableRow${expanded ? ' expanded' : ''}`}
       {...row.getRowProps((...p) => rowProps(...p, { colorize: true }))}
       key={`tr-${row.id}`}
-      onClick={() => setExpanded(!expanded)}
+      onClick={() =>
+        window.getSelection()?.toString().length === 0 && setExpanded(!expanded)
+      }
     >
       <div className='tr' role='row'>
         {row.cells.map((cell) => (
@@ -224,6 +226,7 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
           min-height: 100%;
           border-right: 1px var(--dark) solid;
           min-width: min-content;
+          cursor: auto;
         }
         .hodlInfo .cell:last-of-type {
           border-right: 0;
