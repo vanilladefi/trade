@@ -10,14 +10,14 @@ import { tokenListChainId } from 'lib/tokens'
 import { constructTrade } from 'lib/uniswap/trade'
 import {
   estimateReward,
+  getEpoch,
   getPriceData,
   RewardResponse,
   TokenPriceResponse,
 } from 'lib/vanilla'
-import { epoch } from 'utils/config'
 import { useEffect, useMemo } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { currentBlockNumberState, currentETHPrice } from 'state/meta'
+import { currentETHPrice } from 'state/meta'
 import { allTokensStoreState, userTokensState } from 'state/tokens'
 import { selectedCounterAsset } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
@@ -38,7 +38,6 @@ function useUserPositions(): Token[] | null {
   const { long: userAddress } = useWalletAddress()
   const provider = useRecoilValue(providerState)
   const signer = useRecoilValue(signerState)
-  const blockNumber = useRecoilValue(currentBlockNumberState)
   const wallet = useWallet()
   const vnl = useVanillaGovernanceToken()
   const million = 1000000
@@ -149,9 +148,14 @@ function useUserPositions(): Token[] | null {
                 const vpc: string = (vpcNum / million).toString()
 
                 // Calculate HTRS
+                let priceData,
+                  blockNumber,
+                  epoch: BigNumber | null = BigNumber.from('0')
                 let htrs: string
                 try {
-                  const priceData = await getPriceData(signer, token.address)
+                  priceData = await getPriceData(signer, token.address)
+                  blockNumber = await provider.getBlockNumber()
+                  epoch = await getEpoch(signer)
                   const avgBlock =
                     priceData?.weightedBlockSum.div(priceData?.tokenSum) ??
                     BigNumber.from('0')
