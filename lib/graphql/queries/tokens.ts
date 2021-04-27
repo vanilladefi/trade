@@ -12,7 +12,6 @@ const TokenABFragment = gql`
     token: token1 {
       id
     }
-    reserve: reserve0
     price: token0Price
   }
 `
@@ -22,7 +21,6 @@ const TokenBAFragment = gql`
     token: token0 {
       id
     }
-    reserve: reserve1
     price: token1Price
   }
 `
@@ -73,7 +71,6 @@ export const TokenInfoSubAB = gql`
       token: token1 {
         id
       }
-      reserve: reserve0
       price: token0Price
     }
   }
@@ -87,7 +84,6 @@ export const TokenInfoSubBA = gql`
       token: token0 {
         id
       }
-      reserve: reserve1
       price: token1Price
     }
   }
