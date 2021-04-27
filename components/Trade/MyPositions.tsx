@@ -100,11 +100,11 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
             <b>HTRS: {row.original.htrs}</b>/1
           </span>
           <span>
-            Est.{' '}
+            A new position would take{' '}
             {formatDistance(0, 1000 * (getTimeToHtrs()?.seconds ?? 0), {
               includeSeconds: true,
             })}{' '}
-            to reach with a similar trade
+            to reach this ratio.
           </span>
         </div>
       </div>
