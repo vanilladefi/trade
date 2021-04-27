@@ -59,21 +59,21 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
   }, [row.original.vpc, row.original.reserve])
 
   const getTimeToHtrs: () => Duration = useCallback(() => {
+    let estimatedDuration: Duration = { seconds: 0 }
     if (provider && row.original.htrs) {
       const rootOfHtrs = Math.sqrt(Number(row.original.htrs))
-      const estimatedBlockNumber =
-        (-rootOfHtrs * epoch + blockNumber) / (1 - rootOfHtrs)
-      const estimatedBlockDelta = estimatedBlockNumber - blockNumber
+      if (rootOfHtrs > 0) {
+        const estimatedBlockNumber =
+          (-rootOfHtrs * epoch + blockNumber) / (1 - rootOfHtrs)
+        const estimatedBlockDelta = estimatedBlockNumber - blockNumber
 
-      const blockTime: Duration = { seconds: 13 }
-      const estimatedDuration: Duration = {
-        seconds: (blockTime.seconds || 0) * estimatedBlockDelta,
+        const blockTime: Duration = { seconds: 13 }
+        estimatedDuration = {
+          seconds: (blockTime.seconds || 0) * estimatedBlockDelta,
+        }
       }
-
-      return estimatedDuration
-    } else {
-      return { seconds: 0 }
     }
+    return estimatedDuration
   }, [row.original.htrs, provider, blockNumber])
 
   return (
@@ -139,7 +139,7 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
           </span>
           <span>
             A new position would take{' '}
-            {formatDistance(0, 1000 * (getTimeToHtrs()?.seconds ?? 0), {
+            {formatDistance(0, 1000 * (getTimeToHtrs()?.seconds ?? 1), {
               includeSeconds: true,
             })}{' '}
             to reach this ratio.
