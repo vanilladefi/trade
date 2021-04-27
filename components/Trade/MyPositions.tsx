@@ -1,3 +1,5 @@
+import { parseUnits } from '@ethersproject/units'
+import { BreakPoint } from 'components/GlobalStyles/Breakpoints'
 import Button, {
   ButtonColor,
   ButtonGroup,
@@ -7,21 +9,20 @@ import Button, {
 import { Spinner } from 'components/Spinner'
 import { Columns, Table } from 'components/Table'
 import { cellProps, rowProps } from 'components/Table/Table'
-import { BreakPoint } from 'components/GlobalStyles/Breakpoints'
+import { Duration, formatDistance } from 'date-fns'
 import useTokenSearch from 'hooks/useTokenSearch'
 import useUserPositions from 'hooks/useUserPositions'
-import React, { useCallback, useMemo, useState, MouseEvent } from 'react'
+import React, { MouseEvent, useCallback, useMemo, useState } from 'react'
 import type { CellProps, Row } from 'react-table'
+import { useRecoilValue } from 'recoil'
+import { currentBlockNumberState } from 'state/meta'
+import { providerState } from 'state/wallet'
 import type {
   HandleBuyClick,
   HandleSellClick,
   ListColumn,
   Token,
 } from 'types/trade'
-import { useRecoilValue } from 'recoil'
-import { providerState } from 'state/wallet'
-import { currentBlockNumberState } from 'state/meta'
-import { Duration, formatDistance } from 'date-fns'
 import { epoch } from 'utils/config'
 
 interface Props {
@@ -35,11 +36,34 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
   const provider = useRecoilValue(providerState)
   const blockNumber = useRecoilValue(currentBlockNumberState)
 
+  const getVpcOrEstimate: () => string = useCallback(() => {
+    const million = 1000000
+    let vpcOrEstimate: number
+    if (row.original.vpc && row.original.vpc !== '0') {
+      vpcOrEstimate = Number(row.original.vpc)
+    } else {
+      vpcOrEstimate = Number(
+        parseUnits(row.original.reserve?.toString() || '0')
+          .sub(parseUnits('0.1'))
+          .sub(parseUnits('500'))
+          .mul(million)
+          .div(parseUnits(row.original.reserve?.toString() || '0'))
+          .toNumber() / million,
+      )
+    }
+    return vpcOrEstimate.toLocaleString('en-US', {
+      style: 'percent',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+      signDisplay: 'never',
+    })
+  }, [row.original.vpc, row.original.reserve])
+
   const getTimeToHtrs: () => Duration = useCallback(() => {
     if (provider && row.original.htrs) {
+      const rootOfHtrs = Math.sqrt(Number(row.original.htrs))
       const estimatedBlockNumber =
-        (-Math.sqrt(Number(row.original.htrs)) * epoch + blockNumber) /
-        (1 - Math.sqrt(Number(row.original.htrs)))
+        (-rootOfHtrs * epoch + blockNumber) / (1 - rootOfHtrs)
       const estimatedBlockDelta = estimatedBlockNumber - blockNumber
 
       const blockTime: Duration = { seconds: 13 }
@@ -80,7 +104,7 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
           }`}
         >
           <span>
-            <b>VPC: {row.original.vpc}</b>/1
+            <b>VPC: {getVpcOrEstimate()}</b>
           </span>
           <span>
             ETH reserves:{' '}
@@ -97,7 +121,15 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
         </div>
         <div className='cell'>
           <span>
-            <b>HTRS: {row.original.htrs}</b>/1
+            <b>
+              HTRS:{' '}
+              {Number(row.original.htrs ?? '0').toLocaleString('en-US', {
+                style: 'percent',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+                signDisplay: 'never',
+              })}
+            </b>
           </span>
           <span>
             A new position would take{' '}
