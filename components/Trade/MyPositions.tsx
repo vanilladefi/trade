@@ -15,13 +15,13 @@ import React, { useCallback, useMemo, useState } from 'react'
 import type { CellProps, Row } from 'react-table'
 import { useRecoilValue } from 'recoil'
 import { currentBlockNumberState } from 'state/meta'
-import { hodlModeState } from 'state/tokens'
 import type {
   HandleBuyClick,
   HandleSellClick,
   ListColumn,
   Token,
 } from 'types/trade'
+import { epoch } from 'utils/config'
 
 interface Props {
   onBuyClick: HandleBuyClick
@@ -56,7 +56,7 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
   }, [row.original.vpc, row.original.reserve])
 
   const getSecondsToHtrs: () => number = useCallback(() => {
-    let estimatedDuration = 1
+    let estimatedDuration = 0
     if (row.original.htrs && blockNumber > 0) {
       const rootOfHtrs = Math.sqrt(parseFloat(row.original.htrs))
       if (rootOfHtrs > 0 && rootOfHtrs < 1) {
@@ -64,7 +64,6 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
           (-rootOfHtrs * epoch + blockNumber) / (1 - rootOfHtrs)
         const estimatedBlockDelta = estimatedBlockNumber - blockNumber
         const blockTime = 13
-        console.log(parseInt((blockTime * estimatedBlockDelta).toString()))
         estimatedDuration = parseInt(
           (blockTime * estimatedBlockDelta).toString(),
         )
@@ -106,7 +105,7 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
               {row.original.vpc && row.original.vpc !== '0'
                 ? 'VPC:'
                 : 'Estimated max VPC:'}{' '}
-              {getVpcOrEstimate()}
+              {blockNumber > 0 && getVpcOrEstimate()}
             </b>
           </span>
           <span>
@@ -126,19 +125,21 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
           <span>
             <b>
               HTRS:{' '}
-              {Number(row.original.htrs ?? '0').toLocaleString('en-US', {
-                style: 'percent',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-                signDisplay: 'never',
-              })}
+              {blockNumber > 0 &&
+                Number(row.original.htrs ?? '0').toLocaleString('en-US', {
+                  style: 'percent',
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                  signDisplay: 'never',
+                })}
             </b>
           </span>
           <span>
             A new position would take{' '}
-            {formatDistance(0, 1000 * getSecondsToHtrs(), {
-              includeSeconds: true,
-            })}{' '}
+            {blockNumber > 0 &&
+              formatDistance(0, 1000 * getSecondsToHtrs(), {
+                includeSeconds: true,
+              })}{' '}
             to reach this ratio.
           </span>
         </div>
