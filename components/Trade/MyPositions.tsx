@@ -146,6 +146,7 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
         </div>
       </div>
       <style jsx>{`
+        --tablepadding: 0.3rem 0.8rem;
         .td {
           padding: var(--tablepadding);
           font-variant-numeric: tabular-nums;
@@ -203,6 +204,12 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
           align-items: stretch;
           flex-wrap: wrap;
         }
+        .hodlInfo {
+          position: relative;
+          display: flex;
+          flex-grow: 1;
+          height: 100%;
+        }
         .hodlInfo .cell {
           display: flex;
           position: relative;
@@ -214,8 +221,9 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
           line-height: 1.5rem;
           padding: 1rem;
           height: 100%;
+          min-height: 100%;
           border-right: 1px var(--dark) solid;
-          min-width: max-content;
+          min-width: min-content;
         }
         .hodlInfo .cell:last-of-type {
           border-right: 0;
