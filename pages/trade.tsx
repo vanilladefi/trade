@@ -32,13 +32,9 @@ import React, {
   useEffect,
   useState,
 } from 'react'
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { currentETHPrice } from 'state/meta'
-import {
-  allTokensStoreState,
-  hodlModeState,
-  userTokensState,
-} from 'state/tokens'
+import { allTokensStoreState, userTokensState } from 'state/tokens'
 import { selectedOperation, selectedPairIdState } from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
 import { HandleBuyClick, HandleSellClick, Operation, Token } from 'types/trade'
@@ -275,7 +271,6 @@ const BodyContent = ({
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const setOperation = useSetRecoilState(selectedOperation)
-  const [hodlMode, setHodlMode] = useRecoilState(hodlModeState)
   const userPositions = useRecoilValue(userTokensState)
   const { account } = useWallet()
 
@@ -350,15 +345,6 @@ const BodyContent = ({
                       } profitable`}</small>
                     )}
                   </h2>
-                  <div className='hodlWrapper'>
-                    <span>ADVANCED HODL MODE</span>
-                    <button
-                      className={`hodlToggle${hodlMode ? ' active' : ''}`}
-                      onClick={() => setHodlMode(!hodlMode)}
-                    >
-                      <div className='handle'></div>
-                    </button>
-                  </div>
                 </div>
                 <MyPositions
                   onBuyClick={handleBuyClick}
