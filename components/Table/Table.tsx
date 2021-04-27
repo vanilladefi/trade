@@ -9,8 +9,10 @@ import type {
   Meta,
   Row,
   TableKeyedProps,
+  TableSortByToggleProps,
 } from 'react-table'
 import {
+  useExpanded,
   useFlexLayout,
   useGlobalFilter,
   usePagination,
@@ -32,6 +34,8 @@ interface Props<D extends Record<string, unknown>> {
   clearQuery?: () => void
   pagination?: boolean
   colorize?: boolean
+  liquidityWarning?: boolean
+  rowRenderer?: (row: Row<D>) => JSX.Element
 }
 
 type CustomColumnInstance<
@@ -48,6 +52,8 @@ export default function Table<D extends Record<string, unknown>>({
   clearQuery,
   pagination = false,
   colorize = false,
+  liquidityWarning = false,
+  rowRenderer,
 }: Props<D>): JSX.Element {
   const { isSmaller, isBigger } = useBreakpoints()
 
@@ -80,6 +86,7 @@ export default function Table<D extends Record<string, unknown>>({
     useGlobalFilter,
     useFlexLayout,
     useSortBy,
+    useExpanded,
     usePagination,
   )
 
@@ -112,6 +119,72 @@ export default function Table<D extends Record<string, unknown>>({
     setHiddenColumns(hiddenColumns)
   }, [setHiddenColumns, columns, isSmaller, isBigger])
 
+  const rows = pagination ? pageRows : allRows
+
+  const renderRow = useCallback(
+    () =>
+      rows.map((row) => {
+        prepareRow(row)
+        return (
+          (rowRenderer && rowRenderer(row)) || (
+            <>
+              <div
+                className='tr'
+                {...row.getRowProps((...p) =>
+                  rowProps(...p, { colorize }, { liquidityWarning }),
+                )}
+                key={`tr-${row.id}`}
+              >
+                {row.cells.map((cell) => (
+                  <div
+                    className='td'
+                    {...cell.getCellProps(cellProps)}
+                    key={`td-${cell.column.id}`}
+                  >
+                    {cell.render('Cell')}
+                  </div>
+                ))}
+              </div>
+              <style jsx>{`
+                .td,
+                .th {
+                  padding: var(--tablepadding);
+                  font-variant-numeric: tabular-nums;
+                }
+                .tr {
+                  margin-bottom: 0.4rem;
+                  border-radius: 9999px;
+                  min-height: var(--tablerow-minheight);
+                }
+                .tbody .tr {
+                  background: var(--beige);
+                  box-shadow: inset 0 0px 20px rgba(254, 222, 54, 0);
+                  transition: box-shadow 0.3s;
+                }
+                .tbody .tr:hover {
+                  box-shadow: inset 0 -20px 20px rgba(254, 222, 54, 0.2);
+                }
+                .tr.list-empty {
+                  display: flex;
+                  flex-direction: row;
+                  justify-content: center;
+                  align-items: center;
+                  color: var(--dark);
+                  opacity: 0.9;
+                }
+                .tr.list-empty a {
+                  display: inline-block;
+                  cursor: pointer;
+                  border-bottom: 1px solid var(--dark);
+                }
+              `}</style>
+            </>
+          )
+        )
+      }),
+    [colorize, liquidityWarning, prepareRow, rowRenderer, rows],
+  )
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleQueryChanged = useCallback(
     debounce((val) => {
@@ -126,8 +199,6 @@ export default function Table<D extends Record<string, unknown>>({
   useEffect(() => {
     handleQueryChanged(query)
   }, [handleQueryChanged, query])
-
-  const rows = pagination ? pageRows : allRows
 
   return (
     <>
@@ -156,26 +227,7 @@ export default function Table<D extends Record<string, unknown>>({
         </div>
         <div className='tbody' {...getTableBodyProps()}>
           {rows?.length ? (
-            rows.map((row) => {
-              prepareRow(row)
-              return (
-                <div
-                  className='tr'
-                  {...row.getRowProps((...p) => rowProps(...p, { colorize }))}
-                  key={`tr-${row.id}`}
-                >
-                  {row.cells.map((cell) => (
-                    <div
-                      className='td'
-                      {...cell.getCellProps(cellProps)}
-                      key={`td-${cell.column.id}`}
-                    >
-                      {cell.render('Cell')}
-                    </div>
-                  ))}
-                </div>
-              )
-            })
+            renderRow()
           ) : (
             <div className='tr list-empty'>
               <div className='td'>
@@ -267,9 +319,15 @@ export default function Table<D extends Record<string, unknown>>({
   )
 }
 
-const getStyles = <D extends Record<string, unknown>>(
+export const getStyles = <D extends Record<string, unknown>>(
   column: CustomColumnInstance<D>,
-) => {
+): {
+  style: {
+    justifyContent: string
+    alignItems: string
+    display: string
+  }
+} => {
   return {
     style: {
       justifyContent: column?.align === 'right' ? 'flex-end' : 'flex-start',
@@ -279,9 +337,14 @@ const getStyles = <D extends Record<string, unknown>>(
   }
 }
 
-const getHeaderStyles = <D extends Record<string, unknown>>(
+export const getHeaderStyles = <D extends Record<string, unknown>>(
   column: CustomColumnInstance<D>,
-) => {
+): {
+  style: {
+    textAlign: string
+    alignItems: string
+  }
+} => {
   return {
     style: {
       textAlign: column?.align === 'right' ? 'right' : 'inherit',
@@ -290,7 +353,9 @@ const getHeaderStyles = <D extends Record<string, unknown>>(
   }
 }
 
-const getColor = (value: string | number) => {
+export const getColor = (
+  value: string | number,
+): 'var(--negativeValue)' | 'var(--positiveValue)' | 'inherit' => {
   const val = value ? parseFloat(value.toString()) : 0
   return val < 0
     ? 'var(--negativeValue)'
@@ -299,10 +364,14 @@ const getColor = (value: string | number) => {
     : 'inherit'
 }
 
-const getCellStyles = <D extends Record<string, unknown>>(
+export const getCellStyles = <D extends Record<string, unknown>>(
   column: CustomColumnInstance<D>,
   value?: number | string,
-) => {
+): {
+  style: {
+    color: string
+  }
+} => {
   const color = value && column?.colorBasedOnValue ? getColor(value) : 'inherit'
 
   return {
@@ -312,31 +381,43 @@ const getCellStyles = <D extends Record<string, unknown>>(
   }
 }
 
-const headerProps = <D extends Record<string, unknown>>(
+export const headerProps = <D extends Record<string, unknown>>(
   props: Partial<TableKeyedProps>,
   { column }: Meta<D, { column: HeaderGroup<D> }>,
-) => [
+): TableSortByToggleProps[] => [
   props,
   column.getSortByToggleProps(),
   getStyles(column),
   getHeaderStyles(column),
 ]
 
-const cellProps = <D extends Record<string, unknown>>(
+export const cellProps = <D extends Record<string, unknown>>(
   props: Partial<TableKeyedProps>,
   { cell }: Meta<D, { cell: Cell<D> }>,
-) => [props, getStyles(cell.column), getCellStyles(cell.column, cell.value)]
+): (
+  | Partial<TableKeyedProps>
+  | {
+      style: {
+        justifyContent: string
+        alignItems: string
+        display: string
+      }
+    }
+)[] => [props, getStyles(cell.column), getCellStyles(cell.column, cell.value)]
 
-const rowProps = <D extends Record<string, unknown>>(
+export const rowProps = <D extends Record<string, unknown>>(
   props: Partial<TableKeyedProps>,
   { row }: Meta<D, { row: Row<D> }>,
   { colorize } = { colorize: false },
-) => {
+  { liquidityWarning } = { liquidityWarning: false },
+): Partial<TableKeyedProps>[] => {
   const defaultColor = colorize ? 'var(--yellow)' : 'var(--beige)'
 
   const background =
     colorize && row.original?.logoColor
       ? `linear-gradient(to right, ${row.original.logoColor} -20%, ${defaultColor} 20%)`
+      : liquidityWarning && Number(row.original?.reserve) < 600
+      ? 'var(--alertbackground)'
       : defaultColor
 
   return [
