@@ -33,7 +33,7 @@ import React, {
   useState,
 } from 'react'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
-import { currentETHPrice } from 'state/meta'
+import { currentBlockNumberState, currentETHPrice } from 'state/meta'
 import {
   allTokensStoreState,
   hodlModeState,
@@ -47,11 +47,13 @@ import { useWallet } from 'use-wallet'
 type PageProps = {
   allTokens: Token[]
   ethPrice: number
+  currentBlockNumber: number
 }
 
 type BodyProps = {
   initialTokens: Token[]
   ethPrice: number
+  currentBlockNumber: number
   setModalOpen: Dispatch<SetStateAction<boolean>>
 }
 
@@ -265,6 +267,7 @@ const HeaderContent = (): JSX.Element => {
 const BodyContent = ({
   initialTokens,
   ethPrice,
+  currentBlockNumber,
   setModalOpen,
 }: BodyProps): JSX.Element => {
   useMetaSubscription()
@@ -272,6 +275,7 @@ const BodyContent = ({
 
   const setETHPrice = useSetRecoilState(currentETHPrice)
   const setTokens = useSetRecoilState(allTokensStoreState)
+  const setCurrentBlockNumber = useSetRecoilState(currentBlockNumberState)
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const setOperation = useSetRecoilState(selectedOperation)
@@ -282,7 +286,15 @@ const BodyContent = ({
   useEffect(() => {
     setTokens(initialTokens)
     setETHPrice(ethPrice)
-  }, [setTokens, initialTokens, setETHPrice, ethPrice])
+    setCurrentBlockNumber(currentBlockNumber)
+  }, [
+    setTokens,
+    initialTokens,
+    setETHPrice,
+    ethPrice,
+    setCurrentBlockNumber,
+    currentBlockNumber,
+  ])
 
   const profitablePositions = useCallback(() => {
     return userPositions?.filter((token) => token.profit && token.profit > 0)
@@ -449,6 +461,7 @@ const BodyContent = ({
 export default function TradePage({
   allTokens,
   ethPrice,
+  currentBlockNumber,
 }: PageProps): JSX.Element {
   // NOTE: allTokens here will be stale after a while
   // allTokens here is only used to populate the state on first render (static)
@@ -475,6 +488,7 @@ export default function TradePage({
         initialTokens={allTokens}
         ethPrice={ethPrice}
         setModalOpen={setModalOpen}
+        currentBlockNumber={currentBlockNumber}
       />
     </Layout>
   )
@@ -493,8 +507,8 @@ export async function getStaticProps(): Promise<
     getETHPrice(),
   ])
 
-  if (ethPrice === 0) {
-    throw Error('Invalid value for ETH/USD price!')
+  if (ethPrice === 0 || currentBlockNumber === 0) {
+    throw Error('Query failed')
   }
 
   tokens = await addGraphInfo(tokens)
@@ -512,6 +526,7 @@ export async function getStaticProps(): Promise<
     props: {
       allTokens: tokens,
       ethPrice: ethPrice || 0,
+      currentBlockNumber: currentBlockNumber,
     },
     revalidate: 60,
   }
