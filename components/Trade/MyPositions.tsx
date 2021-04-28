@@ -12,7 +12,7 @@ import { formatDistance } from 'date-fns'
 import { parseUnits } from 'ethers/lib/utils'
 import useTokenSearch from 'hooks/useTokenSearch'
 import useUserPositions from 'hooks/useUserPositions'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { MouseEvent, useCallback, useMemo, useState } from 'react'
 import type { CellProps, Row } from 'react-table'
 import { useRecoilValue } from 'recoil'
 import { currentBlockNumberState } from 'state/meta'
@@ -291,11 +291,12 @@ export default function MyPositions({
                 rounded={Rounding.LEFT}
                 size={ButtonSize.XSMALL}
                 title='Sell'
-                onClick={() =>
+                onClick={(event: MouseEvent) => {
+                  event.stopPropagation()
                   onSellClick({
                     pairId: row.original.pairId,
                   })
-                }
+                }}
               >
                 <span style={{ fontSize: '1.5rem' }}>&minus;</span>
               </Button>
@@ -309,11 +310,12 @@ export default function MyPositions({
                 rounded={Rounding.RIGHT}
                 size={ButtonSize.XSMALL}
                 title='Buy'
-                onClick={() =>
+                onClick={(event: MouseEvent) => {
+                  event.stopPropagation()
                   onBuyClick({
                     pairId: row.original.pairId,
                   })
-                }
+                }}
               >
                 <span style={{ fontSize: '1.5rem' }}>&#43;</span>
               </Button>
