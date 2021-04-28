@@ -136,15 +136,15 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
                 : 'Calculating...'}
             </b>
           </span>
-          <span>
-            A new position would take{' '}
-            {blockNumber > 0 &&
-              getSecondsToHtrs() > 0 &&
-              formatDistance(0, 1000 * getSecondsToHtrs(), {
+          {blockNumber > 0 && getSecondsToHtrs() > 0 && (
+            <span>
+              A new position would take{' '}
+              {formatDistance(0, 1000 * getSecondsToHtrs(), {
                 includeSeconds: true,
               })}{' '}
-            to reach this ratio.
-          </span>
+              to reach this ratio.
+            </span>
+          )}
         </div>
       </div>
       <style jsx>{`
