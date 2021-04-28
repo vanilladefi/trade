@@ -50,7 +50,7 @@
     "react-parallax-tilt": "^1.4.82",
     "react-svg-pathline": "^0.5.0",
     "react-table": "^7.6.2",
-    "react-three-fiber": "^5.3.18",
+    "@react-three/fiber": "^6.0.17",
     "recoil": "^0.1.2",
     "recoil-persist": "^2.2.0",
     "rehype-katex": "^3.0.1",
@@ -64,7 +64,6 @@
     "web3": "^1.3.4"
   },
   "devDependencies": {
-    "@types/classnames": "^2.2.11",
     "@types/dom-to-image": "^2.6.2",
     "@types/lodash.debounce": "^4.0.6",
     "@types/node": "^12.19.16",

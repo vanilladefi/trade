@@ -1,7 +1,7 @@
+import { useFrame, useThree } from '@react-three/fiber'
+import React, { useMemo, useRef } from 'react'
 import * as THREE from 'three'
-import React, { useRef, useMemo } from 'react'
 
-import { useFrame, useThree } from 'react-three-fiber'
 
 export default function Particles({ count, mouse }) {
   const mesh = useRef()
