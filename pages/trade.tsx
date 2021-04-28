@@ -32,13 +32,9 @@ import React, {
   useEffect,
   useState,
 } from 'react'
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { currentBlockNumberState, currentETHPrice } from 'state/meta'
-import {
-  allTokensStoreState,
-  hodlModeState,
-  userTokensState,
-} from 'state/tokens'
+import { allTokensStoreState, userTokensState } from 'state/tokens'
 import { selectedOperation, selectedPairIdState } from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
 import { HandleBuyClick, HandleSellClick, Operation, Token } from 'types/trade'
@@ -279,7 +275,6 @@ const BodyContent = ({
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const setOperation = useSetRecoilState(selectedOperation)
-  const [hodlMode, setHodlMode] = useRecoilState(hodlModeState)
   const userPositions = useRecoilValue(userTokensState)
   const { account } = useWallet()
 
@@ -362,15 +357,6 @@ const BodyContent = ({
                       } profitable`}</small>
                     )}
                   </h2>
-                  <div className='hodlWrapper'>
-                    <span>ADVANCED HODL MODE</span>
-                    <button
-                      className={`hodlToggle${hodlMode ? ' active' : ''}`}
-                      onClick={() => setHodlMode(!hodlMode)}
-                    >
-                      <div className='handle'></div>
-                    </button>
-                  </div>
                 </div>
                 <MyPositions
                   onBuyClick={handleBuyClick}
@@ -412,46 +398,6 @@ const BodyContent = ({
           flex-direction: row;
           align-items: flex-end;
           justify-content: space-between;
-        }
-        .hodlWrapper {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-        }
-        .hodlWrapper span {
-          font-size: var(--minisize);
-          font-weight: var(--buttonweight);
-          margin-right: 0.4rem;
-        }
-        .hodlToggle {
-          cursor: pointer;
-          height: 28px;
-          width: 60px;
-          background: var(--inactivelink);
-          border-radius: 9999px;
-          position: relative;
-          display: flex;
-          border: 2px solid var(--bordercolor);
-          outline: 0;
-          padding: 2px;
-          transition: 0.2s ease background;
-        }
-        .hodlToggle.active {
-          background: var(--buttongradient);
-        }
-        .hodlToggle .handle {
-          display: flex;
-          position: relative;
-          width: 20px;
-          height: 20px;
-          flex-shrink: 0;
-          border-radius: 50%;
-          background: var(--white);
-          margin-left: 0;
-          transition: 0.2s ease margin-left;
-        }
-        .hodlToggle.active .handle {
-          margin-left: calc(100% - 20px);
         }
       `}</style>
     </>

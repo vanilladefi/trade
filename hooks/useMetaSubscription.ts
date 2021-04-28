@@ -25,5 +25,6 @@ export default function useMetaSubscription(): void {
     return () => {
       subMeta.unsubscribe()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setCurrentBlockNumber])
 }

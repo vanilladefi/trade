@@ -16,7 +16,6 @@ import React, { useCallback, useMemo, useState } from 'react'
 import type { CellProps, Row } from 'react-table'
 import { useRecoilValue } from 'recoil'
 import { currentBlockNumberState } from 'state/meta'
-import { hodlModeState } from 'state/tokens'
 import type {
   HandleBuyClick,
   HandleSellClick,
@@ -260,7 +259,6 @@ export default function MyPositions({
   onBuyClick,
   onSellClick,
 }: Props): JSX.Element {
-  const hodlMode = useRecoilValue(hodlModeState)
   const userPositions = useUserPositions()
   const [query, clearQuery] = useTokenSearch()
 
@@ -272,13 +270,12 @@ export default function MyPositions({
       onBuyClick: HandleBuyClick
       onSellClick: HandleSellClick
     }): ListColumn<Token>[] => {
-      let columns = [Columns.LogoTicker, Columns.LogoName, Columns.Ticker]
-      if (hodlMode) {
-        columns = columns.concat([Columns.VPC, Columns.HTRS])
-      } else {
-        columns = columns.concat([Columns.MarketValue, Columns.OwnedAmount])
-      }
-      return columns.concat([
+      return [
+        Columns.LogoTicker,
+        Columns.LogoName,
+        Columns.Ticker,
+        Columns.MarketValue,
+        Columns.OwnedAmount,
         Columns.Profit,
         Columns.UnrealizedVNL,
         {
@@ -323,9 +320,9 @@ export default function MyPositions({
             </ButtonGroup>
           ),
         },
-      ])
+      ]
     },
-    [hodlMode],
+    [],
   )
 
   const columns = useMemo(() => getColumns({ onBuyClick, onSellClick }), [
