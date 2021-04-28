@@ -151,16 +151,17 @@ export function addData(
     // Don't update data if pair not found
     if (!d) return t
 
-    const price = !historical ? parseFloat(d.price) : t.price ?? 0
+    const price = !historical ? parseFloat(d.price) : t.price || 0
     const priceUSD =
       ethPrice && !historical
         ? parseFloat(d.price) * ethPrice
-        : (t.price && ethPrice && t.price * ethPrice) ?? 0
+        : (t.price && ethPrice && t.price * ethPrice) || t.priceUSD || 0
     const liquidity = !historical ? parseFloat(d.reserveUSD) : t.liquidity
     const priceHistorical = historical ? parseFloat(d.price) : t.priceHistorical
     const priceChange = priceHistorical
       ? calcPriceChange(price, priceHistorical)
-      : 0
+      : t.priceChange || 0
+    const reserve = parseFloat(d.reserve) || t.reserve
 
     return {
       ...t,
@@ -170,6 +171,7 @@ export function addData(
       priceHistorical,
       priceChange,
       liquidity,
+      reserve,
     }
   })
 }

@@ -1,3 +1,4 @@
+import { BreakPoint } from 'components/GlobalStyles/Breakpoints'
 import Button, {
   ButtonColor,
   ButtonGroup,
@@ -15,6 +16,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import type { CellProps, Row } from 'react-table'
 import { useRecoilValue } from 'recoil'
 import { currentBlockNumberState } from 'state/meta'
+import { hodlModeState } from 'state/tokens'
 import type {
   HandleBuyClick,
   HandleSellClick,
