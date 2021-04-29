@@ -3,7 +3,7 @@ import Modal from 'components/Modal'
 import { Spinner } from 'components/Spinner'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
-import React, { Suspense, useState } from 'react'
+import React, { Suspense, useCallback, useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { selectedOperation, selectedPairIdState } from 'state/trade'
 
@@ -45,8 +45,10 @@ const TradeModal = ({ open, onRequestClose }: Props): JSX.Element => {
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
 
   const router = useRouter()
-  const { id } = router.query
-  const parsedId: string = id && id.length ? id.toString() : (id as string)
+  const parsedId = useCallback(() => {
+    const { id } = router.query
+    return id && id.length ? id.toString() : (id as string)
+  }, [router.query])
 
   const onClose = () => {
     if (modalCloseEnabled) {
@@ -57,16 +59,16 @@ const TradeModal = ({ open, onRequestClose }: Props): JSX.Element => {
   }
 
   return (
-    <Modal open={open || !!id} onRequestClose={onClose}>
+    <Modal open={open || !!parsedId()} onRequestClose={onClose}>
       <Suspense fallback={<Loading />}>
-        {!id ? (
+        {!parsedId() ? (
           <Prepare
             operation={operation}
             setOperation={setOperation}
             setModalCloseEnabled={setModalCloseEnabled}
           />
         ) : (
-          <Success id={parsedId} closeModal={onClose} />
+          <Success id={parsedId()} closeModal={onClose} />
         )}
       </Suspense>
     </Modal>
