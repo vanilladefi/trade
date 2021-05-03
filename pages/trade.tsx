@@ -453,7 +453,7 @@ export async function getStaticProps(): Promise<
     getETHPrice(),
   ])
 
-  if (ethPrice === 0 || currentBlockNumber === 0) {
+  if (ethPrice === 0 || currentBlockNumber === 0 || blocksPerHour === 0) {
     throw Error('Query failed')
   }
 

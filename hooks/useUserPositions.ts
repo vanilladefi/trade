@@ -15,7 +15,7 @@ import {
   RewardResponse,
   TokenPriceResponse,
 } from 'lib/vanilla'
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { currentETHPrice } from 'state/meta'
 import { allTokensStoreState, userTokensState } from 'state/tokens'
@@ -235,9 +235,7 @@ function useUserPositions(): Token[] | null {
     vnl.address,
   ])
 
-  return useMemo(() => {
-    return tokens
-  }, [tokens])
+  return tokens
 }
 
 export default useUserPositions

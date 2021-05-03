@@ -12,10 +12,8 @@ import { formatDistance } from 'date-fns'
 import { parseUnits } from 'ethers/lib/utils'
 import useTokenSearch from 'hooks/useTokenSearch'
 import useUserPositions from 'hooks/useUserPositions'
-import React, { MouseEvent, useCallback, useMemo, useState } from 'react'
+import React, { MouseEvent, useCallback, useMemo } from 'react'
 import type { CellProps, Row } from 'react-table'
-import { useRecoilValue } from 'recoil'
-import { currentBlockNumberState } from 'state/meta'
 import type {
   HandleBuyClick,
   HandleSellClick,
@@ -30,11 +28,13 @@ interface Props {
   initialTokens?: Token[]
 }
 
-const RowRenderer = (row: Row<Token>): JSX.Element => {
-  const [expanded, setExpanded] = useState(false)
-  const blockNumber = useRecoilValue(currentBlockNumberState)
-
-  const getVpcOrEstimate: () => string = useCallback(() => {
+const RowRenderer = (
+  row: Row<Token>,
+  blockNumber: number,
+  expanded: boolean,
+  toggleExpanded: () => void,
+): JSX.Element => {
+  const getVpcOrEstimate: () => string = () => {
     const million = 1000000
     let vpcOrEstimate = 0
     if (row.original.vpc && row.original.vpc !== '0') {
@@ -54,9 +54,9 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
       maximumFractionDigits: 2,
       signDisplay: 'never',
     })
-  }, [row.original.vpc, row.original.reserve])
+  }
 
-  const getSecondsToHtrs: () => number = useCallback(() => {
+  const getSecondsToHtrs: () => number = () => {
     let estimatedDuration = 0
     if (row.original.htrs && blockNumber > 0) {
       const rootOfHtrs = Math.sqrt(parseFloat(row.original.htrs))
@@ -71,7 +71,7 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
       }
     }
     return estimatedDuration
-  }, [row.original.htrs, blockNumber])
+  }
 
   return (
     <div
@@ -79,7 +79,7 @@ const RowRenderer = (row: Row<Token>): JSX.Element => {
       {...row.getRowProps((...p) => rowProps(...p, { colorize: true }))}
       key={`tr-${row.id}`}
       onClick={() =>
-        window.getSelection()?.toString().length === 0 && setExpanded(!expanded)
+        window.getSelection()?.toString().length === 0 && toggleExpanded()
       }
     >
       <div className='tr' role='row'>

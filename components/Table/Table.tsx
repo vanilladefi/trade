@@ -1,7 +1,7 @@
 import type { BreakPoints } from 'components/GlobalStyles/Breakpoints'
 import { useBreakpoints } from 'hooks/breakpoints'
 import debounce from 'lodash.debounce'
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import type {
   Cell,
   ColumnInstance,
@@ -19,6 +19,8 @@ import {
   useSortBy,
   useTable,
 } from 'react-table'
+import { useRecoilValue } from 'recoil'
+import { currentBlockNumberState } from 'state/meta'
 import type {
   ColorBasedOnValue,
   LeftOrRightAlignable,
@@ -35,7 +37,12 @@ interface Props<D extends Record<string, unknown>> {
   pagination?: boolean
   colorize?: boolean
   liquidityWarning?: boolean
-  rowRenderer?: (row: Row<D>) => JSX.Element
+  rowRenderer?: (
+    row: Row<D>,
+    blockNumber?: number,
+    expanded?: boolean,
+    toggleExpanded?: () => void,
+  ) => JSX.Element
 }
 
 type CustomColumnInstance<
@@ -56,6 +63,7 @@ export default function Table<D extends Record<string, unknown>>({
   rowRenderer,
 }: Props<D>): JSX.Element {
   const { isSmaller, isBigger } = useBreakpoints()
+  const blockNumber = useRecoilValue(currentBlockNumberState)
 
   const autoResetPageRef = useRef(false)
 
@@ -121,69 +129,87 @@ export default function Table<D extends Record<string, unknown>>({
 
   const rows = pagination ? pageRows : allRows
 
-  const renderRow = useCallback(
-    () =>
-      rows.map((row) => {
-        prepareRow(row)
-        return (
-          (rowRenderer && rowRenderer(row)) || (
-            <>
-              <div
-                className='tr'
-                {...row.getRowProps((...p) =>
-                  rowProps(...p, { colorize }, { liquidityWarning }),
-                )}
-                key={`tr-${row.id}`}
-              >
-                {row.cells.map((cell) => (
-                  <div
-                    className='td'
-                    {...cell.getCellProps(cellProps)}
-                    key={`td-${cell.column.id}`}
-                  >
-                    {cell.render('Cell')}
-                  </div>
-                ))}
-              </div>
-              <style jsx>{`
-                .td,
-                .th {
-                  padding: var(--tablepadding);
-                  font-variant-numeric: tabular-nums;
-                }
-                .tr {
-                  margin-bottom: 0.4rem;
-                  border-radius: 9999px;
-                  min-height: var(--tablerow-minheight);
-                }
-                .tbody .tr {
-                  background: var(--beige);
-                  box-shadow: inset 0 0px 20px rgba(254, 222, 54, 0);
-                  transition: box-shadow 0.3s;
-                }
-                .tbody .tr:hover {
-                  box-shadow: inset 0 -20px 20px rgba(254, 222, 54, 0.2);
-                }
-                .tr.list-empty {
-                  display: flex;
-                  flex-direction: row;
-                  justify-content: center;
-                  align-items: center;
-                  color: var(--dark);
-                  opacity: 0.9;
-                }
-                .tr.list-empty a {
-                  display: inline-block;
-                  cursor: pointer;
-                  border-bottom: 1px solid var(--dark);
-                }
-              `}</style>
-            </>
-          )
-        )
-      }),
-    [colorize, liquidityWarning, prepareRow, rowRenderer, rows],
+  const [expandedRows, setExpandedRows] = useState<Array<boolean>>(
+    new Array<boolean>(rows.length),
   )
+
+  const renderRow = useCallback(() => {
+    const toggleExpandedRow = (rowIndex: number) => {
+      const newExpandedRows = JSON.parse(JSON.stringify(expandedRows))
+      newExpandedRows[rowIndex] = !expandedRows[rowIndex]
+      setExpandedRows(newExpandedRows)
+    }
+    return rows.map((row, index) => {
+      prepareRow(row)
+      return (
+        (rowRenderer &&
+          rowRenderer(row, blockNumber, expandedRows[index], () =>
+            toggleExpandedRow(index),
+          )) || (
+          <>
+            <div
+              className='tr'
+              {...row.getRowProps((...p) =>
+                rowProps(...p, { colorize }, { liquidityWarning }),
+              )}
+              key={`tr-${row.id}`}
+            >
+              {row.cells.map((cell) => (
+                <div
+                  className='td'
+                  {...cell.getCellProps(cellProps)}
+                  key={`td-${cell.column.id}`}
+                >
+                  {cell.render('Cell')}
+                </div>
+              ))}
+            </div>
+            <style jsx>{`
+              .td,
+              .th {
+                padding: var(--tablepadding);
+                font-variant-numeric: tabular-nums;
+              }
+              .tr {
+                margin-bottom: 0.4rem;
+                border-radius: 9999px;
+                min-height: var(--tablerow-minheight);
+              }
+              .tbody .tr {
+                background: var(--beige);
+                box-shadow: inset 0 0px 20px rgba(254, 222, 54, 0);
+                transition: box-shadow 0.3s;
+              }
+              .tbody .tr:hover {
+                box-shadow: inset 0 -20px 20px rgba(254, 222, 54, 0.2);
+              }
+              .tr.list-empty {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                color: var(--dark);
+                opacity: 0.9;
+              }
+              .tr.list-empty a {
+                display: inline-block;
+                cursor: pointer;
+                border-bottom: 1px solid var(--dark);
+              }
+            `}</style>
+          </>
+        )
+      )
+    })
+  }, [
+    blockNumber,
+    colorize,
+    expandedRows,
+    liquidityWarning,
+    prepareRow,
+    rowRenderer,
+    rows,
+  ])
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleQueryChanged = useCallback(
