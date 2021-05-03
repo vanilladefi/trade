@@ -28,6 +28,7 @@ interface Props {
   initialTokens?: Token[]
 }
 
+// No hooks can be used inside the RowRenderer because of Next.js error "less hooks rendered than previous render"
 const RowRenderer = (
   row: Row<Token>,
   blockNumber?: number,
