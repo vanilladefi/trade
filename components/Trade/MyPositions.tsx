@@ -30,9 +30,9 @@ interface Props {
 
 const RowRenderer = (
   row: Row<Token>,
-  blockNumber: number,
-  expanded: boolean,
-  toggleExpanded: () => void,
+  blockNumber?: number,
+  expanded?: boolean,
+  toggleExpanded?: () => void,
 ): JSX.Element => {
   const getVpcOrEstimate: () => string = () => {
     const million = 1000000
@@ -58,7 +58,7 @@ const RowRenderer = (
 
   const getSecondsToHtrs: () => number = () => {
     let estimatedDuration = 0
-    if (row.original.htrs && blockNumber > 0) {
+    if (row.original.htrs && blockNumber && blockNumber > 0) {
       const rootOfHtrs = Math.sqrt(parseFloat(row.original.htrs))
       if (rootOfHtrs > 0 && rootOfHtrs < 1) {
         const estimatedBlockNumber =
@@ -79,7 +79,9 @@ const RowRenderer = (
       {...row.getRowProps((...p) => rowProps(...p, { colorize: true }))}
       key={`tr-${row.id}`}
       onClick={() =>
-        window.getSelection()?.toString().length === 0 && toggleExpanded()
+        window.getSelection()?.toString().length === 0 &&
+        toggleExpanded &&
+        toggleExpanded()
       }
     >
       <div className='tr' role='row'>
@@ -106,7 +108,7 @@ const RowRenderer = (
               {row.original.vpc && row.original.vpc !== '0'
                 ? 'VPC:'
                 : 'Estimated max VPC:'}{' '}
-              {blockNumber > 0 && getVpcOrEstimate()}
+              {blockNumber && blockNumber > 0 && getVpcOrEstimate()}
             </b>
           </span>
           <span>
@@ -126,7 +128,7 @@ const RowRenderer = (
           <span>
             <b>
               HTRS:{' '}
-              {blockNumber > 0 && getSecondsToHtrs() > 0
+              {blockNumber && blockNumber > 0 && getSecondsToHtrs() > 0
                 ? Number(row.original.htrs ?? '0').toLocaleString('en-US', {
                     style: 'percent',
                     minimumFractionDigits: 2,
@@ -136,7 +138,7 @@ const RowRenderer = (
                 : 'Calculating...'}
             </b>
           </span>
-          {blockNumber > 0 && getSecondsToHtrs() > 0 && (
+          {blockNumber && blockNumber > 0 && getSecondsToHtrs() > 0 && (
             <span>
               A new position would take{' '}
               {formatDistance(0, 1000 * getSecondsToHtrs(), {
