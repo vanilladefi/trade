@@ -1,8 +1,8 @@
+import { Canvas } from '@react-three/fiber' // https://github.com/pmndrs/@react-three/fiber
 import { BreakPoint } from 'components/GlobalStyles/Breakpoints'
 import domtoimage from 'dom-to-image'
 import React, { useCallback, useRef } from 'react'
 import { InView } from 'react-intersection-observer'
-import { Canvas } from 'react-three-fiber' // https://github.com/pmndrs/react-three-fiber
 import Particles from './Particles'
 import Petals from './Petals'
 import ProfitCurve from './ProfitCurve'
@@ -87,7 +87,7 @@ const Flower = ({
           {asBackground ? (
             <div {...rest} className='flowerBackgroundWrapper'>
               <Canvas
-                pixelRatio={
+                dpr={
                   typeof window !== 'undefined'
                     ? window.devicePixelRatio
                       ? window.devicePixelRatio
@@ -116,7 +116,7 @@ const Flower = ({
               <div style={{ position: 'relative' }} ref={flowerRef}>
                 <div className='flowerWrapper'>
                   <Canvas
-                    pixelRatio={
+                    dpr={
                       typeof window !== 'undefined'
                         ? window.devicePixelRatio
                           ? window.devicePixelRatio

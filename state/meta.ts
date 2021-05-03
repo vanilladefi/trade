@@ -1,8 +1,9 @@
 import { atom } from 'recoil'
+import { epoch } from 'utils/config'
 
 export const currentBlockNumberState = atom<number>({
   key: 'currentBlockNumberState',
-  default: 0,
+  default: epoch,
 })
 
 export const currentETHPrice = atom<number>({
