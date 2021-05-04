@@ -39,7 +39,6 @@ import { selectedOperation, selectedPairIdState } from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
 import { HandleBuyClick, HandleSellClick, Operation, Token } from 'types/trade'
 import { useWallet } from 'use-wallet'
-import { apiKey, defaultProvider, rpcUrl, useWebsocketRpc } from 'utils/config'
 
 type PageProps = {
   allTokens: Token[]
@@ -278,7 +277,7 @@ const BodyContent = ({
   const setOperation = useSetRecoilState(selectedOperation)
   const userPositions = useRecoilValue(userTokensState)
   const { account } = useWallet()
-  console.log(defaultProvider, ethPrice, apiKey, useWebsocketRpc, rpcUrl)
+
   useEffect(() => {
     setTokens(initialTokens)
     setETHPrice(ethPrice)
@@ -457,15 +456,6 @@ export async function getStaticProps(): Promise<
   if (ethPrice === 0 || currentBlockNumber === 0 || blocksPerHour === 0) {
     throw Error('Query failed')
   }
-
-  console.log(
-    defaultProvider,
-    tokens,
-    ethPrice,
-    apiKey,
-    useWebsocketRpc,
-    rpcUrl,
-  )
 
   tokens = await addGraphInfo(tokens)
   tokens = addUSDPrice(tokens, ethPrice)
