@@ -113,7 +113,11 @@ const Flower = ({
             </div>
           ) : (
             <div>
-              <div style={{ position: 'relative' }} ref={flowerRef}>
+              <div
+                style={{ position: 'relative' }}
+                ref={flowerRef}
+                onMouseMove={onMouseMove}
+              >
                 <div className='flowerWrapper'>
                   <Canvas
                     dpr={
@@ -124,7 +128,6 @@ const Flower = ({
                         : 1
                     }
                     camera={{ fov: 75, position: [0, 0, 19] }}
-                    onMouseMove={onMouseMove}
                     resize={{ scroll: false }}
                   >
                     <Petals
