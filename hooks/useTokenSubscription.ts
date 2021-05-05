@@ -1,5 +1,10 @@
 import { getAverageBlockCountPerHour } from 'lib/block'
-import { thegraphClientSub, TokenInfoSubAB, TokenInfoSubBA } from 'lib/graphql'
+import {
+  getTheGraphClient,
+  TokenInfoSubAB,
+  TokenInfoSubBA,
+  UniswapVersion,
+} from 'lib/graphql'
 import { addData, addGraphInfo, getAllTokens, weth } from 'lib/tokens'
 import { useEffect } from 'react'
 import { useRecoilCallback, useRecoilValue } from 'recoil'
@@ -49,14 +54,16 @@ export default function useTokenSubscription(): void {
       next: handleNewData,
     }
 
-    const subAB = thegraphClientSub
+    const { ws } = getTheGraphClient(UniswapVersion.v2)
+
+    const subAB = ws
       .request({
         query: TokenInfoSubAB,
         variables,
       })
       .subscribe(subOptions)
 
-    const subBA = thegraphClientSub
+    const subBA = ws
       .request({
         query: TokenInfoSubBA,
         variables,

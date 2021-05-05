@@ -1,4 +1,4 @@
-import { ETHPriceSub, thegraphClientSub } from 'lib/graphql'
+import { ETHPriceSub, getTheGraphClient, UniswapVersion } from 'lib/graphql'
 import { useEffect } from 'react'
 import { useRecoilCallback } from 'recoil'
 import { currentETHPrice } from 'state/meta'
@@ -32,9 +32,8 @@ function useETHPrice(): void {
     const subOptions = {
       next: handleNewData,
     }
-    const ethPriceSub = thegraphClientSub
-      .request({ query: ETHPriceSub })
-      .subscribe(subOptions)
+    const { ws } = getTheGraphClient(UniswapVersion.v2)
+    const ethPriceSub = ws.request({ query: ETHPriceSub }).subscribe(subOptions)
     return () => {
       ethPriceSub.unsubscribe()
     }

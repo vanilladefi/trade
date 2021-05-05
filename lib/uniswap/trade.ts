@@ -1,13 +1,5 @@
-import {
-  CurrencyAmount,
-  Fetcher,
-  JSBI,
-  Route,
-  Token,
-  TokenAmount,
-  Trade,
-  TradeType,
-} from '@uniswap/sdk'
+import { Token, TokenAmount, TradeType } from '@uniswap/sdk-core'
+import { JSBI, Route, Trade } from '@uniswap/v2-sdk'
 import { BigNumber, providers, Transaction } from 'ethers'
 import { getAddress, parseUnits } from 'ethers/lib/utils'
 import vanillaRouter from 'types/abis/vanillaRouter.json'

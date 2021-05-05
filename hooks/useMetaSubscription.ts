@@ -1,4 +1,8 @@
-import { MetaSubscription, thegraphClientSub } from 'lib/graphql'
+import {
+  getTheGraphClient,
+  MetaSubscription,
+  UniswapVersion,
+} from 'lib/graphql'
 import { useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { currentBlockNumberState } from 'state/meta'
@@ -14,13 +18,12 @@ export default function useMetaSubscription(): void {
   )
 
   useEffect(() => {
-    const subMeta = thegraphClientSub
-      .request({ query: MetaSubscription })
-      .subscribe({
-        next: ({ data }: subReturnValue) =>
-          data?._meta.block.number > currentBlockNumber &&
-          setCurrentBlockNumber(data?._meta.block.number),
-      })
+    const { ws } = getTheGraphClient(UniswapVersion.v2)
+    const subMeta = ws.request({ query: MetaSubscription }).subscribe({
+      next: ({ data }: subReturnValue) =>
+        data?._meta.block.number > currentBlockNumber &&
+        setCurrentBlockNumber(data?._meta.block.number),
+    })
 
     return () => {
       subMeta.unsubscribe()

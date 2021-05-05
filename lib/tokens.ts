@@ -5,9 +5,10 @@ import { getAddress } from 'ethers/lib/utils'
 import { ETHPriceQueryResponse } from 'hooks/useETHPrice'
 import {
   ETHPrice,
-  thegraphClient,
+  getTheGraphClient,
   TokenInfoQuery,
   TokenInfoQueryHistorical,
+  UniswapVersion,
 } from 'lib/graphql'
 import { ipfsToHttp } from 'lib/ipfs'
 import Vibrant from 'node-vibrant'
@@ -198,8 +199,10 @@ export async function addGraphInfo(
   }
 
   try {
+    const { http } = getTheGraphClient(UniswapVersion.v2)
+
     // Retrieve more info from The Graph's API
-    const response = await thegraphClient.request(query, variables)
+    const response = await http.request(query, variables)
 
     const data = [
       // Merge response arrays
@@ -225,9 +228,9 @@ export async function getBalance(
 export async function getETHPrice(): Promise<number> {
   let parsedPrice: number
   try {
-    const { bundle }: ETHPriceQueryResponse = await thegraphClient.request(
-      ETHPrice,
-    )
+    const { http } = getTheGraphClient(UniswapVersion.v2)
+
+    const { bundle }: ETHPriceQueryResponse = await http.request(ETHPrice)
     parsedPrice = parseFloat(bundle?.ethPrice)
     if (parsedPrice === NaN) {
       throw Error(
