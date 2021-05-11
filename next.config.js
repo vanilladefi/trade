@@ -15,7 +15,7 @@ const withMDX = require('@next/mdx')({
 
 module.exports = withMDX({
   /* future: {
-    webpack5: true,
+    webpack5: true, // Breaks walletconnect
   }, */
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
   i18n: {
