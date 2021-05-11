@@ -32,13 +32,9 @@ import React, {
   useEffect,
   useState,
 } from 'react'
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
-import { currentETHPrice } from 'state/meta'
-import {
-  allTokensStoreState,
-  hodlModeState,
-  userTokensState,
-} from 'state/tokens'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
+import { currentBlockNumberState, currentETHPrice } from 'state/meta'
+import { allTokensStoreState, userTokensState } from 'state/tokens'
 import { selectedOperation, selectedPairIdState } from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
 import { HandleBuyClick, HandleSellClick, Operation, Token } from 'types/trade'
@@ -47,11 +43,13 @@ import { useWallet } from 'use-wallet'
 type PageProps = {
   allTokens: Token[]
   ethPrice: number
+  currentBlockNumber: number
 }
 
 type BodyProps = {
   initialTokens: Token[]
   ethPrice: number
+  currentBlockNumber: number
   setModalOpen: Dispatch<SetStateAction<boolean>>
 }
 
@@ -265,6 +263,7 @@ const HeaderContent = (): JSX.Element => {
 const BodyContent = ({
   initialTokens,
   ethPrice,
+  currentBlockNumber,
   setModalOpen,
 }: BodyProps): JSX.Element => {
   useMetaSubscription()
@@ -272,17 +271,25 @@ const BodyContent = ({
 
   const setETHPrice = useSetRecoilState(currentETHPrice)
   const setTokens = useSetRecoilState(allTokensStoreState)
+  const setCurrentBlockNumber = useSetRecoilState(currentBlockNumberState)
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const setOperation = useSetRecoilState(selectedOperation)
-  const [hodlMode, setHodlMode] = useRecoilState(hodlModeState)
   const userPositions = useRecoilValue(userTokensState)
   const { account } = useWallet()
 
   useEffect(() => {
     setTokens(initialTokens)
     setETHPrice(ethPrice)
-  }, [setTokens, initialTokens, setETHPrice, ethPrice])
+    setCurrentBlockNumber(currentBlockNumber)
+  }, [
+    setTokens,
+    initialTokens,
+    setETHPrice,
+    ethPrice,
+    setCurrentBlockNumber,
+    currentBlockNumber,
+  ])
 
   const profitablePositions = useCallback(() => {
     return userPositions?.filter((token) => token.profit && token.profit > 0)
@@ -350,15 +357,6 @@ const BodyContent = ({
                       } profitable`}</small>
                     )}
                   </h2>
-                  <div className='hodlWrapper'>
-                    <span>ADVANCED HODL MODE</span>
-                    <button
-                      className={`hodlToggle${hodlMode ? ' active' : ''}`}
-                      onClick={() => setHodlMode(!hodlMode)}
-                    >
-                      <div className='handle'></div>
-                    </button>
-                  </div>
                 </div>
                 <MyPositions
                   onBuyClick={handleBuyClick}
@@ -401,46 +399,6 @@ const BodyContent = ({
           align-items: flex-end;
           justify-content: space-between;
         }
-        .hodlWrapper {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-        }
-        .hodlWrapper span {
-          font-size: var(--minisize);
-          font-weight: var(--buttonweight);
-          margin-right: 0.4rem;
-        }
-        .hodlToggle {
-          cursor: pointer;
-          height: 28px;
-          width: 60px;
-          background: var(--inactivelink);
-          border-radius: 9999px;
-          position: relative;
-          display: flex;
-          border: 2px solid var(--bordercolor);
-          outline: 0;
-          padding: 2px;
-          transition: 0.2s ease background;
-        }
-        .hodlToggle.active {
-          background: var(--buttongradient);
-        }
-        .hodlToggle .handle {
-          display: flex;
-          position: relative;
-          width: 20px;
-          height: 20px;
-          flex-shrink: 0;
-          border-radius: 50%;
-          background: var(--white);
-          margin-left: 0;
-          transition: 0.2s ease margin-left;
-        }
-        .hodlToggle.active .handle {
-          margin-left: calc(100% - 20px);
-        }
       `}</style>
     </>
   )
@@ -449,6 +407,7 @@ const BodyContent = ({
 export default function TradePage({
   allTokens,
   ethPrice,
+  currentBlockNumber,
 }: PageProps): JSX.Element {
   // NOTE: allTokens here will be stale after a while
   // allTokens here is only used to populate the state on first render (static)
@@ -475,6 +434,7 @@ export default function TradePage({
         initialTokens={allTokens}
         ethPrice={ethPrice}
         setModalOpen={setModalOpen}
+        currentBlockNumber={currentBlockNumber}
       />
     </Layout>
   )
@@ -493,8 +453,8 @@ export async function getStaticProps(): Promise<
     getETHPrice(),
   ])
 
-  if (ethPrice === 0) {
-    throw Error('Invalid value for ETH/USD price!')
+  if (ethPrice === 0 || currentBlockNumber === 0 || blocksPerHour === 0) {
+    throw Error('Query failed')
   }
 
   tokens = await addGraphInfo(tokens)
@@ -512,6 +472,7 @@ export async function getStaticProps(): Promise<
     props: {
       allTokens: tokens,
       ethPrice: ethPrice || 0,
+      currentBlockNumber: currentBlockNumber,
     },
     revalidate: 60,
   }

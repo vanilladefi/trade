@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
+import { extend, useFrame } from '@react-three/fiber'
+import React, { useRef } from 'react'
 import * as THREE from 'three'
-import React, { useRef, useMemo } from 'react'
-import { extend, useFrame, useThree } from 'react-three-fiber'
 import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'three.meshline'
 
 extend({ MeshLine, MeshLineMaterial })

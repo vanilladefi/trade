@@ -5,7 +5,7 @@ import TradeFlower from 'components/TradeFlower'
 import { SmallTitle } from 'components/typography/Titles'
 import { formatUnits } from 'ethers/lib/utils'
 import useTransaction from 'hooks/useTransaction'
-import React, { Suspense } from 'react'
+import React, { Suspense, useCallback } from 'react'
 
 type Props = {
   id: string
@@ -34,26 +34,31 @@ const Loading = (): JSX.Element => (
 const SuccessView = ({ id, closeModal }: Props): JSX.Element => {
   const transaction = useTransaction(id)
 
-  const [amountPaid, amountReceived] = [
-    transaction
+  const amountPaid = useCallback(() => {
+    return transaction
       ? parseFloat(
-          formatUnits(
-            transaction.amountPaid || '0',
-            transaction.paid?.decimals,
-          ),
-        )
-      : 0,
-    transaction
-      ? parseFloat(
-          formatUnits(
-            transaction.amountReceived || '0',
-            transaction.received?.decimals,
-          ),
-        )
-      : 0,
-  ]
+        formatUnits(
+          transaction.amountPaid || '0',
+          transaction.paid?.decimals,
+        ),
+      )
+      : 0
+  }, [transaction])
 
-  const reward = formatUnits(transaction?.reward?.toString() || '0', 12)
+  const amountReceived = useCallback(() => {
+    return transaction
+      ? parseFloat(
+        formatUnits(
+          transaction.amountReceived || '0',
+          transaction.received?.decimals,
+        ),
+      )
+      : 0
+  }, [transaction])
+
+  const reward = useCallback(() => {
+    return formatUnits(transaction?.reward?.toString() || '0', 12)
+  }, [transaction])
 
   return (
     <Column>
@@ -68,15 +73,15 @@ const SuccessView = ({ id, closeModal }: Props): JSX.Element => {
             <TradeFlower
               received={{
                 symbol: transaction.received?.symbol ?? '',
-                amount: amountReceived,
+                amount: amountReceived(),
               }}
               paid={{
                 symbol: transaction.paid?.symbol ?? '',
-                amount: amountPaid,
+                amount: amountPaid(),
               }}
               reward={{
                 symbol: 'VNL',
-                amount: reward ? parseFloat(reward) : 0.0,
+                amount: reward ? parseFloat(reward()) : 0.0,
               }}
               tradeURL={{
                 domain: 'vanilladefi.com',

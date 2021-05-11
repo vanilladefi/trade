@@ -1,7 +1,7 @@
 import classNames from 'classnames'
 import { Spinner } from 'components/Spinner'
 import Icon, { IconUrls } from 'components/typography/Icon'
-import React, { ReactNode } from 'react'
+import React, { MouseEventHandler, ReactNode } from 'react'
 import { Alignment, Justification } from '../grid/Flex'
 
 export enum ButtonColor {
@@ -46,7 +46,7 @@ export enum ButtonState {
   SUCCESS,
 }
 
-type Callback = () => void
+type Callback = MouseEventHandler<HTMLButtonElement>
 
 type Props = {
   children?: ReactNode

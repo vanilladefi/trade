@@ -42,6 +42,7 @@ export interface Token extends UniSwapToken {
   eligible?: Eligibility
   vpc?: string | null
   htrs?: string | null
+  reserve?: string | number | null
 }
 
 export interface TokenInfoQueryResponse {
@@ -50,6 +51,7 @@ export interface TokenInfoQueryResponse {
     id: string
   }
   price: string
+  reserve: string
   reserveUSD: string
 }
 

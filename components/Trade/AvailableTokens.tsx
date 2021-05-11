@@ -34,6 +34,7 @@ export default function AvailableTokens({
       initialSortBy={initialSortBy}
       query={query}
       clearQuery={clearQuery}
+      liquidityWarning
       pagination
     />
   )

@@ -1,13 +1,13 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
-import * as THREE from 'three'
-import React, { useRef, useMemo } from 'react'
-import { extend, useFrame, useThree } from 'react-three-fiber'
+import { extend, useFrame, useThree } from '@react-three/fiber'
 import lerp from 'lerp'
-import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'three.meshline'
+import React, { useMemo, useRef } from 'react'
 import SimplexNoise from 'simplex-noise' // https://github.com/jwagner/simplex-noise.js
-import { calcMap, calcClamp } from '../../utils/Calc'
+import * as THREE from 'three'
+import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'three.meshline'
+import { calcClamp, calcMap } from '../../utils/Calc'
 
 extend({ MeshLine, MeshLineMaterial })
 

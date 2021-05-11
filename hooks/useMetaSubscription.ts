@@ -1,6 +1,6 @@
 import { MetaSubscription, thegraphClientSub } from 'lib/graphql'
 import { useEffect } from 'react'
-import { useSetRecoilState } from 'recoil'
+import { useRecoilState } from 'recoil'
 import { currentBlockNumberState } from 'state/meta'
 import type { MetaQueryResponse } from 'types/trade'
 
@@ -9,18 +9,22 @@ interface subReturnValue {
 }
 
 export default function useMetaSubscription(): void {
-  const setCurrentBlockNumber = useSetRecoilState(currentBlockNumberState)
+  const [currentBlockNumber, setCurrentBlockNumber] = useRecoilState(
+    currentBlockNumberState,
+  )
 
   useEffect(() => {
     const subMeta = thegraphClientSub
       .request({ query: MetaSubscription })
       .subscribe({
         next: ({ data }: subReturnValue) =>
+          data?._meta.block.number > currentBlockNumber &&
           setCurrentBlockNumber(data?._meta.block.number),
       })
 
     return () => {
       subMeta.unsubscribe()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setCurrentBlockNumber])
 }
