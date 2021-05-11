@@ -8,6 +8,8 @@ export const chainId: number =
     parseInt(process.env.NEXT_PUBLIC_CHAIN_ID)) ||
   1
 
+export const network: providers.Networkish = providers.getNetwork(chainId)
+
 export const vanillaRouterAddress: string =
   process.env.NEXT_PUBLIC_VANILLA_ROUTER_ADDRESS ||
   '0x5FbDB2315678afecb367f032d93F642f64180aa3'
@@ -17,6 +19,8 @@ export const apiKey: string | boolean =
 
 export const ssrApiKey: string | boolean = process.env.SSR_API_KEY || false
 
+export const protocolPrefix: string = useWebsocketRpc ? 'wss://' : 'https://'
+
 export const rpcUrl: string =
   (ssrApiKey && `https://eth-mainnet.alchemyapi.io/v2/${ssrApiKey}`) ||
   (apiKey && `https://eth-mainnet.alchemyapi.io/v2/${apiKey}`) ||
@@ -24,10 +28,12 @@ export const rpcUrl: string =
 
 export const defaultProvider =
   useWebsocketRpc && apiKey && !ssrApiKey
-    ? new providers.AlchemyWebSocketProvider(1, apiKey)
-    : useWebsocketRpc && !ssrApiKey
-    ? new providers.WebSocketProvider('ws://localhost:8545', 1)
-    : new providers.JsonRpcProvider(rpcUrl, 1)
+    ? new providers.AlchemyWebSocketProvider(network, apiKey)
+    : useWebsocketRpc && !ssrApiKey && !apiKey
+    ? new providers.WebSocketProvider('ws://localhost:8545', network)
+    : !ssrApiKey && apiKey
+    ? new providers.AlchemyProvider(network, apiKey)
+    : new providers.JsonRpcProvider(rpcUrl, network)
 
 export const blockDeadlineThreshold = 600 // 600 seconds added to the latest block timestamp (10 minutes)
 
