@@ -1,4 +1,4 @@
-import { Percent } from '@uniswap/sdk'
+import { Percent } from '@uniswap/sdk-core'
 import { ReactNode } from 'react'
 import Dropdown, { Option } from 'react-dropdown'
 import { useRecoilState } from 'recoil'
