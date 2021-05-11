@@ -1,4 +1,3 @@
-// import { Token } from '@uniswap/sdk'
 import { TopGradient } from 'components/backgrounds/gradient'
 import { Column, Row, Width } from 'components/grid/Flex'
 import Button from 'components/input/Button'

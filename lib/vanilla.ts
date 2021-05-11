@@ -1,7 +1,10 @@
+import { Percent } from '@uniswap/sdk-core'
+import { Trade } from '@uniswap/v2-sdk'
 import { BigNumber, ethers, providers, Signer } from 'ethers'
+import { formatUnits } from 'ethers/lib/utils'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
-import { UniSwapToken } from 'types/trade'
-import { vanillaRouterAddress } from 'utils/config'
+import { Operation, UniSwapToken } from 'types/trade'
+import { blockDeadlineThreshold, vanillaRouterAddress } from 'utils/config'
 import { tryParseAmount } from './uniswap/trade'
 
 export const getVnlTokenAddress = async (
@@ -105,4 +108,51 @@ export const getEpoch = async (signer: Signer): Promise<BigNumber | null> => {
   }
 
   return epoch
+}
+
+export const estimateGas = async (
+  trade: Trade,
+  provider: providers.Provider,
+  operation: Operation,
+  token0: UniSwapToken,
+  slippageTolerance: Percent,
+): Promise<string> => {
+  const router = new ethers.Contract(
+    vanillaRouterAddress,
+    JSON.stringify(vanillaRouter.abi),
+    provider,
+  )
+  let gasEstimate = '0'
+  if (provider && router && trade) {
+    const block = await provider.getBlock('latest')
+    const blockDeadline = block.timestamp + blockDeadlineThreshold
+    if (operation === Operation.Buy) {
+      gasEstimate = await router.estimateGas
+        .depositAndBuy(
+          token0.address,
+          trade?.minimumAmountOut(slippageTolerance).raw.toString(),
+          blockDeadline,
+          {
+            value: trade?.inputAmount.raw.toString(),
+          },
+        )
+        .then(async (value) => {
+          const price = await provider.getGasPrice()
+          return formatUnits(value.mul(price))
+        })
+    } else {
+      gasEstimate = await router.estimateGas
+        .sellAndWithdraw(
+          token0.address,
+          trade?.inputAmount.raw.toString(),
+          trade?.minimumAmountOut(slippageTolerance).raw.toString(),
+          blockDeadline,
+        )
+        .then(async (value) => {
+          const price = await provider.getGasPrice()
+          return formatUnits(value.mul(price))
+        })
+    }
+  }
+  return gasEstimate
 }

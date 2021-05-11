@@ -1,5 +1,5 @@
-import { Percent } from '@uniswap/sdk'
-import { PairByIdQuery, thegraphClient } from 'lib/graphql'
+import { Percent } from '@uniswap/sdk-core'
+import { getTheGraphClient, PairByIdQuery, UniswapVersion } from 'lib/graphql'
 import { getLogoUri, tokenListChainId, weth } from 'lib/tokens'
 import { atom, selector } from 'recoil'
 import { Operation, PairByIdQueryResponse, UniSwapToken } from 'types/trade'
@@ -29,10 +29,11 @@ export const selectedPairState = selector<PairByIdQueryResponse | null>({
   get: async ({ get }) => {
     let pair: PairByIdQueryResponse | null = null
     try {
+      const { http } = getTheGraphClient(UniswapVersion.v2)
       const pairId = get(selectedPairIdState)
       const counterAsset = get(selectedCounterAsset)
       if (pairId !== null) {
-        const response = await thegraphClient.request(PairByIdQuery, {
+        const response = await http.request(PairByIdQuery, {
           pairId: pairId,
         })
 

@@ -1,4 +1,5 @@
-import { Percent, Token, TokenAmount, Trade, TradeType } from '@uniswap/sdk'
+import { Percent, Token, TokenAmount, TradeType } from '@uniswap/sdk-core'
+import { Trade } from '@uniswap/v2-sdk'
 import { Column, Width } from 'components/grid/Flex'
 import Button, {
   ButtonColor,
@@ -11,11 +12,12 @@ import Icon, { IconUrls } from 'components/typography/Icon'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import useEligibleTokenBalance from 'hooks/useEligibleTokenBalance'
 import useTokenBalance from 'hooks/useTokenBalance'
+import useTokenEthPrice from 'hooks/useTokenEthPrice'
 import useTradeEngine from 'hooks/useTradeEngine'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import useVanillaRouter from 'hooks/useVanillaRouter'
 import { constructTrade } from 'lib/uniswap/trade'
-import { estimateReward } from 'lib/vanilla'
+import { estimateGas, estimateReward } from 'lib/vanilla'
 import debounce from 'lodash.debounce'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
@@ -127,6 +129,7 @@ const PrepareView = ({
     () => (operation === Operation.Buy ? token0 : token1),
     [operation, token0, token1],
   )
+  const token0EthPrice = useTokenEthPrice(token0?.address ?? '')
 
   const [estimatedGas, setEstimatedGas] = useState<string>()
   const [estimatedFees, setEstimatedFees] = useState<string>()
@@ -192,67 +195,20 @@ const PrepareView = ({
 
   // Estimate gas fees
   useEffect(() => {
-    const estimateGas = debounce(async () => {
-      if (
-        provider &&
-        vanillaRouter &&
-        token0 &&
-        token1 &&
-        trade &&
-        !parseUnits(token0Amount, token0?.decimals).isZero() &&
-        !parseUnits(token1Amount, token1?.decimals).isZero()
-      ) {
-        const block = await provider.getBlock('latest')
-        const blockDeadline = block.timestamp + blockDeadlineThreshold
-        if (operation === Operation.Buy) {
-          vanillaRouter.estimateGas
-            .depositAndBuy(
-              token0.address,
-              trade?.minimumAmountOut(slippageTolerance).raw.toString(),
-              blockDeadline,
-              {
-                value: trade?.inputAmount.raw.toString(),
-              },
-            )
-            .then((value) => {
-              provider.getGasPrice().then((price) => {
-                setEstimatedGas(formatUnits(value.mul(price)))
-              })
-            })
-            .catch(() => {
-              return
-            })
-        } else {
-          vanillaRouter.estimateGas
-            .sellAndWithdraw(
-              token0.address,
-              trade?.inputAmount.raw.toString(),
-              trade?.minimumAmountOut(slippageTolerance).raw.toString(),
-              blockDeadline,
-            )
-            .then((value) => {
-              provider.getGasPrice().then((price) => {
-                setEstimatedGas(formatUnits(value.mul(price)))
-              })
-            })
-            .catch(() => {
-              return
-            })
-        }
+    const debouncedGasEstimation = debounce(async () => {
+      if (trade && provider && token0) {
+        const gasEstimate = await estimateGas(
+          trade,
+          provider,
+          operation,
+          token0,
+          slippageTolerance,
+        )
+        setEstimatedGas(gasEstimate)
       }
     }, 500)
-    estimateGas()
-  }, [
-    operation,
-    token0Amount,
-    provider,
-    token1Amount,
-    token0,
-    token1,
-    vanillaRouter,
-    slippageTolerance,
-    trade,
-  ])
+    debouncedGasEstimation()
+  }, [operation, provider, token0, slippageTolerance, trade])
 
   // Estimate LP fees
   useEffect(() => {
@@ -307,13 +263,18 @@ const PrepareView = ({
         tokenChanged === 0 ? token0.decimals : token1.decimals,
       )
 
-      if (provider && receivedToken && paidToken && !parsedAmount.isZero()) {
+      if (
+        token0EthPrice &&
+        receivedToken &&
+        paidToken &&
+        !parsedAmount.isZero()
+      ) {
         try {
           const trade = await constructTrade(
             amount,
             receivedToken,
             paidToken,
-            provider,
+            token0EthPrice,
             tradeType,
           )
           setTrade(trade)
@@ -390,6 +351,10 @@ const PrepareView = ({
       if (parseFloat(value) > 0) {
         const trade = await updateTrade(tokenIndex, value)
         if (trade) {
+          console.log(
+            trade.inputAmount.toSignificant(6),
+            trade.outputAmount.toSignificant(6),
+          )
           const newToken1Amount =
             operation === Operation.Buy
               ? trade.inputAmount && trade.inputAmount.toSignificant(6)
@@ -404,6 +369,10 @@ const PrepareView = ({
       if (parseFloat(value) > 0) {
         const trade = await updateTrade(tokenIndex, value)
         if (trade) {
+          console.log(
+            trade.inputAmount.toSignificant(6),
+            trade.outputAmount.toSignificant(6),
+          )
           const newToken0Amount =
             operation === Operation.Buy
               ? trade.outputAmount && trade.outputAmount.toSignificant(6)

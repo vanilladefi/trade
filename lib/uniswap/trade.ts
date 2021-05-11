@@ -1,5 +1,11 @@
 import { Token, TokenAmount, TradeType } from '@uniswap/sdk-core'
-import { JSBI, Route, Trade } from '@uniswap/v2-sdk'
+import {
+  InsufficientReservesError,
+  JSBI,
+  Pair,
+  Route,
+  Trade,
+} from '@uniswap/v2-sdk'
 import { BigNumber, providers, Transaction } from 'ethers'
 import { getAddress, parseUnits } from 'ethers/lib/utils'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
@@ -11,6 +17,8 @@ export enum Field {
   INPUT = 'INPUT',
   OUTPUT = 'OUTPUT',
 }
+
+InsufficientReservesError
 
 export interface TransactionProps {
   amountReceived: string
@@ -82,39 +90,52 @@ export async function constructTrade(
   amountToTrade: string, // Not amountPaid because of tradeType
   tokenReceived: UniSwapToken,
   tokenPaid: UniSwapToken,
-  provider: providers.JsonRpcProvider,
+  tokenPrice: number,
   tradeType = TradeType.EXACT_OUTPUT,
 ): Promise<Trade> {
   try {
-    const parsedAmount = tryParseAmount(
-      amountToTrade,
-      tradeType === TradeType.EXACT_OUTPUT ? tokenReceived : tokenPaid,
-    )
-    if (!parsedAmount)
+    console.log(tradeType === TradeType.EXACT_OUTPUT, tokenPaid)
+    const asset =
+      tradeType === TradeType.EXACT_OUTPUT ? tokenReceived : tokenPaid
+    const counterAsset =
+      tradeType === TradeType.EXACT_OUTPUT ? tokenPaid : tokenReceived
+
+    const parsedAmountTraded = tryParseAmount(amountToTrade, asset)
+    if (!parsedAmountTraded)
       return Promise.reject(`Failed to parse input amount: ${amountToTrade}`)
 
-    const convertedTokenReceived = new Token(
-      tokenReceived.chainId,
-      getAddress(tokenReceived.address),
-      tokenReceived.decimals,
-    )
-    const convertedTokenPaid = new Token(
-      tokenPaid.chainId,
-      getAddress(tokenPaid.address),
-      tokenPaid.decimals,
-    )
-    const pair = await Fetcher.fetchPairData(
-      convertedTokenReceived,
-      convertedTokenPaid,
-      provider,
+    const convertedAsset = new Token(
+      asset.chainId,
+      getAddress(asset.address),
+      asset.decimals,
     )
 
-    const route = new Route([pair], convertedTokenPaid)
+    const calculatedCounterAssetAmount =
+      tradeType === TradeType.EXACT_OUTPUT
+        ? parsedAmountTraded
+            .multiply(parseUnits(String(tokenPrice), asset.decimals).toString())
+            .divide(parseUnits('1', asset.decimals).toString())
+            .toFixed(asset.decimals)
+        : parsedAmountTraded
+            .multiply(parseUnits('1', asset.decimals).toString())
+            .divide(parseUnits(String(tokenPrice), asset.decimals).toString())
+            .toFixed(asset.decimals)
 
-    const trade = new Trade(route, parsedAmount, tradeType)
+    const quote = tryParseAmount(calculatedCounterAssetAmount, counterAsset)
+    if (!quote) return Promise.reject(`Failed to get a quote`)
+
+    const pair = new Pair(
+      tradeType === TradeType.EXACT_OUTPUT ? parsedAmountTraded : quote,
+      tradeType === TradeType.EXACT_OUTPUT ? quote : parsedAmountTraded,
+    )
+
+    const route = new Route([pair], convertedAsset)
+
+    const trade = new Trade(route, parsedAmountTraded, tradeType)
 
     return trade
   } catch (error) {
+    console.log(error)
     throw error
   }
 }
@@ -122,7 +143,7 @@ export async function constructTrade(
 export function tryParseAmount(
   value?: string,
   currency?: UniSwapToken,
-): CurrencyAmount | undefined {
+): TokenAmount | undefined {
   if (!value || !currency) {
     return undefined
   }

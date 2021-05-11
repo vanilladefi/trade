@@ -1,9 +1,9 @@
 import {
   Token as UniswapToken,
   TokenAmount,
-  Trade,
   TradeType,
-} from '@uniswap/sdk'
+} from '@uniswap/sdk-core'
+import { Trade } from '@uniswap/v2-sdk'
 import { BigNumber } from 'ethers'
 import { formatUnits, getAddress, isAddress } from 'ethers/lib/utils'
 import { tokenListChainId } from 'lib/tokens'
@@ -106,12 +106,13 @@ function useUserPositions(): Token[] | null {
 
                 // Get current best trade from Uniswap to calculate available rewards
                 let trade: Trade | null
+                console.log(token.price)
                 try {
                   trade = await constructTrade(
                     tokenAmount.toSignificant(),
                     counterAsset,
                     token,
-                    provider,
+                    token.price || 0,
                     TradeType.EXACT_INPUT,
                   )
                 } catch (e) {

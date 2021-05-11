@@ -1,4 +1,4 @@
-import { Token, TokenAmount } from '@uniswap/sdk'
+import { Token, TokenAmount } from '@uniswap/sdk-core'
 import { BigNumber } from 'ethers'
 import { tokenListChainId, weth } from 'lib/tokens'
 import { useCallback, useEffect, useMemo, useState } from 'react'
