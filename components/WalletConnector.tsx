@@ -37,15 +37,27 @@ const WalletConnector = (): null => {
     if (ethereum) {
       let ethersProvider:
         | providers.AlchemyWebSocketProvider
+        | providers.AlchemyProvider
         | providers.Web3Provider
         | providers.WebSocketProvider
       let ethersSigner: providers.JsonRpcSigner
 
       /* if (useWebsocketRpc && apiKey) {
-        ethersProvider = new providers.AlchemyWebSocketProvider(chainId, apiKey)
-        ethersSigner = new providers.Web3Provider(
-          ethereum as providers.ExternalProvider,
-        ).getSigner()
+        // Some wallets won't connect if the used provider is different from the given one
+        if (['injected', 'provided'].includes(connector)) {
+          ethersProvider = new providers.AlchemyWebSocketProvider(
+            chainId,
+            apiKey,
+          )
+          ethersSigner = new providers.Web3Provider(
+            ethereum as providers.ExternalProvider,
+          ).getSigner()
+        } else {
+          ethersProvider = new providers.Web3Provider(
+            ethereum as providers.ExternalProvider,
+          )
+          ethersSigner = ethersProvider.getSigner()
+        }
       } else if (useWebsocketRpc) {
         ethersProvider = new providers.WebSocketProvider(
           'ws://localhost:8545',
@@ -57,16 +69,17 @@ const WalletConnector = (): null => {
       } else { */
       ethersProvider = new providers.Web3Provider(
         ethereum as providers.ExternalProvider,
+        providers.getNetwork(1),
       )
       ethersSigner = ethersProvider.getSigner()
-      //}
+      /* } */
 
       setProvider(ethersProvider)
       setSigner(ethersSigner)
     } else {
       setSigner(null)
     }
-  }, [ethereum, setSigner, setProvider])
+  }, [ethereum, setSigner, setProvider, connector])
 
   useEffect(() => {
     initialLoad()
