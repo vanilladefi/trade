@@ -8,6 +8,7 @@ import {
   storedWalletConnectorState,
 } from 'state/wallet'
 import { useWallet, Wallet } from 'use-wallet'
+import { apiKey, chainId, useWebsocketRpc } from 'utils/config'
 
 type JsonRpcWallet = Wallet<providers.JsonRpcProvider>
 
@@ -42,37 +43,37 @@ const WalletConnector = (): null => {
         | providers.WebSocketProvider
       let ethersSigner: providers.JsonRpcSigner
 
-      /* if (useWebsocketRpc && apiKey) {
-        // Some wallets won't connect if the used provider is different from the given one
-        if (['injected', 'provided'].includes(connector)) {
-          ethersProvider = new providers.AlchemyWebSocketProvider(
-            chainId,
-            apiKey,
-          )
-          ethersSigner = new providers.Web3Provider(
-            ethereum as providers.ExternalProvider,
-          ).getSigner()
-        } else {
-          ethersProvider = new providers.Web3Provider(
-            ethereum as providers.ExternalProvider,
-          )
-          ethersSigner = ethersProvider.getSigner()
-        }
-      } else if (useWebsocketRpc) {
-        ethersProvider = new providers.WebSocketProvider(
-          'ws://localhost:8545',
-          chainId,
+      if (useWebsocketRpc && apiKey) {
+        ethersProvider = new providers.AlchemyWebSocketProvider(
+          providers.getNetwork(chainId),
+          apiKey,
         )
         ethersSigner = new providers.Web3Provider(
           ethereum as providers.ExternalProvider,
         ).getSigner()
-      } else { */
-      ethersProvider = new providers.Web3Provider(
-        ethereum as providers.ExternalProvider,
-        providers.getNetwork(1),
-      )
-      ethersSigner = ethersProvider.getSigner()
-      /* } */
+      } else if (apiKey) {
+        ethersProvider = new providers.AlchemyProvider(
+          providers.getNetwork(chainId),
+          apiKey,
+        )
+        ethersSigner = new providers.Web3Provider(
+          ethereum as providers.ExternalProvider,
+        ).getSigner()
+      } else if (useWebsocketRpc) {
+        ethersProvider = new providers.WebSocketProvider(
+          'ws://localhost:8545',
+          providers.getNetwork(chainId),
+        )
+        ethersSigner = new providers.Web3Provider(
+          ethereum as providers.ExternalProvider,
+        ).getSigner()
+      } else {
+        ethersProvider = new providers.Web3Provider(
+          ethereum as providers.ExternalProvider,
+          providers.getNetwork(chainId),
+        )
+        ethersSigner = ethersProvider.getSigner()
+      }
 
       setProvider(ethersProvider)
       setSigner(ethersSigner)
