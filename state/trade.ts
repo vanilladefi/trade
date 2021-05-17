@@ -1,8 +1,8 @@
 import { Percent } from '@uniswap/sdk-core'
-import { getTheGraphClient, PairByIdQuery, UniswapVersion } from 'lib/graphql'
-import { getLogoUri, tokenListChainId, weth } from 'lib/tokens'
+import { weth } from 'lib/tokens'
 import { atom, selector } from 'recoil'
-import { Operation, PairByIdQueryResponse, UniSwapToken } from 'types/trade'
+import { Operation, PairByIdQueryResponse, Token } from 'types/trade'
+import { allTokensStoreState } from './tokens'
 
 export const selectedPairIdState = atom<string | null>({
   key: 'selectedPairId',
@@ -14,7 +14,7 @@ export const selectedOperation = atom<Operation>({
   default: Operation.Buy,
 })
 
-export const selectedCounterAsset = atom<UniSwapToken>({
+export const selectedCounterAsset = atom<Token>({
   key: 'selectedCounterAsset',
   default: weth,
 })
@@ -29,28 +29,15 @@ export const selectedPairState = selector<PairByIdQueryResponse | null>({
   get: async ({ get }) => {
     let pair: PairByIdQueryResponse | null = null
     try {
-      const { http } = getTheGraphClient(UniswapVersion.v2)
+      const tokens = get(allTokensStoreState)
       const pairId = get(selectedPairIdState)
       const counterAsset = get(selectedCounterAsset)
       if (pairId !== null) {
-        const response = await http.request(PairByIdQuery, {
-          pairId: pairId,
-        })
-
-        if (response?.pairs?.[0]) {
-          const id = response.pairs[0].id
-          let token0, token1
-          if (
-            response.pairs[0].token0?.id.toLowerCase() ===
-            counterAsset.address.toLowerCase()
-          ) {
-            token0 = response.pairs[0].token1
-            token1 = response.pairs[0].token0
-          } else {
-            token0 = response.pairs[0].token0
-            token1 = response.pairs[0].token1
-          }
-
+        const tokenMatch = tokens.find((token) => token.pairId === pairId)
+        if (tokenMatch) {
+          const id = pairId
+          const token0 = tokenMatch
+          const token1 = counterAsset
           pair =
             {
               id: id,
@@ -69,36 +56,18 @@ export const selectedPairState = selector<PairByIdQueryResponse | null>({
   },
 })
 
-export const token0Selector = selector<UniSwapToken | null>({
+export const token0Selector = selector<Token | null>({
   key: 'token0Selector',
   get: ({ get }) => {
     const pairResponse = get(selectedPairState)
-    return pairResponse
-      ? {
-          symbol: pairResponse.token0.symbol,
-          address: pairResponse.token0.id,
-          decimals: parseInt(pairResponse.token0.decimals),
-          pairId: pairResponse.id,
-          chainId: tokenListChainId,
-          logoURI: getLogoUri(pairResponse.token0.id),
-        }
-      : null
+    return pairResponse ? pairResponse.token0 : null
   },
 })
 
-export const token1Selector = selector<UniSwapToken | null>({
+export const token1Selector = selector<Token | null>({
   key: 'token1Selector',
   get: ({ get }) => {
     const pairResponse = get(selectedPairState)
-    return pairResponse
-      ? {
-          symbol: pairResponse.token1.symbol,
-          address: pairResponse.token1.id,
-          decimals: parseInt(pairResponse.token1.decimals),
-          pairId: pairResponse.id,
-          chainId: tokenListChainId,
-          logoURI: getLogoUri(pairResponse.token1.id),
-        }
-      : null
+    return pairResponse ? pairResponse.token1 : null
   },
 })

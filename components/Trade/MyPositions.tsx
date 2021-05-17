@@ -112,7 +112,7 @@ const RowRenderer = (
       <div className='hodlInfo' role='row'>
         <div
           className={`cell${
-            row.original.reserve && row.original.reserve < 600
+            row.original.reserveETH && row.original.reserveETH < 600
               ? ' liquidityWarning'
               : ''
           }`}

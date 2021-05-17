@@ -12,7 +12,8 @@ const TokenABFragment = gql`
     token: token1 {
       id
     }
-    reserve: reserve0
+    reserveETH: reserve0
+    reserveToken: reserve1
     price: token0Price
   }
 `
@@ -22,7 +23,8 @@ const TokenBAFragment = gql`
     token: token0 {
       id
     }
-    reserve: reserve1
+    reserveETH: reserve1
+    reserveToken: reserve0
     price: token1Price
   }
 `
@@ -107,6 +109,8 @@ export const PairByIdQuery = gql`
         symbol
         decimals
       }
+      reserve0
+      reserve1
     }
   }
 `

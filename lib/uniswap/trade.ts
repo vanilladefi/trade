@@ -1,4 +1,8 @@
-import { Token, TokenAmount, TradeType } from '@uniswap/sdk-core'
+import {
+  Token as UniswapToken,
+  TokenAmount,
+  TradeType,
+} from '@uniswap/sdk-core'
 import {
   InsufficientReservesError,
   JSBI,
@@ -9,7 +13,7 @@ import {
 import { BigNumber, providers, Transaction } from 'ethers'
 import { getAddress, parseUnits } from 'ethers/lib/utils'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
-import type { UniSwapToken } from 'types/trade'
+import type { Token, UniSwapToken } from 'types/trade'
 import { ethersOverrides, vanillaRouterAddress } from 'utils/config'
 import { getContract, tokenListChainId } from '../tokens'
 
@@ -85,52 +89,64 @@ export const sell = async ({
   return receipt
 }
 
-// Pricing function for all trades
+// Pricing function for UniSwap v2 trades
 export async function constructTrade(
   amountToTrade: string, // Not amountPaid because of tradeType
-  tokenReceived: UniSwapToken,
-  tokenPaid: UniSwapToken,
-  tokenPrice: number,
+  tokenReceived: Token,
+  tokenPaid: Token,
   tradeType = TradeType.EXACT_OUTPUT,
 ): Promise<Trade> {
   try {
-    console.log(tradeType === TradeType.EXACT_OUTPUT, tokenPaid)
+    // The asset that "amountToTrade" refers to changes on tradetype,
+    // so we need to set received and paid tokens here
     const asset =
       tradeType === TradeType.EXACT_OUTPUT ? tokenReceived : tokenPaid
     const counterAsset =
       tradeType === TradeType.EXACT_OUTPUT ? tokenPaid : tokenReceived
 
+    // Convert the decimal amount to a UniSwap TokenAmount
     const parsedAmountTraded = tryParseAmount(amountToTrade, asset)
     if (!parsedAmountTraded)
       return Promise.reject(`Failed to parse input amount: ${amountToTrade}`)
 
-    const convertedAsset = new Token(
-      asset.chainId,
+    // Convert our own token format to UniSwap SDK format
+    const convertedAsset = new UniswapToken(
+      Number(asset.chainId),
       getAddress(asset.address),
-      asset.decimals,
+      Number(asset.decimals),
+    )
+    const convertedCounterAsset = new UniswapToken(
+      Number(counterAsset.chainId),
+      getAddress(counterAsset.address),
+      Number(counterAsset.decimals),
     )
 
-    const calculatedCounterAssetAmount =
+    // Parse given ERC-20 and WETH reserves as TokenAmounts
+    const tokenReserve = tryParseAmount(
+      tokenPaid.reserveToken || '0',
+      tokenPaid,
+    )
+    const ethReserve = tryParseAmount(
+      tokenReceived.reserveETH || '0',
+      tokenReceived,
+    )
+    if (!tokenReserve || !ethReserve)
+      return Promise.reject(
+        'No liquidity pool info, cannot calculate next price!',
+      )
+
+    // Construct a UniSwap SDK pair with parsed liquidity
+    const pair = new Pair(tokenReserve, ethReserve)
+
+    // Construct a route based on the parsed liquidity pools
+    const route = new Route(
+      [pair],
       tradeType === TradeType.EXACT_OUTPUT
-        ? parsedAmountTraded
-            .multiply(parseUnits(String(tokenPrice), asset.decimals).toString())
-            .divide(parseUnits('1', asset.decimals).toString())
-            .toFixed(asset.decimals)
-        : parsedAmountTraded
-            .multiply(parseUnits('1', asset.decimals).toString())
-            .divide(parseUnits(String(tokenPrice), asset.decimals).toString())
-            .toFixed(asset.decimals)
-
-    const quote = tryParseAmount(calculatedCounterAssetAmount, counterAsset)
-    if (!quote) return Promise.reject(`Failed to get a quote`)
-
-    const pair = new Pair(
-      tradeType === TradeType.EXACT_OUTPUT ? parsedAmountTraded : quote,
-      tradeType === TradeType.EXACT_OUTPUT ? quote : parsedAmountTraded,
+        ? convertedCounterAsset
+        : convertedAsset,
     )
 
-    const route = new Route([pair], convertedAsset)
-
+    // Construct a trade with UniSwap SDK
     const trade = new Trade(route, parsedAmountTraded, tradeType)
 
     return trade
@@ -148,10 +164,10 @@ export function tryParseAmount(
     return undefined
   }
   try {
-    const convertedToken = new Token(
+    const convertedToken = new UniswapToken(
       tokenListChainId,
       getAddress(currency.address),
-      currency.decimals,
+      Number(currency.decimals),
     )
     const typedValueParsed = parseUnits(value, currency.decimals).toString()
     if (typedValueParsed !== '0') {
