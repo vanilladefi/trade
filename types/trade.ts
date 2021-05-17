@@ -20,9 +20,9 @@ export interface UniSwapToken {
   [index: string]: string | number | null | undefined
   name?: string
   address: string
-  symbol?: string
-  decimals: number
-  chainId: number
+  symbol: string
+  decimals: string
+  chainId: string
   logoURI?: string
 }
 
@@ -42,7 +42,8 @@ export interface Token extends UniSwapToken {
   eligible?: Eligibility
   vpc?: string | null
   htrs?: string | null
-  reserve?: string | number | null
+  reserveETH?: string
+  reserveToken?: string
 }
 
 export interface TokenInfoQueryResponse {
@@ -51,22 +52,18 @@ export interface TokenInfoQueryResponse {
     id: string
   }
   price: string
-  reserve: string
+  reserveETH: string
+  reserveToken: string
   reserveUSD: string
 }
 
+/**
+ * Currently token1 is always ETH(WETH)
+ */
 export interface PairByIdQueryResponse {
   id: string
-  token0: {
-    id: string
-    symbol: string
-    decimals: string
-  }
-  token1: {
-    id: string
-    symbol: string
-    decimals: string
-  }
+  token0: Token
+  token1: Token
 }
 
 export interface MetaQueryResponse {

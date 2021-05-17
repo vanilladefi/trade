@@ -23,9 +23,9 @@ export const tokenListChainId = chainId === 1337 ? 1 : chainId
 
 // WETH stuff
 const defaultWeth = {
-  chainId: 1,
+  chainId: String(1),
   address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-  decimals: 18,
+  decimals: String(18),
   symbol: 'WETH',
   name: 'Wrapped Ether',
   logoURI: ipfsToHttp(
@@ -41,16 +41,32 @@ const defaultWeth = {
 export const weth: Token =
   getAllTokens()?.find(
     (token) =>
-      token.chainId === tokenListChainId && token.symbol === defaultWeth.symbol,
+      token.chainId === String(tokenListChainId) &&
+      token.symbol === defaultWeth.symbol,
   ) || defaultWeth
 
 export function getAllTokens(): Token[] {
-  // Get tokens from Uniswap default-list
+  // Convert TokenList format to our own format
+  const defaultTokens: Token[] = uniswapTokens?.tokens
+    .map((t) => JSON.parse(JSON.stringify(t)))
+    .map((t) => ({
+      ...t,
+      chainId: String(t.chainId),
+      decimals: String(t.decimals),
+    }))
+  const vanillaAdditionalTokens: Token[] = additionalTokens
+    .map((t) => JSON.parse(JSON.stringify(t)))
+    .map((t) => ({
+      ...t,
+      chainId: String(t.chainId),
+      decimals: String(t.decimals),
+    }))
+
   // include only tokens with specified 'chainId' and exclude WETH
-  return [...uniswapTokens?.tokens, ...additionalTokens]
+  return [...defaultTokens, ...vanillaAdditionalTokens]
     .filter(
       (token) =>
-        token.chainId === tokenListChainId &&
+        token.chainId === String(tokenListChainId) &&
         token.symbol !== defaultWeth.symbol,
     )
     .map((t) => ({
@@ -162,7 +178,8 @@ export function addData(
     const priceChange = priceHistorical
       ? calcPriceChange(price, priceHistorical)
       : t.priceChange || 0
-    const reserve = parseFloat(d.reserve) || t.reserve
+    const reserveETH = d.reserveETH || t.reserveETH
+    const reserveToken = d.reserveToken || t.reserveToken
 
     return {
       ...t,
@@ -172,7 +189,8 @@ export function addData(
       priceHistorical,
       priceChange,
       liquidity,
-      reserve,
+      reserveETH,
+      reserveToken,
     }
   })
 }

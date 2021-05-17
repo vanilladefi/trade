@@ -79,9 +79,9 @@ function useUserPositions(): Token[] | null {
 
                 // Construct helpers for upcoming calculations
                 const parsedUniToken = new UniswapToken(
-                  token.chainId,
+                  Number(token.chainId),
                   getAddress(token.address),
-                  token.decimals,
+                  Number(token.decimals),
                 )
 
                 // Construct token amount from Vanilla router reported amounts
@@ -112,7 +112,6 @@ function useUserPositions(): Token[] | null {
                     tokenAmount.toSignificant(),
                     counterAsset,
                     token,
-                    token.price || 0,
                     TradeType.EXACT_INPUT,
                   )
                 } catch (e) {

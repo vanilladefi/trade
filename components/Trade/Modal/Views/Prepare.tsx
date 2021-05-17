@@ -1,4 +1,9 @@
-import { Percent, Token, TokenAmount, TradeType } from '@uniswap/sdk-core'
+import {
+  Percent,
+  Token as UniswapToken,
+  TokenAmount,
+  TradeType,
+} from '@uniswap/sdk-core'
 import { Trade } from '@uniswap/v2-sdk'
 import { Column, Width } from 'components/grid/Flex'
 import Button, {
@@ -12,7 +17,6 @@ import Icon, { IconUrls } from 'components/typography/Icon'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import useEligibleTokenBalance from 'hooks/useEligibleTokenBalance'
 import useTokenBalance from 'hooks/useTokenBalance'
-import useTokenEthPrice from 'hooks/useTokenEthPrice'
 import useTradeEngine from 'hooks/useTradeEngine'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import useVanillaRouter from 'hooks/useVanillaRouter'
@@ -129,7 +133,6 @@ const PrepareView = ({
     () => (operation === Operation.Buy ? token0 : token1),
     [operation, token0, token1],
   )
-  const token0EthPrice = useTokenEthPrice(token0?.address ?? '')
 
   const [estimatedGas, setEstimatedGas] = useState<string>()
   const [estimatedFees, setEstimatedFees] = useState<string>()
@@ -223,7 +226,11 @@ const PrepareView = ({
           .mul(lpFeePercentage.numerator.toString())
           .div(lpFeePercentage.denominator.toString())
         const feeTokenAmount = new TokenAmount(
-          new Token(token.chainId, token.address, token.decimals),
+          new UniswapToken(
+            Number(token.chainId),
+            token.address,
+            Number(token.decimals),
+          ),
           feeAmount.toString(),
         )
         setEstimatedFees(feeTokenAmount.toSignificant())
@@ -263,18 +270,12 @@ const PrepareView = ({
         tokenChanged === 0 ? token0.decimals : token1.decimals,
       )
 
-      if (
-        token0EthPrice &&
-        receivedToken &&
-        paidToken &&
-        !parsedAmount.isZero()
-      ) {
+      if (receivedToken && paidToken && !parsedAmount.isZero()) {
         try {
           const trade = await constructTrade(
             amount,
             receivedToken,
             paidToken,
-            token0EthPrice,
             tradeType,
           )
           setTrade(trade)
@@ -351,10 +352,7 @@ const PrepareView = ({
       if (parseFloat(value) > 0) {
         const trade = await updateTrade(tokenIndex, value)
         if (trade) {
-          console.log(
-            trade.inputAmount.toSignificant(6),
-            trade.outputAmount.toSignificant(6),
-          )
+          console.log(trade)
           const newToken1Amount =
             operation === Operation.Buy
               ? trade.inputAmount && trade.inputAmount.toSignificant(6)
@@ -370,8 +368,9 @@ const PrepareView = ({
         const trade = await updateTrade(tokenIndex, value)
         if (trade) {
           console.log(
-            trade.inputAmount.toSignificant(6),
-            trade.outputAmount.toSignificant(6),
+            trade,
+            trade.executionPrice.toSignificant(),
+            trade.inputAmount.toSignificant(),
           )
           const newToken0Amount =
             operation === Operation.Buy
