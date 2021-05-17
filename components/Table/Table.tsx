@@ -47,9 +47,8 @@ interface Props<D extends Record<string, unknown>> {
   ) => JSX.Element
 }
 
-type CustomColumnInstance<
-  D extends Record<string, unknown>
-> = ColumnInstance<D> & LeftOrRightAlignable & ColorBasedOnValue
+type CustomColumnInstance<D extends Record<string, unknown>> =
+  ColumnInstance<D> & LeftOrRightAlignable & ColorBasedOnValue
 
 const pageSizes = [20, 50, 100]
 
@@ -435,6 +434,8 @@ export const rowProps = <D extends Record<string, unknown>>(
   const background =
     colorize && row.original?.logoColor
       ? `linear-gradient(to right, ${row.original.logoColor} -20%, ${defaultColor} 20%)`
+      : liquidityWarning && Number(row.original?.reserveETH) < 600
+      ? 'var(--alertbackground)'
       : defaultColor
 
   return [

@@ -49,18 +49,14 @@ const RowRenderer = (
     let vpcOrEstimate = 0
     if (row.original.vpc && row.original.vpc !== '0') {
       vpcOrEstimate = Number(row.original.vpc)
-    } else if (row.original.reserve && row.original.reserve !== '0') {
-      const liquidityOverThreshold = parseUnits(
-        row.original.reserve?.toString() || '0',
-      ).sub(parseUnits('500'))
-      if (liquidityOverThreshold.gt('0')) {
-        vpcOrEstimate = Number(
-          liquidityOverThreshold
-            .mul(million)
-            .div(parseUnits(row.original.reserve?.toString() || '1'))
-            .toNumber() / million,
-        )
-      }
+    } else if (row.original.reserveETH && row.original.reserveETH !== '0') {
+      vpcOrEstimate = Number(
+        parseUnits(row.original.reserveETH?.toString() || '0')
+          .sub(parseUnits('500'))
+          .mul(million)
+          .div(parseUnits(row.original.reserveETH?.toString() || '1'))
+          .toNumber() / million,
+      )
     }
     return vpcOrEstimate.toLocaleString('en-US', {
       style: 'percent',
@@ -112,7 +108,7 @@ const RowRenderer = (
       <div className='hodlInfo' role='row'>
         <div
           className={`cell${
-            row.original.reserveETH && row.original.reserveETH < 600
+            row.original.reserveETH && Number(row.original.reserveETH) < 600
               ? ' liquidityWarning'
               : ''
           }`}
@@ -127,7 +123,7 @@ const RowRenderer = (
           </span>
           <span>
             ETH reserves:{' '}
-            {(Number(row.original.reserve) ?? 0).toLocaleString('en-US', {
+            {(Number(row.original.reserveETH) ?? 0).toLocaleString('en-US', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })}{' '}
@@ -135,7 +131,7 @@ const RowRenderer = (
           <span className='liquidityWarning'>
             {row.original.symbol === 'AMPL'
               ? 'Please contact <a link="mailto:hello@vanilladefi.com">hello@vanilladefi.com</a> for important information about your AMPL position'
-              : row.original.reserve && row.original.reserve < 600
+              : row.original.reserveETH && Number(row.original.reserveETH) < 600
               ? 'ETH reserve of 500 and under result in a VPC of 0.'
               : ''}
           </span>
@@ -424,11 +420,10 @@ export default function MyPositions({
     [],
   )
 
-  const columns = useMemo(() => getColumns({ onBuyClick, onSellClick }), [
-    onBuyClick,
-    onSellClick,
-    getColumns,
-  ])
+  const columns = useMemo(
+    () => getColumns({ onBuyClick, onSellClick }),
+    [onBuyClick, onSellClick, getColumns],
+  )
 
   const initialSortBy = useMemo(() => [{ id: 'value', desc: true }], [])
 
