@@ -4,6 +4,8 @@ const TokenCommonFragment = gql`
   fragment TokenCommonFragment on Pair {
     pairId: id
     reserveUSD
+    reserve0
+    reserve1
   }
 `
 
@@ -75,7 +77,8 @@ export const TokenInfoSubAB = gql`
       token: token1 {
         id
       }
-      reserve: reserve0
+      reserveETH: reserve0
+      reserveToken: reserve1
       price: token0Price
     }
   }
@@ -89,7 +92,8 @@ export const TokenInfoSubBA = gql`
       token: token0 {
         id
       }
-      reserve: reserve1
+      reserveETH: reserve1
+      reserveToken: reserve0
       price: token1Price
     }
   }
