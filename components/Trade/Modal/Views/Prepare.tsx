@@ -281,7 +281,7 @@ const PrepareView = ({
           setTrade(trade)
           return trade
         } catch (e) {
-          setError(e.data.message)
+          setError(e?.data?.message ?? e.toString())
         }
       }
     }

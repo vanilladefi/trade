@@ -98,7 +98,7 @@ export async function constructTrade(
 ): Promise<Trade> {
   try {
     // The asset that "amountToTrade" refers to changes on tradetype,
-    // so we need to set received and paid tokens here
+    // so we need to set asset and counterAsset here
     const asset =
       tradeType === TradeType.EXACT_OUTPUT ? tokenReceived : tokenPaid
     const counterAsset =
@@ -122,14 +122,7 @@ export async function constructTrade(
     )
 
     // Parse given ERC-20 and WETH reserves as TokenAmounts
-    const tokenReserve = tryParseAmount(
-      tokenPaid.reserveToken || '0',
-      tokenPaid,
-    )
-    const ethReserve = tryParseAmount(
-      tokenReceived.reserveETH || '0',
-      tokenReceived,
-    )
+    const { tokenReserve, ethReserve } = parseReserves(tokenPaid, tokenReceived)
     if (!tokenReserve || !ethReserve)
       return Promise.reject(
         'No liquidity pool info, cannot calculate next price!',
@@ -151,7 +144,7 @@ export async function constructTrade(
 
     return trade
   } catch (error) {
-    console.log(error)
+    console.error(error)
     throw error
   }
 }
@@ -179,6 +172,21 @@ export function tryParseAmount(
   }
   // necessary for all paths to return a value
   return undefined
+}
+
+export function parseReserves(
+  token0: Token,
+  token1: Token,
+): { tokenReserve: TokenAmount | null; ethReserve: TokenAmount | null } {
+  const tokenReserve = tryParseAmount(
+    token0.reserveToken || token1.reserveToken,
+    token0.reserveToken ? token0 : token1,
+  )
+  const ethReserve = tryParseAmount(
+    token1.reserveETH || token0.reserveETH,
+    token1.reserveETH ? token0 : token1,
+  )
+  return { tokenReserve: tokenReserve ?? null, ethReserve: ethReserve ?? null }
 }
 
 // add 10%
