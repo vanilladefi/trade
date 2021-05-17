@@ -442,7 +442,7 @@ export const rowProps = <D extends Record<string, unknown>>(
   const background =
     colorize && row.original?.logoColor
       ? `linear-gradient(to right, ${row.original.logoColor} -20%, ${defaultColor} 20%)`
-      : liquidityWarning && Number(row.original?.reserve) < 600
+      : liquidityWarning && Number(row.original?.reserveETH) < 600
       ? 'var(--alertbackground)'
       : defaultColor
 
