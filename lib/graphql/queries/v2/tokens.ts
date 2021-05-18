@@ -99,17 +99,6 @@ export const TokenInfoSubBA = gql`
   }
 `
 
-export const TokenDayData = gql`
-  query tokenDayData($tokenAddresses: [String]) {
-    tokenDayDatas(where: { token_in: $tokenAddresses }) {
-      token {
-        id
-      }
-      priceUSD
-    }
-  }
-`
-
 export const ETHPrice = gql`
   query ethPrice {
     bundle(id: 1) {

@@ -1,10 +1,5 @@
 import { getAverageBlockCountPerHour } from 'lib/block'
-import {
-  getTheGraphClient,
-  TokenInfoSubAB,
-  TokenInfoSubBA,
-  UniswapVersion,
-} from 'lib/graphql'
+import { getTheGraphClient, UniswapVersion, v2, v3 } from 'lib/graphql'
 import { addData, addGraphInfo, getAllTokens, weth } from 'lib/tokens'
 import { useEffect } from 'react'
 import { useRecoilCallback, useRecoilValue } from 'recoil'
@@ -21,16 +16,23 @@ interface subReturnValue {
   data: { tokens: TokenInfoQueryResponse[] }
 }
 
-export default function useTokenSubscription(): void {
+export default function useTokenSubscription(
+  version: UniswapVersion = UniswapVersion.v3,
+): void {
   const currentBlockNumber = useRecoilValue(currentBlockNumberState)
   const ethPrice = useRecoilValue(currentETHPrice)
+
+  const TokenInfoSubAB =
+    version === UniswapVersion.v2 ? v2.TokenInfoSubAB : v3.TokenInfoSubAB
+  const TokenInfoSubBA =
+    version === UniswapVersion.v2 ? v2.TokenInfoSubBA : v3.TokenInfoSubBA
 
   const handleNewData = useRecoilCallback(
     ({ set }) => async ({ data }: subReturnValue) => {
       console.log(data)
       if (data?.tokens?.length && ethPrice > 0) {
         set(allTokensStoreState, (tokens) =>
-          addData(tokens, data.tokens, false, ethPrice),
+          addData(version, tokens, data.tokens, false, ethPrice),
         )
       }
     },
@@ -43,7 +45,7 @@ export default function useTokenSubscription(): void {
       if (blockNumber > 0 && tokens?.length && ethPrice > 0) {
         set(
           allTokensStoreState,
-          await addGraphInfo(tokens, blockNumber, ethPrice),
+          await addGraphInfo(version, tokens, blockNumber, ethPrice),
         )
       }
     },
@@ -55,7 +57,7 @@ export default function useTokenSubscription(): void {
       next: handleNewData,
     }
 
-    const { ws } = getTheGraphClient(UniswapVersion.v2)
+    const { ws } = getTheGraphClient(version)
 
     const subAB = ws
       .request({
@@ -75,7 +77,7 @@ export default function useTokenSubscription(): void {
       subAB.unsubscribe()
       subBA.unsubscribe()
     }
-  }, [handleNewData])
+  }, [TokenInfoSubAB, TokenInfoSubBA, handleNewData, version])
 
   // Handle price change fetching
   useEffect(() => {

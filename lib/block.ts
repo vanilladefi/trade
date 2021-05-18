@@ -1,9 +1,11 @@
 import { getTheGraphClient, MetaQuery, UniswapVersion } from 'lib/graphql'
 import type { MetaQueryResponse } from 'types/trade'
 
-export async function getCurrentBlockNumber(): Promise<number> {
+export async function getCurrentBlockNumber(
+  version: UniswapVersion,
+): Promise<number> {
   try {
-    const { http } = getTheGraphClient(UniswapVersion.v2)
+    const { http } = getTheGraphClient(version)
     const response: MetaQueryResponse = await http.request(MetaQuery)
     return response._meta.block.number
   } catch (e) {
