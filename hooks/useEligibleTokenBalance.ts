@@ -23,7 +23,7 @@ function useEligibleTokenBalance(
         ? BigNumber.from(token.ownedRaw)
         : BigNumber.from('0')
 
-    decimals = token.decimals
+    decimals = Number(token.decimals)
   }
 
   return {

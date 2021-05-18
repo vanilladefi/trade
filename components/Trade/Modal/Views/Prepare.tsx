@@ -196,7 +196,7 @@ const PrepareView = ({
     return false
   }, [trade])
 
-  // Estimate gas fees
+  // Estimate gas fees TODO: Could be a callback instead of an effect
   useEffect(() => {
     const debouncedGasEstimation = debounce(async () => {
       if (trade && provider && token0) {
@@ -302,7 +302,7 @@ const PrepareView = ({
     }
     updateTradeAndToken1()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [operation])
+  }, [operation, token0, token1])
 
   // Estimate VNL rewards
   useEffect(() => {
