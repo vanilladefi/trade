@@ -13,6 +13,7 @@ import useTokenSubscription from 'hooks/useTokenSubscription'
 import useTotalOwned from 'hooks/useTotalOwned'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import { getAverageBlockCountPerHour, getCurrentBlockNumber } from 'lib/block'
+import { UniswapVersion } from 'lib/graphql'
 import {
   addGraphInfo,
   addLogoColor,
@@ -445,18 +446,22 @@ export async function getStaticProps(): Promise<
   let tokens = getAllTokens()
   tokens = await addLogoColor(tokens)
 
+  const uniswapVersion = UniswapVersion.v3
+
   // Fetch these simultaneously
   const [blocksPerHour, currentBlockNumber, ethPrice] = await Promise.all([
     getAverageBlockCountPerHour(),
-    getCurrentBlockNumber(),
-    getETHPrice(),
+    getCurrentBlockNumber(uniswapVersion),
+    getETHPrice(uniswapVersion),
   ])
+
+  console.log(blocksPerHour, currentBlockNumberState, ethPrice)
 
   if (ethPrice === 0 || currentBlockNumber === 0 || blocksPerHour === 0) {
     throw Error('Query failed')
   }
 
-  tokens = await addGraphInfo(tokens)
+  tokens = await addGraphInfo(uniswapVersion, tokens)
   tokens = addUSDPrice(tokens, ethPrice)
   tokens = await addVnlEligibility(tokens)
 
@@ -464,7 +469,7 @@ export async function getStaticProps(): Promise<
 
   // Add historical data (price change)
   if (block24hAgo > 0) {
-    tokens = await addGraphInfo(tokens, block24hAgo, ethPrice)
+    tokens = await addGraphInfo(uniswapVersion, tokens, block24hAgo, ethPrice)
   }
 
   return {

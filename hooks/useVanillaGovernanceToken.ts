@@ -2,7 +2,7 @@ import { Token, TokenAmount } from '@uniswap/sdk-core'
 import ERC20 from '@uniswap/v2-periphery/build/ERC20.json'
 import { BigNumber, constants } from 'ethers'
 import { Interface, isAddress, Result } from 'ethers/lib/utils'
-import { getTheGraphClient, TokenInfoQuery, UniswapVersion } from 'lib/graphql'
+import { getTheGraphClient, UniswapVersion, v2 } from 'lib/graphql'
 import { tokenListChainId, weth } from 'lib/tokens'
 import { getVnlTokenAddress } from 'lib/vanilla'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -94,7 +94,7 @@ function useVanillaGovernanceToken(): {
           tokenAddresses: [vnlTokenAddress.toLowerCase()],
         }
         const { http } = getTheGraphClient(UniswapVersion.v2)
-        const response = await http.request(TokenInfoQuery, variables)
+        const response = await http.request(v2.TokenInfoQuery, variables)
         const data = [...response?.tokensAB, ...response?.tokensBA]
         setVnlEthPrice(data[0].price)
       }

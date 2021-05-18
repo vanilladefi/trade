@@ -40,7 +40,8 @@ const THEGRAPH_ENDPOINTS = {
 }
 
 export * from './queries/meta'
-export * from './queries/v2/tokens'
+export * as v2 from './queries/v2/tokens'
+export * as v3 from './queries/v3/tokens'
 
 export const getTheGraphClient = (
   version: UniswapVersion,

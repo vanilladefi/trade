@@ -3,13 +3,7 @@ import additionalTokens from 'data/tokens.json'
 import { BigNumber, constants, Contract, providers, Signer } from 'ethers'
 import { getAddress } from 'ethers/lib/utils'
 import { ETHPriceQueryResponse } from 'hooks/useETHPrice'
-import {
-  ETHPrice,
-  getTheGraphClient,
-  TokenInfoQuery,
-  TokenInfoQueryHistorical,
-  UniswapVersion,
-} from 'lib/graphql'
+import { getTheGraphClient, UniswapVersion, v2, v3 } from 'lib/graphql'
 import { ipfsToHttp } from 'lib/ipfs'
 import Vibrant from 'node-vibrant'
 import VanillaRouter from 'types/abis/vanillaRouter.json'
@@ -48,14 +42,14 @@ export const weth: Token =
 export function getAllTokens(): Token[] {
   // Convert TokenList format to our own format
   const defaultTokens: Token[] = uniswapTokens?.tokens
-    .map((t) => JSON.parse(JSON.stringify(t)))
+    .map((t) => JSON.parse(JSON.stringify(t))) // Needed for casting to Token[] format
     .map((t) => ({
       ...t,
       chainId: String(t.chainId),
       decimals: String(t.decimals),
     }))
   const vanillaAdditionalTokens: Token[] = additionalTokens
-    .map((t) => JSON.parse(JSON.stringify(t)))
+    .map((t) => JSON.parse(JSON.stringify(t))) // Needed for casting to Token[] format
     .map((t) => ({
       ...t,
       chainId: String(t.chainId),
@@ -155,6 +149,7 @@ function calcPriceChange(newPrice: number, oldPrice: number): number {
 }
 
 export function addData(
+  version: UniswapVersion,
   tokens: Token[],
   data: TokenInfoQueryResponse[],
   historical = false,
@@ -196,6 +191,7 @@ export function addData(
 }
 
 export async function addGraphInfo(
+  version: UniswapVersion,
   tokens: Token[],
   blockNumber = 0,
   ethPrice?: number,
@@ -208,7 +204,14 @@ export async function addGraphInfo(
 
   const historical = blockNumber > 0
 
-  const query = !historical ? TokenInfoQuery : TokenInfoQueryHistorical
+  const query =
+    version === UniswapVersion.v2
+      ? !historical
+        ? v2.TokenInfoQuery
+        : v2.TokenInfoQueryHistorical
+      : !historical
+      ? v3.TokenInfoQuery
+      : v3.TokenInfoQueryHistorical
 
   const variables = {
     blockNumber,
@@ -217,7 +220,7 @@ export async function addGraphInfo(
   }
 
   try {
-    const { http } = getTheGraphClient(UniswapVersion.v2)
+    const { http } = getTheGraphClient(version)
 
     // Retrieve more info from The Graph's API
     const response = await http.request(query, variables)
@@ -228,7 +231,7 @@ export async function addGraphInfo(
       ...response?.tokensBA,
     ]
 
-    return addData(tokens, data, historical, ethPrice)
+    return addData(version, tokens, data, historical, ethPrice)
   } catch (e) {
     console.error(e)
     return tokens
@@ -243,19 +246,22 @@ export async function getBalance(
   return balance
 }
 
-export async function getETHPrice(): Promise<number> {
+export async function getETHPrice(version: UniswapVersion): Promise<number> {
   let parsedPrice: number
   try {
-    const { http } = getTheGraphClient(UniswapVersion.v2)
+    const { http } = getTheGraphClient(version)
+    const query = version === UniswapVersion.v2 ? v2.ETHPrice : v3.ETHPrice
 
-    const { bundle }: ETHPriceQueryResponse = await http.request(ETHPrice)
+    const { bundle }: ETHPriceQueryResponse = await http.request(query)
     parsedPrice = parseFloat(bundle?.ethPrice)
+
     if (parsedPrice === NaN) {
       throw Error(
         'Could not parse ETH/USD price from response, falling back to 0!',
       )
     }
   } catch (e) {
+    console.log(e)
     parsedPrice = 0
   }
   return parsedPrice

@@ -28,22 +28,22 @@ export interface UniSwapToken {
 
 export interface Token extends UniSwapToken {
   pairId: string | null
-  price?: number | null
-  priceUSD?: number | null
-  priceHistorical?: number | null
-  priceChange?: number | null
-  liquidity?: number | null
+  price: number | null
+  priceUSD: number | null
+  priceHistorical: number | null
+  priceChange: number | null
+  liquidity: number | null
   logoColor: string | null
-  owned?: string | null
-  ownedRaw?: string | null
-  value?: number | null
-  profit?: number | string | null
-  vnl?: number | null
-  eligible?: Eligibility
-  vpc?: string | null
-  htrs?: string | null
-  reserveETH?: string
-  reserveToken?: string
+  owned: string | null
+  ownedRaw: string | null
+  value: number | null
+  profit: number | string | null
+  vnl: number | null
+  eligible: Eligibility
+  vpc: string | null
+  htrs: string | null
+  reserveETH: string | null
+  reserveToken: string | null
 }
 
 export interface TokenInfoQueryResponse {
