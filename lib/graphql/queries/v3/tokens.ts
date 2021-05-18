@@ -1,39 +1,43 @@
 import { gql } from 'graphql-request'
 
 const TokenCommonFragment = gql`
-  fragment TokenCommonFragment on Pair {
+  fragment TokenCommonFragment on Pool {
     pairId: id
-    reserveUSD
+    liquidity
   }
 `
 
 const TokenABFragment = gql`
-  fragment TokenABFragment on Pair {
+  fragment TokenABFragment on Pool {
     token: token1 {
       id
+      symbol
+      name
+      decimals
     }
-    reserve: reserve0
     price: token0Price
   }
 `
 
 const TokenBAFragment = gql`
-  fragment TokenBAFragment on Pair {
+  fragment TokenBAFragment on Pool {
     token: token0 {
       id
+      symbol
+      name
+      decimals
     }
-    reserve: reserve1
     price: token1Price
   }
 `
 
 export const TokenInfoQuery = gql`
   query tokenInfo($weth: String, $tokenAddresses: [String]) {
-    tokensAB: pairs(where: { token0: $weth, token1_in: $tokenAddresses }) {
+    tokensAB: pools(where: { token0: $weth, token1_in: $tokenAddresses }) {
       ...TokenCommonFragment
       ...TokenABFragment
     }
-    tokensBA: pairs(where: { token1: $weth, token0_in: $tokenAddresses }) {
+    tokensBA: pools(where: { token1: $weth, token0_in: $tokenAddresses }) {
       ...TokenCommonFragment
       ...TokenBAFragment
     }
@@ -45,14 +49,14 @@ export const TokenInfoQuery = gql`
 
 export const TokenInfoQueryHistorical = gql`
   query tokenInfo($blockNumber: Int, $weth: String, $tokenAddresses: [String]) {
-    tokensAB: pairs(
+    tokensAB: pools(
       block: { number: $blockNumber }
       where: { token0: $weth, token1_in: $tokenAddresses }
     ) {
       ...TokenCommonFragment
       ...TokenABFragment
     }
-    tokensBA: pairs(
+    tokensBA: pools(
       block: { number: $blockNumber }
       where: { token1: $weth, token0_in: $tokenAddresses }
     ) {
@@ -67,46 +71,18 @@ export const TokenInfoQueryHistorical = gql`
 
 export const TokenInfoSubAB = gql`
   subscription tokenInfoAB($weth: String, $tokenAddresses: [String]) {
-    tokens: pairs(where: { token0: $weth, token1_in: $tokenAddresses }) {
-      pairId: id
-      reserveUSD
-      token: token1 {
-        id
-      }
-      reserve: reserve0
-      price: token0Price
+    tokens: pools(where: { token0: $weth, token1_in: $tokenAddresses }) {
+      ...TokenCommonFragment
+      ...TokenABFragment
     }
   }
 `
 
 export const TokenInfoSubBA = gql`
   subscription tokenInfoBA($weth: String, $tokenAddresses: [String]) {
-    tokens: pairs(where: { token1: $weth, token0_in: $tokenAddresses }) {
-      pairId: id
-      reserveUSD
-      token: token0 {
-        id
-      }
-      reserve: reserve1
-      price: token1Price
-    }
-  }
-`
-
-export const PairByIdQuery = gql`
-  query tokenInfo($pairId: String) {
-    pairs(where: { id: $pairId }) {
-      id
-      token0 {
-        id
-        symbol
-        decimals
-      }
-      token1 {
-        id
-        symbol
-        decimals
-      }
+    tokens: pools(where: { token1: $weth, token0_in: $tokenAddresses }) {
+      ...TokenCommonFragment
+      ...TokenBAFragment
     }
   }
 `

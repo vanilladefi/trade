@@ -3,14 +3,8 @@ import {
   TokenAmount,
   TradeType,
 } from '@uniswap/sdk-core'
-import {
-  InsufficientReservesError,
-  JSBI,
-  Pair,
-  Route,
-  Trade,
-} from '@uniswap/v2-sdk'
-import { BigNumber, providers, Transaction } from 'ethers'
+import { JSBI, Pair, Route, Trade } from '@uniswap/v2-sdk'
+import { providers, Transaction } from 'ethers'
 import { getAddress, parseUnits } from 'ethers/lib/utils'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import type { Token, UniSwapToken } from 'types/trade'
@@ -21,8 +15,6 @@ export enum Field {
   INPUT = 'INPUT',
   OUTPUT = 'OUTPUT',
 }
-
-InsufficientReservesError
 
 export interface TransactionProps {
   amountReceived: string
@@ -187,11 +179,4 @@ export function parseReserves(
     token1.reserveETH ? token0 : token1,
   )
   return { tokenReserve: tokenReserve ?? null, ethReserve: ethReserve ?? null }
-}
-
-// add 10%
-export function calculateGasMargin(value: BigNumber): BigNumber {
-  return value
-    .mul(BigNumber.from(10000).add(BigNumber.from(1000)))
-    .div(BigNumber.from(10000))
 }
