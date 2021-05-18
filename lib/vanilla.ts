@@ -123,36 +123,40 @@ export const estimateGas = async (
     provider,
   )
   let gasEstimate = '0'
-  if (provider && router && trade) {
-    const block = await provider.getBlock('latest')
-    const blockDeadline = block.timestamp + blockDeadlineThreshold
-    if (operation === Operation.Buy) {
-      gasEstimate = await router.estimateGas
-        .depositAndBuy(
-          token0.address,
-          trade?.minimumAmountOut(slippageTolerance).raw.toString(),
-          blockDeadline,
-          {
-            value: trade?.inputAmount.raw.toString(),
-          },
-        )
-        .then(async (value) => {
-          const price = await provider.getGasPrice()
-          return formatUnits(value.mul(price))
-        })
-    } else {
-      gasEstimate = await router.estimateGas
-        .sellAndWithdraw(
-          token0.address,
-          trade?.inputAmount.raw.toString(),
-          trade?.minimumAmountOut(slippageTolerance).raw.toString(),
-          blockDeadline,
-        )
-        .then(async (value) => {
-          const price = await provider.getGasPrice()
-          return formatUnits(value.mul(price))
-        })
+  try {
+    if (provider && router && trade) {
+      const block = await provider.getBlock('latest')
+      const blockDeadline = block.timestamp + blockDeadlineThreshold
+      if (operation === Operation.Buy) {
+        gasEstimate = await router.estimateGas
+          .depositAndBuy(
+            token0.address,
+            trade?.minimumAmountOut(slippageTolerance).raw.toString(),
+            blockDeadline,
+            {
+              value: trade?.inputAmount.raw.toString(),
+            },
+          )
+          .then(async (value) => {
+            const price = await provider.getGasPrice()
+            return formatUnits(value.mul(price))
+          })
+      } else {
+        gasEstimate = await router.estimateGas
+          .sellAndWithdraw(
+            token0.address,
+            trade?.inputAmount.raw.toString(),
+            trade?.minimumAmountOut(slippageTolerance).raw.toString(),
+            blockDeadline,
+          )
+          .then(async (value) => {
+            const price = await provider.getGasPrice()
+            return formatUnits(value.mul(price))
+          })
+      }
     }
+  } catch (e) {
+    console.error(e)
   }
   return gasEstimate
 }
