@@ -99,26 +99,6 @@ export const TokenInfoSubBA = gql`
   }
 `
 
-export const PairByIdQuery = gql`
-  query tokenInfo($pairId: String) {
-    pairs(where: { id: $pairId }) {
-      id
-      token0 {
-        id
-        symbol
-        decimals
-      }
-      token1 {
-        id
-        symbol
-        decimals
-      }
-      reserve0
-      reserve1
-    }
-  }
-`
-
 export const TokenDayData = gql`
   query tokenDayData($tokenAddresses: [String]) {
     tokenDayDatas(where: { token_in: $tokenAddresses }) {
