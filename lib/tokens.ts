@@ -173,19 +173,31 @@ export function addData(
     const priceChange = priceHistorical
       ? calcPriceChange(price, priceHistorical)
       : t.priceChange || 0
-    const reserveETH = d.reserveETH || t.reserveETH
-    const reserveToken = d.reserveToken || t.reserveToken
 
-    return {
-      ...t,
-      pairId: d.pairId ?? t.pairId,
-      price,
-      priceUSD,
-      priceHistorical,
-      priceChange,
-      liquidity,
-      reserveETH,
-      reserveToken,
+    if (version === UniswapVersion.v2) {
+      const reserveETH = d.reserveETH || t.reserveETH
+      const reserveToken = d.reserveToken || t.reserveToken
+      return {
+        ...t,
+        pairId: d.pairId ?? t.pairId,
+        price,
+        priceUSD,
+        priceHistorical,
+        priceChange,
+        liquidity,
+        reserveETH,
+        reserveToken,
+      }
+    } else {
+      return {
+        ...t,
+        pairId: d.pairId ?? t.pairId,
+        price,
+        priceUSD,
+        priceHistorical,
+        priceChange,
+        liquidity,
+      }
     }
   })
 }
