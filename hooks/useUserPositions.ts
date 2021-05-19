@@ -6,6 +6,7 @@ import {
 import { Trade } from '@uniswap/v2-sdk'
 import { BigNumber } from 'ethers'
 import { formatUnits, getAddress, isAddress } from 'ethers/lib/utils'
+import { UniswapVersion } from 'lib/graphql'
 import { tokenListChainId } from 'lib/tokens'
 import { constructTrade } from 'lib/uniswap/trade'
 import {
@@ -29,7 +30,7 @@ import useVanillaRouter from './useVanillaRouter'
 import useWalletAddress from './useWalletAddress'
 
 function useUserPositions(): Token[] | null {
-  useETHPrice()
+  useETHPrice(UniswapVersion.v3)
   const ETHPrice = useRecoilValue(currentETHPrice)
   const allTokens = useRecoilValue(allTokensStoreState)
   const counterAsset = useRecoilValue(selectedCounterAsset)
