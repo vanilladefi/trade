@@ -455,8 +455,6 @@ export async function getStaticProps(): Promise<
     getETHPrice(uniswapVersion),
   ])
 
-  console.log(blocksPerHour, currentBlockNumberState, ethPrice)
-
   if (ethPrice === 0 || currentBlockNumber === 0 || blocksPerHour === 0) {
     throw Error('Query failed')
   }
@@ -464,6 +462,8 @@ export async function getStaticProps(): Promise<
   tokens = await addGraphInfo(uniswapVersion, tokens)
   tokens = addUSDPrice(tokens, ethPrice)
   tokens = await addVnlEligibility(tokens)
+
+  console.log(tokens)
 
   const block24hAgo = currentBlockNumber - 24 * blocksPerHour
 

@@ -47,14 +47,16 @@ export interface Token extends UniSwapToken {
 }
 
 export interface TokenInfoQueryResponse {
-  pairId: string
   token: {
     id: string
   }
   price: string
-  reserveETH: string
-  reserveToken: string
-  reserveUSD: string
+  pairId?: string
+  id?: string
+  reserveETH?: string
+  reserveToken?: string
+  reserveUSD?: string
+  liquidity?: string
 }
 
 /**
