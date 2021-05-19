@@ -168,13 +168,15 @@ export function addData(
       ethPrice && !historical
         ? parseFloat(d.price) * ethPrice
         : (t.price && ethPrice && t.price * ethPrice) || t.priceUSD || 0
-    const liquidity = !historical ? parseFloat(d.reserveUSD) : t.liquidity
     const priceHistorical = historical ? parseFloat(d.price) : t.priceHistorical
     const priceChange = priceHistorical
       ? calcPriceChange(price, priceHistorical)
       : t.priceChange || 0
 
     if (version === UniswapVersion.v2) {
+      const liquidity = !historical
+        ? parseFloat(d.reserveUSD || '0')
+        : t.liquidity
       const reserveETH = d.reserveETH || t.reserveETH
       const reserveToken = d.reserveToken || t.reserveToken
       return {
@@ -189,6 +191,9 @@ export function addData(
         reserveToken,
       }
     } else {
+      const liquidity = !historical
+        ? parseFloat(d.liquidity || '0')
+        : t.liquidity
       return {
         ...t,
         pairId: d.pairId ?? t.pairId,

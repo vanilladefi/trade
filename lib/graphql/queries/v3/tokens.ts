@@ -3,7 +3,7 @@ import { gql } from 'graphql-request'
 const TokenCommonFragment = gql`
   fragment TokenCommonFragment on Pool {
     pairId: id
-    liquidity
+    liquidity: totalValueLockedUSD
   }
 `
 
