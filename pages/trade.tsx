@@ -50,7 +50,7 @@ type BodyProps = {
   initialTokens: Token[]
   ethPrice: number
   currentBlockNumber: number
-  setModalOpen: Dispatch<SetStateAction<boolean>>
+  setModalOpen: Dispatch<SetStateAction<UniswapVersion>>
 }
 
 const TradeModal = dynamic(() => import('components/Trade/Modal'), {
@@ -296,7 +296,7 @@ const BodyContent = ({
       .length
   }, [userPositions])
 
-  const handleBuyClick: HandleBuyClick = useCallback(
+  const handleV2BuyClick: HandleBuyClick = useCallback(
     (pairInfo) => {
       if (account === null) {
         setWalletModalOpen(true)
@@ -304,7 +304,7 @@ const BodyContent = ({
         setWalletModalOpen(false)
         setOperation(Operation.Buy)
         setSelectedPairId(pairInfo?.pairId ?? null)
-        setModalOpen(true)
+        setModalOpen(UniswapVersion.v2)
       }
     },
     [
@@ -316,7 +316,7 @@ const BodyContent = ({
     ],
   )
 
-  const handleSellClick: HandleSellClick = useCallback(
+  const handleV2SellClick: HandleSellClick = useCallback(
     (pairInfo) => {
       if (account === null) {
         setWalletModalOpen(true)
@@ -324,7 +324,47 @@ const BodyContent = ({
         setWalletModalOpen(false)
         setOperation(Operation.Sell)
         setSelectedPairId(pairInfo?.pairId ?? null)
-        setModalOpen(true)
+        setModalOpen(UniswapVersion.v2)
+      }
+    },
+    [
+      account,
+      setModalOpen,
+      setOperation,
+      setSelectedPairId,
+      setWalletModalOpen,
+    ],
+  )
+
+  const handleV3BuyClick: HandleBuyClick = useCallback(
+    (pairInfo) => {
+      if (account === null) {
+        setWalletModalOpen(true)
+      } else {
+        setWalletModalOpen(false)
+        setOperation(Operation.Buy)
+        setSelectedPairId(pairInfo?.pairId ?? null)
+        setModalOpen(UniswapVersion.v3)
+      }
+    },
+    [
+      account,
+      setModalOpen,
+      setOperation,
+      setSelectedPairId,
+      setWalletModalOpen,
+    ],
+  )
+
+  const handleV3SellClick: HandleSellClick = useCallback(
+    (pairInfo) => {
+      if (account === null) {
+        setWalletModalOpen(true)
+      } else {
+        setWalletModalOpen(false)
+        setOperation(Operation.Sell)
+        setSelectedPairId(pairInfo?.pairId ?? null)
+        setModalOpen(UniswapVersion.v3)
       }
     },
     [
@@ -359,8 +399,8 @@ const BodyContent = ({
                   </h2>
                 </div>
                 <MyPositions
-                  onBuyClick={handleBuyClick}
-                  onSellClick={handleSellClick}
+                  onBuyClick={handleV2BuyClick}
+                  onSellClick={handleV2SellClick}
                 />
               </>
             )}
@@ -369,7 +409,7 @@ const BodyContent = ({
             {/* Pass "initialTokens" so this page is statically rendered with tokens */}
             <AvailableTokens
               initialTokens={initialTokens}
-              onBuyClick={handleBuyClick}
+              onBuyClick={handleV3BuyClick}
             />
           </Column>
         </Row>
@@ -415,7 +455,15 @@ export default function TradePage({
   // Recoil can not be used here as this is outside of recoilRoot
   // because this is a page component
 
+  const [activeExchange, setActiveExchange] = useState<UniswapVersion>(
+    UniswapVersion.v3,
+  )
   const [modalOpen, setModalOpen] = useState(false)
+
+  const toggleModalOpen = (exchange: UniswapVersion) => {
+    setActiveExchange(exchange)
+    setModalOpen(!modalOpen)
+  }
 
   return (
     <Layout
@@ -426,14 +474,15 @@ export default function TradePage({
     >
       <TradeModal
         open={modalOpen}
+        uniswapVersion={activeExchange}
         onRequestClose={() => {
-          setModalOpen(false)
+          toggleModalOpen(activeExchange)
         }}
       />
       <BodyContent
         initialTokens={allTokens}
         ethPrice={ethPrice}
-        setModalOpen={setModalOpen}
+        setModalOpen={toggleModalOpen}
         currentBlockNumber={currentBlockNumber}
       />
     </Layout>
@@ -446,7 +495,7 @@ export async function getStaticProps(): Promise<
   let tokens = getAllTokens()
   tokens = await addLogoColor(tokens)
 
-  const uniswapVersion = UniswapVersion.v3
+  const uniswapVersion = UniswapVersion.v2
 
   // Fetch these simultaneously
   const [blocksPerHour, currentBlockNumber, ethPrice] = await Promise.all([
@@ -462,8 +511,6 @@ export async function getStaticProps(): Promise<
   tokens = await addGraphInfo(uniswapVersion, tokens)
   tokens = addUSDPrice(tokens, ethPrice)
   tokens = await addVnlEligibility(tokens)
-
-  console.log(tokens)
 
   const block24hAgo = currentBlockNumber - 24 * blocksPerHour
 

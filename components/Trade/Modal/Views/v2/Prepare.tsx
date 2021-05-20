@@ -43,7 +43,7 @@ import {
 import { providerState, signerState } from 'state/wallet'
 import { Operation } from 'types/trade'
 import { blockDeadlineThreshold } from 'utils/config'
-import SlippageSelector from '../SlippageSelector'
+import SlippageSelector from '../../SlippageSelector'
 
 type ContentProps = {
   operation: Operation

@@ -107,7 +107,6 @@ function useUserPositions(): Token[] | null {
 
                 // Get current best trade from Uniswap to calculate available rewards
                 let trade: Trade | null
-                console.log(token.price)
                 try {
                   trade = await constructTrade(
                     tokenAmount.toSignificant(),

@@ -1,6 +1,7 @@
 import { Column, Row, Width } from 'components/grid/Flex'
 import Modal from 'components/Modal'
 import { Spinner } from 'components/Spinner'
+import { UniswapVersion } from 'lib/graphql'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import React, { Suspense, useCallback, useState } from 'react'
@@ -26,7 +27,11 @@ const Loading = (): JSX.Element => (
   </Row>
 )
 
-const Prepare = dynamic(() => import('./Views/Prepare'), {
+const PrepareV2 = dynamic(() => import('./Views/v2/Prepare'), {
+  ssr: false,
+})
+
+const PrepareV3 = dynamic(() => import('./Views/v3/Prepare'), {
   ssr: false,
 })
 
@@ -37,9 +42,14 @@ const Success = dynamic(() => import('./Views/Success'), {
 type Props = {
   open: boolean
   onRequestClose: () => void
+  uniswapVersion: UniswapVersion
 }
 
-const TradeModal = ({ open, onRequestClose }: Props): JSX.Element => {
+const TradeModal = ({
+  open,
+  onRequestClose,
+  uniswapVersion,
+}: Props): JSX.Element => {
   const [operation, setOperation] = useRecoilState(selectedOperation)
   const [modalCloseEnabled, setModalCloseEnabled] = useState<boolean>(true)
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
@@ -61,15 +71,26 @@ const TradeModal = ({ open, onRequestClose }: Props): JSX.Element => {
   return (
     <Modal open={open || !!parsedId()} onRequestClose={onClose}>
       <Suspense fallback={<Loading />}>
-        {!parsedId() ? (
-          <Prepare
-            operation={operation}
-            setOperation={setOperation}
-            setModalCloseEnabled={setModalCloseEnabled}
-          />
-        ) : (
-          <Success id={parsedId()} closeModal={onClose} />
-        )}
+        {uniswapVersion === UniswapVersion.v2 &&
+          (!parsedId() ? (
+            <PrepareV2
+              operation={operation}
+              setOperation={setOperation}
+              setModalCloseEnabled={setModalCloseEnabled}
+            />
+          ) : (
+            <Success id={parsedId()} closeModal={onClose} />
+          ))}
+        {uniswapVersion === UniswapVersion.v3 &&
+          (!parsedId() ? (
+            <PrepareV3
+              operation={operation}
+              setOperation={setOperation}
+              setModalCloseEnabled={setModalCloseEnabled}
+            />
+          ) : (
+            <Success id={parsedId()} closeModal={onClose} />
+          ))}
       </Suspense>
     </Modal>
   )
