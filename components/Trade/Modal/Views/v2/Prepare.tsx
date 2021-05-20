@@ -5,7 +5,7 @@ import {
   TradeType,
 } from '@uniswap/sdk-core'
 import { Trade } from '@uniswap/v2-sdk'
-import { Column, Width } from 'components/grid/Flex'
+import { Column } from 'components/grid/Flex'
 import Button, {
   ButtonColor,
   ButtonSize,
@@ -13,7 +13,6 @@ import Button, {
   Rounding,
 } from 'components/input/Button'
 import { Spinner } from 'components/Spinner'
-import Icon, { IconUrls } from 'components/typography/Icon'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import useEligibleTokenBalance from 'hooks/useEligibleTokenBalance'
 import useTokenBalance from 'hooks/useTokenBalance'
@@ -43,7 +42,9 @@ import {
 import { providerState, signerState } from 'state/wallet'
 import { Operation } from 'types/trade'
 import { blockDeadlineThreshold } from 'utils/config'
-import SlippageSelector from '../../SlippageSelector'
+import ErrorDisplay from '../../ErrorDisplay'
+import OperationToggle from '../../OperationToggle'
+import TradeInfoDisplay from '../../TradeInfoDisplay'
 
 type ContentProps = {
   operation: Operation
@@ -248,46 +249,6 @@ const PrepareView = ({
     token0Amount,
   ])
 
-  const updateTrade = async (
-    tokenChanged: 0 | 1,
-    amount: string,
-  ): Promise<Trade | null> => {
-    if (token0 && token1) {
-      const receivedToken = tokenReceived()
-      const paidToken = tokenPaid()
-
-      const tradeType =
-        tokenChanged === 0
-          ? operation === Operation.Buy
-            ? TradeType.EXACT_OUTPUT
-            : TradeType.EXACT_INPUT
-          : operation === Operation.Buy
-          ? TradeType.EXACT_INPUT
-          : TradeType.EXACT_OUTPUT
-
-      const parsedAmount = parseUnits(
-        amount,
-        tokenChanged === 0 ? token0.decimals : token1.decimals,
-      )
-
-      if (receivedToken && paidToken && !parsedAmount.isZero()) {
-        try {
-          const trade = await constructTrade(
-            amount,
-            receivedToken,
-            paidToken,
-            tradeType,
-          )
-          setTrade(trade)
-          return trade
-        } catch (e) {
-          setError(e?.data?.message ?? e.toString())
-        }
-      }
-    }
-    return null
-  }
-
   // Update trade on operation change to get updated pricing
   useEffect(() => {
     const updateTradeAndToken1 = async () => {
@@ -346,6 +307,46 @@ const PrepareView = ({
       setModalCloseEnabled(true)
     }
   }, [setModalCloseEnabled, transactionState])
+
+  const updateTrade = async (
+    tokenChanged: 0 | 1,
+    amount: string,
+  ): Promise<Trade | null> => {
+    if (token0 && token1) {
+      const receivedToken = tokenReceived()
+      const paidToken = tokenPaid()
+
+      const tradeType =
+        tokenChanged === 0
+          ? operation === Operation.Buy
+            ? TradeType.EXACT_OUTPUT
+            : TradeType.EXACT_INPUT
+          : operation === Operation.Buy
+          ? TradeType.EXACT_INPUT
+          : TradeType.EXACT_OUTPUT
+
+      const parsedAmount = parseUnits(
+        amount,
+        tokenChanged === 0 ? token0.decimals : token1.decimals,
+      )
+
+      if (receivedToken && paidToken && !parsedAmount.isZero()) {
+        try {
+          const trade = await constructTrade(
+            amount,
+            receivedToken,
+            paidToken,
+            tradeType,
+          )
+          setTrade(trade)
+          return trade
+        } catch (e) {
+          setError(e?.data?.message ?? e.toString())
+        }
+      }
+    }
+    return null
+  }
 
   const handleAmountChanged = async (tokenIndex: 0 | 1, value: string) => {
     if (tokenIndex === 0) {
@@ -446,23 +447,11 @@ const PrepareView = ({
             }`}
           >
             <div className='row noBottomMargin'>
-              <div className='toggleWrapper'>
-                <button
-                  className={operation === Operation.Buy ? 'active' : undefined}
-                  onClick={() => setOperation(Operation.Buy)}
-                >
-                  Buy
-                </button>
-                <button
-                  className={
-                    operation === Operation.Sell ? 'active' : undefined
-                  }
-                  onClick={() => setOperation(Operation.Sell)}
-                  disabled={eligibleBalance0Raw.isZero()}
-                >
-                  Sell
-                </button>
-              </div>
+              <OperationToggle
+                operation={operation}
+                setOperation={setOperation}
+                sellDisabled={eligibleBalance0Raw.isZero()}
+              />
             </div>
 
             <section className='modalMain'>
@@ -478,63 +467,32 @@ const PrepareView = ({
               {/* TODO: Trade info */}
               {token0Amount && trade?.executionPrice && vanillaRouter && (
                 <div className='row'>
-                  <Column width={Width.TWELVE}>
-                    <div className='tradeInfoRow'>
-                      <span>
-                        Price per{' '}
-                        {operation === Operation.Buy
-                          ? token1?.symbol
-                          : token0?.symbol}
-                      </span>
-                      <span>
-                        {trade?.executionPrice.toSignificant()}{' '}
-                        {operation === Operation.Buy
-                          ? token0?.symbol
-                          : token1?.symbol}
-                      </span>
-                    </div>
-                    <div className='tradeInfoRow'>
-                      <span>Trade value</span>
-                      <span>
-                        {operation === Operation.Buy
-                          ? (
-                              parseFloat(trade?.inputAmount.toSignificant()) *
-                              ethUsdPrice
-                            ).toLocaleString('en-US')
-                          : (
-                              parseFloat(trade?.outputAmount.toSignificant()) *
-                              ethUsdPrice
-                            ).toLocaleString('en-US')}{' '}
-                        USD
-                      </span>
-                    </div>
-                    <div className='tradeInfoRow'>
-                      <span>Estimated gas</span>
-                      <span>{estimatedGas} ETH</span>
-                    </div>
-                    <div className='tradeInfoRow'>
-                      <span>Liquidity provider fees</span>
-                      <span>
-                        {estimatedFees}{' '}
-                        {operation === Operation.Buy
-                          ? token1?.symbol
-                          : token0?.symbol}
-                      </span>
-                    </div>
-                    <div className='tradeInfoRow'>
-                      <span>Slippage tolerance</span>
-                      <SlippageSelector />
-                    </div>
-                    {estimatedReward && (
-                      <div className='tradeInfoRow'>
-                        <span>Unclaimed rewards</span>
-                        <span>
-                          {estimatedReward} VNL{' '}
-                          <small>${estimatedRewardInUsd()}</small>
-                        </span>
-                      </div>
-                    )}
-                  </Column>
+                  <TradeInfoDisplay
+                    token0={token0}
+                    token1={token1}
+                    operation={operation}
+                    tradeValue={
+                      operation === Operation.Buy
+                        ? (
+                            parseFloat(trade?.inputAmount.toSignificant()) *
+                            ethUsdPrice
+                          ).toLocaleString('en-US')
+                        : (
+                            parseFloat(trade?.outputAmount.toSignificant()) *
+                            ethUsdPrice
+                          ).toLocaleString('en-US')
+                    }
+                    gasEstimate={estimatedGas}
+                    feeEstimate={estimatedFees}
+                    vnlReward={
+                      estimatedReward
+                        ? {
+                            vnl: estimatedReward.toString(),
+                            usd: estimatedRewardInUsd().toString(),
+                          }
+                        : undefined
+                    }
+                  />
                 </div>
               )}
             </section>
@@ -592,20 +550,7 @@ const PrepareView = ({
             )}
           </div>
 
-          {error !== null && (
-            <div className='row error'>
-              <Column width={Width.TWO}>
-                <div className='center'>
-                  <Icon src={IconUrls.ALERT} />
-                </div>
-              </Column>
-              <Column width={Width.TEN} shrink={true}>
-                Something went wrong. Reason:{' '}
-                <span className='code'>{error}</span> You can try again.{' '}
-                <a onClick={() => setError(null)}>Dismiss notification</a>
-              </Column>
-            </div>
-          )}
+          {error !== null && <ErrorDisplay error={error} setError={setError} />}
 
           <style jsx>{`
             div {
@@ -646,75 +591,6 @@ const PrepareView = ({
               width: 100%;
               flex-direction: row;
               justify-content: space-between;
-            }
-            .toggleWrapper {
-              width: 100%;
-              position: relative;
-              display: flex;
-              padding: 6px;
-              flex-direction: row;
-              justify-content: stretch;
-              border-radius: 9999px;
-              background: var(--toggleWrapperGradient);
-            }
-            .toggleWrapper button {
-              flex-grow: 1;
-              background: transparent;
-              border: 0;
-              border-radius: 9999px;
-              cursor: pointer;
-              outline: 0;
-              font-family: var(--bodyfont);
-              font-size: var(--largebuttonsize);
-              padding: 0.6rem;
-              text-transform: uppercase;
-              font-weight: var(--bodyweight);
-            }
-            .toggleWrapper button.active {
-              background: white;
-              font-weight: var(--buttonweight);
-            }
-            .error {
-              color: var(--alertcolor);
-              background: var(--alertbackground);
-              font-family: var(--bodyfont);
-              font-weight: var(--bodyweight);
-              font-size: 0.9rem;
-              cursor: text;
-              --iconsize: 1.5rem;
-              border-top: 2px solid rgba(0, 0, 0, 0.1);
-            }
-            .error span,
-            .error a,
-            .error .code {
-              display: inline-flex;
-              flex-shrink: 1;
-              word-break: break-all;
-            }
-            .code {
-              font-family: var(--monofont);
-              font-weight: var(--monoweight);
-            }
-            .error a {
-              text-decoration: underline;
-              margin-top: 0.5rem;
-              cursor: pointer;
-            }
-            .tradeInfoRow {
-              display: flex;
-              flex-direction: row;
-              justify-content: space-between;
-              align-items: center;
-              width: 100%;
-              border-bottom: 1px solid #d4d4d4;
-              padding-left: 0;
-              padding-right: 0;
-            }
-            .tradeInfoRow:last-of-type {
-              border-bottom: 0;
-            }
-            .tradeInfoRow span:last-of-type {
-              text-align: right;
             }
             .buttonContent {
               font-family: inherit;
