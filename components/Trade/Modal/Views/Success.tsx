@@ -37,22 +37,22 @@ const SuccessView = ({ id, closeModal }: Props): JSX.Element => {
   const amountPaid = useCallback(() => {
     return transaction
       ? parseFloat(
-        formatUnits(
-          transaction.amountPaid || '0',
-          transaction.paid?.decimals,
-        ),
-      )
+          formatUnits(
+            transaction.amountPaid || '0',
+            transaction.paid?.decimals,
+          ),
+        )
       : 0
   }, [transaction])
 
   const amountReceived = useCallback(() => {
     return transaction
       ? parseFloat(
-        formatUnits(
-          transaction.amountReceived || '0',
-          transaction.received?.decimals,
-        ),
-      )
+          formatUnits(
+            transaction.amountReceived || '0',
+            transaction.received?.decimals,
+          ),
+        )
       : 0
   }, [transaction])
 
