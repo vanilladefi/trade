@@ -2,7 +2,7 @@ import { Percent } from '@uniswap/sdk-core'
 import { weth } from 'lib/tokens'
 import { atom, selector } from 'recoil'
 import { Operation, PairByIdQueryResponse, Token } from 'types/trade'
-import { allTokensStoreState } from './tokens'
+import { uniswapV2TokenState } from './tokens'
 
 export const selectedPairIdState = atom<string | null>({
   key: 'selectedPairId',
@@ -29,7 +29,7 @@ export const selectedPairState = selector<PairByIdQueryResponse | null>({
   get: async ({ get }) => {
     let pair: PairByIdQueryResponse | null = null
     try {
-      const tokens = get(allTokensStoreState)
+      const tokens = get(uniswapV2TokenState)
       const pairId = get(selectedPairIdState)
       const counterAsset = get(selectedCounterAsset)
       if (pairId !== null) {

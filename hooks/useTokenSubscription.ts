@@ -4,7 +4,7 @@ import { addData, addGraphInfo, getAllTokens, weth } from 'lib/tokens'
 import { useEffect } from 'react'
 import { useRecoilCallback, useRecoilValue } from 'recoil'
 import { currentBlockNumberState, currentETHPrice } from 'state/meta'
-import { allTokensStoreState } from 'state/tokens'
+import { uniswapV2TokenState, uniswapV3TokenState } from 'state/tokens'
 import type { TokenInfoQueryResponse } from 'types/trade'
 
 const variables = {
@@ -29,10 +29,12 @@ export default function useTokenSubscription(
 
   const handleNewData = useRecoilCallback(
     ({ set }) => async ({ data }: subReturnValue) => {
-      console.log(data)
       if (data?.tokens?.length && ethPrice > 0) {
-        set(allTokensStoreState, (tokens) =>
-          addData(version, tokens, data.tokens, false, ethPrice),
+        set(
+          version === UniswapVersion.v2
+            ? uniswapV2TokenState
+            : uniswapV3TokenState,
+          (tokens) => addData(version, tokens, data.tokens, false, ethPrice),
         )
       }
     },
@@ -41,10 +43,16 @@ export default function useTokenSubscription(
 
   const addHistoricalData = useRecoilCallback(
     ({ snapshot, set }) => async (blockNumber: number) => {
-      const tokens = await snapshot.getPromise(allTokensStoreState)
+      const tokens = await snapshot.getPromise(
+        version === UniswapVersion.v2
+          ? uniswapV2TokenState
+          : uniswapV3TokenState,
+      )
       if (blockNumber > 0 && tokens?.length && ethPrice > 0) {
         set(
-          allTokensStoreState,
+          version === UniswapVersion.v2
+            ? uniswapV2TokenState
+            : uniswapV3TokenState,
           await addGraphInfo(version, tokens, blockNumber, ethPrice),
         )
       }

@@ -22,6 +22,11 @@ const ErrorDisplay = ({ error, setError }: ErrorDisplayProps): JSX.Element => (
       </Column>
     </div>
     <style jsx>{`
+      div {
+        display: flex;
+        padding: 1.1rem 1.2rem;
+        --bordercolor: var(--toggleWrapperGradient);
+      }
       .error {
         color: var(--alertcolor);
         background: var(--alertbackground);

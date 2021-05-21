@@ -19,7 +19,11 @@ import {
 import { useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { currentETHPrice } from 'state/meta'
-import { allTokensStoreState, userTokensState } from 'state/tokens'
+import {
+  uniswapV2TokenState,
+  uniswapV3TokenState,
+  userTokensState,
+} from 'state/tokens'
 import { selectedCounterAsset } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
 import { Token } from 'types/trade'
@@ -29,10 +33,12 @@ import useVanillaGovernanceToken from './useVanillaGovernanceToken'
 import useVanillaRouter from './useVanillaRouter'
 import useWalletAddress from './useWalletAddress'
 
-function useUserPositions(): Token[] | null {
-  useETHPrice(UniswapVersion.v3)
+function useUserPositions(exchange: UniswapVersion): Token[] | null {
+  useETHPrice(exchange)
   const ETHPrice = useRecoilValue(currentETHPrice)
-  const allTokens = useRecoilValue(allTokensStoreState)
+  const allTokens = useRecoilValue(
+    exchange === UniswapVersion.v2 ? uniswapV2TokenState : uniswapV3TokenState,
+  )
   const counterAsset = useRecoilValue(selectedCounterAsset)
   const [tokens, setTokens] = useRecoilState(userTokensState)
   const vanillaRouter = useVanillaRouter()

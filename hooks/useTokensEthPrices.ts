@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import { useRecoilValue } from 'recoil'
-import { allTokensStoreState } from 'state/tokens'
+import { uniswapV2TokenState } from 'state/tokens'
 
 const useTokensEthPrices = (tokenAddresses: string[]): number[] => {
-  const tokens = useRecoilValue(allTokensStoreState)
+  const tokens = useRecoilValue(uniswapV2TokenState)
 
   return useMemo(() => {
     return tokens
