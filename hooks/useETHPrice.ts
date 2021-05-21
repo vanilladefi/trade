@@ -35,9 +35,9 @@ function useETHPrice(version: UniswapVersion): void {
       next: handleNewData,
     }
     const { ws } = getTheGraphClient(version)
-    const ethPriceSub = ws.request({ query: query }).subscribe(subOptions)
+    const ethPriceSub = ws?.request({ query: query }).subscribe(subOptions)
     return () => {
-      ethPriceSub.unsubscribe()
+      ethPriceSub?.unsubscribe()
     }
   }, [handleNewData, query, version])
 }

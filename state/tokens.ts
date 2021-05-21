@@ -6,8 +6,14 @@ export const userTokensState = atom<Token[] | null>({
   default: null,
 })
 
-export const allTokensStoreState = atom<Token[]>({
-  key: 'allTokensStoreState',
+export const uniswapV2TokenState = atom<Token[]>({
+  key: 'uniswapV2TokenState',
+  default: [],
+  dangerouslyAllowMutability: true,
+})
+
+export const uniswapV3TokenState = atom<Token[]>({
+  key: 'uniswapV3TokenState',
   default: [],
   dangerouslyAllowMutability: true,
 })

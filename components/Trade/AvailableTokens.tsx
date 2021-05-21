@@ -1,22 +1,27 @@
 import Button, { ButtonColor, ButtonSize } from 'components/input/Button'
 import { Columns, Table } from 'components/Table'
 import useTokenSearch from 'hooks/useTokenSearch'
+import { UniswapVersion } from 'lib/graphql'
 import { useMemo } from 'react'
 import type { CellProps } from 'react-table'
 import { useRecoilValue } from 'recoil'
-import { allTokensStoreState } from 'state/tokens'
+import { uniswapV2TokenState, uniswapV3TokenState } from 'state/tokens'
 import type { HandleBuyClick, ListColumn, Token } from 'types/trade'
 
 interface Props {
   onBuyClick: HandleBuyClick
   initialTokens?: Token[]
+  exchange: UniswapVersion
 }
 
 export default function AvailableTokens({
   onBuyClick,
   initialTokens = [],
+  exchange,
 }: Props): JSX.Element {
-  const tokens = useRecoilValue(allTokensStoreState)
+  const tokens = useRecoilValue(
+    exchange === UniswapVersion.v2 ? uniswapV2TokenState : uniswapV3TokenState,
+  )
 
   const [query, clearQuery] = useTokenSearch()
 

@@ -1,8 +1,8 @@
 import { useRecoilValue } from 'recoil'
-import { allTokensStoreState } from 'state/tokens'
+import { uniswapV2TokenState } from 'state/tokens'
 
 const useTokenEthPrice = (tokenAddress: string): number => {
-  const tokens = useRecoilValue(allTokensStoreState)
+  const tokens = useRecoilValue(uniswapV2TokenState)
 
   return (
     tokens.find(

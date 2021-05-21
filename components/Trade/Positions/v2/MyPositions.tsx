@@ -12,6 +12,7 @@ import { formatDistance } from 'date-fns'
 import { parseUnits } from 'ethers/lib/utils'
 import useTokenSearch from 'hooks/useTokenSearch'
 import useUserPositions from 'hooks/useUserPositions'
+import { UniswapVersion } from 'lib/graphql'
 import React, { MouseEvent, useCallback, useMemo } from 'react'
 import type { CellProps, Row } from 'react-table'
 import type {
@@ -23,6 +24,7 @@ import type {
 import { epoch } from 'utils/config'
 
 interface Props {
+  exchange: UniswapVersion
   onBuyClick: HandleBuyClick
   onSellClick: HandleSellClick
   initialTokens?: Token[]
@@ -259,10 +261,11 @@ const RowRenderer = (
 }
 
 export default function MyPositions({
+  exchange,
   onBuyClick,
   onSellClick,
 }: Props): JSX.Element {
-  const userPositions = useUserPositions()
+  const userPositions = useUserPositions(exchange)
   const [query, clearQuery] = useTokenSearch()
 
   const getColumns = useCallback(
