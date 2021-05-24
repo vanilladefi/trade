@@ -27,7 +27,6 @@ import {
 import { epoch } from 'utils/config'
 
 interface Props {
-  exchange: UniswapVersion
   onBuyClick: HandleBuyClick
   onSellClick: HandleSellClick
   initialTokens?: Token[]
@@ -266,11 +265,10 @@ const RowRenderer = (
 }
 
 export default function MyPositions({
-  exchange,
   onBuyClick,
   onSellClick,
 }: Props): JSX.Element {
-  const userPositions = useUserPositions(exchange)
+  const userPositions = useUserPositions(UniswapVersion.v2)
   const [query, clearQuery] = useTokenSearch()
   const [liquidityModalContent, setLiquidityModalContent] = useState<
     JSX.Element | false

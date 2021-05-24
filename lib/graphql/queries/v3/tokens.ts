@@ -4,6 +4,8 @@ const TokenCommonFragment = gql`
   fragment TokenCommonFragment on Pool {
     pairId: id
     liquidity: totalValueLockedUSD
+    inRangeLiquidity: liquidity
+    sqrtPrice
   }
 `
 

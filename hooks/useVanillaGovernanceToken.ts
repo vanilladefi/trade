@@ -94,9 +94,11 @@ function useVanillaGovernanceToken(): {
           tokenAddresses: [vnlTokenAddress.toLowerCase()],
         }
         const { http } = getTheGraphClient(UniswapVersion.v2)
-        const response = await http.request(v2.TokenInfoQuery, variables)
-        const data = [...response?.tokensAB, ...response?.tokensBA]
-        setVnlEthPrice(data[0].price)
+        if (http) {
+          const response = await http.request(v2.TokenInfoQuery, variables)
+          const data = [...response?.tokensAB, ...response?.tokensBA]
+          setVnlEthPrice(data[0].price)
+        }
       }
     }
     getTokenPrice()

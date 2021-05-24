@@ -202,6 +202,8 @@ export function addData(
         priceHistorical,
         priceChange,
         liquidity,
+        sqrtPrice: d.sqrtPrice ?? t.sqrtPrice,
+        inRangeLiquidity: d.inRangeLiquidity ?? t.inRangeLiquidity,
       }
     }
   })
@@ -278,7 +280,7 @@ export async function getETHPrice(version: UniswapVersion): Promise<number> {
       )
     }
   } catch (e) {
-    console.log(e)
+    console.error(e)
     parsedPrice = 0
   }
   return parsedPrice

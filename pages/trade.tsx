@@ -4,7 +4,7 @@ import Button from 'components/input/Button'
 import Layout from 'components/Layout'
 import { Spinner } from 'components/Spinner'
 import TokenSearch from 'components/TokenSearch'
-import { AvailableTokens, MyPositions } from 'components/Trade'
+import { AvailableTokens, MyPositionsV2, MyPositionsV3 } from 'components/Trade'
 import HugeMonospace from 'components/typography/HugeMonospace'
 import { Title } from 'components/typography/Titles'
 import Wrapper from 'components/Wrapper'
@@ -401,7 +401,7 @@ const BodyContent = ({
                     )}
                   </h2>
                 </div>
-                <MyPositions
+                <MyPositionsV3
                   onBuyClick={handleV3BuyClick}
                   onSellClick={handleV3SellClick}
                 />
@@ -415,8 +415,7 @@ const BodyContent = ({
                     )}
                   </h2>
                 </div>
-                <MyPositions
-                  exchange={UniswapVersion.v2}
+                <MyPositionsV2
                   onBuyClick={handleV2BuyClick}
                   onSellClick={handleV2SellClick}
                 />

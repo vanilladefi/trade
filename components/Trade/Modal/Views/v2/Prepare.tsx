@@ -19,7 +19,7 @@ import useTokenBalance from 'hooks/useTokenBalance'
 import useTradeEngine from 'hooks/useTradeEngine'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import useVanillaRouter from 'hooks/useVanillaRouter'
-import { constructTrade } from 'lib/uniswap/trade'
+import { constructTrade } from 'lib/uniswap/v2/trade'
 import { estimateGas, estimateReward } from 'lib/vanilla'
 import debounce from 'lodash.debounce'
 import dynamic from 'next/dynamic'
@@ -353,7 +353,6 @@ const PrepareView = ({
       if (parseFloat(value) > 0) {
         const trade = await updateTrade(tokenIndex, value)
         if (trade) {
-          console.log(trade)
           const newToken1Amount =
             operation === Operation.Buy
               ? trade.inputAmount && trade.inputAmount.toSignificant(6)
@@ -368,11 +367,6 @@ const PrepareView = ({
       if (parseFloat(value) > 0) {
         const trade = await updateTrade(tokenIndex, value)
         if (trade) {
-          console.log(
-            trade,
-            trade.executionPrice.toSignificant(),
-            trade.inputAmount.toSignificant(),
-          )
           const newToken0Amount =
             operation === Operation.Buy
               ? trade.outputAmount && trade.outputAmount.toSignificant(6)
