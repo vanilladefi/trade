@@ -2,10 +2,10 @@ import { Percent } from '@uniswap/sdk-core'
 import { Trade } from '@uniswap/v2-sdk'
 import { BigNumber, ethers, providers, Signer } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
+import { tryParseAmount } from 'lib/uniswap/v2/trade'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import { Operation, UniSwapToken } from 'types/trade'
 import { blockDeadlineThreshold, vanillaRouterAddress } from 'utils/config'
-import { tryParseAmount } from './uniswap/trade'
 
 export const getVnlTokenAddress = async (
   provider: providers.JsonRpcProvider,

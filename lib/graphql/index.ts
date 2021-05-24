@@ -46,7 +46,6 @@ export * as v3 from './queries/v3/tokens'
 export const getTheGraphClient = (
   version: UniswapVersion,
 ): { http: GraphQLClient | null; ws: SubscriptionClient | null } => {
-  console.log(version, THEGRAPH_ENDPOINTS[version])
   return !!THEGRAPH_ENDPOINTS[version]
     ? {
         http: THEGRAPH_ENDPOINTS[version].http,

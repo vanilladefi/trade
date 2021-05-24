@@ -8,7 +8,7 @@ import { BigNumber } from 'ethers'
 import { formatUnits, getAddress, isAddress } from 'ethers/lib/utils'
 import { UniswapVersion } from 'lib/graphql'
 import { tokenListChainId } from 'lib/tokens'
-import { constructTrade } from 'lib/uniswap/trade'
+import { constructTrade as constructV2Trade } from 'lib/uniswap/v2/trade'
 import {
   estimateReward,
   getEpoch,
@@ -34,7 +34,7 @@ import useVanillaRouter from './useVanillaRouter'
 import useWalletAddress from './useWalletAddress'
 
 function useUserPositions(exchange: UniswapVersion): Token[] | null {
-  useETHPrice(exchange)
+  useETHPrice(UniswapVersion.v3)
   const ETHPrice = useRecoilValue(currentETHPrice)
   const allTokens = useRecoilValue(
     exchange === UniswapVersion.v2 ? uniswapV2TokenState : uniswapV3TokenState,
@@ -114,7 +114,7 @@ function useUserPositions(exchange: UniswapVersion): Token[] | null {
                 // Get current best trade from Uniswap to calculate available rewards
                 let trade: Trade | null
                 try {
-                  trade = await constructTrade(
+                  trade = await constructV2Trade(
                     tokenAmount.toSignificant(),
                     counterAsset,
                     token,

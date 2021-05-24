@@ -3,13 +3,22 @@ import {
   TokenAmount,
   TradeType,
 } from '@uniswap/sdk-core'
-import { JSBI, Pair, Route, Trade } from '@uniswap/v2-sdk'
+import {
+  FeeAmount,
+  nearestUsableTick,
+  Pool,
+  Route,
+  TickMath,
+  TICK_SPACINGS,
+  Trade,
+} from '@uniswap/v3-sdk'
 import { providers, Transaction } from 'ethers'
 import { getAddress, parseUnits } from 'ethers/lib/utils'
+import JSBI from 'jsbi'
+import { getContract, tokenListChainId } from 'lib/tokens'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import type { Token, UniSwapToken } from 'types/trade'
 import { ethersOverrides, vanillaRouterAddress } from 'utils/config'
-import { getContract, tokenListChainId } from '../tokens'
 
 export enum Field {
   INPUT = 'INPUT',
@@ -88,6 +97,7 @@ export async function constructTrade(
   tokenPaid: Token,
   tradeType = TradeType.EXACT_OUTPUT,
 ): Promise<Trade> {
+  const feeAmount = FeeAmount.MEDIUM
   try {
     // The asset that "amountToTrade" refers to changes on tradetype,
     // so we need to set asset and counterAsset here
@@ -113,28 +123,58 @@ export async function constructTrade(
       Number(counterAsset.decimals),
     )
 
-    // Parse given ERC-20 and WETH reserves as TokenAmounts
-    const { tokenReserve, ethReserve } = parseReserves(tokenPaid, tokenReceived)
-    if (!tokenReserve || !ethReserve)
-      return Promise.reject(
-        'No liquidity pool info, cannot calculate next price!',
+    const liquidity =
+      tokenReceived.inRangeLiquidity || tokenPaid.inRangeLiquidity || null
+    const sqrtPrice = tokenReceived.sqrtPrice || tokenPaid.sqrtPrice || null
+    console.log(liquidity, sqrtPrice)
+    if (liquidity !== null && sqrtPrice !== null) {
+      // Construct a medium fee pool based on TheGraph data
+      const pool = new Pool(
+        convertedAsset,
+        convertedCounterAsset,
+        feeAmount,
+        sqrtPrice,
+        liquidity,
+        TickMath.getTickAtSqrtRatio(JSBI.BigInt(sqrtPrice)),
+        [
+          {
+            index: nearestUsableTick(
+              TickMath.MIN_TICK,
+              TICK_SPACINGS[feeAmount],
+            ),
+            liquidityNet: liquidity,
+            liquidityGross: liquidity,
+          },
+          {
+            index: nearestUsableTick(
+              TickMath.MAX_TICK,
+              TICK_SPACINGS[feeAmount],
+            ),
+            liquidityNet: -liquidity,
+            liquidityGross: liquidity,
+          },
+        ],
       )
 
-    // Construct a UniSwap SDK pair with parsed liquidity
-    const pair = new Pair(tokenReserve, ethReserve)
+      console.log(pool)
 
-    // Construct a route based on the parsed liquidity pools
-    const route = new Route(
-      [pair],
-      tradeType === TradeType.EXACT_OUTPUT
-        ? convertedCounterAsset
-        : convertedAsset,
-    )
+      // Construct a route based on the parsed liquidity pools
+      const route = new Route(
+        [pool],
+        tradeType === TradeType.EXACT_OUTPUT
+          ? convertedCounterAsset
+          : convertedAsset,
+      )
 
-    // Construct a trade with UniSwap SDK
-    const trade = new Trade(route, parsedAmountTraded, tradeType)
+      console.log(route)
 
-    return trade
+      // Construct a trade with UniSwap SDK
+      const trade = Trade.fromRoute(route, parsedAmountTraded, tradeType)
+
+      return trade
+    } else {
+      return Promise.reject('Liquidity and price info incorrect!')
+    }
   } catch (error) {
     console.error(error)
     throw error
@@ -156,7 +196,7 @@ export function tryParseAmount(
     )
     const typedValueParsed = parseUnits(value, currency.decimals).toString()
     if (typedValueParsed !== '0') {
-      return new TokenAmount(convertedToken, JSBI.BigInt(typedValueParsed))
+      return new TokenAmount(convertedToken, typedValueParsed)
     }
   } catch (error) {
     // should fail if the user specifies too many decimal places of precision (or maybe exceed max uint?)
@@ -164,19 +204,4 @@ export function tryParseAmount(
   }
   // necessary for all paths to return a value
   return undefined
-}
-
-export function parseReserves(
-  token0: Token,
-  token1: Token,
-): { tokenReserve: TokenAmount | null; ethReserve: TokenAmount | null } {
-  const tokenReserve = tryParseAmount(
-    token0.reserveToken || token1.reserveToken,
-    token0.reserveToken ? token0 : token1,
-  )
-  const ethReserve = tryParseAmount(
-    token1.reserveETH || token0.reserveETH,
-    token1.reserveETH ? token0 : token1,
-  )
-  return { tokenReserve: tokenReserve ?? null, ethReserve: ethReserve ?? null }
 }

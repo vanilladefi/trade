@@ -1,4 +1,4 @@
-import { buy, sell, TransactionProps } from 'lib/uniswap/trade'
+import { buy, sell, TransactionProps } from 'lib/uniswap/v2/trade'
 import { useRecoilValue } from 'recoil'
 import { signerState } from 'state/wallet'
 import { Action } from 'types/trade'

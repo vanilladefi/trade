@@ -44,6 +44,8 @@ export interface Token extends UniSwapToken {
   htrs?: string | null
   reserveETH?: string | null
   reserveToken?: string | null
+  inRangeLiquidity?: string | null
+  sqrtPrice?: string | null
 }
 
 export interface TokenInfoQueryResponse {
@@ -57,6 +59,8 @@ export interface TokenInfoQueryResponse {
   reserveToken?: string
   reserveUSD?: string
   liquidity?: string
+  inRangeLiquidity?: string | null
+  sqrtPrice?: string | null
 }
 
 /**
