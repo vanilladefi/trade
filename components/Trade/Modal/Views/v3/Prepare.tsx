@@ -4,7 +4,7 @@ import {
   TokenAmount,
   TradeType,
 } from '@uniswap/sdk-core'
-import { Trade } from '@uniswap/v2-sdk'
+import { Trade } from '@uniswap/v3-sdk'
 import { Column } from 'components/grid/Flex'
 import Button, {
   ButtonColor,

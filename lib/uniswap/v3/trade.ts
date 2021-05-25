@@ -97,7 +97,7 @@ export async function constructTrade(
   tokenPaid: Token,
   tradeType = TradeType.EXACT_OUTPUT,
 ): Promise<Trade> {
-  const feeAmount = FeeAmount.MEDIUM
+  const feeAmount = FeeAmount.HIGH
   try {
     // The asset that "amountToTrade" refers to changes on tradetype,
     // so we need to set asset and counterAsset here
@@ -168,8 +168,13 @@ export async function constructTrade(
       )
 
       // Construct a trade with UniSwap SDK
-      const trade = Trade.fromRoute(route, parsedAmountTraded, tradeType)
+      const trade = await Trade.fromRoute(route, parsedAmountTraded, tradeType)
 
+      console.log(
+        trade.outputAmount.toSignificant(),
+        trade.inputAmount.toSignificant(),
+        trade.executionPrice.toSignificant(),
+      )
       return trade
     } else {
       return Promise.reject('Liquidity and price info incorrect!')
