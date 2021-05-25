@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import { useRecoilValue } from 'recoil'
-import { userTokensState } from 'state/tokens'
+import { userV2TokensState } from 'state/tokens'
 
 function useTotalOwned(): { USD: number; ETH: number } {
-  const userTokens = useRecoilValue(userTokensState)
+  const userTokens = useRecoilValue(userV2TokensState)
 
   return useMemo(() => {
     const values =

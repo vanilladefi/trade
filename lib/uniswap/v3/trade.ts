@@ -126,37 +126,38 @@ export async function constructTrade(
     const liquidity =
       tokenReceived.inRangeLiquidity || tokenPaid.inRangeLiquidity || null
     const sqrtPrice = tokenReceived.sqrtPrice || tokenPaid.sqrtPrice || null
-    console.log(liquidity, sqrtPrice)
+
     if (liquidity !== null && sqrtPrice !== null) {
+      const liquidityJSBI = JSBI.BigInt(liquidity)
+      const sqrtPriceJSBI = JSBI.BigInt(sqrtPrice)
+
       // Construct a medium fee pool based on TheGraph data
       const pool = new Pool(
         convertedAsset,
         convertedCounterAsset,
         feeAmount,
-        sqrtPrice,
-        liquidity,
-        TickMath.getTickAtSqrtRatio(JSBI.BigInt(sqrtPrice)),
+        sqrtPriceJSBI,
+        liquidityJSBI,
+        TickMath.getTickAtSqrtRatio(sqrtPriceJSBI),
         [
           {
             index: nearestUsableTick(
               TickMath.MIN_TICK,
               TICK_SPACINGS[feeAmount],
             ),
-            liquidityNet: liquidity,
-            liquidityGross: liquidity,
+            liquidityNet: liquidityJSBI,
+            liquidityGross: liquidityJSBI,
           },
           {
             index: nearestUsableTick(
               TickMath.MAX_TICK,
               TICK_SPACINGS[feeAmount],
             ),
-            liquidityNet: -liquidity,
-            liquidityGross: liquidity,
+            liquidityNet: JSBI.multiply(liquidityJSBI, JSBI.BigInt(-1)),
+            liquidityGross: liquidityJSBI,
           },
         ],
       )
-
-      console.log(pool)
 
       // Construct a route based on the parsed liquidity pools
       const route = new Route(
@@ -165,8 +166,6 @@ export async function constructTrade(
           ? convertedCounterAsset
           : convertedAsset,
       )
-
-      console.log(route)
 
       // Construct a trade with UniSwap SDK
       const trade = Trade.fromRoute(route, parsedAmountTraded, tradeType)

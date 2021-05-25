@@ -74,8 +74,17 @@ export const TokenInfoQueryHistorical = gql`
 export const TokenInfoSubAB = gql`
   subscription tokenInfoAB($weth: String, $tokenAddresses: [String]) {
     tokens: pools(where: { token0: $weth, token1_in: $tokenAddresses }) {
-      ...TokenCommonFragment
-      ...TokenABFragment
+      pairId: id
+      liquidity: totalValueLockedUSD
+      inRangeLiquidity: liquidity
+      sqrtPrice
+      token: token1 {
+        id
+        symbol
+        name
+        decimals
+      }
+      price: token0Price
     }
   }
 `
@@ -83,8 +92,17 @@ export const TokenInfoSubAB = gql`
 export const TokenInfoSubBA = gql`
   subscription tokenInfoBA($weth: String, $tokenAddresses: [String]) {
     tokens: pools(where: { token1: $weth, token0_in: $tokenAddresses }) {
-      ...TokenCommonFragment
-      ...TokenBAFragment
+      pairId: id
+      liquidity: totalValueLockedUSD
+      inRangeLiquidity: liquidity
+      sqrtPrice
+      token: token0 {
+        id
+        symbol
+        name
+        decimals
+      }
+      price: token1Price
     }
   }
 `

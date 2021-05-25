@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers'
 import { useRecoilValue } from 'recoil'
-import { userTokensState } from 'state/tokens'
+import { userV2TokensState } from 'state/tokens'
 
 function useEligibleTokenBalance(
   tokenAddress?: string | null,
@@ -9,7 +9,7 @@ function useEligibleTokenBalance(
   let formatted = '0'
   let raw: BigNumber = BigNumber.from('0')
 
-  const userTokens = useRecoilValue(userTokensState)
+  const userTokens = useRecoilValue(userV2TokensState)
   const token =
     tokenAddress &&
     userTokens?.find(

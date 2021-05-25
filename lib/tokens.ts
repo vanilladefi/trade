@@ -240,17 +240,20 @@ export async function addGraphInfo(
 
   try {
     const { http } = getTheGraphClient(version)
+    if (http) {
+      // Retrieve more info from The Graph's API
+      const response = await http.request(query, variables)
 
-    // Retrieve more info from The Graph's API
-    const response = await http.request(query, variables)
+      const data = [
+        // Merge response arrays
+        ...response?.tokensAB,
+        ...response?.tokensBA,
+      ]
 
-    const data = [
-      // Merge response arrays
-      ...response?.tokensAB,
-      ...response?.tokensBA,
-    ]
-
-    return addData(version, tokens, data, historical, ethPrice)
+      return addData(version, tokens, data, historical, ethPrice)
+    } else {
+      return tokens
+    }
   } catch (e) {
     console.error(e)
     return tokens

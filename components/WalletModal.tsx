@@ -1,6 +1,6 @@
 import React from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
-import { userTokensState } from 'state/tokens'
+import { userV2TokensState, userV3TokensState } from 'state/tokens'
 import { walletModalOpenState } from 'state/wallet'
 import { Connectors, useWallet } from 'use-wallet'
 import { ModalGradient } from './backgrounds/gradient'
@@ -134,11 +134,13 @@ const ProviderOptions = (): JSX.Element => {
 const WalletView = (): JSX.Element => {
   const wallet = useWallet()
   const { account, connector } = wallet
-  const setTokens = useSetRecoilState(userTokensState)
+  const setV2Tokens = useSetRecoilState(userV2TokensState)
+  const setV3Tokens = useSetRecoilState(userV3TokensState)
 
   const resetWallet = (): void => {
     // Reset user owned tokens status
-    setTokens([])
+    setV2Tokens([])
+    setV3Tokens([])
     wallet.reset()
   }
 

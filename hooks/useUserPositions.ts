@@ -22,7 +22,8 @@ import { currentETHPrice } from 'state/meta'
 import {
   uniswapV2TokenState,
   uniswapV3TokenState,
-  userTokensState,
+  userV2TokensState,
+  userV3TokensState,
 } from 'state/tokens'
 import { selectedCounterAsset } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
@@ -40,7 +41,9 @@ function useUserPositions(exchange: UniswapVersion): Token[] | null {
     exchange === UniswapVersion.v2 ? uniswapV2TokenState : uniswapV3TokenState,
   )
   const counterAsset = useRecoilValue(selectedCounterAsset)
-  const [tokens, setTokens] = useRecoilState(userTokensState)
+  const [tokens, setTokens] = useRecoilState(
+    exchange === UniswapVersion.v2 ? userV2TokensState : userV3TokensState,
+  )
   const vanillaRouter = useVanillaRouter()
   const { long: userAddress } = useWalletAddress()
   const provider = useRecoilValue(providerState)
