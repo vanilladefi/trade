@@ -208,8 +208,6 @@ export default function MyPositions({
   const userPositions = useUserPositions(UniswapVersion.v3)
   const [query, clearQuery] = useTokenSearch()
 
-  console.log(userPositions)
-
   const getColumns = useCallback(
     ({
       onBuyClick,

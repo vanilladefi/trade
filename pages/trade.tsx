@@ -31,7 +31,8 @@ import { currentBlockNumberState, currentETHPrice } from 'state/meta'
 import {
   uniswapV2TokenState,
   uniswapV3TokenState,
-  userTokensState,
+  userV2TokensState,
+  userV3TokensState,
 } from 'state/tokens'
 import { selectedOperation, selectedPairIdState } from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
@@ -60,7 +61,7 @@ const HeaderContent = (): JSX.Element => {
   const wallet = useWallet()
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const { USD: totalOwnedUSD, ETH: totalOwnedETH } = useTotalOwned()
-  const userTokens = useRecoilValue(userTokensState)
+  const userTokens = useRecoilValue(userV2TokensState)
   const { price } = useVanillaGovernanceToken()
   const ethPrice = useRecoilValue(currentETHPrice)
 
@@ -276,7 +277,7 @@ const BodyContent = ({
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const setOperation = useSetRecoilState(selectedOperation)
-  const userPositions = useRecoilValue(userTokensState)
+  const userV3Positions = useRecoilValue(userV3TokensState)
   const { account } = useWallet()
 
   useEffect(() => {
@@ -295,9 +296,9 @@ const BodyContent = ({
   ])
 
   const profitablePositions = useCallback(() => {
-    return userPositions?.filter((token) => token.profit && token.profit > 0)
+    return userV3Positions?.filter((token) => token.profit && token.profit > 0)
       .length
-  }, [userPositions])
+  }, [userV3Positions])
 
   const handleV2BuyClick: HandleBuyClick = useCallback(
     (pairInfo) => {
@@ -394,9 +395,9 @@ const BodyContent = ({
                 <div className='tableHeaderWrapper'>
                   <h2 style={{ marginBottom: 0 }}>
                     MY POSITIONS
-                    {userPositions && userPositions.length > 0 && (
+                    {userV3Positions && userV3Positions.length > 0 && (
                       <small>{`${profitablePositions()} of ${
-                        userPositions ? userPositions.length : 0
+                        userV3Positions ? userV3Positions.length : 0
                       } profitable`}</small>
                     )}
                   </h2>
@@ -406,14 +407,7 @@ const BodyContent = ({
                   onSellClick={handleV3SellClick}
                 />
                 <div className='tableHeaderWrapper'>
-                  <h2 style={{ marginBottom: 0 }}>
-                    MY VANILLA 1.0 POSITIONS
-                    {userPositions && userPositions.length > 0 && (
-                      <small>{`${profitablePositions()} of ${
-                        userPositions ? userPositions.length : 0
-                      } profitable`}</small>
-                    )}
-                  </h2>
+                  <h2 style={{ marginBottom: 0 }}>MY VANILLA 1.0 POSITIONS</h2>
                 </div>
                 <MyPositionsV2
                   onBuyClick={handleV2BuyClick}
