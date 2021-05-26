@@ -34,7 +34,11 @@ import {
   userV2TokensState,
   userV3TokensState,
 } from 'state/tokens'
-import { selectedOperation, selectedPairIdState } from 'state/trade'
+import {
+  selectedExchange,
+  selectedOperation,
+  selectedPairIdState,
+} from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
 import { HandleBuyClick, HandleSellClick, Operation, Token } from 'types/trade'
 import { useWallet } from 'use-wallet'
@@ -51,6 +55,7 @@ type BodyProps = {
   ethPrice: number
   currentBlockNumber: number
   setModalOpen: (exchange: UniswapVersion) => void
+  activeExchange: UniswapVersion
 }
 
 const TradeModal = dynamic(() => import('components/Trade/Modal'), {
@@ -265,6 +270,7 @@ const BodyContent = ({
   ethPrice,
   currentBlockNumber,
   setModalOpen,
+  activeExchange,
 }: BodyProps): JSX.Element => {
   useMetaSubscription()
   useTokenSubscription(UniswapVersion.v2)
@@ -277,10 +283,12 @@ const BodyContent = ({
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const setOperation = useSetRecoilState(selectedOperation)
+  const setExchange = useSetRecoilState(selectedExchange)
   const userV3Positions = useRecoilValue(userV3TokensState)
   const { account } = useWallet()
 
   useEffect(() => {
+    setExchange(activeExchange)
     setV2Tokens(initialTokens.v2)
     setV3Tokens(initialTokens.v3)
     setETHPrice(ethPrice)
@@ -293,6 +301,8 @@ const BodyContent = ({
     currentBlockNumber,
     setV2Tokens,
     setV3Tokens,
+    setExchange,
+    activeExchange,
   ])
 
   const profitablePositions = useCallback(() => {
@@ -497,6 +507,7 @@ export default function TradePage({
         ethPrice={ethPrice}
         setModalOpen={toggleModalOpen}
         currentBlockNumber={currentBlockNumber}
+        activeExchange={activeExchange}
       />
     </Layout>
   )

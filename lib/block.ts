@@ -6,8 +6,10 @@ export async function getCurrentBlockNumber(
 ): Promise<number> {
   try {
     const { http } = getTheGraphClient(version)
-    const response: MetaQueryResponse = await http.request(MetaQuery)
-    return response._meta.block.number
+    const response: MetaQueryResponse | undefined = await http?.request(
+      MetaQuery,
+    )
+    return response?._meta.block.number ?? 0
   } catch (e) {
     console.error(e)
     return 0
