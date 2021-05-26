@@ -15,7 +15,7 @@ const THEGRAPH_ENDPOINTS = {
       'wss://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2',
       {
         reconnect: true,
-        lazy: true, // only connect when there is a query
+        lazy: false,
         connectionCallback: (error) => {
           error && console.error(error)
         },
@@ -30,7 +30,7 @@ const THEGRAPH_ENDPOINTS = {
       'wss://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
       {
         reconnect: true,
-        lazy: true, // only connect when there is a query
+        lazy: false,
         connectionCallback: (error) => {
           error && console.error(error)
         },
