@@ -4,7 +4,7 @@ import {
   TokenAmount,
   TradeType,
 } from '@uniswap/sdk-core'
-import { Trade } from '@uniswap/v3-sdk'
+import { FeeAmount, Trade } from '@uniswap/v3-sdk'
 import { Column } from 'components/grid/Flex'
 import Button, {
   ButtonColor,
@@ -112,18 +112,33 @@ const PrepareView = ({
   setOperation,
   setModalCloseEnabled,
 }: ContentProps): JSX.Element => {
-  const lpFeePercentage = new Percent('3', '1000')
-  const ethUsdPrice = useRecoilValue(currentETHPrice)
-  const slippageTolerance = useRecoilValue(selectedSlippageTolerance)
-
   const router = useRouter()
-  const vanillaRouter = useVanillaRouter()
-  const { buy, sell } = useTradeEngine()
+
+  // The Ethers signer and provider
   const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
-  const { price: vnlEthPrice } = useVanillaGovernanceToken()
 
+  // Vanilla router contract
+  const vanillaRouter = useVanillaRouter()
+
+  // Buy and sell operations for submitting transactions on-chain
+  const { buy, sell } = useTradeEngine()
+
+  // VNL/ETH price
+  const { price: vnlEthPrice } = useVanillaGovernanceToken()
+  // ETH/USD price
+  const ethUsdPrice = useRecoilValue(currentETHPrice)
+
+  // Liquidity provider fee percentage. By default we use the medium pool with 0.3% LP fees
+  const lpFeePercentage = new Percent(FeeAmount.MEDIUM, 1_000_000)
+
+  // Selected slippage tolerance
+  const slippageTolerance = useRecoilValue(selectedSlippageTolerance)
+
+  // Contains the newest price
   const [trade, setTrade] = useState<Trade>()
+
+  // Token selectors
   const token0 = useRecoilValue(token0Selector)
   const token1 = useRecoilValue(token1Selector)
   const tokenPaid = useCallback(
@@ -134,22 +149,28 @@ const PrepareView = ({
     () => (operation === Operation.Buy ? token0 : token1),
     [operation, token0, token1],
   )
-
-  const [estimatedGas, setEstimatedGas] = useState<string>()
-  const [estimatedFees, setEstimatedFees] = useState<string>()
-  const [estimatedReward, setEstimatedReward] = useState<string>()
-
-  const [error, setError] = useState<string | null>(null)
-  const [transactionState, setTransactionState] = useState<TransactionState>(
-    TransactionState.PREPARE,
-  )
-
+  // Balances of token0 and token1
   const { raw: eligibleBalance0Raw } = useEligibleTokenBalance(token0?.address)
   const { raw: balance1Raw } = useTokenBalance(
     token1?.address,
     token1?.decimals,
     true,
   )
+
+  // Estimates
+  const [estimatedGas, setEstimatedGas] = useState<string>()
+  const [estimatedFees, setEstimatedFees] = useState<string>()
+  const [estimatedReward, setEstimatedReward] = useState<string>()
+
+  // Error shown in the chin of the modal
+  const [error, setError] = useState<string | null>(null)
+
+  // Transaction state [PREPARE, PROCESSING, DONE]
+  const [transactionState, setTransactionState] = useState<TransactionState>(
+    TransactionState.PREPARE,
+  )
+
+  // Token amounts
   const [token0Amount, setToken0Amount] = useState<string>('0')
   const [token1Amount, setToken1Amount] = useState<string>('0')
 
@@ -197,7 +218,7 @@ const PrepareView = ({
     return false
   }, [trade])
 
-  // Estimate gas fees TODO: Could be a callback instead of an effect
+  // Estimate gas fees
   useEffect(() => {
     const debouncedGasEstimation = debounce(async () => {
       if (trade && provider && token0) {
@@ -291,7 +312,7 @@ const PrepareView = ({
 
   // Update trade on operation change to get updated pricing
   useEffect(() => {
-    const updateTradeAndToken1 = async () => {
+    const updateTradeAndToken1 = debounce(async () => {
       const trade = await updateTrade(0, token0Amount)
       if (trade && trade.inputAmount && trade.outputAmount) {
         const newToken1Amount =
@@ -300,7 +321,7 @@ const PrepareView = ({
             : trade.outputAmount.toSignificant(6)
         setToken1Amount(newToken1Amount)
       }
-    }
+    }, 200)
     updateTradeAndToken1()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [operation, token0, token1])
@@ -465,6 +486,7 @@ const PrepareView = ({
                     token0={token0}
                     token1={token1}
                     operation={operation}
+                    price={token0?.price?.toString()}
                     tradeValue={
                       operation === Operation.Buy
                         ? (

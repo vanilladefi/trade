@@ -445,6 +445,7 @@ const PrepareView = ({
                     token0={token0}
                     token1={token1}
                     operation={operation}
+                    price={trade.executionPrice.toSignificant()}
                     tradeValue={
                       operation === Operation.Buy
                         ? (
