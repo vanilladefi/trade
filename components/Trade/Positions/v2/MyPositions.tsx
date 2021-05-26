@@ -1,7 +1,6 @@
 import { BreakPoint } from 'components/GlobalStyles/Breakpoints'
 import Button, {
   ButtonColor,
-  ButtonGroup,
   ButtonSize,
   Rounding,
 } from 'components/input/Button'
@@ -15,16 +14,10 @@ import useUserPositions from 'hooks/useUserPositions'
 import { UniswapVersion } from 'lib/graphql'
 import React, { MouseEvent, useCallback, useMemo } from 'react'
 import type { CellProps, Row } from 'react-table'
-import type {
-  HandleBuyClick,
-  HandleSellClick,
-  ListColumn,
-  Token,
-} from 'types/trade'
+import type { HandleSellClick, ListColumn, Token } from 'types/trade'
 import { epoch } from 'utils/config'
 
 interface Props {
-  onBuyClick: HandleBuyClick
   onSellClick: HandleSellClick
   initialTokens?: Token[]
 }
@@ -259,19 +252,14 @@ const RowRenderer = (
   )
 }
 
-export default function MyPositions({
-  onBuyClick,
-  onSellClick,
-}: Props): JSX.Element {
+export default function MyPositions({ onSellClick }: Props): JSX.Element {
   const userPositions = useUserPositions(UniswapVersion.v2)
   const [query, clearQuery] = useTokenSearch()
 
   const getColumns = useCallback(
     ({
-      onBuyClick,
       onSellClick,
     }: {
-      onBuyClick: HandleBuyClick
       onSellClick: HandleSellClick
     }): ListColumn<Token>[] => {
       return [
@@ -289,41 +277,20 @@ export default function MyPositions({
           disableGlobalFilter: true,
           align: 'right',
           Cell: ({ row }: CellProps<Token>) => (
-            <ButtonGroup>
-              <Button
-                color={ButtonColor.DARK}
-                rounded={Rounding.LEFT}
-                size={ButtonSize.XSMALL}
-                title='Sell'
-                onClick={(event: MouseEvent) => {
-                  event.stopPropagation()
-                  onSellClick({
-                    pairId: row.original.pairId,
-                  })
-                }}
-              >
-                <span style={{ fontSize: '1.5rem' }}>&minus;</span>
-              </Button>
-              <span
-                style={{
-                  borderRight: '1px solid #fff',
-                }}
-              />
-              <Button
-                color={ButtonColor.DARK}
-                rounded={Rounding.RIGHT}
-                size={ButtonSize.XSMALL}
-                title='Buy'
-                onClick={(event: MouseEvent) => {
-                  event.stopPropagation()
-                  onBuyClick({
-                    pairId: row.original.pairId,
-                  })
-                }}
-              >
-                <span style={{ fontSize: '1.5rem' }}>&#43;</span>
-              </Button>
-            </ButtonGroup>
+            <Button
+              color={ButtonColor.DARK}
+              rounded={Rounding.ALL}
+              size={ButtonSize.XSMALL}
+              title='Sell'
+              onClick={(event: MouseEvent) => {
+                event.stopPropagation()
+                onSellClick({
+                  pairId: row.original.pairId,
+                })
+              }}
+            >
+              <span style={{ fontSize: '1.5rem' }}>&minus;</span>
+            </Button>
           ),
         },
       ]
@@ -331,8 +298,7 @@ export default function MyPositions({
     [],
   )
 
-  const columns = useMemo(() => getColumns({ onBuyClick, onSellClick }), [
-    onBuyClick,
+  const columns = useMemo(() => getColumns({ onSellClick }), [
     onSellClick,
     getColumns,
   ])

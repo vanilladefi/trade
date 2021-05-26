@@ -126,14 +126,8 @@ const PrepareView = ({
   const [trade, setTrade] = useState<Trade>()
   const token0 = useRecoilValue(token0Selector)
   const token1 = useRecoilValue(token1Selector)
-  const tokenPaid = useCallback(
-    () => (operation === Operation.Buy ? token1 : token0),
-    [operation, token0, token1],
-  )
-  const tokenReceived = useCallback(
-    () => (operation === Operation.Buy ? token0 : token1),
-    [operation, token0, token1],
-  )
+  const tokenPaid = useCallback(() => token0, [token0])
+  const tokenReceived = useCallback(() => token1, [token1])
 
   const [estimatedGas, setEstimatedGas] = useState<string>()
   const [estimatedFees, setEstimatedFees] = useState<string>()
@@ -388,29 +382,16 @@ const PrepareView = ({
         const blockDeadline = block.timestamp + blockDeadlineThreshold
         setTransactionState(TransactionState.PROCESSING)
 
-        if (operation === Operation.Buy) {
-          hash = await buy({
-            amountPaid: trade.inputAmount.raw.toString(),
-            amountReceived: trade
-              .minimumAmountOut(slippageTolerance)
-              .raw.toString(),
-            tokenPaid: token1,
-            tokenReceived: token0,
-            signer: signer,
-            blockDeadline: blockDeadline,
-          })
-        } else {
-          hash = await sell({
-            amountPaid: trade.inputAmount.raw.toString(),
-            amountReceived: trade
-              .minimumAmountOut(slippageTolerance)
-              .raw.toString(),
-            tokenPaid: token0,
-            tokenReceived: token1,
-            signer: signer,
-            blockDeadline: blockDeadline,
-          })
-        }
+        hash = await sell({
+          amountPaid: trade.inputAmount.raw.toString(),
+          amountReceived: trade
+            .minimumAmountOut(slippageTolerance)
+            .raw.toString(),
+          tokenPaid: token0,
+          tokenReceived: token1,
+          signer: signer,
+          blockDeadline: blockDeadline,
+        })
 
         // Show the successful trade status to user in the button with a checkmark
         hash && setTransactionState(TransactionState.DONE)
@@ -444,7 +425,7 @@ const PrepareView = ({
               <OperationToggle
                 operation={operation}
                 setOperation={setOperation}
-                sellDisabled={eligibleBalance0Raw.isZero()}
+                buyDisabled={true}
               />
             </div>
 
@@ -458,7 +439,6 @@ const PrepareView = ({
                 />
               </div>
 
-              {/* TODO: Trade info */}
               {token0Amount && trade?.executionPrice && vanillaRouter && (
                 <div className='row'>
                   <TradeInfoDisplay

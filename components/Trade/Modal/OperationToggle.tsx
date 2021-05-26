@@ -3,19 +3,22 @@ import { Operation } from 'types/trade'
 type OperationToggleProps = {
   operation: Operation
   setOperation: React.Dispatch<React.SetStateAction<Operation>>
-  sellDisabled: boolean
+  sellDisabled?: boolean
+  buyDisabled?: boolean
 }
 
 const OperationToggle = ({
   operation,
   setOperation,
   sellDisabled,
+  buyDisabled,
 }: OperationToggleProps): JSX.Element => (
   <>
     <div className='toggleWrapper'>
       <button
         className={operation === Operation.Buy ? 'active' : undefined}
         onClick={() => setOperation(Operation.Buy)}
+        disabled={buyDisabled}
       >
         Buy
       </button>
