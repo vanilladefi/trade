@@ -1,5 +1,6 @@
 import { Percent } from '@uniswap/sdk-core'
-import { Trade } from '@uniswap/v2-sdk'
+import { Trade as TradeV2 } from '@uniswap/v2-sdk'
+import { Trade as TradeV3 } from '@uniswap/v3-sdk'
 import { BigNumber, ethers, providers, Signer } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { tryParseAmount } from 'lib/uniswap/v2/trade'
@@ -111,7 +112,7 @@ export const getEpoch = async (signer: Signer): Promise<BigNumber | null> => {
 }
 
 export const estimateGas = async (
-  trade: Trade,
+  trade: TradeV2 | TradeV3,
   provider: providers.Provider,
   operation: Operation,
   token0: UniSwapToken,

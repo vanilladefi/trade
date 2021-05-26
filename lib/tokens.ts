@@ -274,13 +274,19 @@ export async function getETHPrice(version: UniswapVersion): Promise<number> {
     const { http } = getTheGraphClient(version)
     const query = version === UniswapVersion.v2 ? v2.ETHPrice : v3.ETHPrice
 
-    const { bundle }: ETHPriceQueryResponse = await http.request(query)
-    parsedPrice = parseFloat(bundle?.ethPrice)
+    const response: ETHPriceQueryResponse | undefined = await http?.request(
+      query,
+    )
 
-    if (parsedPrice === NaN) {
-      throw Error(
-        'Could not parse ETH/USD price from response, falling back to 0!',
-      )
+    if (response?.bundle) {
+      parsedPrice = parseFloat(response.bundle.ethPrice)
+      if (parsedPrice === NaN) {
+        throw Error(
+          'Could not parse ETH/USD price from response, falling back to ETH/USD 0!',
+        )
+      }
+    } else {
+      throw Error('TheGraph did not respond, falling back to ETH/USD 0!')
     }
   } catch (e) {
     console.error(e)

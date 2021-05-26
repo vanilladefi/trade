@@ -68,22 +68,22 @@ export default function useTokenSubscription(
     const { ws } = getTheGraphClient(version)
 
     const subAB = ws
-      .request({
+      ?.request({
         query: TokenInfoSubAB,
         variables,
       })
       .subscribe(subOptions)
 
     const subBA = ws
-      .request({
+      ?.request({
         query: TokenInfoSubBA,
         variables,
       })
       .subscribe(subOptions)
 
     return () => {
-      subAB.unsubscribe()
-      subBA.unsubscribe()
+      subAB?.unsubscribe()
+      subBA?.unsubscribe()
     }
   }, [TokenInfoSubAB, TokenInfoSubBA, handleNewData, version])
 

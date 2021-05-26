@@ -1,8 +1,9 @@
 import { Percent } from '@uniswap/sdk-core'
+import { UniswapVersion } from 'lib/graphql'
 import { weth } from 'lib/tokens'
 import { atom, selector } from 'recoil'
 import { Operation, PairByIdQueryResponse, Token } from 'types/trade'
-import { uniswapV3TokenState } from './tokens'
+import { uniswapV2TokenState, uniswapV3TokenState } from './tokens'
 
 export const selectedPairIdState = atom<string | null>({
   key: 'selectedPairId',
@@ -12,6 +13,11 @@ export const selectedPairIdState = atom<string | null>({
 export const selectedOperation = atom<Operation>({
   key: 'selectedOperation',
   default: Operation.Buy,
+})
+
+export const selectedExchange = atom<UniswapVersion>({
+  key: 'selectedExchange',
+  default: UniswapVersion.v3,
 })
 
 export const selectedCounterAsset = atom<Token>({
@@ -29,7 +35,12 @@ export const selectedPairState = selector<PairByIdQueryResponse | null>({
   get: async ({ get }) => {
     let pair: PairByIdQueryResponse | null = null
     try {
-      const tokens = get(uniswapV3TokenState)
+      const exchange = get(selectedExchange)
+      const tokens = get(
+        exchange === UniswapVersion.v3
+          ? uniswapV3TokenState
+          : uniswapV2TokenState,
+      )
       const pairId = get(selectedPairIdState)
       const counterAsset = get(selectedCounterAsset)
       if (pairId !== null) {
