@@ -310,26 +310,6 @@ const BodyContent = ({
       .length
   }, [userV3Positions])
 
-  const handleV2BuyClick: HandleBuyClick = useCallback(
-    (pairInfo) => {
-      if (account === null) {
-        setWalletModalOpen(true)
-      } else {
-        setWalletModalOpen(false)
-        setOperation(Operation.Buy)
-        setSelectedPairId(pairInfo?.pairId ?? null)
-        setModalOpen(UniswapVersion.v2)
-      }
-    },
-    [
-      account,
-      setModalOpen,
-      setOperation,
-      setSelectedPairId,
-      setWalletModalOpen,
-    ],
-  )
-
   const handleV2SellClick: HandleSellClick = useCallback(
     (pairInfo) => {
       if (account === null) {
@@ -419,10 +399,7 @@ const BodyContent = ({
                 <div className='tableHeaderWrapper'>
                   <h2 style={{ marginBottom: 0 }}>MY VANILLA 1.0 POSITIONS</h2>
                 </div>
-                <MyPositionsV2
-                  onBuyClick={handleV2BuyClick}
-                  onSellClick={handleV2SellClick}
-                />
+                <MyPositionsV2 onSellClick={handleV2SellClick} />
               </>
             )}
 
