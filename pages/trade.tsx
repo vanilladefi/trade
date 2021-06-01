@@ -3,6 +3,7 @@ import { Column, Row, Width } from 'components/grid/Flex'
 import Button from 'components/input/Button'
 import Layout from 'components/Layout'
 import { Spinner } from 'components/Spinner'
+import TokenConversion from 'components/TokenConversion'
 import TokenSearch from 'components/TokenSearch'
 import { AvailableTokens, MyPositionsV2, MyPositionsV3 } from 'components/Trade'
 import HugeMonospace from 'components/typography/HugeMonospace'
@@ -100,63 +101,66 @@ const HeaderContent = (): JSX.Element => {
   return (
     <>
       <TopGradient />
-      <Row className='subpageHeader'>
-        {wallet.status === 'connected' && !userTokens && (
-          <Column width={Width.TWELVE}>
-            <div className='spinnerWrapper'>
-              <Spinner />
-            </div>
-          </Column>
-        )}
-        {(wallet.status === 'disconnected' ||
-          (userTokens && userTokens.length === 0)) && (
-          <Column width={Width.EIGHT}>
-            <Title>Start Trading</Title>
-            <HugeMonospace>
-              Buy a token below to start #ProfitMining.
-            </HugeMonospace>
-            <div className='buttonWrapper'>
-              {wallet.status !== 'connected' && (
-                <Button
-                  onClick={() => {
-                    setWalletModalOpen(true)
-                  }}
-                >
-                  Connect wallet
-                </Button>
-              )}
-              <Link href='/faq'>
-                <Button>Learn more</Button>
-              </Link>
-            </div>
-          </Column>
-        )}
-        {userTokens && userTokens.length > 0 && (
-          <Column width={Width.TWELVE}>
-            <Title>My trading</Title>
-            <div className='stats-grid'>
-              <div className='stats-grid-item'>
-                <h2 className='title'>MY POSITIONS</h2>
-                <h3 className='subTitle'>
-                  ${totalOwnedUSD.toLocaleString('en-US')}
-                </h3>
-                <span className='details'>
-                  {totalOwnedETH.toLocaleString('en-US')} ETH
-                </span>
+      <TokenConversion />
+      <Wrapper>
+        <Row className='subpageHeader'>
+          {wallet.status === 'connected' && !userTokens && (
+            <Column width={Width.TWELVE}>
+              <div className='spinnerWrapper'>
+                <Spinner />
               </div>
-              <div className='stats-grid-item'>
-                <h2 className='title'>UNREALIZED VNL</h2>
-                <h3 className='subTitle'>
-                  {totalUnrealizedVnl()?.toLocaleString('en-US')} VNL
-                </h3>
-                <span className='details'>
-                  ${unrealizedVnlInUsd().toLocaleString('en-US')}
-                </span>
+            </Column>
+          )}
+          {(wallet.status === 'disconnected' ||
+            (userTokens && userTokens.length === 0)) && (
+            <Column width={Width.EIGHT}>
+              <Title>Start Trading</Title>
+              <HugeMonospace>
+                Buy a token below to start #ProfitMining.
+              </HugeMonospace>
+              <div className='buttonWrapper'>
+                {wallet.status !== 'connected' && (
+                  <Button
+                    onClick={() => {
+                      setWalletModalOpen(true)
+                    }}
+                  >
+                    Connect wallet
+                  </Button>
+                )}
+                <Link href='/faq'>
+                  <Button>Learn more</Button>
+                </Link>
               </div>
-            </div>
-          </Column>
-        )}
-      </Row>
+            </Column>
+          )}
+          {userTokens && userTokens.length > 0 && (
+            <Column width={Width.TWELVE}>
+              <Title>My trading</Title>
+              <div className='stats-grid'>
+                <div className='stats-grid-item'>
+                  <h2 className='title'>MY POSITIONS</h2>
+                  <h3 className='subTitle'>
+                    ${totalOwnedUSD.toLocaleString('en-US')}
+                  </h3>
+                  <span className='details'>
+                    {totalOwnedETH.toLocaleString('en-US')} ETH
+                  </span>
+                </div>
+                <div className='stats-grid-item'>
+                  <h2 className='title'>UNREALIZED VNL</h2>
+                  <h3 className='subTitle'>
+                    {totalUnrealizedVnl()?.toLocaleString('en-US')} VNL
+                  </h3>
+                  <span className='details'>
+                    ${unrealizedVnlInUsd().toLocaleString('en-US')}
+                  </span>
+                </div>
+              </div>
+            </Column>
+          )}
+        </Row>
+      </Wrapper>
       <style jsx>{`
         .spinnerWrapper {
           width: 100%;
@@ -169,10 +173,11 @@ const HeaderContent = (): JSX.Element => {
       `}</style>
       <style jsx global>{`
         .subpageHeader {
+          padding: var(--headerpadding);
+          padding-top: 0;
           --buttonmargin: var(--subpage-buttonmargin);
           --titlemargin: var(--subpage-titlemargin);
         }
-
         .stats-grid {
           width: 100%;
           display: grid;
@@ -191,7 +196,6 @@ const HeaderContent = (): JSX.Element => {
           margin: 0;
           padding: 0;
         }
-
         .stats-grid-item {
           width: 100%;
           display: grid;

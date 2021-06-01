@@ -14,6 +14,10 @@ export const vanillaRouterAddress: string =
   process.env.NEXT_PUBLIC_VANILLA_ROUTER_ADDRESS ||
   '0x5FbDB2315678afecb367f032d93F642f64180aa3'
 
+export const VNLTokenAddress: string =
+  process.env.NEXT_PUBLIC_VNL_1_ADDRESS ||
+  '0x1017b147b05942ead495e2ad6d606ef3c94b8fd0'
+
 export const apiKey: string | boolean =
   process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || false
 
