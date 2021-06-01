@@ -36,7 +36,7 @@ const Layout = ({
   // But then branch preview url's wouldn't probably work correctly?
   const [origin, setOrigin] = React.useState('')
   React.useEffect(() => {
-    setOrigin(window.location.origin)
+    background: setOrigin(window.location.origin)
   }, [])
 
   return (
