@@ -150,7 +150,7 @@ export default function Table<D extends Record<string, unknown>>({
             <div
               className='tr'
               {...row.getRowProps((...p) =>
-                rowProps(...p, { colorize }, { liquidityWarning }),
+                rowProps(...p, { colorize, liquidityWarning }),
               )}
               key={`tr-${row.id}`}
             >
@@ -431,11 +431,14 @@ export const cellProps = <D extends Record<string, unknown>>(
     }
 )[] => [props, getStyles(cell.column), getCellStyles(cell.column, cell.value)]
 
+type RowOptions = { colorize?: boolean; liquidityWarning?: boolean }
 export const rowProps = <D extends Record<string, unknown>>(
   props: Partial<TableKeyedProps>,
   { row }: Meta<D, { row: Row<D> }>,
-  { colorize } = { colorize: false },
-  { liquidityWarning } = { liquidityWarning: false },
+  { colorize, liquidityWarning }: RowOptions = {
+    colorize: false,
+    liquidityWarning: false,
+  },
 ): Partial<TableKeyedProps>[] => {
   const defaultColor = colorize ? 'var(--yellow)' : 'var(--beige)'
 
