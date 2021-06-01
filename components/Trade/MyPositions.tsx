@@ -41,13 +41,17 @@ const RowRenderer = (
     if (row.original.vpc && row.original.vpc !== '0') {
       vpcOrEstimate = Number(row.original.vpc)
     } else if (row.original.reserve && row.original.reserve !== '0') {
-      vpcOrEstimate = Number(
-        parseUnits(row.original.reserve?.toString() || '0')
-          .sub(parseUnits('500'))
-          .mul(million)
-          .div(parseUnits(row.original.reserve?.toString() || '1'))
-          .toNumber() / million,
-      )
+      const liquidityOverThreshold = parseUnits(
+        row.original.reserve?.toString() || '0',
+      ).sub(parseUnits('500'))
+      if (liquidityOverThreshold.lt('0')) {
+        vpcOrEstimate = Number(
+          liquidityOverThreshold
+            .mul(million)
+            .div(parseUnits(row.original.reserve?.toString() || '1'))
+            .toNumber() / million,
+        )
+      }
     }
     return vpcOrEstimate.toLocaleString('en-US', {
       style: 'percent',
