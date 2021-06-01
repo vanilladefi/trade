@@ -24,6 +24,7 @@ import { currentBlockNumberState } from 'state/meta'
 import type {
   ColorBasedOnValue,
   LeftOrRightAlignable,
+  Liquidity,
   ListColumn,
 } from 'types/trade'
 import PageControl from './PageControl'
@@ -37,6 +38,7 @@ interface Props<D extends Record<string, unknown>> {
   pagination?: boolean
   colorize?: boolean
   liquidityWarning?: boolean
+  openLiquidityModal?: (liquidity: Liquidity) => void
   rowRenderer?: (
     row: Row<D>,
     blockNumber?: number,
@@ -60,6 +62,7 @@ export default function Table<D extends Record<string, unknown>>({
   pagination = false,
   colorize = false,
   liquidityWarning = false,
+  openLiquidityModal,
   rowRenderer,
 }: Props<D>): JSX.Element {
   const { isSmaller, isBigger } = useBreakpoints()
@@ -149,9 +152,7 @@ export default function Table<D extends Record<string, unknown>>({
           <>
             <div
               className='tr'
-              {...row.getRowProps((...p) =>
-                rowProps(...p, { colorize, liquidityWarning }),
-              )}
+              {...row.getRowProps((...p) => rowProps(...p, { colorize }))}
               key={`tr-${row.id}`}
             >
               {row.cells.map((cell) => (
@@ -206,6 +207,7 @@ export default function Table<D extends Record<string, unknown>>({
     colorize,
     expandedRows,
     liquidityWarning,
+    openLiquidityModal,
     prepareRow,
     rowRenderer,
     rows,
@@ -431,13 +433,12 @@ export const cellProps = <D extends Record<string, unknown>>(
     }
 )[] => [props, getStyles(cell.column), getCellStyles(cell.column, cell.value)]
 
-type RowOptions = { colorize?: boolean; liquidityWarning?: boolean }
+type RowOptions = { colorize?: boolean }
 export const rowProps = <D extends Record<string, unknown>>(
   props: Partial<TableKeyedProps>,
   { row }: Meta<D, { row: Row<D> }>,
-  { colorize, liquidityWarning }: RowOptions = {
+  { colorize }: RowOptions = {
     colorize: false,
-    liquidityWarning: false,
   },
 ): Partial<TableKeyedProps>[] => {
   const defaultColor = colorize ? 'var(--yellow)' : 'var(--beige)'
@@ -445,8 +446,6 @@ export const rowProps = <D extends Record<string, unknown>>(
   const background =
     colorize && row.original?.logoColor
       ? `linear-gradient(to right, ${row.original.logoColor} -20%, ${defaultColor} 20%)`
-      : liquidityWarning && Number(row.original?.reserve) < 600
-      ? 'var(--alertbackground)'
       : defaultColor
 
   return [

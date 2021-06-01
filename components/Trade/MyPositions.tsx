@@ -93,7 +93,7 @@ const RowRenderer = (
         {row.cells.map((cell) => (
           <div
             className='td'
-            {...cell.getCellProps(cellProps)}
+            {...cell.getCellProps((...c) => cellProps(...c, {}))}
             key={`td-${cell.column.id}`}
           >
             {cell.render('Cell')}
