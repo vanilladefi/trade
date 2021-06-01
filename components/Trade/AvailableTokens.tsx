@@ -36,7 +36,7 @@ export default function AvailableTokens({
         {children}
         <style jsx>{`
           div {
-            padding: 1.8rem;
+            padding: 1rem 1.8rem;
             max-width: 500px;
             flex-shrink: 1;
             display: flex;
@@ -53,17 +53,22 @@ export default function AvailableTokens({
       if (liquidity === Liquidity.MEDIUM) {
         content = (
           <ContentWrapper>
-            This token has
-            <strong style={{ color: 'orange' }}> low liquidity</strong> and
-            pricing might be wrong. Buy with caution
+            <p>
+              This token has
+              <strong style={{ color: 'orange' }}> low liquidity</strong>, and
+              pricing might be wrong. Buy with caution
+            </p>
           </ContentWrapper>
         )
       } else if (liquidity === Liquidity.LOW) {
         content = (
           <ContentWrapper>
-            This token currently has{' '}
-            <strong style={{ color: 'red' }}> very low liquidity</strong> and
-            will not result in any $VNL or selling might not be possible
+            <p>
+              This token currently has{' '}
+              <strong style={{ color: 'red' }}> very low liquidity</strong> and
+              will not result in any $VNL mined through profit mining, and
+              selling might be difficult
+            </p>
           </ContentWrapper>
         )
       }
