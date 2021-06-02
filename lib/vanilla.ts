@@ -16,8 +16,9 @@ import { tryParseAmount } from 'lib/uniswap/v2/trade'
 import { MerkleTree } from 'merkletreejs'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import { VanillaV1Token01 } from 'types/abis/VanillaV1Token01'
+import { VanillaVersion } from 'types/general'
 import { Operation, UniSwapToken } from 'types/trade'
-import { blockDeadlineThreshold, vanillaRouterAddress } from 'utils/config'
+import { blockDeadlineThreshold, getVanillaRouterAddress } from 'utils/config'
 
 export interface TokenPriceResponse {
   ethSum: BigNumber
@@ -35,6 +36,7 @@ export interface RewardResponse {
 }
 
 export const estimateReward = async (
+  version: VanillaVersion,
   signer: Signer,
   tokenSold: UniSwapToken,
   tokenReceived: UniSwapToken,
@@ -48,7 +50,7 @@ export const estimateReward = async (
 
   const owner = await signer.getAddress()
   const router = new ethers.Contract(
-    vanillaRouterAddress,
+    getVanillaRouterAddress(version),
     JSON.stringify(vanillaRouter.abi),
     signer,
   )
@@ -69,12 +71,13 @@ export const estimateReward = async (
 }
 
 export const getPriceData = async (
+  version: VanillaVersion,
   signer: Signer,
   tokenAddress: string,
 ): Promise<TokenPriceResponse | null> => {
   const owner = await signer.getAddress()
   const router = new ethers.Contract(
-    vanillaRouterAddress,
+    getVanillaRouterAddress(version),
     JSON.stringify(vanillaRouter.abi),
     signer,
   )
@@ -89,9 +92,12 @@ export const getPriceData = async (
   return priceData
 }
 
-export const getEpoch = async (signer: Signer): Promise<BigNumber | null> => {
+export const getEpoch = async (
+  version: VanillaVersion,
+  signer: Signer,
+): Promise<BigNumber | null> => {
   const router = new ethers.Contract(
-    vanillaRouterAddress,
+    getVanillaRouterAddress(version),
     JSON.stringify(vanillaRouter.abi),
     signer,
   )
@@ -107,6 +113,7 @@ export const getEpoch = async (signer: Signer): Promise<BigNumber | null> => {
 }
 
 export const estimateGas = async (
+  version: VanillaVersion,
   trade: TradeV2 | TradeV3,
   provider: providers.Provider,
   operation: Operation,
@@ -114,7 +121,7 @@ export const estimateGas = async (
   slippageTolerance: Percent,
 ): Promise<string> => {
   const router = new ethers.Contract(
-    vanillaRouterAddress,
+    getVanillaRouterAddress(version),
     JSON.stringify(vanillaRouter.abi),
     provider,
   )

@@ -7,12 +7,15 @@ import { tokenListChainId, weth } from 'lib/tokens'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
-import { VNLTokenAddress } from 'utils/config'
+import { VanillaVersion } from 'types/general'
+import { getVnlTokenAddress } from 'utils/config'
 import { useTokenContract } from './useContract'
 import useTokenBalance from './useTokenBalance'
 import useWalletAddress from './useWalletAddress'
 
-function useVanillaGovernanceToken(): {
+function useVanillaGovernanceToken(
+  version: VanillaVersion,
+): {
   address: string
   decimals: number
   balance: string
@@ -26,22 +29,29 @@ function useVanillaGovernanceToken(): {
   const { long: userAddress } = useWalletAddress()
   const [mints, setMints] = useState<Array<BigNumber>>()
 
-  const contract = useTokenContract(VNLTokenAddress)
-  const { formatted: vnlBalance } = useTokenBalance(VNLTokenAddress, decimals)
+  const contract = useTokenContract(getVnlTokenAddress(version))
+  const { formatted: vnlBalance } = useTokenBalance(
+    getVnlTokenAddress(version),
+    decimals,
+  )
 
   const userMintedTotal = useCallback(() => {
     const bigSum: BigNumber | undefined =
       mints && mints.length
         ? mints.reduce((accumulator, current) => accumulator.add(current))
         : BigNumber.from('0')
-    if (bigSum && VNLTokenAddress) {
-      const token = new Token(tokenListChainId, VNLTokenAddress, decimals)
+    if (bigSum && getVnlTokenAddress(version)) {
+      const token = new Token(
+        tokenListChainId,
+        getVnlTokenAddress(version),
+        decimals,
+      )
       const tokenAmount = new TokenAmount(token, bigSum.toString())
       return tokenAmount.toSignificant()
     } else {
       return '0'
     }
-  }, [mints])
+  }, [mints, version])
 
   useEffect(() => {
     const getMints = async () => {
@@ -80,10 +90,10 @@ function useVanillaGovernanceToken(): {
 
   useEffect(() => {
     const getTokenPrice = async () => {
-      if (isAddress(VNLTokenAddress)) {
+      if (isAddress(getVnlTokenAddress(version))) {
         const variables = {
           weth: weth.address.toLowerCase(),
-          tokenAddresses: [VNLTokenAddress.toLowerCase()],
+          tokenAddresses: [getVnlTokenAddress(version).toLowerCase()],
         }
         const { http } = getTheGraphClient(UniswapVersion.v2)
         if (http) {
@@ -94,17 +104,17 @@ function useVanillaGovernanceToken(): {
       }
     }
     getTokenPrice()
-  }, [])
+  }, [version])
 
   return useMemo(() => {
     return {
-      address: VNLTokenAddress,
+      address: getVnlTokenAddress(version),
       decimals: 12,
       balance: vnlBalance !== '' ? vnlBalance : '0',
       price: vnlEthPrice,
       userMintedTotal: userMintedTotal(),
     }
-  }, [userMintedTotal, vnlBalance, vnlEthPrice])
+  }, [userMintedTotal, version, vnlBalance, vnlEthPrice])
 }
 
 export default useVanillaGovernanceToken
