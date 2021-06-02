@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { MouseEvent } from 'react'
 import type { CellProps } from 'react-table'
 import { Eligibility, Liquidity, Token } from 'types/trade'
 
@@ -53,7 +54,12 @@ export function TokenLogo({
   return (
     <div
       className={`container${warningSrc ? ' liquidityWarning' : ''}`}
-      onClick={() => liquidityWarning && openLiquidityModal(liquidity)}
+      onClick={(e: MouseEvent) => {
+        if (liquidityWarning) {
+          e.stopPropagation()
+          openLiquidityModal(liquidity)
+        }
+      }}
     >
       <div className='logo-wrapper'>
         <div className='inner-logo-wrapper'>{Logo}</div>
