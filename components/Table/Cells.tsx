@@ -51,15 +51,17 @@ export function TokenLogo({
     />
   ) : null
 
+  const clickHandler = (e: MouseEvent): void => {
+    if (liquidityWarning) {
+      e.stopPropagation()
+      openLiquidityModal(liquidity)
+    }
+  }
+
   return (
     <div
       className={`container${warningSrc ? ' liquidityWarning' : ''}`}
-      onClick={(e: MouseEvent) => {
-        if (liquidityWarning) {
-          e.stopPropagation()
-          openLiquidityModal(liquidity)
-        }
-      }}
+      onClick={clickHandler}
     >
       <div className='logo-wrapper'>
         <div className='inner-logo-wrapper'>{Logo}</div>

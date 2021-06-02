@@ -1,5 +1,4 @@
 import { BreakPoint } from 'components/GlobalStyles/Breakpoints'
-import { TokenLogo } from 'components/Table/Cells'
 import Button, {
   ButtonColor,
   ButtonGroup,
@@ -9,6 +8,7 @@ import Button, {
 import Modal from 'components/Modal'
 import { Spinner } from 'components/Spinner'
 import { Columns, Table } from 'components/Table'
+import { TokenLogo } from 'components/Table/Cells'
 import { cellProps, rowProps } from 'components/Table/Table'
 import { formatDistance } from 'date-fns'
 import { parseUnits } from 'ethers/lib/utils'
@@ -16,10 +16,10 @@ import useTokenSearch from 'hooks/useTokenSearch'
 import useUserPositions from 'hooks/useUserPositions'
 import React, {
   MouseEvent,
+  ReactNode,
   useCallback,
   useMemo,
   useState,
-  ReactNode,
 } from 'react'
 import type { CellProps, Row } from 'react-table'
 import {
@@ -102,7 +102,7 @@ const RowRenderer = (
         {row.cells.map((cell) => (
           <div
             className='td'
-            {...cell.getCellProps((...c) => cellProps(...c, {}))}
+            {...cell.getCellProps(cellProps)}
             key={`td-${cell.column.id}`}
           >
             {cell.render('Cell')}
