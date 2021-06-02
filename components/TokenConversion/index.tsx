@@ -3,7 +3,7 @@ import { useRecoilValue } from 'recoil'
 import { tokenConversionState } from 'state/migration'
 import { ConversionState } from 'types/migration'
 import Wrapper from '../Wrapper'
-import { Available, Ready } from './Views'
+import { Approved, Approving, Available, Minted, Ready } from './Views'
 
 const TokenConversion = (): JSX.Element => {
   const conversionState = useRecoilValue(tokenConversionState)
@@ -16,6 +16,15 @@ const TokenConversion = (): JSX.Element => {
           break
         case ConversionState.READY:
           view = <Ready />
+          break
+        case ConversionState.APPROVING:
+          view = <Approving />
+          break
+        case ConversionState.APPROVED:
+          view = <Approved />
+          break
+        case ConversionState.MINTED:
+          view = <Minted />
           break
         default:
           view = <Available />
