@@ -8,8 +8,9 @@ import { providers, Transaction } from 'ethers'
 import { getAddress, parseUnits } from 'ethers/lib/utils'
 import { getContract, tokenListChainId } from 'lib/tokens'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
+import { VanillaVersion } from 'types/general'
 import type { Token, UniSwapToken } from 'types/trade'
-import { ethersOverrides, vanillaRouterAddress } from 'utils/config'
+import { ethersOverrides, getVanillaRouterAddress } from 'utils/config'
 
 export enum Field {
   INPUT = 'INPUT',
@@ -42,7 +43,7 @@ export const buy = async ({
   blockDeadline,
 }: TransactionProps): Promise<Transaction> => {
   const router = getContract(
-    vanillaRouterAddress,
+    getVanillaRouterAddress(VanillaVersion.V1_0),
     JSON.stringify(vanillaRouter.abi),
     signer,
   )
@@ -65,7 +66,7 @@ export const sell = async ({
   blockDeadline,
 }: TransactionProps): Promise<Transaction> => {
   const router = getContract(
-    vanillaRouterAddress,
+    getVanillaRouterAddress(VanillaVersion.V1_0),
     JSON.stringify(vanillaRouter.abi),
     signer,
   )

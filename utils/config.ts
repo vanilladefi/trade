@@ -1,4 +1,5 @@
 import { providers } from 'ethers'
+import { VanillaVersion } from 'types/general'
 
 export const useWebsocketRpc: boolean =
   process.env.NEXT_PUBLIC_USE_WEBSOCKETS === 'true'
@@ -9,14 +10,6 @@ export const chainId: number =
   1
 
 export const network: providers.Networkish = providers.getNetwork(chainId)
-
-export const vanillaRouterAddress: string =
-  process.env.NEXT_PUBLIC_VANILLA_ROUTER_ADDRESS ||
-  '0x5FbDB2315678afecb367f032d93F642f64180aa3'
-
-export const VNLTokenAddress: string =
-  process.env.NEXT_PUBLIC_VNL_1_ADDRESS ||
-  '0x1017b147b05942ead495e2ad6d606ef3c94b8fd0'
 
 export const apiKey: string | boolean =
   process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || false
@@ -46,3 +39,18 @@ export const ethersOverrides = { gasLimit: 400000 }
 export const epoch = Number(process.env.NEXT_PUBLIC_EPOCH) || 0
 
 export const hiddenTokens = ['0xd46ba6d942050d489dbd938a2c909a5d5039a161']
+export const getVanillaRouterAddress = (version: VanillaVersion): string =>
+  version === VanillaVersion.V1_0
+    ? process.env.NEXT_PUBLIC_VANILLA_ROUTER_V1_0_ADDRESS ||
+      '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+    : version === VanillaVersion.V1_1
+    ? process.env.NEXT_PUBLIC_VANILLA_ROUTER_V1_1_ADDRESS ||
+      '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+    : '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+
+export const getVnlTokenAddress = (version: VanillaVersion): string =>
+  version === VanillaVersion.V1_0
+    ? process.env.NEXT_PUBLIC_VNL_TOKEN_V1_0_ADDRESS || ''
+    : version === VanillaVersion.V1_1
+    ? process.env.NEXT_PUBLIC_VNL_TOKEN_V1_1_ADDRESS || ''
+    : ''

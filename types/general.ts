@@ -7,3 +7,8 @@ export type ChainIdToTransactionMapping = {
     [transactionKey: string]: TransactionDetails
   }
 }
+
+export enum VanillaVersion {
+  V1_0,
+  V1_1,
+}
