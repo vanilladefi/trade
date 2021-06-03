@@ -27,6 +27,7 @@ import {
 } from 'state/tokens'
 import { selectedCounterAsset } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
+import { VanillaVersion } from 'types/general'
 import { Token } from 'types/trade'
 import { useWallet } from 'use-wallet'
 import useETHPrice from './useETHPrice'
@@ -34,22 +35,22 @@ import useVanillaGovernanceToken from './useVanillaGovernanceToken'
 import useVanillaRouter from './useVanillaRouter'
 import useWalletAddress from './useWalletAddress'
 
-function useUserPositions(exchange: UniswapVersion): Token[] | null {
+function useUserPositions(version: VanillaVersion): Token[] | null {
   useETHPrice(UniswapVersion.v3)
   const ETHPrice = useRecoilValue(currentETHPrice)
   const allTokens = useRecoilValue(
-    exchange === UniswapVersion.v2 ? uniswapV2TokenState : uniswapV3TokenState,
+    version === VanillaVersion.V1_0 ? uniswapV2TokenState : uniswapV3TokenState,
   )
   const counterAsset = useRecoilValue(selectedCounterAsset)
   const [tokens, setTokens] = useRecoilState(
-    exchange === UniswapVersion.v2 ? userV2TokensState : userV3TokensState,
+    version === VanillaVersion.V1_0 ? userV2TokensState : userV3TokensState,
   )
-  const vanillaRouter = useVanillaRouter()
+  const vanillaRouter = useVanillaRouter(version)
   const { long: userAddress } = useWalletAddress()
   const provider = useRecoilValue(providerState)
   const signer = useRecoilValue(signerState)
   const wallet = useWallet()
-  const vnl = useVanillaGovernanceToken()
+  const vnl = useVanillaGovernanceToken(version)
   const million = 1000000
 
   useEffect(() => {
@@ -140,6 +141,7 @@ function useUserPositions(exchange: UniswapVersion): Token[] | null {
                   // Get reward estimate from Vanilla router
                   reward = amountOut
                     ? await estimateReward(
+                        version,
                         signer,
                         token,
                         counterAsset,
@@ -162,9 +164,9 @@ function useUserPositions(exchange: UniswapVersion): Token[] | null {
                   epoch: BigNumber | null = BigNumber.from('0')
                 let htrs: string
                 try {
-                  priceData = await getPriceData(signer, token.address)
+                  priceData = await getPriceData(version, signer, token.address)
                   blockNumber = await provider.getBlockNumber()
-                  epoch = await getEpoch(signer)
+                  epoch = await getEpoch(version, signer)
                   const avgBlock =
                     priceData?.weightedBlockSum.div(priceData?.tokenSum) ??
                     BigNumber.from('0')

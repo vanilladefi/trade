@@ -41,6 +41,7 @@ import {
   selectedPairIdState,
 } from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
+import { VanillaVersion } from 'types/general'
 import { HandleBuyClick, HandleSellClick, Operation, Token } from 'types/trade'
 import { useWallet } from 'use-wallet'
 
@@ -68,7 +69,7 @@ const HeaderContent = (): JSX.Element => {
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const { USD: totalOwnedUSD, ETH: totalOwnedETH } = useTotalOwned()
   const userTokens = useRecoilValue(userV2TokensState)
-  const { price } = useVanillaGovernanceToken()
+  const { price } = useVanillaGovernanceToken(VanillaVersion.V1_0)
   const ethPrice = useRecoilValue(currentETHPrice)
 
   const totalUnrealizedVnl = useCallback(() => {
@@ -520,7 +521,7 @@ export async function getStaticProps(): Promise<
 
   tokensV2 = await addGraphInfo(UniswapVersion.v2, tokensV2)
   tokensV2 = addUSDPrice(tokensV2, ethPriceV2)
-  tokensV2 = await addVnlEligibility(tokensV2)
+  tokensV2 = await addVnlEligibility(tokensV2, VanillaVersion.V1_0)
 
   // Add historical data (price change)
   if (block24hAgo > 0) {
@@ -553,7 +554,7 @@ export async function getStaticProps(): Promise<
 
   tokensV3 = await addGraphInfo(UniswapVersion.v3, tokensV3)
   tokensV3 = addUSDPrice(tokensV3, ethPriceV3)
-  tokensV3 = await addVnlEligibility(tokensV3)
+  tokensV3 = await addVnlEligibility(tokensV3, VanillaVersion.V1_1)
 
   block24hAgo = currentBlockNumberV3 - 24 * blocksPerHourV3
 

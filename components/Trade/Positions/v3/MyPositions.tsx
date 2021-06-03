@@ -11,9 +11,9 @@ import { cellProps, rowProps } from 'components/Table/Table'
 import { formatDistance } from 'date-fns'
 import useTokenSearch from 'hooks/useTokenSearch'
 import useUserPositions from 'hooks/useUserPositions'
-import { UniswapVersion } from 'lib/graphql'
 import React, { MouseEvent, useCallback, useMemo } from 'react'
 import type { CellProps, Row } from 'react-table'
+import { VanillaVersion } from 'types/general'
 import type {
   HandleBuyClick,
   HandleSellClick,
@@ -205,7 +205,7 @@ export default function MyPositions({
   onBuyClick,
   onSellClick,
 }: Props): JSX.Element {
-  const userPositions = useUserPositions(UniswapVersion.v3)
+  const userPositions = useUserPositions(VanillaVersion.V1_1)
   const [query, clearQuery] = useTokenSearch()
 
   const getColumns = useCallback(

@@ -4,6 +4,7 @@ import useWalletAddress from 'hooks/useWalletAddress'
 import { useMemo } from 'react'
 import { useRecoilState } from 'recoil'
 import { walletModalOpenState } from 'state/wallet'
+import { VanillaVersion } from 'types/general'
 import { useWallet } from 'use-wallet'
 import BottomFloater from './BottomFloater'
 import { BreakPoint } from './GlobalStyles/Breakpoints'
@@ -29,7 +30,7 @@ const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
   const [walletModalOpen, setWalletModalOpen] = useRecoilState(
     walletModalOpenState,
   )
-  const { balance: vnlBalance } = useVanillaGovernanceToken()
+  const { balance: vnlBalance } = useVanillaGovernanceToken(VanillaVersion.V1_0)
 
   const walletBalance = useMemo(() => {
     return Number.parseFloat(ethersUtils.formatUnits(balance, 'ether')).toFixed(
