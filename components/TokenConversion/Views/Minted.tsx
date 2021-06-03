@@ -24,8 +24,8 @@ const Minted = (): JSX.Element => {
         width={Width.FOUR}
         alignItems={Alignment.END}
       >
-        <Button onClick={() => setTokenConversionState(ConversionState.MINTED)}>
-          Mint
+        <Button onClick={() => setTokenConversionState(ConversionState.HIDDEN)}>
+          Close
         </Button>
       </Column>
       <style jsx>{`

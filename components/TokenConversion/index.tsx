@@ -35,7 +35,11 @@ const TokenConversion = (): JSX.Element => {
   )
   return (
     <>
-      <section>
+      <section
+        className={
+          conversionState === ConversionState.HIDDEN ? 'hidden' : undefined
+        }
+      >
         <Wrapper>
           <div className='innerPadding'>{getView(conversionState)}</div>
         </Wrapper>
@@ -58,6 +62,9 @@ const TokenConversion = (): JSX.Element => {
           justify-content: center;
           padding: var(--headerpadding);
           line-height: 2rem;
+        }
+        .hidden {
+          display: none;
         }
         .innerPadding {
           padding: var(--headerpadding);

@@ -40,6 +40,7 @@ import {
   token1Selector,
 } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
+import { VanillaVersion } from 'types/general'
 import { Operation } from 'types/trade'
 import { blockDeadlineThreshold } from 'utils/config'
 import ErrorDisplay from '../../ErrorDisplay'
@@ -119,13 +120,13 @@ const PrepareView = ({
   const provider = useRecoilValue(providerState)
 
   // Vanilla router contract
-  const vanillaRouter = useVanillaRouter()
+  const vanillaRouter = useVanillaRouter(VanillaVersion.V1_1)
 
   // Buy and sell operations for submitting transactions on-chain
   const { buy, sell } = useTradeEngine()
 
   // VNL/ETH price
-  const { price: vnlEthPrice } = useVanillaGovernanceToken()
+  const { price: vnlEthPrice } = useVanillaGovernanceToken(VanillaVersion.V1_1)
   // ETH/USD price
   const ethUsdPrice = useRecoilValue(currentETHPrice)
 
@@ -223,6 +224,7 @@ const PrepareView = ({
     const debouncedGasEstimation = debounce(async () => {
       if (trade && provider && token0) {
         const gasEstimate = await estimateGas(
+          VanillaVersion.V1_1,
           trade,
           provider,
           operation,
@@ -337,14 +339,19 @@ const PrepareView = ({
         token0Amount &&
         token1Amount
       ) {
-        estimateReward(signer, token0, token1, token0Amount, token1Amount).then(
-          (reward) => {
-            const formattedReward = reward
-              ? formatUnits(reward?.reward, 12)
-              : undefined
-            setEstimatedReward(formattedReward)
-          },
-        )
+        estimateReward(
+          VanillaVersion.V1_1,
+          signer,
+          token0,
+          token1,
+          token0Amount,
+          token1Amount,
+        ).then((reward) => {
+          const formattedReward = reward
+            ? formatUnits(reward?.reward, 12)
+            : undefined
+          setEstimatedReward(formattedReward)
+        })
       } else {
         setEstimatedReward(undefined)
       }

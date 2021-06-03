@@ -1,4 +1,5 @@
 export enum ConversionState {
+  HIDDEN,
   AVAILABLE,
   READY,
   APPROVING,
