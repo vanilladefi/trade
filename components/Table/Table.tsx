@@ -9,7 +9,7 @@ import type {
   Meta,
   Row,
   TableKeyedProps,
-  TableSortByToggleProps,
+  TableSortByToggleProps
 } from 'react-table'
 import {
   useExpanded,
@@ -17,7 +17,7 @@ import {
   useGlobalFilter,
   usePagination,
   useSortBy,
-  useTable,
+  useTable
 } from 'react-table'
 import { useRecoilValue } from 'recoil'
 import { currentBlockNumberState } from 'state/meta'
@@ -25,7 +25,7 @@ import type {
   ColorBasedOnValue,
   LeftOrRightAlignable,
   Liquidity,
-  ListColumn,
+  ListColumn
 } from 'types/trade'
 import PageControl from './PageControl'
 
@@ -202,16 +202,7 @@ export default function Table<D extends Record<string, unknown>>({
         )
       )
     })
-  }, [
-    blockNumber,
-    colorize,
-    expandedRows,
-    liquidityWarning,
-    openLiquidityModal,
-    prepareRow,
-    rowRenderer,
-    rows,
-  ])
+  }, [blockNumber, colorize, expandedRows, prepareRow, rowRenderer, rows])
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleQueryChanged = useCallback(

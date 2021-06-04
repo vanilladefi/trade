@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { MouseEvent } from 'react'
+import { MouseEvent, useCallback } from 'react'
 import type { CellProps } from 'react-table'
 import { Eligibility, Liquidity, Token } from 'types/trade'
 
@@ -51,12 +51,15 @@ export function TokenLogo({
     />
   ) : null
 
-  const clickHandler = (e: MouseEvent): void => {
-    if (liquidityWarning) {
-      e.stopPropagation()
-      openLiquidityModal(liquidity)
-    }
-  }
+  const clickHandler = useCallback(
+    (e: MouseEvent): void => {
+      if (liquidityWarning && openLiquidityModal) {
+        e.stopPropagation()
+        openLiquidityModal(liquidity)
+      }
+    },
+    [liquidity, liquidityWarning, openLiquidityModal],
+  )
 
   return (
     <div
