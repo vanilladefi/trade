@@ -3,17 +3,21 @@ import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
 import VanillaRouter from 'types/abis/vanillaRouter.json'
+import { VanillaVersion } from 'types/general'
 import { Action, TransactionDetails } from 'types/trade'
 import useAllTransactions from './useAllTransactions'
 import useVanillaRouter from './useVanillaRouter'
 
-function useTransaction(id: string): TransactionDetails | null {
+function useTransaction(
+  version: VanillaVersion,
+  id: string,
+): TransactionDetails | null {
   const { getTransaction, updateTransaction } = useAllTransactions()
   const [
     transactionDetails,
     setTransactionDetails,
   ] = useState<TransactionDetails | null>(null)
-  const router = useVanillaRouter()
+  const router = useVanillaRouter(version)
   const provider = useRecoilValue(providerState)
 
   /* const filteredPurchases = router?.filters.TokensPurchased(account, null) */

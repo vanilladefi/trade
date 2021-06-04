@@ -6,6 +6,7 @@ import { SmallTitle } from 'components/typography/Titles'
 import { formatUnits } from 'ethers/lib/utils'
 import useTransaction from 'hooks/useTransaction'
 import React, { Suspense, useCallback } from 'react'
+import { VanillaVersion } from 'types/general'
 
 type Props = {
   id: string
@@ -32,7 +33,7 @@ const Loading = (): JSX.Element => (
 )
 
 const SuccessView = ({ id, closeModal }: Props): JSX.Element => {
-  const transaction = useTransaction(id)
+  const transaction = useTransaction(VanillaVersion.V1_0, id)
 
   const amountPaid = useCallback(() => {
     return transaction
