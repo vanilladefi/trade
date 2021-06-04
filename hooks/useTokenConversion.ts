@@ -1,15 +1,19 @@
-import { snapshot } from 'lib/vanilla'
+/* import { snapshot } from 'lib/vanilla'
 import { useRecoilValue } from 'recoil'
 import { signerState } from 'state/wallet'
 import { VanillaV1Token01 } from 'types/abis/VanillaV1Token01'
-import { VNLTokenAddress } from 'utils/config'
+import { VanillaVersion } from 'types/general'
+import { getVnlTokenAddress } from 'utils/config'
 
-export default function useTokenConversion() {
+export default async function useTokenConversion() {
   const signer = useRecoilValue(signerState)
   const VNLToken = new VanillaV1Token01(
-    VNLTokenAddress,
+    getVnlTokenAddress(VanillaVersion.V1_0),
     VanillaV1Token01,
     signer,
   )
-  const { getProof, verify } = snapshot()
+  const { getProof, verify } = await snapshot(VNLToken, signer)
 }
+ */
+
+export {}
