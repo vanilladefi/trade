@@ -200,7 +200,7 @@ export function addData(
       }
     } else {
       const liquidity = !historical
-        ? parseFloat(d.liquidity || '0')
+        ? parseFloat(d.liquidity || '0') * ethPrice
         : t.liquidity
       return {
         ...t,

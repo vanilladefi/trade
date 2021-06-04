@@ -3,8 +3,8 @@ import { gql } from 'graphql-request'
 const TokenCommonFragment = gql`
   fragment TokenCommonFragment on Pool {
     pairId: id
-    liquidity: totalValueLockedUSD
     inRangeLiquidity: liquidity
+    feeTier
     sqrtPrice
   }
 `
@@ -17,6 +17,7 @@ const TokenABFragment = gql`
       name
       decimals
     }
+    liquidity: totalValueLockedToken1
     price: token0Price
   }
 `
@@ -29,6 +30,7 @@ const TokenBAFragment = gql`
       name
       decimals
     }
+    liquidity: totalValueLockedToken0
     price: token1Price
   }
 `
@@ -73,10 +75,13 @@ export const TokenInfoQueryHistorical = gql`
 
 export const TokenInfoSubAB = gql`
   subscription tokenInfoAB($weth: String, $tokenAddresses: [String]) {
-    tokens: pools(where: { token0: $weth, token1_in: $tokenAddresses }) {
+    tokens: pools(
+      where: { token0: $weth, token1_in: $tokenAddresses, feeTier: "3000" }
+    ) {
       pairId: id
-      liquidity: totalValueLockedUSD
+      liquidity: totalValueLockedToken0
       inRangeLiquidity: liquidity
+      feeTier
       sqrtPrice
       token: token1 {
         id
@@ -91,10 +96,13 @@ export const TokenInfoSubAB = gql`
 
 export const TokenInfoSubBA = gql`
   subscription tokenInfoBA($weth: String, $tokenAddresses: [String]) {
-    tokens: pools(where: { token1: $weth, token0_in: $tokenAddresses }) {
+    tokens: pools(
+      where: { token1: $weth, token0_in: $tokenAddresses, feeTier: "3000" }
+    ) {
       pairId: id
-      liquidity: totalValueLockedUSD
+      liquidity: totalValueLockedToken1
       inRangeLiquidity: liquidity
+      feeTier
       sqrtPrice
       token: token0 {
         id
