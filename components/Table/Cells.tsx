@@ -6,12 +6,17 @@ import { Eligibility, Liquidity, Token } from 'types/trade'
 const warnSrc = '/images/icons/liq-warning-orange.svg'
 const alertSrc = '/images/icons/liq-warning-red.svg'
 
+type TokenLogoProps = CellProps<Token> & {
+  liquidityWarning: boolean
+  openLiquidityModal: (liquidity: Liquidity) => void
+}
+
 export function TokenLogo({
   value,
   row,
   liquidityWarning,
   openLiquidityModal,
-}: CellProps<Token>): JSX.Element {
+}: TokenLogoProps): JSX.Element {
   const imgSrc = row.original.logoURI || null
   const Logo = imgSrc ? (
     <Image
