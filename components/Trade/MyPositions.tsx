@@ -53,7 +53,7 @@ const RowRenderer = (
       const liquidityOverThreshold = parseUnits(
         row.original.reserve?.toString() || '0',
       ).sub(parseUnits('500'))
-      if (liquidityOverThreshold.lt('0')) {
+      if (liquidityOverThreshold.gt('0')) {
         vpcOrEstimate = Number(
           liquidityOverThreshold
             .mul(million)

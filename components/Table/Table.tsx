@@ -9,7 +9,7 @@ import type {
   Meta,
   Row,
   TableKeyedProps,
-  TableSortByToggleProps
+  TableSortByToggleProps,
 } from 'react-table'
 import {
   useExpanded,
@@ -17,7 +17,7 @@ import {
   useGlobalFilter,
   usePagination,
   useSortBy,
-  useTable
+  useTable,
 } from 'react-table'
 import { useRecoilValue } from 'recoil'
 import { currentBlockNumberState } from 'state/meta'
@@ -25,7 +25,7 @@ import type {
   ColorBasedOnValue,
   LeftOrRightAlignable,
   Liquidity,
-  ListColumn
+  ListColumn,
 } from 'types/trade'
 import PageControl from './PageControl'
 
@@ -61,8 +61,6 @@ export default function Table<D extends Record<string, unknown>>({
   clearQuery,
   pagination = false,
   colorize = false,
-  liquidityWarning = false,
-  openLiquidityModal,
   rowRenderer,
 }: Props<D>): JSX.Element {
   const { isSmaller, isBigger } = useBreakpoints()
