@@ -125,6 +125,6 @@ export type ListColumn<T extends Record<string, unknown>> = Column<T> &
 
 export enum Liquidity {
   LOW = 500,
-  MEDIUM = 600,
-  HIGH = 1000,
+  MEDIUM = 1000,
+  HIGH = 2000,
 }
