@@ -5,18 +5,27 @@ import Button, {
   ButtonSize,
   Rounding,
 } from 'components/input/Button'
+import Modal from 'components/Modal'
 import { Spinner } from 'components/Spinner'
 import { Columns, Table } from 'components/Table'
+import { TokenLogo } from 'components/Table/Cells'
 import { cellProps, rowProps } from 'components/Table/Table'
 import { formatDistance } from 'date-fns'
 import { parseUnits } from 'ethers/lib/utils'
 import useTokenSearch from 'hooks/useTokenSearch'
 import useUserPositions from 'hooks/useUserPositions'
-import React, { MouseEvent, useCallback, useMemo } from 'react'
+import React, {
+  MouseEvent,
+  ReactNode,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react'
 import type { CellProps, Row } from 'react-table'
-import type {
+import {
   HandleBuyClick,
   HandleSellClick,
+  Liquidity,
   ListColumn,
   Token,
 } from 'types/trade'
@@ -41,13 +50,17 @@ const RowRenderer = (
     if (row.original.vpc && row.original.vpc !== '0') {
       vpcOrEstimate = Number(row.original.vpc)
     } else if (row.original.reserve && row.original.reserve !== '0') {
-      vpcOrEstimate = Number(
-        parseUnits(row.original.reserve?.toString() || '0')
-          .sub(parseUnits('500'))
-          .mul(million)
-          .div(parseUnits(row.original.reserve?.toString() || '1'))
-          .toNumber() / million,
-      )
+      const liquidityOverThreshold = parseUnits(
+        row.original.reserve?.toString() || '0',
+      ).sub(parseUnits('500'))
+      if (liquidityOverThreshold.gt('0')) {
+        vpcOrEstimate = Number(
+          liquidityOverThreshold
+            .mul(million)
+            .div(parseUnits(row.original.reserve?.toString() || '1'))
+            .toNumber() / million,
+        )
+      }
     }
     return vpcOrEstimate.toLocaleString('en-US', {
       style: 'percent',
@@ -264,6 +277,9 @@ export default function MyPositions({
 }: Props): JSX.Element {
   const userPositions = useUserPositions()
   const [query, clearQuery] = useTokenSearch()
+  const [liquidityModalContent, setLiquidityModalContent] = useState<
+    JSX.Element | false
+  >(false)
 
   const getColumns = useCallback(
     ({
@@ -273,9 +289,85 @@ export default function MyPositions({
       onBuyClick: HandleBuyClick
       onSellClick: HandleSellClick
     }): ListColumn<Token>[] => {
+      type ContentProps = {
+        children?: ReactNode
+      }
+      const ContentWrapper = ({ children }: ContentProps) => (
+        <div>
+          {children}
+          <style jsx>{`
+            div {
+              padding: 1rem 1.8rem;
+              max-width: 500px;
+              flex-shrink: 1;
+              display: flex;
+              flex-wrap: wrap;
+              font-family: var(--bodyfont);
+              font-size: var(--bodysize);
+              font-weight: var(--bodyweight);
+            }
+          `}</style>
+        </div>
+      )
+      const setLiquidityModalOpen = (liquidity: Liquidity): void => {
+        let content: JSX.Element | false = false
+        if (liquidity === Liquidity.MEDIUM) {
+          content = (
+            <ContentWrapper>
+              <p>
+                This token has
+                <strong style={{ color: 'orange' }}> low liquidity</strong>, and
+                pricing might be wrong. Buy with caution
+              </p>
+            </ContentWrapper>
+          )
+        } else if (liquidity === Liquidity.LOW) {
+          content = (
+            <ContentWrapper>
+              <p>
+                This token currently has{' '}
+                <strong style={{ color: 'red' }}> very low liquidity</strong>{' '}
+                and will not result in any $VNL mined through profit mining, and
+                selling might be difficult
+              </p>
+            </ContentWrapper>
+          )
+        }
+        setLiquidityModalContent(content)
+      }
       return [
-        Columns.LogoTicker,
-        Columns.LogoName,
+        {
+          id: 'logoTicker',
+          Header: 'Token',
+          accessor: 'symbol',
+          sortType: 'basic',
+          hideAbove: 'md',
+          Cell: (props: CellProps<Token>) => (
+            <TokenLogo
+              {...props}
+              openLiquidityModal={(liquidity) =>
+                setLiquidityModalOpen(liquidity)
+              }
+              liquidityWarning
+            />
+          ),
+        },
+        {
+          id: 'logoName',
+          Header: 'Token',
+          accessor: 'name',
+          hideBelow: 'md',
+          width: 3,
+          Cell: (props: CellProps<Token>) => (
+            <TokenLogo
+              {...props}
+              openLiquidityModal={(liquidity) =>
+                setLiquidityModalOpen(liquidity)
+              }
+              liquidityWarning
+            />
+          ),
+        },
         Columns.Ticker,
         Columns.MarketValue,
         Columns.OwnedAmount,
@@ -339,16 +431,24 @@ export default function MyPositions({
   const initialSortBy = useMemo(() => [{ id: 'value', desc: true }], [])
 
   return userPositions ? (
-    <Table
-      data={userPositions}
-      columns={columns}
-      initialSortBy={initialSortBy}
-      query={query}
-      clearQuery={clearQuery}
-      rowRenderer={RowRenderer}
-      colorize
-      pagination
-    />
+    <>
+      <Modal
+        open={!!liquidityModalContent}
+        onRequestClose={() => setLiquidityModalContent(false)}
+      >
+        {liquidityModalContent}
+      </Modal>
+      <Table
+        data={userPositions}
+        columns={columns}
+        initialSortBy={initialSortBy}
+        query={query}
+        clearQuery={clearQuery}
+        rowRenderer={RowRenderer}
+        colorize
+        pagination
+      />
+    </>
   ) : (
     <div className='spinnerWrapper'>
       <Spinner />
