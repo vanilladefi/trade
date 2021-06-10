@@ -1,12 +1,28 @@
-import React, { useCallback } from 'react'
-import { useRecoilValue } from 'recoil'
+import useTokenConversion from 'hooks/useTokenConversion'
+import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
+import React, { useCallback, useEffect } from 'react'
+import { useRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
+import { VanillaVersion } from 'types/general'
 import { ConversionState } from 'types/migration'
 import Wrapper from '../Wrapper'
 import { Approved, Approving, Available, Minted, Ready } from './Views'
 
 const TokenConversion = (): JSX.Element => {
-  const conversionState = useRecoilValue(tokenConversionState)
+  const { eligible, conversionDeadline, proof } = useTokenConversion()
+  const { balance } = useVanillaGovernanceToken(VanillaVersion.V1_0)
+  const [conversionState, setConversionState] = useRecoilState(
+    tokenConversionState,
+  )
+  useEffect(() => {
+    if (eligible && balance !== '0') {
+      setConversionState(ConversionState.AVAILABLE)
+    }
+    return () => {
+      setConversionState(ConversionState.HIDDEN)
+    }
+  }, [balance, eligible, setConversionState])
+
   const getView = useCallback(
     (conversionState: ConversionState): JSX.Element => {
       let view: JSX.Element
@@ -33,6 +49,7 @@ const TokenConversion = (): JSX.Element => {
     },
     [],
   )
+
   return (
     <>
       <section
