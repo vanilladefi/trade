@@ -68,7 +68,7 @@ export default function useTokenConversion() {
           setEligible(eligible.convertible)
         }
       }
-    }, 5000)
+    }, 200)
     getSnapShot()
   }, [VnlToken1Balance, signer, walletAddress])
 
