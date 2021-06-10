@@ -26,13 +26,12 @@ interface VanillaV1Router02Interface extends ethers.utils.Interface {
     "depositAndBuy(address,uint256,uint256)": FunctionFragment;
     "epoch()": FunctionFragment;
     "estimateReward(address,address,uint256,uint256)": FunctionFragment;
-    "isTokenRewarded(address)": FunctionFragment;
-    "reserveLimit()": FunctionFragment;
+    "safeList()": FunctionFragment;
     "sell(address,uint256,uint256,uint256)": FunctionFragment;
     "sellAndWithdraw(address,uint256,uint256,uint256)": FunctionFragment;
     "tokenPriceData(address,address)": FunctionFragment;
+    "uniswapV3SwapCallback(int256,int256,bytes)": FunctionFragment;
     "vnlContract()": FunctionFragment;
-    "wethReserves(address)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -48,14 +47,7 @@ interface VanillaV1Router02Interface extends ethers.utils.Interface {
     functionFragment: "estimateReward",
     values: [string, string, BigNumberish, BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "isTokenRewarded",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "reserveLimit",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "safeList", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "sell",
     values: [string, BigNumberish, BigNumberish, BigNumberish]
@@ -69,12 +61,12 @@ interface VanillaV1Router02Interface extends ethers.utils.Interface {
     values: [string, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "vnlContract",
-    values?: undefined
+    functionFragment: "uniswapV3SwapCallback",
+    values: [BigNumberish, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "wethReserves",
-    values: [string]
+    functionFragment: "vnlContract",
+    values?: undefined
   ): string;
 
   decodeFunctionResult(functionFragment: "buy", data: BytesLike): Result;
@@ -87,14 +79,7 @@ interface VanillaV1Router02Interface extends ethers.utils.Interface {
     functionFragment: "estimateReward",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "isTokenRewarded",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "reserveLimit",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "safeList", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "sell", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "sellAndWithdraw",
@@ -105,17 +90,17 @@ interface VanillaV1Router02Interface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "vnlContract",
+    functionFragment: "uniswapV3SwapCallback",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "wethReserves",
+    functionFragment: "vnlContract",
     data: BytesLike
   ): Result;
 
   events: {
-    "TokensPurchased(address,address,uint256,uint256,uint256)": EventFragment;
-    "TokensSold(address,address,uint256,uint256,uint256,uint256,uint256)": EventFragment;
+    "TokensPurchased(address,address,uint256,uint256)": EventFragment;
+    "TokensSold(address,address,uint256,uint256,uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "TokensPurchased"): EventFragment;
@@ -207,11 +192,10 @@ export class VanillaV1Router02 extends Contract {
       numTokensSold: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+      [BigNumber, BigNumber, BigNumber, BigNumber] & {
         profitablePrice: BigNumber;
         avgBlock: BigNumber;
         htrs: BigNumber;
-        vpc: BigNumber;
         reward: BigNumber;
       }
     >;
@@ -223,28 +207,17 @@ export class VanillaV1Router02 extends Contract {
       numTokensSold: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+      [BigNumber, BigNumber, BigNumber, BigNumber] & {
         profitablePrice: BigNumber;
         avgBlock: BigNumber;
         htrs: BigNumber;
-        vpc: BigNumber;
         reward: BigNumber;
       }
     >;
 
-    isTokenRewarded(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    safeList(overrides?: CallOverrides): Promise<[string]>;
 
-    "isTokenRewarded(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    reserveLimit(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "reserveLimit()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+    "safeList()"(overrides?: CallOverrides): Promise<[string]>;
 
     sell(
       token: string,
@@ -304,16 +277,23 @@ export class VanillaV1Router02 extends Contract {
       }
     >;
 
+    uniswapV3SwapCallback(
+      amount0Delta: BigNumberish,
+      amount1Delta: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "uniswapV3SwapCallback(int256,int256,bytes)"(
+      amount0Delta: BigNumberish,
+      amount1Delta: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     vnlContract(overrides?: CallOverrides): Promise<[string]>;
 
     "vnlContract()"(overrides?: CallOverrides): Promise<[string]>;
-
-    wethReserves(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "wethReserves(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
   };
 
   buy(
@@ -357,11 +337,10 @@ export class VanillaV1Router02 extends Contract {
     numTokensSold: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
-    [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+    [BigNumber, BigNumber, BigNumber, BigNumber] & {
       profitablePrice: BigNumber;
       avgBlock: BigNumber;
       htrs: BigNumber;
-      vpc: BigNumber;
       reward: BigNumber;
     }
   >;
@@ -373,25 +352,17 @@ export class VanillaV1Router02 extends Contract {
     numTokensSold: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
-    [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+    [BigNumber, BigNumber, BigNumber, BigNumber] & {
       profitablePrice: BigNumber;
       avgBlock: BigNumber;
       htrs: BigNumber;
-      vpc: BigNumber;
       reward: BigNumber;
     }
   >;
 
-  isTokenRewarded(token: string, overrides?: CallOverrides): Promise<boolean>;
+  safeList(overrides?: CallOverrides): Promise<string>;
 
-  "isTokenRewarded(address)"(
-    token: string,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  reserveLimit(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "reserveLimit()"(overrides?: CallOverrides): Promise<BigNumber>;
+  "safeList()"(overrides?: CallOverrides): Promise<string>;
 
   sell(
     token: string,
@@ -451,16 +422,23 @@ export class VanillaV1Router02 extends Contract {
     }
   >;
 
+  uniswapV3SwapCallback(
+    amount0Delta: BigNumberish,
+    amount1Delta: BigNumberish,
+    data: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "uniswapV3SwapCallback(int256,int256,bytes)"(
+    amount0Delta: BigNumberish,
+    amount1Delta: BigNumberish,
+    data: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   vnlContract(overrides?: CallOverrides): Promise<string>;
 
   "vnlContract()"(overrides?: CallOverrides): Promise<string>;
-
-  wethReserves(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  "wethReserves(address)"(
-    arg0: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
 
   callStatic: {
     buy(
@@ -504,11 +482,10 @@ export class VanillaV1Router02 extends Contract {
       numTokensSold: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+      [BigNumber, BigNumber, BigNumber, BigNumber] & {
         profitablePrice: BigNumber;
         avgBlock: BigNumber;
         htrs: BigNumber;
-        vpc: BigNumber;
         reward: BigNumber;
       }
     >;
@@ -520,25 +497,17 @@ export class VanillaV1Router02 extends Contract {
       numTokensSold: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+      [BigNumber, BigNumber, BigNumber, BigNumber] & {
         profitablePrice: BigNumber;
         avgBlock: BigNumber;
         htrs: BigNumber;
-        vpc: BigNumber;
         reward: BigNumber;
       }
     >;
 
-    isTokenRewarded(token: string, overrides?: CallOverrides): Promise<boolean>;
+    safeList(overrides?: CallOverrides): Promise<string>;
 
-    "isTokenRewarded(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    reserveLimit(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "reserveLimit()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "safeList()"(overrides?: CallOverrides): Promise<string>;
 
     sell(
       token: string,
@@ -598,16 +567,23 @@ export class VanillaV1Router02 extends Contract {
       }
     >;
 
+    uniswapV3SwapCallback(
+      amount0Delta: BigNumberish,
+      amount1Delta: BigNumberish,
+      data: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "uniswapV3SwapCallback(int256,int256,bytes)"(
+      amount0Delta: BigNumberish,
+      amount1Delta: BigNumberish,
+      data: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     vnlContract(overrides?: CallOverrides): Promise<string>;
 
     "vnlContract()"(overrides?: CallOverrides): Promise<string>;
-
-    wethReserves(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "wethReserves(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   filters: {
@@ -615,17 +591,10 @@ export class VanillaV1Router02 extends Contract {
       buyer: string | null,
       token: string | null,
       eth: null,
-      amount: null,
-      reserve: null
+      amount: null
     ): TypedEventFilter<
-      [string, string, BigNumber, BigNumber, BigNumber],
-      {
-        buyer: string;
-        token: string;
-        eth: BigNumber;
-        amount: BigNumber;
-        reserve: BigNumber;
-      }
+      [string, string, BigNumber, BigNumber],
+      { buyer: string; token: string; eth: BigNumber; amount: BigNumber }
     >;
 
     TokensSold(
@@ -634,10 +603,9 @@ export class VanillaV1Router02 extends Contract {
       amount: null,
       eth: null,
       profit: null,
-      reward: null,
-      reserve: null
+      reward: null
     ): TypedEventFilter<
-      [string, string, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber],
+      [string, string, BigNumber, BigNumber, BigNumber, BigNumber],
       {
         seller: string;
         token: string;
@@ -645,7 +613,6 @@ export class VanillaV1Router02 extends Contract {
         eth: BigNumber;
         profit: BigNumber;
         reward: BigNumber;
-        reserve: BigNumber;
       }
     >;
   };
@@ -701,19 +668,9 @@ export class VanillaV1Router02 extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    isTokenRewarded(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    safeList(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "isTokenRewarded(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    reserveLimit(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "reserveLimit()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "safeList()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     sell(
       token: string,
@@ -759,16 +716,23 @@ export class VanillaV1Router02 extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    uniswapV3SwapCallback(
+      amount0Delta: BigNumberish,
+      amount1Delta: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "uniswapV3SwapCallback(int256,int256,bytes)"(
+      amount0Delta: BigNumberish,
+      amount1Delta: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     vnlContract(overrides?: CallOverrides): Promise<BigNumber>;
 
     "vnlContract()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    wethReserves(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "wethReserves(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -822,19 +786,9 @@ export class VanillaV1Router02 extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    isTokenRewarded(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    safeList(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "isTokenRewarded(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    reserveLimit(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "reserveLimit()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    "safeList()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     sell(
       token: string,
@@ -880,18 +834,22 @@ export class VanillaV1Router02 extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    uniswapV3SwapCallback(
+      amount0Delta: BigNumberish,
+      amount1Delta: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "uniswapV3SwapCallback(int256,int256,bytes)"(
+      amount0Delta: BigNumberish,
+      amount1Delta: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     vnlContract(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "vnlContract()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    wethReserves(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "wethReserves(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
   };
 }

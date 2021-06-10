@@ -23,27 +23,31 @@ function useTokenBalance(
 
   const getBalances = useCallback(async () => {
     if (tokenAddress && decimals && userAddress && contract) {
-      // Get raw BigNumber balance. Interpret wETH as ETH if specified.
-      let raw: BigNumber = BigNumber.from('0')
-      if (
-        wethAsEth &&
-        tokenAddress.toLowerCase() === weth.address.toLowerCase() &&
-        signer
-      ) {
-        raw = await signer?.getBalance()
-      } else {
-        raw = await contract.balanceOf(userAddress)
+      try {
+        // Get raw BigNumber balance. Interpret wETH as ETH if specified.
+        let raw: BigNumber = BigNumber.from('0')
+        if (
+          wethAsEth &&
+          tokenAddress.toLowerCase() === weth.address.toLowerCase() &&
+          signer
+        ) {
+          raw = await signer?.getBalance()
+        } else {
+          raw = await contract.balanceOf(userAddress)
+        }
+        // Make sure "decimals" is an integer
+        const parsedDecimals = parseInt(decimals.toString())
+
+        // Construct token amounts
+        const token = new Token(tokenListChainId, tokenAddress, parsedDecimals)
+        const formatted = new TokenAmount(token, raw.toString())
+
+        setRaw(raw)
+        setFormatted(formatted.toSignificant())
+        setDecimals(parsedDecimals)
+      } catch (e) {
+        console.error(e)
       }
-      // Make sure "decimals" is an integer
-      const parsedDecimals = parseInt(decimals.toString())
-
-      // Construct token amounts
-      const token = new Token(tokenListChainId, tokenAddress, parsedDecimals)
-      const formatted = new TokenAmount(token, raw.toString())
-
-      setRaw(raw)
-      setFormatted(formatted.toSignificant())
-      setDecimals(parsedDecimals)
     }
   }, [contract, decimals, signer, tokenAddress, userAddress, wethAsEth])
 

@@ -29,7 +29,6 @@ export default function useTokenSubscription(
 
   const handleNewData = useRecoilCallback(
     ({ set }) => async ({ data }: subReturnValue) => {
-      console.log(data)
       if (data?.tokens?.length && ethPrice > 0) {
         set(
           version === UniswapVersion.v2
@@ -50,7 +49,6 @@ export default function useTokenSubscription(
           : uniswapV3TokenState,
       )
       if (blockNumber > 0 && tokens?.length && ethPrice > 0) {
-        console.log(tokens)
         set(
           version === UniswapVersion.v2
             ? uniswapV2TokenState
