@@ -2,14 +2,15 @@ import { Token, TokenAmount } from '@uniswap/sdk-core'
 import ERC20 from '@uniswap/v2-periphery/build/ERC20.json'
 import { BigNumber, constants } from 'ethers'
 import { Interface, isAddress, Result } from 'ethers/lib/utils'
-import { getTheGraphClient, UniswapVersion, v2 } from 'lib/graphql'
+import { getTheGraphClient, UniswapVersion, v2, v3 } from 'lib/graphql'
 import { tokenListChainId, weth } from 'lib/tokens'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
+import VanillaV1Token02 from 'types/abis/VanillaV1Token02.json'
 import { VanillaVersion } from 'types/general'
 import { getVnlTokenAddress } from 'utils/config'
-import { useTokenContract } from './useContract'
+import { useContract, useTokenContract } from './useContract'
 import useTokenBalance from './useTokenBalance'
 import useWalletAddress from './useWalletAddress'
 
@@ -29,7 +30,11 @@ function useVanillaGovernanceToken(
   const { long: userAddress } = useWalletAddress()
   const [mints, setMints] = useState<Array<BigNumber>>()
 
-  const contract = useTokenContract(getVnlTokenAddress(version))
+  const contract1 = useTokenContract(getVnlTokenAddress(VanillaVersion.V1_0))
+  const contract2 = useContract(
+    getVnlTokenAddress(VanillaVersion.V1_1),
+    VanillaV1Token02.abi,
+  )
   const { formatted: vnlBalance } = useTokenBalance(
     getVnlTokenAddress(version),
     decimals,
@@ -55,12 +60,12 @@ function useVanillaGovernanceToken(
 
   useEffect(() => {
     const getMints = async () => {
-      if (contract && provider && isAddress(userAddress)) {
+      if (contract1 && contract2 && provider && isAddress(userAddress)) {
         const ercInterface = new Interface(ERC20.abi)
-        const events = contract?.filters.Transfer(
-          constants.AddressZero,
-          userAddress,
-        )
+        const events =
+          version === VanillaVersion.V1_0
+            ? contract1?.filters.Transfer(constants.AddressZero, userAddress)
+            : contract2?.filters.Transfer(constants.AddressZero, userAddress)
         provider.getBlockNumber().then((blockNumber) => {
           provider
             .getLogs({
@@ -86,7 +91,7 @@ function useVanillaGovernanceToken(
       }
     }
     getMints()
-  }, [contract, provider, userAddress])
+  }, [contract1, contract2, provider, userAddress, version])
 
   useEffect(() => {
     const getTokenPrice = async () => {
@@ -95,11 +100,20 @@ function useVanillaGovernanceToken(
           weth: weth.address.toLowerCase(),
           tokenAddresses: [getVnlTokenAddress(version).toLowerCase()],
         }
-        const { http } = getTheGraphClient(UniswapVersion.v2)
+        const { http } = getTheGraphClient(
+          version === VanillaVersion.V1_0
+            ? UniswapVersion.v2
+            : UniswapVersion.v3,
+        )
         if (http) {
-          const response = await http.request(v2.TokenInfoQuery, variables)
+          const response = await http.request(
+            version === VanillaVersion.V1_0
+              ? v2.TokenInfoQuery
+              : v3.TokenInfoQuery,
+            variables,
+          )
           const data = [...response?.tokensAB, ...response?.tokensBA]
-          setVnlEthPrice(data[0].price)
+          data[0] && setVnlEthPrice(data[0].price)
         }
       }
     }

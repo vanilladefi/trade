@@ -6,19 +6,29 @@ import {
   Width,
 } from 'components/grid/Flex'
 import Button from 'components/input/Button'
+import { format } from 'date-fns'
+import useTokenConversion from 'hooks/useTokenConversion'
+import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import React from 'react'
 import { useSetRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
+import { VanillaVersion } from 'types/general'
 import { ConversionState } from 'types/migration'
 
 const Available = (): JSX.Element => {
+  const { balance } = useVanillaGovernanceToken(VanillaVersion.V1_0)
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
+  const { conversionDeadline } = useTokenConversion()
   return (
     <Row alignItems={Alignment.STRETCH}>
       <Column grow={true}>
-        <h2>15 days left to convert your tokens (21.6.2021)</h2>
+        <h2>
+          15 days left to convert your tokens (
+          {conversionDeadline && format(conversionDeadline, 'dd.MM.yyyy')})
+        </h2>
         <span>
-          You could still convert your 20.256 VNL 1.0 to version 1.1. Read more
+          You could still convert your {balance} VNL 1.0 to version 1.1. Read
+          more
         </span>
       </Column>
       <Column

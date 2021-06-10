@@ -42,7 +42,13 @@ import {
 } from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
-import { HandleBuyClick, HandleSellClick, Operation, Token } from 'types/trade'
+import {
+  Eligibility,
+  HandleBuyClick,
+  HandleSellClick,
+  Operation,
+  Token,
+} from 'types/trade'
 import { useWallet } from 'use-wallet'
 
 type PageProps = {
@@ -554,7 +560,10 @@ export async function getStaticProps(): Promise<
 
   tokensV3 = await addGraphInfo(UniswapVersion.v3, tokensV3)
   tokensV3 = addUSDPrice(tokensV3, ethPriceV3)
-  tokensV3 = await addVnlEligibility(tokensV3, VanillaVersion.V1_1)
+  tokensV3 = tokensV3.map((token) => {
+    token.eligible = Eligibility.Eligible
+    return token
+  })
 
   block24hAgo = currentBlockNumberV3 - 24 * blocksPerHourV3
 

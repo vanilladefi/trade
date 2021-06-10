@@ -11,6 +11,7 @@ import {
   PopulatedTransaction,
   Contract,
   ContractTransaction,
+  Overrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -20,25 +21,16 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface VanillaV1Uniswap02Interface extends ethers.utils.Interface {
   functions: {
-    "isTokenRewarded(address)": FunctionFragment;
-    "wethReserves(address)": FunctionFragment;
+    "uniswapV3SwapCallback(int256,int256,bytes)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "isTokenRewarded",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "wethReserves",
-    values: [string]
+    functionFragment: "uniswapV3SwapCallback",
+    values: [BigNumberish, BigNumberish, BytesLike]
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "isTokenRewarded",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "wethReserves",
+    functionFragment: "uniswapV3SwapCallback",
     data: BytesLike
   ): Result;
 
@@ -89,94 +81,82 @@ export class VanillaV1Uniswap02 extends Contract {
   interface: VanillaV1Uniswap02Interface;
 
   functions: {
-    isTokenRewarded(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    uniswapV3SwapCallback(
+      amount0Delta: BigNumberish,
+      amount1Delta: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
-    "isTokenRewarded(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    wethReserves(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "wethReserves(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    "uniswapV3SwapCallback(int256,int256,bytes)"(
+      amount0Delta: BigNumberish,
+      amount1Delta: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
-  isTokenRewarded(token: string, overrides?: CallOverrides): Promise<boolean>;
+  uniswapV3SwapCallback(
+    amount0Delta: BigNumberish,
+    amount1Delta: BigNumberish,
+    data: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
-  "isTokenRewarded(address)"(
-    token: string,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  wethReserves(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  "wethReserves(address)"(
-    arg0: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  "uniswapV3SwapCallback(int256,int256,bytes)"(
+    amount0Delta: BigNumberish,
+    amount1Delta: BigNumberish,
+    data: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   callStatic: {
-    isTokenRewarded(token: string, overrides?: CallOverrides): Promise<boolean>;
-
-    "isTokenRewarded(address)"(
-      token: string,
+    uniswapV3SwapCallback(
+      amount0Delta: BigNumberish,
+      amount1Delta: BigNumberish,
+      data: BytesLike,
       overrides?: CallOverrides
-    ): Promise<boolean>;
+    ): Promise<void>;
 
-    wethReserves(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "wethReserves(address)"(
-      arg0: string,
+    "uniswapV3SwapCallback(int256,int256,bytes)"(
+      amount0Delta: BigNumberish,
+      amount1Delta: BigNumberish,
+      data: BytesLike,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<void>;
   };
 
   filters: {};
 
   estimateGas: {
-    isTokenRewarded(
-      token: string,
-      overrides?: CallOverrides
+    uniswapV3SwapCallback(
+      amount0Delta: BigNumberish,
+      amount1Delta: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "isTokenRewarded(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    wethReserves(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "wethReserves(address)"(
-      arg0: string,
-      overrides?: CallOverrides
+    "uniswapV3SwapCallback(int256,int256,bytes)"(
+      amount0Delta: BigNumberish,
+      amount1Delta: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    isTokenRewarded(
-      token: string,
-      overrides?: CallOverrides
+    uniswapV3SwapCallback(
+      amount0Delta: BigNumberish,
+      amount1Delta: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "isTokenRewarded(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    wethReserves(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "wethReserves(address)"(
-      arg0: string,
-      overrides?: CallOverrides
+    "uniswapV3SwapCallback(int256,int256,bytes)"(
+      amount0Delta: BigNumberish,
+      amount1Delta: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }
