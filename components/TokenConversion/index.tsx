@@ -8,6 +8,12 @@ import { ConversionState } from 'types/migration'
 import Wrapper from '../Wrapper'
 import { Approved, Approving, Available, Minted, Ready } from './Views'
 
+export type ConversionViewProps = {
+  eligible?: boolean
+  conversionDeadline?: Date
+  proof?: string[]
+}
+
 const TokenConversion = (): JSX.Element => {
   const { eligible, conversionDeadline, proof } = useTokenConversion()
   const { balance } = useVanillaGovernanceToken(VanillaVersion.V1_0)
@@ -28,7 +34,7 @@ const TokenConversion = (): JSX.Element => {
       let view: JSX.Element
       switch (conversionState) {
         case ConversionState.AVAILABLE:
-          view = <Available />
+          view = <Available conversionDeadline={conversionDeadline} />
           break
         case ConversionState.READY:
           view = <Ready />
