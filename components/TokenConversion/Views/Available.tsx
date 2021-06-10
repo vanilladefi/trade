@@ -7,18 +7,19 @@ import {
 } from 'components/grid/Flex'
 import Button from 'components/input/Button'
 import { format } from 'date-fns'
-import useTokenConversion from 'hooks/useTokenConversion'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import React from 'react'
 import { useSetRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
 import { VanillaVersion } from 'types/general'
 import { ConversionState } from 'types/migration'
+import { ConversionViewProps } from '..'
 
-const Available = (): JSX.Element => {
+const Available = ({
+  conversionDeadline,
+}: ConversionViewProps): JSX.Element => {
   const { balance } = useVanillaGovernanceToken(VanillaVersion.V1_0)
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
-  const { conversionDeadline } = useTokenConversion()
   return (
     <Row alignItems={Alignment.STRETCH}>
       <Column grow={true}>
