@@ -208,7 +208,13 @@ export const snapshot = async (
   vanilla: VanillaV1Token01,
   signer: Signer,
   snapshotBlock?: number,
-) => {
+): Promise<{
+  snapshotState: SnapshotState
+  getProof: (balance: AddressBalance) => string[]
+  verify: (balance: AddressBalance, root: string) => boolean
+  root: string
+  merkleTree: MerkleTree
+}> => {
   vanilla.connect(signer)
   const tokenTransfers = snapshotBlock
     ? await vanilla.queryFilter(
