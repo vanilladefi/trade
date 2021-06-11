@@ -6,12 +6,14 @@ import {
   Width,
 } from 'components/grid/Flex'
 import Button, { ButtonColor } from 'components/input/Button'
+import { format } from 'date-fns'
 import React from 'react'
 import { useSetRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
 import { ConversionState } from 'types/migration'
+import { ConversionViewProps } from '..'
 
-const Ready = (): JSX.Element => {
+const Ready = ({ conversionStartDate }: ConversionViewProps): JSX.Element => {
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
   return (
     <Row alignItems={Alignment.STRETCH}>
@@ -27,9 +29,10 @@ const Ready = (): JSX.Element => {
           </li>
         </ol>
         <span>
-          Please note: If you have profit mined VNL after [date], you’ll need to
-          wait for the next weekly token state snapshot on [date] to convert
-          those tokens
+          Please note: If you have profit mined VNL after{' '}
+          {conversionStartDate && format(conversionStartDate, 'dd.MM.yyyy')},
+          you’ll need to wait for the next weekly token state snapshot on [date]
+          to convert those tokens
         </span>
       </Column>
       <Column

@@ -1,3 +1,4 @@
+import useAllTransactions from 'hooks/useAllTransactions'
 import useTokenConversion from 'hooks/useTokenConversion'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import React, { useCallback, useEffect } from 'react'
@@ -5,21 +6,52 @@ import { useRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
 import { VanillaVersion } from 'types/general'
 import { ConversionState } from 'types/migration'
+import { Action, TransactionDetails } from 'types/trade'
 import Wrapper from '../Wrapper'
 import { Approved, Approving, Available, Minted, Ready } from './Views'
 
 export type ConversionViewProps = {
+  approve?: () => Promise<boolean>
   eligible?: boolean
-  conversionDeadline?: Date
+  conversionDeadline?: Date | null
+  conversionStartDate?: Date | null
   proof?: string[]
 }
 
 const TokenConversion = (): JSX.Element => {
-  const { eligible, conversionDeadline, proof } = useTokenConversion()
+  const {
+    approve,
+    eligible,
+    conversionDeadline,
+    conversionStartDate,
+    proof,
+  } = useTokenConversion()
   const { balance } = useVanillaGovernanceToken(VanillaVersion.V1_0)
   const [conversionState, setConversionState] = useRecoilState(
     tokenConversionState,
   )
+  const { getTransaction, addTransaction } = useAllTransactions()
+
+  const approveCallback = useCallback(async () => {
+    let approval = false
+    try {
+      if (approve) {
+        const transaction = await approve()
+        if (transaction) {
+          const transactionDetails: TransactionDetails = {
+            hash: transaction.hash,
+            action: Action.APPROVAL,
+            approval: {},
+          }
+          addTransaction(transactionDetails)
+          approval = true
+        }
+      }
+    } catch (_e) {
+      return approval
+    }
+  }, [addTransaction, approve])
+
   useEffect(() => {
     if (eligible && balance !== '0') {
       setConversionState(ConversionState.AVAILABLE)
@@ -37,10 +69,10 @@ const TokenConversion = (): JSX.Element => {
           view = <Available conversionDeadline={conversionDeadline} />
           break
         case ConversionState.READY:
-          view = <Ready />
+          view = <Ready conversionStartDate={conversionStartDate} />
           break
         case ConversionState.APPROVING:
-          view = <Approving />
+          view = <Approving approve={approveCallback} />
           break
         case ConversionState.APPROVED:
           view = <Approved />

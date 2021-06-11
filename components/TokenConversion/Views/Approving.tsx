@@ -10,8 +10,9 @@ import React from 'react'
 import { useSetRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
 import { ConversionState } from 'types/migration'
+import { ConversionViewProps } from '..'
 
-const Approving = (): JSX.Element => {
+const Approving = ({ approve }: ConversionViewProps): JSX.Element => {
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
   return (
     <Row alignItems={Alignment.STRETCH}>
@@ -26,11 +27,7 @@ const Approving = (): JSX.Element => {
         width={Width.FOUR}
         alignItems={Alignment.END}
       >
-        <Button
-          onClick={() => setTokenConversionState(ConversionState.APPROVED)}
-        >
-          Approve
-        </Button>
+        <Button onClick={() => approve()}>Approve</Button>
         <Button
           color={ButtonColor.TRANSPARENT}
           onClick={() => setTokenConversionState(ConversionState.READY)}
