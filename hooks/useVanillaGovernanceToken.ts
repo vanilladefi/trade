@@ -1,9 +1,9 @@
 import { Token, TokenAmount } from '@uniswap/sdk-core'
 import ERC20 from '@uniswap/v2-periphery/build/ERC20.json'
 import { BigNumber, constants } from 'ethers'
-import { Interface, isAddress, Result } from 'ethers/lib/utils'
+import { Interface, Result } from 'ethers/lib/utils'
 import { getTheGraphClient, UniswapVersion, v2, v3 } from 'lib/graphql'
-import { tokenListChainId, weth } from 'lib/tokens'
+import { isAddress, tokenListChainId, weth } from 'lib/tokens'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
@@ -26,37 +26,43 @@ function useVanillaGovernanceToken(
   const provider = useRecoilValue(providerState)
   const decimals = 12
 
+  const addresses = useMemo(
+    () => [
+      isAddress(getVnlTokenAddress(VanillaVersion.V1_0)) ||
+        getVnlTokenAddress(VanillaVersion.V1_0),
+      isAddress(getVnlTokenAddress(VanillaVersion.V1_1)) ||
+        getVnlTokenAddress(VanillaVersion.V1_1),
+    ],
+    [],
+  )
+
+  const [uniswapVersion, setUniswapVersion] = useState<UniswapVersion | null>(
+    null,
+  )
+  const [versionAddress, setVersionAddress] = useState<string | null>(null)
   const [vnlEthPrice, setVnlEthPrice] = useState('0')
   const { long: userAddress } = useWalletAddress()
   const [mints, setMints] = useState<Array<BigNumber>>()
 
-  const contract1 = useTokenContract(getVnlTokenAddress(VanillaVersion.V1_0))
-  const contract2 = useContract(
-    getVnlTokenAddress(VanillaVersion.V1_1),
-    VanillaV1Token02.abi,
-  )
-  const { formatted: vnlBalance } = useTokenBalance(
-    getVnlTokenAddress(version),
-    decimals,
-  )
+  const contract1 = useTokenContract(addresses[0])
+  const contract2 = useContract(addresses[1], VanillaV1Token02.abi)
+  const { formatted: vnlBalance } = useTokenBalance(versionAddress, decimals)
 
   const userMintedTotal = useCallback(() => {
-    const bigSum: BigNumber | undefined =
-      mints && mints.length
-        ? mints.reduce((accumulator, current) => accumulator.add(current))
-        : BigNumber.from('0')
-    if (bigSum && getVnlTokenAddress(version)) {
-      const token = new Token(
-        tokenListChainId,
-        getVnlTokenAddress(version),
-        decimals,
-      )
-      const tokenAmount = new TokenAmount(token, bigSum.toString())
-      return tokenAmount.toSignificant()
+    if (versionAddress) {
+      const bigSum: BigNumber | undefined =
+        mints && mints.length
+          ? mints.reduce((accumulator, current) => accumulator.add(current))
+          : BigNumber.from('0')
+      if (bigSum) {
+        const token = new Token(tokenListChainId, versionAddress, decimals)
+        const tokenAmount = new TokenAmount(token, bigSum.toString())
+        return tokenAmount.toSignificant()
+      }
     } else {
       return '0'
     }
-  }, [mints, version])
+  }, [mints, versionAddress])
 
   useEffect(() => {
     const getMints = async () => {
@@ -66,48 +72,41 @@ function useVanillaGovernanceToken(
           version === VanillaVersion.V1_0
             ? contract1?.filters.Transfer(constants.AddressZero, userAddress)
             : contract2?.filters.Transfer(constants.AddressZero, userAddress)
-        provider.getBlockNumber().then((blockNumber) => {
-          provider
-            .getLogs({
-              fromBlock: 0,
-              toBlock: blockNumber,
-              topics: events.topics,
-            })
-            .then((logs) => {
-              const mintEvents: BigNumber[] = logs.map((log) => {
-                const { value }: Result = ercInterface.decodeEventLog(
-                  'Transfer',
-                  log.data,
-                )
-                return value
-              })
-              setMints(mintEvents)
-            })
-            .catch((e) => {
-              console.error(e)
-              setMints([BigNumber.from('0')])
-            })
-        })
+        try {
+          const blockNumber = await provider.getBlockNumber()
+          const logs = await provider.getLogs({
+            fromBlock: 0,
+            toBlock: blockNumber,
+            topics: events.topics,
+          })
+          const mintEvents: BigNumber[] = logs.map((log) => {
+            const { value }: Result = ercInterface.decodeEventLog(
+              'Transfer',
+              log.data,
+            )
+            return value
+          })
+          setMints(mintEvents)
+        } catch (e) {
+          console.error(e)
+          setMints([BigNumber.from('0')])
+        }
       }
     }
     getMints()
   }, [contract1, contract2, provider, userAddress, version])
 
   useEffect(() => {
-    const getTokenPrice = async () => {
-      if (isAddress(getVnlTokenAddress(version))) {
+    if (versionAddress && uniswapVersion) {
+      const getTokenPrice = async () => {
         const variables = {
           weth: weth.address.toLowerCase(),
-          tokenAddresses: [getVnlTokenAddress(version).toLowerCase()],
+          tokenAddresses: [versionAddress.toLowerCase()],
         }
-        const { http } = getTheGraphClient(
-          version === VanillaVersion.V1_0
-            ? UniswapVersion.v2
-            : UniswapVersion.v3,
-        )
+        const { http } = getTheGraphClient(uniswapVersion)
         if (http) {
           const response = await http.request(
-            version === VanillaVersion.V1_0
+            uniswapVersion === UniswapVersion.v2
               ? v2.TokenInfoQuery
               : v3.TokenInfoQuery,
             variables,
@@ -116,19 +115,28 @@ function useVanillaGovernanceToken(
           data[0] && setVnlEthPrice(data[0].price)
         }
       }
+      getTokenPrice()
     }
-    getTokenPrice()
-  }, [version])
+  }, [uniswapVersion, version, versionAddress])
+
+  useEffect(() => {
+    setVersionAddress(
+      version === VanillaVersion.V1_0 ? addresses[0] : addresses[1] || '',
+    )
+    setUniswapVersion(
+      version === VanillaVersion.V1_0 ? UniswapVersion.v2 : UniswapVersion.v3,
+    )
+  }, [addresses, version])
 
   return useMemo(() => {
     return {
-      address: getVnlTokenAddress(version),
+      address: versionAddress || '',
       decimals: 12,
       balance: vnlBalance !== '' ? vnlBalance : '0',
       price: vnlEthPrice,
-      userMintedTotal: userMintedTotal(),
+      userMintedTotal: userMintedTotal() || '0',
     }
-  }, [userMintedTotal, version, vnlBalance, vnlEthPrice])
+  }, [userMintedTotal, versionAddress, vnlBalance, vnlEthPrice])
 }
 
 export default useVanillaGovernanceToken
