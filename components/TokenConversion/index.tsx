@@ -1,12 +1,15 @@
 import useAllTransactions from 'hooks/useAllTransactions'
 import useTokenConversion from 'hooks/useTokenConversion'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
+import useWalletAddress from 'hooks/useWalletAddress'
+import { isAddress } from 'lib/tokens'
 import React, { useCallback, useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
 import { VanillaVersion } from 'types/general'
 import { ConversionState } from 'types/migration'
 import { Action, TransactionDetails } from 'types/trade'
+import { getVnlTokenAddress } from 'utils/config'
 import Wrapper from '../Wrapper'
 import { Approved, Approving, Available, Minted, Ready } from './Views'
 
@@ -16,63 +19,98 @@ export type ConversionViewProps = {
   conversionDeadline?: Date | null
   conversionStartDate?: Date | null
   proof?: string[]
+  convertableBalance?: string | null
+  transactionHash?: string | null
 }
 
 const TokenConversion = (): JSX.Element => {
   const {
     approve,
+    getAllowance,
     eligible,
     conversionDeadline,
     conversionStartDate,
-    proof,
+    convertableBalance,
   } = useTokenConversion()
-  const { balance } = useVanillaGovernanceToken(VanillaVersion.V1_0)
+  const { long: userAddress } = useWalletAddress()
+  const { address } = useVanillaGovernanceToken(VanillaVersion.V1_0)
   const [conversionState, setConversionState] = useRecoilState(
     tokenConversionState,
   )
-  const { getTransaction, addTransaction } = useAllTransactions()
+  const { addTransaction } = useAllTransactions()
+  const vnlV2Address = isAddress(getVnlTokenAddress(VanillaVersion.V1_1))
 
   const approveCallback = useCallback(async () => {
     let approval = false
     try {
-      if (approve) {
-        const transaction = await approve()
-        if (transaction) {
-          const transactionDetails: TransactionDetails = {
-            hash: transaction.hash,
-            action: Action.APPROVAL,
-            approval: {},
-          }
-          addTransaction(transactionDetails)
-          approval = true
+      const transaction = await approve()
+      if (transaction) {
+        const transactionDetails: TransactionDetails = {
+          hash: transaction.hash,
+          from: userAddress,
+          action: Action.APPROVAL,
+          approval: { tokenAddress: address, spender: vnlV2Address || '' },
         }
+        addTransaction(transactionDetails)
+        approval = true
       }
-    } catch (_e) {
+    } catch (e) {
+      console.error(e)
       return approval
     }
-  }, [addTransaction, approve])
+    return approval
+  }, [addTransaction, address, approve, userAddress, vnlV2Address])
 
   useEffect(() => {
-    if (eligible && balance !== '0') {
+    if (eligible && convertableBalance !== '0') {
       setConversionState(ConversionState.AVAILABLE)
     }
     return () => {
       setConversionState(ConversionState.HIDDEN)
     }
-  }, [balance, eligible, setConversionState])
+  }, [convertableBalance, eligible, setConversionState])
+
+  useEffect(() => {
+    const checkAllowance = async () => {
+      try {
+        const allowance = await getAllowance()
+        if (!allowance.isZero()) {
+          setConversionState(ConversionState.APPROVED)
+        }
+      } catch (e) {
+        console.error(e)
+      }
+    }
+    checkAllowance()
+  }, [getAllowance, setConversionState])
 
   const getView = useCallback(
     (conversionState: ConversionState): JSX.Element => {
       let view: JSX.Element
       switch (conversionState) {
         case ConversionState.AVAILABLE:
-          view = <Available conversionDeadline={conversionDeadline} />
+          view = (
+            <Available
+              conversionDeadline={conversionDeadline}
+              convertableBalance={convertableBalance}
+            />
+          )
           break
         case ConversionState.READY:
-          view = <Ready conversionStartDate={conversionStartDate} />
+          view = (
+            <Ready
+              conversionStartDate={conversionStartDate}
+              convertableBalance={convertableBalance}
+            />
+          )
           break
         case ConversionState.APPROVING:
-          view = <Approving approve={approveCallback} />
+          view = (
+            <Approving
+              approve={approveCallback}
+              convertableBalance={convertableBalance}
+            />
+          )
           break
         case ConversionState.APPROVED:
           view = <Approved />

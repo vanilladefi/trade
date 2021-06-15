@@ -15,9 +15,9 @@ import keccak256 from 'keccak256'
 import { tryParseAmount } from 'lib/uniswap/v2/trade'
 import { MerkleTree } from 'merkletreejs'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
-import { VanillaV1Token01 } from 'types/abis/VanillaV1Token01'
 import { VanillaVersion } from 'types/general'
 import { Operation, UniSwapToken } from 'types/trade'
+import type { VanillaV1Token01 } from 'types/typechain/vanilla_v1.1/VanillaV1Token01'
 import { blockDeadlineThreshold, getVanillaRouterAddress } from 'utils/config'
 
 export interface TokenPriceResponse {
@@ -206,16 +206,8 @@ export const toKeccak256Leaf = (balance: AddressBalance) =>
 
 export const snapshot = async (
   vanilla: VanillaV1Token01,
-  signer: Signer,
   snapshotBlock?: number,
-): Promise<{
-  snapshotState: SnapshotState
-  getProof: (balance: AddressBalance) => string[]
-  verify: (balance: AddressBalance, root: string) => boolean
-  root: string
-  merkleTree: MerkleTree
-}> => {
-  vanilla.connect(signer)
+) => {
   const tokenTransfers = snapshotBlock
     ? await vanilla.queryFilter(
         vanilla.filters.Transfer(null, null, null),
