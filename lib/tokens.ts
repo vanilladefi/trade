@@ -161,7 +161,7 @@ export function addData(
   tokens: Token[],
   data: TokenInfoQueryResponse[],
   historical = false,
-  ethPrice?: number,
+  ethPrice: number,
 ): Token[] {
   return tokens.map((t) => {
     const d = data.find(
@@ -221,7 +221,7 @@ export async function addGraphInfo(
   version: UniswapVersion,
   tokens: Token[],
   blockNumber = 0,
-  ethPrice?: number,
+  ethPrice: number,
 ): Promise<Token[]> {
   if (!weth) {
     throw new Error(

@@ -12,14 +12,18 @@ import { tokenConversionState } from 'state/migration'
 import { ConversionState } from 'types/migration'
 import { ConversionViewProps } from '..'
 
-const Approving = ({ approve }: ConversionViewProps): JSX.Element => {
+const Approving = ({
+  approve,
+  convertableBalance,
+}: ConversionViewProps): JSX.Element => {
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
   return (
     <Row alignItems={Alignment.STRETCH}>
       <Column grow={true} width={Width.EIGHT}>
         <h2>Approve token conversion</h2>
         <span>
-          20.256 VNL can be converted to V1.1. This transaction can be canceled.
+          {convertableBalance} VNL can be converted to V1.1. This transaction
+          can be canceled.
         </span>
       </Column>
       <Column
@@ -27,7 +31,16 @@ const Approving = ({ approve }: ConversionViewProps): JSX.Element => {
         width={Width.FOUR}
         alignItems={Alignment.END}
       >
-        <Button onClick={() => approve()}>Approve</Button>
+        <Button
+          onClick={async () => {
+            const approval = approve && (await approve())
+            if (approval) {
+              setTokenConversionState(ConversionState.APPROVED)
+            }
+          }}
+        >
+          Approve
+        </Button>
         <Button
           color={ButtonColor.TRANSPARENT}
           onClick={() => setTokenConversionState(ConversionState.READY)}

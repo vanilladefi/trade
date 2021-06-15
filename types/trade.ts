@@ -91,6 +91,7 @@ export enum Action {
   PURCHASE = 'purchase',
   SALE = 'sale',
   APPROVAL = 'approval',
+  CONVERSION = 'conversion',
 }
 
 export interface TransactionDetails {
@@ -102,6 +103,8 @@ export interface TransactionDetails {
   blockNumber?: number
   paid?: UniSwapToken
   received?: UniSwapToken
+  amountConverted?: string
+  amountApproved?: string
   amountPaid?: string
   amountReceived?: string
   addedTime?: number
