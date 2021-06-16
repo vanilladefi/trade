@@ -139,6 +139,10 @@ const WalletView = (): JSX.Element => {
   const resetWallet = (): void => {
     // Reset user owned tokens status
     setTokens([])
+    // Disconnect walletconnect
+    if (connector === 'walletconnect' && wallet.ethereum.disconnect instanceof Function) {
+      wallet.ethereum.disconnect()
+    }
     wallet.reset()
   }
 
