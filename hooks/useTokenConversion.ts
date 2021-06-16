@@ -58,8 +58,9 @@ export default function useTokenConversion(): {
 
   const getAllowance = useCallback(async () => {
     let allowance: BigNumber = BigNumber.from('0')
-    if (vnlToken2 && isAddress(walletAddress)) {
-      allowance = await vnlToken2.allowance(walletAddress, vnlToken2.address)
+    const vnl1_1Addr = isAddress(getVnlTokenAddress(VanillaVersion.V1_1) || '')
+    if (vnlToken2 && isAddress(walletAddress) && vnl1_1Addr) {
+      allowance = await vnlToken2.allowance(walletAddress, vnl1_1Addr)
     }
     return allowance
   }, [vnlToken2, walletAddress])

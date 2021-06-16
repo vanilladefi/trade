@@ -15,6 +15,7 @@ import { Approved, Approving, Available, Minted, Ready } from './Views'
 
 export type ConversionViewProps = {
   approve?: () => Promise<boolean>
+  convert?: () => Promise<boolean>
   eligible?: boolean
   conversionDeadline?: Date | null
   conversionStartDate?: Date | null
@@ -26,6 +27,7 @@ export type ConversionViewProps = {
 const TokenConversion = (): JSX.Element => {
   const {
     approve,
+    convert,
     getAllowance,
     eligible,
     conversionDeadline,
@@ -62,6 +64,27 @@ const TokenConversion = (): JSX.Element => {
     }
     return approval
   }, [addTransaction, address, approve, userAddress, vnlV2Address])
+
+  const runConversion = useCallback(async () => {
+    let conversionSuccessful = false
+    try {
+      const transaction = await convert()
+      if (transaction) {
+        setTransactionHash(transaction.hash)
+        const transactionDetails: TransactionDetails = {
+          hash: transaction.hash,
+          from: userAddress,
+          action: Action.CONVERSION,
+        }
+        addTransaction(transactionDetails)
+        conversionSuccessful = true
+      }
+    } catch (e) {
+      console.error(e)
+      return conversionSuccessful
+    }
+    return conversionSuccessful
+  }, [addTransaction, convert, userAddress])
 
   useEffect(() => {
     if (eligible && convertableBalance !== '0') {
@@ -115,7 +138,12 @@ const TokenConversion = (): JSX.Element => {
           )
           break
         case ConversionState.APPROVED:
-          view = <Approved transactionHash={transactionHash} />
+          view = (
+            <Approved
+              transactionHash={transactionHash}
+              convert={runConversion}
+            />
+          )
           break
         case ConversionState.MINTED:
           view = <Minted />
@@ -130,6 +158,7 @@ const TokenConversion = (): JSX.Element => {
       conversionDeadline,
       conversionStartDate,
       convertableBalance,
+      runConversion,
       transactionHash,
     ],
   )
