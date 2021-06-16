@@ -6,6 +6,7 @@ import {
   Width,
 } from 'components/grid/Flex'
 import Button from 'components/input/Button'
+import { Spinner } from 'components/Spinner'
 import useTransaction from 'hooks/useTransaction'
 import React, { useEffect, useState } from 'react'
 import { useSetRecoilState } from 'recoil'
@@ -23,6 +24,7 @@ const Approved = ({
   const transaction = useTransaction(VanillaVersion.V1_1, transactionHash || '')
 
   useEffect(() => {
+    console.log(transaction)
     if (transactionHash && transaction?.receipt) {
       setWaiting(false)
     }
@@ -32,6 +34,7 @@ const Approved = ({
     <Row alignItems={Alignment.STRETCH}>
       {waiting ? (
         <Column grow={true} width={Width.TWELVE}>
+          <Spinner />
           <h2>WAITING FOR TRANSACTION</h2>
         </Column>
       ) : (
