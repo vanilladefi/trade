@@ -1,18 +1,19 @@
 import { BigNumber, ethers } from 'ethers'
-import { Interface } from 'ethers/lib/utils'
+import { EventFragment, Interface } from 'ethers/lib/utils'
 import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
-import VanillaRouter from 'types/abis/vanillaRouter.json'
+import VanillaV1Router01 from 'types/abis/VanillaV1Router01.json'
+import VanillaV1Router02 from 'types/abis/VanillaV1Router02.json'
+import VanillaV1Token02 from 'types/abis/VanillaV1Token02.json'
 import { VanillaVersion } from 'types/general'
 import { Action, TransactionDetails } from 'types/trade'
 import useAllTransactions from './useAllTransactions'
-import useVanillaRouter from './useVanillaRouter'
 
 type TransactionHandlerProps = {
   transactionHash: string
   preliminaryTransactionDetails: TransactionDetails | null
-  routerInterface: Interface
+  contractInterface: Interface
   receipt: ethers.providers.TransactionReceipt
   setTransactionDetails: (newDetails: TransactionDetails) => void
   updateTransaction: (hash: string, newDetails: TransactionDetails) => void
@@ -37,7 +38,7 @@ const constructTopic = (topic: string) => ethers.utils.id(topic)
 const purchaseHandler = ({
   transactionHash,
   preliminaryTransactionDetails,
-  routerInterface,
+  contractInterface,
   receipt,
   setTransactionDetails,
   updateTransaction,
@@ -49,7 +50,7 @@ const purchaseHandler = ({
   const purchase = findTopic(receipt, purchaseTopic)
   const data = purchase?.data || ''
 
-  const { amount, eth }: ethers.utils.Result = routerInterface.decodeEventLog(
+  const { amount, eth }: ethers.utils.Result = contractInterface.decodeEventLog(
     eventFragment,
     data,
   )
@@ -96,7 +97,7 @@ const purchaseHandler = ({
 const saleHandler = ({
   transactionHash,
   preliminaryTransactionDetails,
-  routerInterface,
+  contractInterface,
   receipt,
   setTransactionDetails,
   updateTransaction,
@@ -113,7 +114,7 @@ const saleHandler = ({
     amount,
     eth,
     reward,
-  }: ethers.utils.Result = routerInterface.decodeEventLog(eventFragment, data)
+  }: ethers.utils.Result = contractInterface.decodeEventLog(eventFragment, data)
 
   let amountPaid = '0'
   let amountReceived = '0'
@@ -160,12 +161,28 @@ const saleHandler = ({
 const conversionHandler = ({
   transactionHash,
   preliminaryTransactionDetails,
-  routerInterface,
+  contractInterface,
   receipt,
   setTransactionDetails,
   updateTransaction,
 }: TransactionHandlerProps) => {
-  const eventFragment = 'VNLConverted'
+  const eventFragment = EventFragment.from({
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        name: 'converter',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'VNLConverted',
+    type: 'event',
+  })
   const topicString = 'VNLConverted(address,uint256)'
   const conversionTopic = constructTopic(topicString)
 
@@ -174,7 +191,9 @@ const conversionHandler = ({
 
   const {
     convertedAmount,
-  }: ethers.utils.Result = routerInterface.decodeEventLog(eventFragment, data)
+  }: ethers.utils.Result = contractInterface.decodeEventLog(eventFragment, data)
+
+  console.log(convertedAmount)
 
   let amountConverted
   if (convertedAmount as BigNumber) {
@@ -209,26 +228,46 @@ const conversionHandler = ({
 const approvalHandler = ({
   transactionHash,
   preliminaryTransactionDetails,
-  routerInterface,
+  contractInterface,
   receipt,
   setTransactionDetails,
   updateTransaction,
 }: TransactionHandlerProps) => {
-  const eventFragment = 'Approval'
+  const eventFragment = EventFragment.from({
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        name: 'spender',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
+    ],
+    name: 'Approval',
+    type: 'event',
+  })
   const topicString = 'Approval(address,address,uint256)'
   const topic = constructTopic(topicString)
 
   const approval = findTopic(receipt, topic)
   const data = approval?.data || ''
+  console.log(eventFragment, approval, data, topic, receipt)
 
-  const { amount }: ethers.utils.Result = routerInterface.decodeEventLog(
-    eventFragment,
-    data,
-  )
+  const result: ethers.utils.Result | undefined =
+    approval && contractInterface.decodeEventLog(eventFragment, data)
 
   let amountApproved
-  if (amount as BigNumber) {
-    amountApproved = amount.toString()
+  if (result?.value as BigNumber) {
+    amountApproved = result?.value.toString()
   }
 
   const newDetails = {
@@ -237,6 +276,7 @@ const approvalHandler = ({
     hash: transactionHash,
     blockNumber: receipt.blockNumber,
     from: receipt.from,
+    receipt: receipt,
   }
 
   setTransactionDetails(newDetails)
@@ -249,6 +289,7 @@ const approvalHandler = ({
     : {
         hash: newDetails.hash,
         action: Action.APPROVAL,
+        amountApproved: amountApproved,
         from: receipt.from,
         receipt: receipt,
       }
@@ -265,43 +306,58 @@ function useTransaction(
     transactionDetails,
     setTransactionDetails,
   ] = useState<TransactionDetails | null>(null)
-  const router = useVanillaRouter(version)
   const provider = useRecoilValue(providerState)
 
   useEffect(() => {
-    if (router && provider) {
-      const routerInterface = new ethers.utils.Interface(VanillaRouter.abi)
-      const preliminaryTransactionDetails = getTransaction(id)
+    const waitForConfirmation = async () => {
+      if (provider) {
+        const preliminaryTransactionDetails = getTransaction(id)
 
-      let handler: TransactionHandler
-      switch (transactionDetails?.action) {
-        case Action.PURCHASE:
-          handler = purchaseHandler
-          break
-        case Action.SALE:
-          handler = saleHandler
-          break
-        case Action.CONVERSION:
-          handler = conversionHandler
-          break
-        case Action.APPROVAL:
-          handler = approvalHandler
-          break
-        default:
-          return
-      }
+        let handler: TransactionHandler
+        let contractInterface: Interface
+        switch (preliminaryTransactionDetails?.action) {
+          case Action.PURCHASE: {
+            handler = purchaseHandler
+            contractInterface = new ethers.utils.Interface(
+              version === VanillaVersion.V1_0
+                ? VanillaV1Router01.abi
+                : VanillaV1Router02.abi,
+            )
+            break
+          }
+          case Action.SALE:
+            handler = saleHandler
+            contractInterface = new ethers.utils.Interface(
+              version === VanillaVersion.V1_0
+                ? VanillaV1Router01.abi
+                : VanillaV1Router02.abi,
+            )
+            break
+          case Action.CONVERSION:
+            handler = conversionHandler
+            contractInterface = new ethers.utils.Interface(VanillaV1Token02.abi)
+            break
+          case Action.APPROVAL:
+            handler = approvalHandler
+            contractInterface = new ethers.utils.Interface(VanillaV1Token02.abi)
+            break
+          default:
+            return
+        }
 
-      provider.waitForTransaction(id).then((receipt) => {
+        const receipt = await provider.waitForTransaction(id)
+
         handler({
           transactionHash: id,
           preliminaryTransactionDetails: preliminaryTransactionDetails,
-          routerInterface: routerInterface,
+          contractInterface: contractInterface,
           receipt: receipt,
           setTransactionDetails: setTransactionDetails,
           updateTransaction: updateTransaction,
         })
-      })
+      }
     }
+    waitForConfirmation()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 

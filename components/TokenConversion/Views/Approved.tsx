@@ -18,15 +18,19 @@ import { ConversionViewProps } from '..'
 const Approved = ({
   convertableBalance,
   transactionHash,
+  convert,
 }: ConversionViewProps): JSX.Element => {
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
   const [waiting, setWaiting] = useState(true)
   const transaction = useTransaction(VanillaVersion.V1_1, transactionHash || '')
 
   useEffect(() => {
-    console.log(transaction)
     if (transactionHash && transaction?.receipt) {
+      console.log(transaction)
       setWaiting(false)
+    }
+    return () => {
+      setWaiting(true)
     }
   }, [transactionHash, transaction])
 
@@ -52,7 +56,12 @@ const Approved = ({
             alignItems={Alignment.END}
           >
             <Button
-              onClick={() => setTokenConversionState(ConversionState.MINTED)}
+              onClick={async () => {
+                const conversionSuccessful = convert && (await convert())
+                if (conversionSuccessful) {
+                  setTokenConversionState(ConversionState.MINTED)
+                }
+              }}
             >
               Mint
             </Button>
