@@ -3,7 +3,7 @@ import useTokenConversion from 'hooks/useTokenConversion'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import useWalletAddress from 'hooks/useWalletAddress'
 import { isAddress } from 'lib/tokens'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
 import { VanillaVersion } from 'types/general'
@@ -39,12 +39,14 @@ const TokenConversion = (): JSX.Element => {
   )
   const { addTransaction } = useAllTransactions()
   const vnlV2Address = isAddress(getVnlTokenAddress(VanillaVersion.V1_1))
+  const [transactionHash, setTransactionHash] = useState<string | null>(null)
 
   const approveCallback = useCallback(async () => {
     let approval = false
     try {
       const transaction = await approve()
       if (transaction) {
+        setTransactionHash(transaction.hash)
         const transactionDetails: TransactionDetails = {
           hash: transaction.hash,
           from: userAddress,
@@ -113,7 +115,7 @@ const TokenConversion = (): JSX.Element => {
           )
           break
         case ConversionState.APPROVED:
-          view = <Approved />
+          view = <Approved transactionHash={transactionHash} />
           break
         case ConversionState.MINTED:
           view = <Minted />
@@ -123,7 +125,13 @@ const TokenConversion = (): JSX.Element => {
       }
       return view
     },
-    [],
+    [
+      approveCallback,
+      conversionDeadline,
+      conversionStartDate,
+      convertableBalance,
+      transactionHash,
+    ],
   )
 
   return (
