@@ -193,8 +193,6 @@ const conversionHandler = ({
     convertedAmount,
   }: ethers.utils.Result = contractInterface.decodeEventLog(eventFragment, data)
 
-  console.log(convertedAmount)
-
   let amountConverted
   if (convertedAmount as BigNumber) {
     amountConverted = convertedAmount.toString()
