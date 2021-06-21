@@ -146,7 +146,7 @@ const TokenConversion = (): JSX.Element => {
           )
           break
         case ConversionState.MINTED:
-          view = <Minted />
+          view = <Minted transactionHash={transactionHash} />
           break
         default:
           view = <Available />
