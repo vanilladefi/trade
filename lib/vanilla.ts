@@ -167,6 +167,7 @@ export const estimateGas = async (
 export type SnapshotState = {
   blockNumber: number
   timeStamp: number
+  conversionDeadline: number
   accounts: { [address: string]: BigNumber }
 }
 
@@ -225,12 +226,14 @@ export const snapshot = async (
     blockNumber: 0,
     accounts: {},
     timeStamp: 0,
+    conversionDeadline: 0,
   })
 
   // fetch the timestamp after event reduction since it's timestamps are not included in the event data
-  snapshotState.timeStamp = (
-    await vanilla.provider.getBlock(snapshotState.blockNumber)
-  ).timestamp
+  const blockAtSnapshot = await vanilla.provider.getBlock(
+    snapshotState.blockNumber,
+  )
+  snapshotState.timeStamp = blockAtSnapshot.timestamp
 
   const leaves = Object.entries(snapshotState.accounts).map(
     ([address, amount]) => ({

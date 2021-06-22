@@ -6,8 +6,8 @@ import {
   Width,
 } from 'components/grid/Flex'
 import Button from 'components/input/Button'
-import { format } from 'date-fns'
-import React from 'react'
+import { differenceInDays, format } from 'date-fns'
+import React, { useCallback } from 'react'
 import { useSetRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
 import { ConversionState } from 'types/migration'
@@ -18,11 +18,18 @@ const Available = ({
   convertableBalance,
 }: ConversionViewProps): JSX.Element => {
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
+  const calculateDaysToDeadline = useCallback(() => {
+    let daysToDeadline = 0
+    if (conversionDeadline) {
+      daysToDeadline = differenceInDays(conversionDeadline, Date.now())
+    }
+    return daysToDeadline
+  }, [conversionDeadline])
   return (
     <Row alignItems={Alignment.STRETCH}>
       <Column grow={true}>
         <h2>
-          15 days left to convert your tokens (
+          {calculateDaysToDeadline()} days left to convert your tokens (
           {conversionDeadline && format(conversionDeadline, 'dd.MM.yyyy')})
         </h2>
         <span>

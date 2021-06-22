@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from 'ethers'
-import { EventFragment, Interface } from 'ethers/lib/utils'
+import { Interface } from 'ethers/lib/utils'
 import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
@@ -166,61 +166,53 @@ const conversionHandler = ({
   setTransactionDetails,
   updateTransaction,
 }: TransactionHandlerProps) => {
-  const eventFragment = EventFragment.from({
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        name: 'converter',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        name: 'amount',
-        type: 'uint256',
-      },
-    ],
-    name: 'VNLConverted',
-    type: 'event',
-  })
-  const topicString = 'VNLConverted(address,uint256)'
-  const conversionTopic = constructTopic(topicString)
+  try {
+    const eventFragment = 'VNLConverted'
+    const topicString = 'VNLConverted(address,uint256)'
+    const conversionTopic = constructTopic(topicString)
 
-  const conversion = findTopic(receipt, conversionTopic)
-  const data = conversion?.data || ''
+    const conversion = findTopic(receipt, conversionTopic)
+    const data = conversion?.data || ''
 
-  const {
-    convertedAmount,
-  }: ethers.utils.Result = contractInterface.decodeEventLog(eventFragment, data)
+    const {
+      converter,
+      amount,
+    }: ethers.utils.Result = contractInterface.decodeEventLog(
+      eventFragment,
+      data,
+    )
+    console.log(converter, amount, receipt)
+    let amountConverted
+    if (amount as BigNumber) {
+      amountConverted = amount.toString()
+    }
 
-  let amountConverted
-  if (convertedAmount as BigNumber) {
-    amountConverted = convertedAmount.toString()
+    const newDetails = {
+      action: Action.CONVERSION,
+      amountConverted: amountConverted,
+      hash: transactionHash,
+      blockNumber: receipt.blockNumber,
+      from: receipt.from,
+    }
+
+    setTransactionDetails(newDetails)
+
+    const newTransactionDetails: TransactionDetails = preliminaryTransactionDetails
+      ? {
+          ...preliminaryTransactionDetails,
+          receipt: receipt,
+        }
+      : {
+          hash: newDetails.hash,
+          action: Action.CONVERSION,
+          from: receipt.from,
+          receipt: receipt,
+        }
+
+    updateTransaction(newTransactionDetails.hash, newTransactionDetails)
+  } catch (e) {
+    console.error(e)
   }
-
-  const newDetails = {
-    action: Action.CONVERSION,
-    amountConverted: amountConverted,
-    hash: transactionHash,
-    blockNumber: receipt.blockNumber,
-    from: receipt.from,
-  }
-
-  setTransactionDetails(newDetails)
-
-  const newTransactionDetails: TransactionDetails = preliminaryTransactionDetails
-    ? {
-        ...preliminaryTransactionDetails,
-        receipt: receipt,
-      }
-    : {
-        hash: newDetails.hash,
-        action: Action.CONVERSION,
-        from: receipt.from,
-        receipt: receipt,
-      }
-
-  updateTransaction(newTransactionDetails.hash, newTransactionDetails)
 }
 
 const approvalHandler = ({
@@ -231,28 +223,7 @@ const approvalHandler = ({
   setTransactionDetails,
   updateTransaction,
 }: TransactionHandlerProps) => {
-  const eventFragment = EventFragment.from({
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        name: 'owner',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        name: 'spender',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        name: 'value',
-        type: 'uint256',
-      },
-    ],
-    name: 'Approval',
-    type: 'event',
-  })
+  const eventFragment = 'Approval'
   const topicString = 'Approval(address,address,uint256)'
   const topic = constructTopic(topicString)
 

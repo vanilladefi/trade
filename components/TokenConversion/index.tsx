@@ -90,12 +90,6 @@ const TokenConversion = (): JSX.Element => {
     if (eligible && convertableBalance !== '0') {
       setConversionState(ConversionState.AVAILABLE)
     }
-    return () => {
-      setConversionState(ConversionState.HIDDEN)
-    }
-  }, [convertableBalance, eligible, setConversionState])
-
-  useEffect(() => {
     const checkAllowance = async () => {
       try {
         const allowance = await getAllowance()
@@ -107,7 +101,10 @@ const TokenConversion = (): JSX.Element => {
       }
     }
     checkAllowance()
-  }, [getAllowance, setConversionState])
+    return () => {
+      setConversionState(ConversionState.HIDDEN)
+    }
+  }, [convertableBalance, eligible, getAllowance, setConversionState])
 
   const getView = useCallback(
     (conversionState: ConversionState): JSX.Element => {
