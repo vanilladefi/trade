@@ -3,6 +3,7 @@ import { BigNumber, Contract, Signer } from 'ethers'
 import { isAddress, tokenListChainId, weth } from 'lib/tokens'
 import { useCallback, useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
+import { currentBlockNumberState } from 'state/meta'
 import { signerState } from 'state/wallet'
 import { useTokenContract } from './useContract'
 import useWalletAddress from './useWalletAddress'
@@ -13,6 +14,7 @@ function useTokenBalance(
   wethAsEth?: boolean,
 ): { formatted: string; raw: BigNumber; decimals: number } {
   const signer = useRecoilValue(signerState)
+  const blockNumber = useRecoilValue(currentBlockNumberState)
 
   const [raw, setRaw] = useState(BigNumber.from('0'))
   const [formatted, setFormatted] = useState('')
@@ -85,6 +87,7 @@ function useTokenBalance(
     tokenAddress,
     userAddress,
     wethAsEth,
+    blockNumber,
   ])
 
   return {

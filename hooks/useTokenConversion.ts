@@ -57,7 +57,6 @@ export default function useTokenConversion(): {
       )
       if (address) {
         approval = await vnlToken1.approve(address, balance)
-        console.log(approval)
       }
     }
 
@@ -98,18 +97,18 @@ export default function useTokenConversion(): {
           getVanillaRouterAddress(VanillaVersion.V1_1),
           signer,
         )
-        const vnl1_0Addr = isAddress(
+        const legacyAddr = isAddress(
           getVnlTokenAddress(VanillaVersion.V1_0) || '',
         )
-        const vnl1_1Addr = isAddress(await vnlRouter.vnlContract())
-        if (vnl1_0Addr && vnl1_1Addr) {
+        const targetAddr = isAddress(await vnlRouter.vnlContract())
+        if (legacyAddr && targetAddr) {
           const VNLToken1: VanillaV1Token01 = VanillaV1Token01__factory.connect(
-            vnl1_0Addr,
+            legacyAddr,
             signer,
           )
           setVnlToken1(VNLToken1)
           const VNLToken2: VanillaV1Token02 = VanillaV1Token02__factory.connect(
-            vnl1_1Addr,
+            targetAddr,
             signer,
           )
           setVnlToken2(VNLToken2)

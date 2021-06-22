@@ -71,7 +71,6 @@ export const token0Selector = selector<Token | null>({
   key: 'token0Selector',
   get: ({ get }) => {
     const pairResponse = get(selectedPairState)
-    console.log('token0 data updated')
     return pairResponse?.token0 ?? null
   },
 })
@@ -80,7 +79,6 @@ export const token1Selector = selector<Token | null>({
   key: 'token1Selector',
   get: ({ get }) => {
     const pairResponse = get(selectedPairState)
-    console.log('token1 data updated')
     return pairResponse?.token1 ?? null
   },
 })

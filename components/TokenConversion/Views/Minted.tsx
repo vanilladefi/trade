@@ -7,6 +7,8 @@ import {
 } from 'components/grid/Flex'
 import Button from 'components/input/Button'
 import { Spinner } from 'components/Spinner'
+import Spacer from 'components/typography/Spacer'
+import useTokenConversion from 'hooks/useTokenConversion'
 import useTransaction from 'hooks/useTransaction'
 import React, { useEffect, useState } from 'react'
 import { useSetRecoilState } from 'recoil'
@@ -16,32 +18,49 @@ import { ConversionState } from 'types/migration'
 import { ConversionViewProps } from '..'
 
 const Minted = ({ transactionHash }: ConversionViewProps): JSX.Element => {
+  const { getAllowance } = useTokenConversion()
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
   const [waiting, setWaiting] = useState(true)
   const transaction = useTransaction(VanillaVersion.V1_1, transactionHash || '')
 
   useEffect(() => {
+    const checkAllowance = async () => {
+      try {
+        const allowance = await getAllowance()
+        if (allowance.isZero()) {
+          setWaiting(false)
+        }
+      } catch (e) {
+        console.error(e)
+      }
+    }
+    checkAllowance()
     if (transactionHash && transaction?.receipt) {
-      console.log(transaction)
       setWaiting(false)
     }
     return () => {
       setWaiting(true)
     }
-  }, [transactionHash, transaction])
+  }, [transactionHash, transaction, getAllowance])
 
   return (
     <Row alignItems={Alignment.STRETCH}>
       {waiting ? (
         <Column grow={true} width={Width.TWELVE}>
-          <Spinner />
-          <h2>WAITING FOR TRANSACTION</h2>
+          <Row alignItems={Alignment.CENTER}>
+            <Spinner />
+            <Spacer />
+            <h2>WAITING FOR TRANSACTION</h2>
+          </Row>
         </Column>
       ) : (
         <>
           <Column grow={true} width={Width.EIGHT}>
-            <h2>SUCCESSFULLY MINTED 20.256 TOKENS</h2>
-            <span>You have converted 20.256 VNL to Vanilla 1.1. Hooray!</span>
+            <h2>SUCCESSFULLY MINTED {transaction?.amountConverted} TOKENS</h2>
+            <span>
+              You have converted {transaction?.amountConverted} VNL to Vanilla
+              1.1. Hooray!
+            </span>
           </Column>
           <Column
             justifyContent={Justification.CENTER}
@@ -57,6 +76,7 @@ const Minted = ({ transactionHash }: ConversionViewProps): JSX.Element => {
         </>
       )}
       <style jsx>{`
+        --iconsize: 1rem;
         h2 {
           margin: 0;
           padding: 0;
