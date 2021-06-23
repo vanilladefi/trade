@@ -30,7 +30,7 @@ const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
   const [walletModalOpen, setWalletModalOpen] = useRecoilState(
     walletModalOpenState,
   )
-  const { balance: vnlBalance } = useVanillaGovernanceToken(VanillaVersion.V1_0)
+  const { balance: vnlBalance } = useVanillaGovernanceToken(VanillaVersion.V1_1)
 
   const walletBalance = useMemo(() => {
     return Number.parseFloat(ethersUtils.formatUnits(balance, 'ether')).toFixed(
