@@ -486,7 +486,6 @@ const PrepareView = ({
                 />
               </div>
 
-              {/* TODO: Trade info */}
               {token0Amount && trade?.executionPrice && vanillaRouter && (
                 <div className='row'>
                   <TradeInfoDisplay
