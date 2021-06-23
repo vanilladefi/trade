@@ -12,7 +12,6 @@ import {
   Contract,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -20,28 +19,31 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface IWETHInterface extends ethers.utils.Interface {
+interface UniswapV3TestHelperInterface extends ethers.utils.Interface {
   functions: {
-    "balanceOf(address)": FunctionFragment;
-    "deposit()": FunctionFragment;
-    "withdraw(uint256)": FunctionFragment;
+    "mint(address,address,int24,int24,uint128)": FunctionFragment;
+    "uniswapV3MintCallback(uint256,uint256,bytes)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
-  encodeFunctionData(functionFragment: "deposit", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "withdraw",
-    values: [BigNumberish]
+    functionFragment: "mint",
+    values: [string, string, BigNumberish, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "uniswapV3MintCallback",
+    values: [BigNumberish, BigNumberish, BytesLike]
   ): string;
 
-  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "uniswapV3MintCallback",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
 
-export class IWETH extends Contract {
+export class UniswapV3TestHelper extends Contract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -82,82 +84,104 @@ export class IWETH extends Contract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: IWETHInterface;
+  interface: UniswapV3TestHelperInterface;
 
   functions: {
-    balanceOf(
-      owner: string,
+    mint(
+      pool: string,
+      recipient: string,
+      low: BigNumberish,
+      high: BigNumberish,
+      liquidity: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "balanceOf(address)"(
-      owner: string,
+    "mint(address,address,int24,int24,uint128)"(
+      pool: string,
+      recipient: string,
+      low: BigNumberish,
+      high: BigNumberish,
+      liquidity: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    deposit(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "deposit()"(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    withdraw(
-      amount: BigNumberish,
+    uniswapV3MintCallback(
+      amount0Owed: BigNumberish,
+      amount1Owed: BigNumberish,
+      data: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "withdraw(uint256)"(
-      amount: BigNumberish,
+    "uniswapV3MintCallback(uint256,uint256,bytes)"(
+      amount0Owed: BigNumberish,
+      amount1Owed: BigNumberish,
+      data: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
-  balanceOf(
-    owner: string,
+  mint(
+    pool: string,
+    recipient: string,
+    low: BigNumberish,
+    high: BigNumberish,
+    liquidity: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "balanceOf(address)"(
-    owner: string,
+  "mint(address,address,int24,int24,uint128)"(
+    pool: string,
+    recipient: string,
+    low: BigNumberish,
+    high: BigNumberish,
+    liquidity: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  deposit(
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "deposit()"(
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  withdraw(
-    amount: BigNumberish,
+  uniswapV3MintCallback(
+    amount0Owed: BigNumberish,
+    amount1Owed: BigNumberish,
+    data: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "withdraw(uint256)"(
-    amount: BigNumberish,
+  "uniswapV3MintCallback(uint256,uint256,bytes)"(
+    amount0Owed: BigNumberish,
+    amount1Owed: BigNumberish,
+    data: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "balanceOf(address)"(
-      owner: string,
+    mint(
+      pool: string,
+      recipient: string,
+      low: BigNumberish,
+      high: BigNumberish,
+      liquidity: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<void>;
 
-    deposit(overrides?: CallOverrides): Promise<void>;
+    "mint(address,address,int24,int24,uint128)"(
+      pool: string,
+      recipient: string,
+      low: BigNumberish,
+      high: BigNumberish,
+      liquidity: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    "deposit()"(overrides?: CallOverrides): Promise<void>;
+    uniswapV3MintCallback(
+      amount0Owed: BigNumberish,
+      amount1Owed: BigNumberish,
+      data: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    withdraw(amount: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
-    "withdraw(uint256)"(
-      amount: BigNumberish,
+    "uniswapV3MintCallback(uint256,uint256,bytes)"(
+      amount0Owed: BigNumberish,
+      amount1Owed: BigNumberish,
+      data: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -165,61 +189,69 @@ export class IWETH extends Contract {
   filters: {};
 
   estimateGas: {
-    balanceOf(
-      owner: string,
+    mint(
+      pool: string,
+      recipient: string,
+      low: BigNumberish,
+      high: BigNumberish,
+      liquidity: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "balanceOf(address)"(
-      owner: string,
+    "mint(address,address,int24,int24,uint128)"(
+      pool: string,
+      recipient: string,
+      low: BigNumberish,
+      high: BigNumberish,
+      liquidity: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    deposit(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "deposit()"(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    withdraw(
-      amount: BigNumberish,
+    uniswapV3MintCallback(
+      amount0Owed: BigNumberish,
+      amount1Owed: BigNumberish,
+      data: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "withdraw(uint256)"(
-      amount: BigNumberish,
+    "uniswapV3MintCallback(uint256,uint256,bytes)"(
+      amount0Owed: BigNumberish,
+      amount1Owed: BigNumberish,
+      data: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    balanceOf(
-      owner: string,
+    mint(
+      pool: string,
+      recipient: string,
+      low: BigNumberish,
+      high: BigNumberish,
+      liquidity: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "balanceOf(address)"(
-      owner: string,
+    "mint(address,address,int24,int24,uint128)"(
+      pool: string,
+      recipient: string,
+      low: BigNumberish,
+      high: BigNumberish,
+      liquidity: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    deposit(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "deposit()"(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    withdraw(
-      amount: BigNumberish,
+    uniswapV3MintCallback(
+      amount0Owed: BigNumberish,
+      amount1Owed: BigNumberish,
+      data: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "withdraw(uint256)"(
-      amount: BigNumberish,
+    "uniswapV3MintCallback(uint256,uint256,bytes)"(
+      amount0Owed: BigNumberish,
+      amount1Owed: BigNumberish,
+      data: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

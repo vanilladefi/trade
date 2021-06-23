@@ -94,50 +94,44 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "numEth",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "numToken",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "blockTimeDeadline",
-        type: "uint256",
+        components: [
+          {
+            internalType: "address",
+            name: "token",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "wethOwner",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "numEth",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "numToken",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "blockTimeDeadline",
+            type: "uint256",
+          },
+          {
+            internalType: "uint24",
+            name: "fee",
+            type: "uint24",
+          },
+        ],
+        internalType: "struct IVanillaV1Router02.OrderData",
+        name: "buyOrder",
+        type: "tuple",
       },
     ],
     name: "buy",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "numToken",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "blockTimeDeadline",
-        type: "uint256",
-      },
-    ],
-    name: "depositAndBuy",
     outputs: [],
     stateMutability: "payable",
     type: "function",
@@ -205,6 +199,62 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "bytes[]",
+        name: "data",
+        type: "bytes[]",
+      },
+    ],
+    name: "execute",
+    outputs: [
+      {
+        internalType: "bytes[]",
+        name: "results",
+        type: "bytes[]",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes[]",
+        name: "data",
+        type: "bytes[]",
+      },
+    ],
+    name: "executePayable",
+    outputs: [
+      {
+        internalType: "bytes[]",
+        name: "results",
+        type: "bytes[]",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "nextVersion",
+        type: "address",
+      },
+    ],
+    name: "migratePosition",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "safeList",
     outputs: [
@@ -220,57 +270,46 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "numToken",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "numEthLimit",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "blockTimeDeadline",
-        type: "uint256",
+        components: [
+          {
+            internalType: "address",
+            name: "token",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "wethOwner",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "numEth",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "numToken",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "blockTimeDeadline",
+            type: "uint256",
+          },
+          {
+            internalType: "uint24",
+            name: "fee",
+            type: "uint24",
+          },
+        ],
+        internalType: "struct IVanillaV1Router02.OrderData",
+        name: "sellOrder",
+        type: "tuple",
       },
     ],
     name: "sell",
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "numToken",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "numEthLimit",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "blockTimeDeadline",
-        type: "uint256",
-      },
-    ],
-    name: "sellAndWithdraw",
-    outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -323,6 +362,19 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+    ],
+    name: "withdrawTokens",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
 ];

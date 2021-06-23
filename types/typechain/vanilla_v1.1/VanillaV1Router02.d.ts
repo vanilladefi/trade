@@ -22,39 +22,63 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface VanillaV1Router02Interface extends ethers.utils.Interface {
   functions: {
-    "buy(address,uint256,uint256,uint256)": FunctionFragment;
-    "depositAndBuy(address,uint256,uint256)": FunctionFragment;
+    "buy(tuple)": FunctionFragment;
     "epoch()": FunctionFragment;
     "estimateReward(address,address,uint256,uint256)": FunctionFragment;
+    "execute(bytes[])": FunctionFragment;
+    "executePayable(bytes[])": FunctionFragment;
+    "migratePosition(address,address)": FunctionFragment;
     "safeList()": FunctionFragment;
-    "sell(address,uint256,uint256,uint256)": FunctionFragment;
-    "sellAndWithdraw(address,uint256,uint256,uint256)": FunctionFragment;
+    "sell(tuple)": FunctionFragment;
     "tokenPriceData(address,address)": FunctionFragment;
     "uniswapV3SwapCallback(int256,int256,bytes)": FunctionFragment;
     "vnlContract()": FunctionFragment;
+    "withdrawTokens(address)": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "buy",
-    values: [string, BigNumberish, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "depositAndBuy",
-    values: [string, BigNumberish, BigNumberish]
+    values: [
+      {
+        token: string;
+        wethOwner: string;
+        numEth: BigNumberish;
+        numToken: BigNumberish;
+        blockTimeDeadline: BigNumberish;
+        fee: BigNumberish;
+      }
+    ]
   ): string;
   encodeFunctionData(functionFragment: "epoch", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "estimateReward",
     values: [string, string, BigNumberish, BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "execute",
+    values: [BytesLike[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "executePayable",
+    values: [BytesLike[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "migratePosition",
+    values: [string, string]
+  ): string;
   encodeFunctionData(functionFragment: "safeList", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "sell",
-    values: [string, BigNumberish, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "sellAndWithdraw",
-    values: [string, BigNumberish, BigNumberish, BigNumberish]
+    values: [
+      {
+        token: string;
+        wethOwner: string;
+        numEth: BigNumberish;
+        numToken: BigNumberish;
+        blockTimeDeadline: BigNumberish;
+        fee: BigNumberish;
+      }
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "tokenPriceData",
@@ -68,23 +92,28 @@ interface VanillaV1Router02Interface extends ethers.utils.Interface {
     functionFragment: "vnlContract",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawTokens",
+    values: [string]
+  ): string;
 
   decodeFunctionResult(functionFragment: "buy", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "depositAndBuy",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "epoch", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "estimateReward",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "safeList", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "sell", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "sellAndWithdraw",
+    functionFragment: "executePayable",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "migratePosition",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "safeList", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "sell", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "tokenPriceData",
     data: BytesLike
@@ -95,6 +124,10 @@ interface VanillaV1Router02Interface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "vnlContract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawTokens",
     data: BytesLike
   ): Result;
 
@@ -152,32 +185,26 @@ export class VanillaV1Router02 extends Contract {
 
   functions: {
     buy(
-      token: string,
-      numEth: BigNumberish,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "buy(address,uint256,uint256,uint256)"(
-      token: string,
-      numEth: BigNumberish,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    depositAndBuy(
-      token: string,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
+      buyOrder: {
+        token: string;
+        wethOwner: string;
+        numEth: BigNumberish;
+        numToken: BigNumberish;
+        blockTimeDeadline: BigNumberish;
+        fee: BigNumberish;
+      },
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "depositAndBuy(address,uint256,uint256)"(
-      token: string,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
+    "buy((address,address,uint256,uint256,uint256,uint24))"(
+      buyOrder: {
+        token: string;
+        wethOwner: string;
+        numEth: BigNumberish;
+        numToken: BigNumberish;
+        blockTimeDeadline: BigNumberish;
+        fee: BigNumberish;
+      },
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -215,40 +242,64 @@ export class VanillaV1Router02 extends Contract {
       }
     >;
 
+    execute(
+      data: BytesLike[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "execute(bytes[])"(
+      data: BytesLike[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    executePayable(
+      data: BytesLike[],
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "executePayable(bytes[])"(
+      data: BytesLike[],
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    migratePosition(
+      token: string,
+      nextVersion: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "migratePosition(address,address)"(
+      token: string,
+      nextVersion: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     safeList(overrides?: CallOverrides): Promise<[string]>;
 
     "safeList()"(overrides?: CallOverrides): Promise<[string]>;
 
     sell(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      sellOrder: {
+        token: string;
+        wethOwner: string;
+        numEth: BigNumberish;
+        numToken: BigNumberish;
+        blockTimeDeadline: BigNumberish;
+        fee: BigNumberish;
+      },
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "sell(address,uint256,uint256,uint256)"(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    sellAndWithdraw(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "sellAndWithdraw(address,uint256,uint256,uint256)"(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+    "sell((address,address,uint256,uint256,uint256,uint24))"(
+      sellOrder: {
+        token: string;
+        wethOwner: string;
+        numEth: BigNumberish;
+        numToken: BigNumberish;
+        blockTimeDeadline: BigNumberish;
+        fee: BigNumberish;
+      },
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     tokenPriceData(
@@ -294,35 +345,39 @@ export class VanillaV1Router02 extends Contract {
     vnlContract(overrides?: CallOverrides): Promise<[string]>;
 
     "vnlContract()"(overrides?: CallOverrides): Promise<[string]>;
+
+    withdrawTokens(
+      token: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "withdrawTokens(address)"(
+      token: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
   buy(
-    token: string,
-    numEth: BigNumberish,
-    numToken: BigNumberish,
-    blockTimeDeadline: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "buy(address,uint256,uint256,uint256)"(
-    token: string,
-    numEth: BigNumberish,
-    numToken: BigNumberish,
-    blockTimeDeadline: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  depositAndBuy(
-    token: string,
-    numToken: BigNumberish,
-    blockTimeDeadline: BigNumberish,
+    buyOrder: {
+      token: string;
+      wethOwner: string;
+      numEth: BigNumberish;
+      numToken: BigNumberish;
+      blockTimeDeadline: BigNumberish;
+      fee: BigNumberish;
+    },
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "depositAndBuy(address,uint256,uint256)"(
-    token: string,
-    numToken: BigNumberish,
-    blockTimeDeadline: BigNumberish,
+  "buy((address,address,uint256,uint256,uint256,uint24))"(
+    buyOrder: {
+      token: string;
+      wethOwner: string;
+      numEth: BigNumberish;
+      numToken: BigNumberish;
+      blockTimeDeadline: BigNumberish;
+      fee: BigNumberish;
+    },
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -360,40 +415,64 @@ export class VanillaV1Router02 extends Contract {
     }
   >;
 
+  execute(
+    data: BytesLike[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "execute(bytes[])"(
+    data: BytesLike[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  executePayable(
+    data: BytesLike[],
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "executePayable(bytes[])"(
+    data: BytesLike[],
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  migratePosition(
+    token: string,
+    nextVersion: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "migratePosition(address,address)"(
+    token: string,
+    nextVersion: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   safeList(overrides?: CallOverrides): Promise<string>;
 
   "safeList()"(overrides?: CallOverrides): Promise<string>;
 
   sell(
-    token: string,
-    numToken: BigNumberish,
-    numEthLimit: BigNumberish,
-    blockTimeDeadline: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    sellOrder: {
+      token: string;
+      wethOwner: string;
+      numEth: BigNumberish;
+      numToken: BigNumberish;
+      blockTimeDeadline: BigNumberish;
+      fee: BigNumberish;
+    },
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "sell(address,uint256,uint256,uint256)"(
-    token: string,
-    numToken: BigNumberish,
-    numEthLimit: BigNumberish,
-    blockTimeDeadline: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  sellAndWithdraw(
-    token: string,
-    numToken: BigNumberish,
-    numEthLimit: BigNumberish,
-    blockTimeDeadline: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "sellAndWithdraw(address,uint256,uint256,uint256)"(
-    token: string,
-    numToken: BigNumberish,
-    numEthLimit: BigNumberish,
-    blockTimeDeadline: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+  "sell((address,address,uint256,uint256,uint256,uint24))"(
+    sellOrder: {
+      token: string;
+      wethOwner: string;
+      numEth: BigNumberish;
+      numToken: BigNumberish;
+      blockTimeDeadline: BigNumberish;
+      fee: BigNumberish;
+    },
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   tokenPriceData(
@@ -440,34 +519,38 @@ export class VanillaV1Router02 extends Contract {
 
   "vnlContract()"(overrides?: CallOverrides): Promise<string>;
 
+  withdrawTokens(
+    token: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "withdrawTokens(address)"(
+    token: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     buy(
-      token: string,
-      numEth: BigNumberish,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
+      buyOrder: {
+        token: string;
+        wethOwner: string;
+        numEth: BigNumberish;
+        numToken: BigNumberish;
+        blockTimeDeadline: BigNumberish;
+        fee: BigNumberish;
+      },
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "buy(address,uint256,uint256,uint256)"(
-      token: string,
-      numEth: BigNumberish,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    depositAndBuy(
-      token: string,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "depositAndBuy(address,uint256,uint256)"(
-      token: string,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
+    "buy((address,address,uint256,uint256,uint256,uint24))"(
+      buyOrder: {
+        token: string;
+        wethOwner: string;
+        numEth: BigNumberish;
+        numToken: BigNumberish;
+        blockTimeDeadline: BigNumberish;
+        fee: BigNumberish;
+      },
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -505,39 +588,60 @@ export class VanillaV1Router02 extends Contract {
       }
     >;
 
+    execute(data: BytesLike[], overrides?: CallOverrides): Promise<string[]>;
+
+    "execute(bytes[])"(
+      data: BytesLike[],
+      overrides?: CallOverrides
+    ): Promise<string[]>;
+
+    executePayable(
+      data: BytesLike[],
+      overrides?: CallOverrides
+    ): Promise<string[]>;
+
+    "executePayable(bytes[])"(
+      data: BytesLike[],
+      overrides?: CallOverrides
+    ): Promise<string[]>;
+
+    migratePosition(
+      token: string,
+      nextVersion: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "migratePosition(address,address)"(
+      token: string,
+      nextVersion: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     safeList(overrides?: CallOverrides): Promise<string>;
 
     "safeList()"(overrides?: CallOverrides): Promise<string>;
 
     sell(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
+      sellOrder: {
+        token: string;
+        wethOwner: string;
+        numEth: BigNumberish;
+        numToken: BigNumberish;
+        blockTimeDeadline: BigNumberish;
+        fee: BigNumberish;
+      },
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "sell(address,uint256,uint256,uint256)"(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    sellAndWithdraw(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "sellAndWithdraw(address,uint256,uint256,uint256)"(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
+    "sell((address,address,uint256,uint256,uint256,uint24))"(
+      sellOrder: {
+        token: string;
+        wethOwner: string;
+        numEth: BigNumberish;
+        numToken: BigNumberish;
+        blockTimeDeadline: BigNumberish;
+        fee: BigNumberish;
+      },
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -584,6 +688,13 @@ export class VanillaV1Router02 extends Contract {
     vnlContract(overrides?: CallOverrides): Promise<string>;
 
     "vnlContract()"(overrides?: CallOverrides): Promise<string>;
+
+    withdrawTokens(token: string, overrides?: CallOverrides): Promise<void>;
+
+    "withdrawTokens(address)"(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -619,32 +730,26 @@ export class VanillaV1Router02 extends Contract {
 
   estimateGas: {
     buy(
-      token: string,
-      numEth: BigNumberish,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "buy(address,uint256,uint256,uint256)"(
-      token: string,
-      numEth: BigNumberish,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    depositAndBuy(
-      token: string,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
+      buyOrder: {
+        token: string;
+        wethOwner: string;
+        numEth: BigNumberish;
+        numToken: BigNumberish;
+        blockTimeDeadline: BigNumberish;
+        fee: BigNumberish;
+      },
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "depositAndBuy(address,uint256,uint256)"(
-      token: string,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
+    "buy((address,address,uint256,uint256,uint256,uint24))"(
+      buyOrder: {
+        token: string;
+        wethOwner: string;
+        numEth: BigNumberish;
+        numToken: BigNumberish;
+        blockTimeDeadline: BigNumberish;
+        fee: BigNumberish;
+      },
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -668,40 +773,64 @@ export class VanillaV1Router02 extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    execute(
+      data: BytesLike[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "execute(bytes[])"(
+      data: BytesLike[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    executePayable(
+      data: BytesLike[],
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "executePayable(bytes[])"(
+      data: BytesLike[],
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    migratePosition(
+      token: string,
+      nextVersion: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "migratePosition(address,address)"(
+      token: string,
+      nextVersion: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     safeList(overrides?: CallOverrides): Promise<BigNumber>;
 
     "safeList()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     sell(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      sellOrder: {
+        token: string;
+        wethOwner: string;
+        numEth: BigNumberish;
+        numToken: BigNumberish;
+        blockTimeDeadline: BigNumberish;
+        fee: BigNumberish;
+      },
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "sell(address,uint256,uint256,uint256)"(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    sellAndWithdraw(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "sellAndWithdraw(address,uint256,uint256,uint256)"(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+    "sell((address,address,uint256,uint256,uint256,uint24))"(
+      sellOrder: {
+        token: string;
+        wethOwner: string;
+        numEth: BigNumberish;
+        numToken: BigNumberish;
+        blockTimeDeadline: BigNumberish;
+        fee: BigNumberish;
+      },
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     tokenPriceData(
@@ -733,36 +862,40 @@ export class VanillaV1Router02 extends Contract {
     vnlContract(overrides?: CallOverrides): Promise<BigNumber>;
 
     "vnlContract()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    withdrawTokens(
+      token: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "withdrawTokens(address)"(
+      token: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     buy(
-      token: string,
-      numEth: BigNumberish,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "buy(address,uint256,uint256,uint256)"(
-      token: string,
-      numEth: BigNumberish,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    depositAndBuy(
-      token: string,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
+      buyOrder: {
+        token: string;
+        wethOwner: string;
+        numEth: BigNumberish;
+        numToken: BigNumberish;
+        blockTimeDeadline: BigNumberish;
+        fee: BigNumberish;
+      },
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "depositAndBuy(address,uint256,uint256)"(
-      token: string,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
+    "buy((address,address,uint256,uint256,uint256,uint24))"(
+      buyOrder: {
+        token: string;
+        wethOwner: string;
+        numEth: BigNumberish;
+        numToken: BigNumberish;
+        blockTimeDeadline: BigNumberish;
+        fee: BigNumberish;
+      },
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -786,40 +919,64 @@ export class VanillaV1Router02 extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    execute(
+      data: BytesLike[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "execute(bytes[])"(
+      data: BytesLike[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    executePayable(
+      data: BytesLike[],
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "executePayable(bytes[])"(
+      data: BytesLike[],
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    migratePosition(
+      token: string,
+      nextVersion: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "migratePosition(address,address)"(
+      token: string,
+      nextVersion: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     safeList(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "safeList()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     sell(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      sellOrder: {
+        token: string;
+        wethOwner: string;
+        numEth: BigNumberish;
+        numToken: BigNumberish;
+        blockTimeDeadline: BigNumberish;
+        fee: BigNumberish;
+      },
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "sell(address,uint256,uint256,uint256)"(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    sellAndWithdraw(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "sellAndWithdraw(address,uint256,uint256,uint256)"(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+    "sell((address,address,uint256,uint256,uint256,uint24))"(
+      sellOrder: {
+        token: string;
+        wethOwner: string;
+        numEth: BigNumberish;
+        numToken: BigNumberish;
+        blockTimeDeadline: BigNumberish;
+        fee: BigNumberish;
+      },
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     tokenPriceData(
@@ -851,5 +1008,15 @@ export class VanillaV1Router02 extends Contract {
     vnlContract(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "vnlContract()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    withdrawTokens(
+      token: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "withdrawTokens(address)"(
+      token: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
   };
 }

@@ -55,6 +55,7 @@ export default function useTokenConversion(): {
           getVnlTokenAddress(VanillaVersion.V1_1) ||
           '',
       )
+      console.log(address)
       if (address) {
         approval = await vnlToken1.approve(address, balance)
       }
