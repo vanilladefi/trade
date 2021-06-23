@@ -12,38 +12,16 @@ import {
   TICK_SPACINGS,
   Trade,
 } from '@uniswap/v3-sdk'
-import { providers, Transaction } from 'ethers'
+import { Transaction } from 'ethers'
 import { getAddress, parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { getContract, isAddress, tokenListChainId } from 'lib/tokens'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import { VanillaVersion } from 'types/general'
 import type { Token, UniSwapToken } from 'types/trade'
-import { VanillaV1Router02__factory } from 'types/typechain'
+import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Router02__factory'
 import { ethersOverrides, getVanillaRouterAddress } from 'utils/config'
-
-export enum Field {
-  INPUT = 'INPUT',
-  OUTPUT = 'OUTPUT',
-}
-
-export interface TransactionProps {
-  amountReceived: string
-  amountPaid: string
-  tokenPaid?: UniSwapToken
-  tokenReceived?: UniSwapToken
-  signer?: providers.JsonRpcSigner
-  blockDeadline: number
-}
-
-export interface SellProps {
-  amountReceived: string
-  amountPaid: string
-  tokenPaid: UniSwapToken
-  tokenReceived: UniSwapToken
-  signer?: providers.JsonRpcSigner
-  blockDeadline: number
-}
+import { TransactionProps } from '..'
 
 export const buy = async ({
   amountPaid,
@@ -55,12 +33,17 @@ export const buy = async ({
   const vnl1_1Addr = isAddress(getVanillaRouterAddress(VanillaVersion.V1_1))
   if (vnl1_1Addr && tokenReceived?.address && signer) {
     const router = VanillaV1Router02__factory.connect(vnl1_1Addr, signer)
-
-    const receipt = await router.depositAndBuy(
-      tokenReceived?.address,
-      amountReceived,
-      blockDeadline,
-      { value: amountPaid, ...ethersOverrides },
+    const orderData = {
+      token: tokenReceived.address,
+      wethOwner: vnl1_1Addr,
+      numEth: amountPaid,
+      numToken: amountReceived,
+      blockTimeDeadline: blockDeadline,
+      fee: 3000,
+    }
+    const receipt = await router.executePayable(
+      [router.interface.encodeFunctionData('buy', [orderData])],
+      { value: amountPaid },
     )
     return receipt
   } else {

@@ -123,7 +123,7 @@ const PrepareView = ({
   const vanillaRouter = useVanillaRouter(VanillaVersion.V1_1)
 
   // Buy and sell operations for submitting transactions on-chain
-  const { buy, sell } = useTradeEngine()
+  const { buy, sell } = useTradeEngine(VanillaVersion.V1_1)
 
   // VNL/ETH price
   const { price: vnlEthPrice } = useVanillaGovernanceToken(VanillaVersion.V1_1)

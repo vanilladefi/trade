@@ -119,7 +119,7 @@ const PrepareView = ({
 
   const router = useRouter()
   const vanillaRouter = useVanillaRouter(VanillaVersion.V1_0)
-  const { sell } = useTradeEngine()
+  const { sell } = useTradeEngine(VanillaVersion.V1_0)
   const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
   const { price: vnlEthPrice } = useVanillaGovernanceToken(VanillaVersion.V1_0)
