@@ -32,7 +32,7 @@ export const defaultProvider =
     ? new providers.AlchemyProvider(network, apiKey)
     : new providers.JsonRpcProvider(rpcUrl, network)
 
-export const blockDeadlineThreshold = 600 // 600 seconds added to the latest block timestamp (10 minutes)
+export const blockDeadlineThreshold = 60000 // 600 seconds added to the latest block timestamp (10 minutes)
 
 export const ethersOverrides = { gasLimit: 400000 }
 

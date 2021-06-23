@@ -4,36 +4,14 @@ import {
   TradeType,
 } from '@uniswap/sdk-core'
 import { JSBI, Pair, Route, Trade } from '@uniswap/v2-sdk'
-import { providers, Transaction } from 'ethers'
+import { Transaction } from 'ethers'
 import { getAddress, parseUnits } from 'ethers/lib/utils'
 import { getContract, tokenListChainId } from 'lib/tokens'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import { VanillaVersion } from 'types/general'
 import type { Token, UniSwapToken } from 'types/trade'
 import { ethersOverrides, getVanillaRouterAddress } from 'utils/config'
-
-export enum Field {
-  INPUT = 'INPUT',
-  OUTPUT = 'OUTPUT',
-}
-
-export interface TransactionProps {
-  amountReceived: string
-  amountPaid: string
-  tokenPaid?: UniSwapToken
-  tokenReceived?: UniSwapToken
-  signer?: providers.JsonRpcSigner
-  blockDeadline: number
-}
-
-export interface SellProps {
-  amountReceived: string
-  amountPaid: string
-  tokenPaid: UniSwapToken
-  tokenReceived: UniSwapToken
-  signer?: providers.JsonRpcSigner
-  blockDeadline: number
-}
+import { TransactionProps } from '..'
 
 export const buy = async ({
   amountPaid,
