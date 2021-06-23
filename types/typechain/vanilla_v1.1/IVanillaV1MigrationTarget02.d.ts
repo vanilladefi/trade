@@ -12,7 +12,6 @@ import {
   Contract,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -20,28 +19,32 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface IWETHInterface extends ethers.utils.Interface {
+interface IVanillaV1MigrationTarget02Interface extends ethers.utils.Interface {
   functions: {
-    "balanceOf(address)": FunctionFragment;
-    "deposit()": FunctionFragment;
-    "withdraw(uint256)": FunctionFragment;
+    "migrateState(address,address,uint256,uint256,uint256,uint256)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
-  encodeFunctionData(functionFragment: "deposit", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "withdraw",
-    values: [BigNumberish]
+    functionFragment: "migrateState",
+    values: [
+      string,
+      string,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish
+    ]
   ): string;
 
-  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "migrateState",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
 
-export class IWETH extends Contract {
+export class IVanillaV1MigrationTarget02 extends Contract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -82,82 +85,68 @@ export class IWETH extends Contract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: IWETHInterface;
+  interface: IVanillaV1MigrationTarget02Interface;
 
   functions: {
-    balanceOf(
+    migrateState(
       owner: string,
+      token: string,
+      ethSum: BigNumberish,
+      tokenSum: BigNumberish,
+      weightedBlockSum: BigNumberish,
+      latestBlock: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "balanceOf(address)"(
+    "migrateState(address,address,uint256,uint256,uint256,uint256)"(
       owner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    deposit(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "deposit()"(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    withdraw(
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "withdraw(uint256)"(
-      amount: BigNumberish,
+      token: string,
+      ethSum: BigNumberish,
+      tokenSum: BigNumberish,
+      weightedBlockSum: BigNumberish,
+      latestBlock: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
-  balanceOf(
+  migrateState(
     owner: string,
+    token: string,
+    ethSum: BigNumberish,
+    tokenSum: BigNumberish,
+    weightedBlockSum: BigNumberish,
+    latestBlock: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "balanceOf(address)"(
+  "migrateState(address,address,uint256,uint256,uint256,uint256)"(
     owner: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  deposit(
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "deposit()"(
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  withdraw(
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "withdraw(uint256)"(
-    amount: BigNumberish,
+    token: string,
+    ethSum: BigNumberish,
+    tokenSum: BigNumberish,
+    weightedBlockSum: BigNumberish,
+    latestBlock: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "balanceOf(address)"(
+    migrateState(
       owner: string,
+      token: string,
+      ethSum: BigNumberish,
+      tokenSum: BigNumberish,
+      weightedBlockSum: BigNumberish,
+      latestBlock: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<void>;
 
-    deposit(overrides?: CallOverrides): Promise<void>;
-
-    "deposit()"(overrides?: CallOverrides): Promise<void>;
-
-    withdraw(amount: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
-    "withdraw(uint256)"(
-      amount: BigNumberish,
+    "migrateState(address,address,uint256,uint256,uint256,uint256)"(
+      owner: string,
+      token: string,
+      ethSum: BigNumberish,
+      tokenSum: BigNumberish,
+      weightedBlockSum: BigNumberish,
+      latestBlock: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -165,61 +154,45 @@ export class IWETH extends Contract {
   filters: {};
 
   estimateGas: {
-    balanceOf(
+    migrateState(
       owner: string,
+      token: string,
+      ethSum: BigNumberish,
+      tokenSum: BigNumberish,
+      weightedBlockSum: BigNumberish,
+      latestBlock: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "balanceOf(address)"(
+    "migrateState(address,address,uint256,uint256,uint256,uint256)"(
       owner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    deposit(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "deposit()"(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    withdraw(
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "withdraw(uint256)"(
-      amount: BigNumberish,
+      token: string,
+      ethSum: BigNumberish,
+      tokenSum: BigNumberish,
+      weightedBlockSum: BigNumberish,
+      latestBlock: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    balanceOf(
+    migrateState(
       owner: string,
+      token: string,
+      ethSum: BigNumberish,
+      tokenSum: BigNumberish,
+      weightedBlockSum: BigNumberish,
+      latestBlock: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "balanceOf(address)"(
+    "migrateState(address,address,uint256,uint256,uint256,uint256)"(
       owner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    deposit(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "deposit()"(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    withdraw(
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "withdraw(uint256)"(
-      amount: BigNumberish,
+      token: string,
+      ethSum: BigNumberish,
+      tokenSum: BigNumberish,
+      weightedBlockSum: BigNumberish,
+      latestBlock: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
