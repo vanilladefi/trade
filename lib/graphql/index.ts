@@ -24,10 +24,10 @@ const THEGRAPH_ENDPOINTS = {
   },
   v3: {
     http: new GraphQLClient(
-      'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
+      'https://api.thegraph.com/subgraphs/name/ianlapham/uniswap-v3-prod',
     ),
     ws: new SubscriptionClient(
-      'wss://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
+      'wss://api.thegraph.com/subgraphs/name/ianlapham/uniswap-v3-prod',
       {
         reconnect: true,
         lazy: false,

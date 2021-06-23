@@ -1,6 +1,5 @@
 import useAllTransactions from 'hooks/useAllTransactions'
 import useTokenConversion from 'hooks/useTokenConversion'
-import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import useWalletAddress from 'hooks/useWalletAddress'
 import { isAddress } from 'lib/tokens'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -35,25 +34,25 @@ const TokenConversion = (): JSX.Element => {
     convertableBalance,
   } = useTokenConversion()
   const { long: userAddress } = useWalletAddress()
-  const { address } = useVanillaGovernanceToken(VanillaVersion.V1_0)
+  const vnlV1Address = isAddress(getVnlTokenAddress(VanillaVersion.V1_0))
+  const vnlV2Address = isAddress(getVnlTokenAddress(VanillaVersion.V1_1))
   const [conversionState, setConversionState] = useRecoilState(
     tokenConversionState,
   )
   const { addTransaction } = useAllTransactions()
-  const vnlV2Address = isAddress(getVnlTokenAddress(VanillaVersion.V1_1))
   const [transactionHash, setTransactionHash] = useState<string | null>(null)
 
   const approveCallback = useCallback(async () => {
     let approval = false
     try {
       const transaction = await approve()
-      if (transaction) {
+      if (transaction && vnlV1Address && vnlV2Address) {
         setTransactionHash(transaction.hash)
         const transactionDetails: TransactionDetails = {
           hash: transaction.hash,
           from: userAddress,
           action: Action.APPROVAL,
-          approval: { tokenAddress: address, spender: vnlV2Address || '' },
+          approval: { tokenAddress: vnlV1Address, spender: vnlV2Address },
         }
         addTransaction(transactionDetails)
         approval = true
@@ -63,7 +62,7 @@ const TokenConversion = (): JSX.Element => {
       return approval
     }
     return approval
-  }, [addTransaction, address, approve, userAddress, vnlV2Address])
+  }, [addTransaction, vnlV1Address, approve, userAddress, vnlV2Address])
 
   const runConversion = useCallback(async () => {
     let conversionSuccessful = false

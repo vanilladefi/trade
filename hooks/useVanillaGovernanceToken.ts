@@ -128,15 +128,13 @@ function useVanillaGovernanceToken(
     )
   }, [addresses, version])
 
-  return useMemo(() => {
-    return {
-      address: versionAddress || '',
-      decimals: 12,
-      balance: vnlBalance !== '' ? vnlBalance : '0',
-      price: vnlEthPrice,
-      userMintedTotal: userMintedTotal() || '0',
-    }
-  }, [userMintedTotal, versionAddress, vnlBalance, vnlEthPrice])
+  return {
+    address: versionAddress || '',
+    decimals: 12,
+    balance: vnlBalance !== '' ? vnlBalance : '0',
+    price: vnlEthPrice,
+    userMintedTotal: userMintedTotal() || '0',
+  }
 }
 
 export default useVanillaGovernanceToken
