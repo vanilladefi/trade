@@ -8,9 +8,10 @@ import {
 import Button from 'components/input/Button'
 import { Spinner } from 'components/Spinner'
 import Spacer from 'components/typography/Spacer'
+import { parseUnits } from 'ethers/lib/utils'
 import useTokenConversion from 'hooks/useTokenConversion'
 import useTransaction from 'hooks/useTransaction'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useSetRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
 import { VanillaVersion } from 'types/general'
@@ -43,6 +44,14 @@ const Minted = ({ transactionHash }: ConversionViewProps): JSX.Element => {
     }
   }, [transactionHash, transaction, getAllowance])
 
+  const getAmountConverted = useCallback(() => {
+    let parsedAmount = '0'
+    if (transaction?.amountConverted) {
+      parsedAmount = parseUnits(transaction?.amountConverted, 12).toString()
+    }
+    return parsedAmount
+  }, [transaction])
+
   return (
     <Row alignItems={Alignment.STRETCH}>
       {waiting ? (
@@ -56,10 +65,10 @@ const Minted = ({ transactionHash }: ConversionViewProps): JSX.Element => {
       ) : (
         <>
           <Column grow={true} width={Width.EIGHT}>
-            <h2>SUCCESSFULLY MINTED {transaction?.amountConverted} TOKENS</h2>
+            <h2>SUCCESSFULLY MINTED {getAmountConverted()} TOKENS</h2>
             <span>
-              You have converted {transaction?.amountConverted} VNL to Vanilla
-              1.1. Hooray!
+              You have converted {getAmountConverted()} VNL to Vanilla 1.1.
+              Hooray!
             </span>
           </Column>
           <Column
