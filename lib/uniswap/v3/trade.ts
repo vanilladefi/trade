@@ -15,10 +15,11 @@ import {
 import { providers, Transaction } from 'ethers'
 import { getAddress, parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
-import { getContract, tokenListChainId } from 'lib/tokens'
+import { getContract, isAddress, tokenListChainId } from 'lib/tokens'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import { VanillaVersion } from 'types/general'
 import type { Token, UniSwapToken } from 'types/trade'
+import { VanillaV1Router02__factory } from 'types/typechain'
 import { ethersOverrides, getVanillaRouterAddress } from 'utils/config'
 
 export enum Field {
@@ -51,20 +52,20 @@ export const buy = async ({
   signer,
   blockDeadline,
 }: TransactionProps): Promise<Transaction> => {
-  const router = getContract(
-    getVanillaRouterAddress(VanillaVersion.V1_1),
-    JSON.stringify(vanillaRouter.abi),
-    signer,
-  )
+  const vnl1_1Addr = isAddress(getVanillaRouterAddress(VanillaVersion.V1_1))
+  if (vnl1_1Addr && tokenReceived?.address && signer) {
+    const router = VanillaV1Router02__factory.connect(vnl1_1Addr, signer)
 
-  const receipt = await router.depositAndBuy(
-    tokenReceived?.address,
-    amountReceived,
-    blockDeadline,
-    { value: amountPaid, ...ethersOverrides },
-  )
-
-  return receipt
+    const receipt = await router.depositAndBuy(
+      tokenReceived?.address,
+      amountReceived,
+      blockDeadline,
+      { value: amountPaid, ...ethersOverrides },
+    )
+    return receipt
+  } else {
+    return Promise.reject('No Vanilla v1.1 router on used chain!')
+  }
 }
 
 export const sell = async ({
@@ -91,7 +92,7 @@ export const sell = async ({
   return receipt
 }
 
-// Pricing function for UniSwap v2 trades
+// Pricing function for UniSwap v3 trades
 export async function constructTrade(
   amountToTrade: string, // Not amountPaid because of tradeType
   tokenReceived: Token,
@@ -171,11 +172,6 @@ export async function constructTrade(
       // Construct a trade with UniSwap SDK
       const trade = await Trade.fromRoute(route, parsedAmountTraded, tradeType)
 
-      console.log(
-        trade.outputAmount.toSignificant(),
-        trade.inputAmount.toSignificant(),
-        trade.executionPrice.toSignificant(),
-      )
       return trade
     } else {
       return Promise.reject('Liquidity and price info incorrect!')
