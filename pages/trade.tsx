@@ -12,6 +12,7 @@ import Wrapper from 'components/Wrapper'
 import useMetaSubscription from 'hooks/useMetaSubscription'
 import useTokenSubscription from 'hooks/useTokenSubscription'
 import useTotalOwned from 'hooks/useTotalOwned'
+import useUserPositions from 'hooks/useUserPositions'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import { getAverageBlockCountPerHour, getCurrentBlockNumber } from 'lib/block'
 import { UniswapVersion } from 'lib/graphql'
@@ -21,7 +22,7 @@ import {
   addUSDPrice,
   addVnlEligibility,
   getAllTokens,
-  getETHPrice,
+  getETHPrice
 } from 'lib/tokens'
 import type { GetStaticPropsResult } from 'next'
 import dynamic from 'next/dynamic'
@@ -33,12 +34,12 @@ import {
   uniswapV2TokenState,
   uniswapV3TokenState,
   userV2TokensState,
-  userV3TokensState,
+  userV3TokensState
 } from 'state/tokens'
 import {
   selectedExchange,
   selectedOperation,
-  selectedPairIdState,
+  selectedPairIdState
 } from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
@@ -47,7 +48,7 @@ import {
   HandleBuyClick,
   HandleSellClick,
   Operation,
-  Token,
+  Token
 } from 'types/trade'
 import { useWallet } from 'use-wallet'
 
@@ -74,12 +75,23 @@ const HeaderContent = (): JSX.Element => {
   const wallet = useWallet()
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const { USD: totalOwnedUSD, ETH: totalOwnedETH } = useTotalOwned()
-  const userTokens = useRecoilValue(userV2TokensState)
+
+  const userV2Tokens = useRecoilValue(userV2TokensState)
+  const userV3Tokens = useRecoilValue(userV3TokensState)
+
+  const getUserTokens = useCallback(() => {
+    const v2Tokens = userV2Tokens || []
+    const v3Tokens = userV3Tokens || []
+    return [...v2Tokens, ...v3Tokens]
+  }, [userV2Tokens, userV3Tokens])
+
   const { price } = useVanillaGovernanceToken(VanillaVersion.V1_0)
   const ethPrice = useRecoilValue(currentETHPrice)
 
   const totalUnrealizedVnl = useCallback(() => {
-    const vnlAmounts = userTokens ? userTokens.map((token) => token.vnl) : null
+    const vnlAmounts = getUserTokens()
+      ? getUserTokens().map((token) => token.vnl)
+      : null
     return vnlAmounts
       ? vnlAmounts.reduce((accumulator, current) => {
           if (
@@ -94,7 +106,7 @@ const HeaderContent = (): JSX.Element => {
           }
         })
       : 0
-  }, [userTokens])
+  }, [getUserTokens])
 
   const unrealizedVnlInUsd = useCallback(() => {
     const unrealizedVnl = totalUnrealizedVnl()
@@ -111,7 +123,7 @@ const HeaderContent = (): JSX.Element => {
       <TokenConversion />
       <Wrapper>
         <Row className='subpageHeader'>
-          {wallet.status === 'connected' && !userTokens && (
+          {wallet.status === 'connected' && !getUserTokens() && (
             <Column width={Width.TWELVE}>
               <div className='spinnerWrapper'>
                 <Spinner />
@@ -119,7 +131,7 @@ const HeaderContent = (): JSX.Element => {
             </Column>
           )}
           {(wallet.status === 'disconnected' ||
-            (userTokens && userTokens.length === 0)) && (
+            (getUserTokens() && getUserTokens().length === 0)) && (
             <Column width={Width.EIGHT}>
               <Title>Start Trading</Title>
               <HugeMonospace>
@@ -141,7 +153,7 @@ const HeaderContent = (): JSX.Element => {
               </div>
             </Column>
           )}
-          {userTokens && userTokens.length > 0 && (
+          {getUserTokens() && getUserTokens().length > 0 && (
             <Column width={Width.TWELVE}>
               <Title>My trading</Title>
               <div className='stats-grid'>
@@ -381,6 +393,8 @@ const BodyContent = ({
     ],
   )
 
+  const userPositionsV2 = useUserPositions(VanillaVersion.V1_0)
+
   return (
     <>
       <div className='token-search'>
@@ -407,10 +421,17 @@ const BodyContent = ({
                   onBuyClick={handleV3BuyClick}
                   onSellClick={handleV3SellClick}
                 />
-                <div className='tableHeaderWrapper'>
-                  <h2 style={{ marginBottom: 0 }}>MY VANILLA 1.0 POSITIONS</h2>
-                </div>
-                <MyPositionsV2 onSellClick={handleV2SellClick} />
+                {userPositionsV2 === null ||
+                  (userPositionsV2?.length > 0 && (
+                    <>
+                      <div className='tableHeaderWrapper'>
+                        <h2 style={{ marginBottom: 0 }}>
+                          MY VANILLA 1.0 POSITIONS
+                        </h2>
+                      </div>
+                      <MyPositionsV2 onSellClick={handleV2SellClick} />
+                    </>
+                  ))}
               </>
             )}
 
@@ -558,7 +579,7 @@ export async function getStaticProps(): Promise<
     throw Error('Query failed')
   }
 
-  tokensV3 = await addGraphInfo(UniswapVersion.v3, tokensV3)
+  tokensV3 = await addGraphInfo(UniswapVersion.v3, tokensV3, 0, ethPriceV3)
   tokensV3 = addUSDPrice(tokensV3, ethPriceV3)
   tokensV3 = tokensV3.map((token) => {
     token.eligible = Eligibility.Eligible

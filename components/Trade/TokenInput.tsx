@@ -4,40 +4,33 @@ import Icon from 'components/typography/Icon'
 import { formatUnits } from 'ethers/lib/utils'
 import useEligibleTokenBalance from 'hooks/useEligibleTokenBalance'
 import useTokenBalance from 'hooks/useTokenBalance'
+import useTradeEngine from 'hooks/useTradeEngine'
 import React, { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
-import { token0Selector, token1Selector } from 'state/trade'
+import { selectedOperation, token0Selector, token1Selector } from 'state/trade'
 import { VanillaVersion } from 'types/general'
 import { Operation } from 'types/trade'
 import { useWallet } from 'use-wallet'
 
 type Props = {
   version: VanillaVersion
-  operation: Operation
-  onAmountChange: (
-    tokenIndex: 0 | 1,
-    value: string,
-  ) => Promise<void | undefined>
-  token0Amount: string | null
-  token1Amount: string | null
   useWethProxy?: boolean
 }
 
 const ethLogoURI =
   'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png'
 
-const TokenInput = ({
-  version,
-  operation,
-  onAmountChange,
-  token0Amount,
-  token1Amount,
-  useWethProxy = true,
-}: Props): JSX.Element => {
+const TokenInput = ({ version, useWethProxy = true }: Props): JSX.Element => {
   const wallet = useWallet()
+
+  const { token0Amount, token1Amount, handleAmountChanged } = useTradeEngine(
+    version,
+  )
 
   const token0 = useRecoilValue(token0Selector)
   const token1 = useRecoilValue(token1Selector)
+
+  const operation = useRecoilValue(selectedOperation)
 
   const [amount0, setAmount0] = useState<string | null | undefined>()
   const [amount1, setAmount1] = useState<string | null | undefined>()
@@ -85,7 +78,7 @@ const TokenInput = ({
         parsedValue !== amount0
       ) {
         setAmount1(null)
-        onAmountChange(tokenIndex, parsedValue)
+        handleAmountChanged(tokenIndex, parsedValue)
       } else {
         setAmount1(undefined)
       }
@@ -97,7 +90,7 @@ const TokenInput = ({
         parsedValue !== amount1
       ) {
         setAmount0(null)
-        onAmountChange(tokenIndex, parsedValue)
+        handleAmountChanged(tokenIndex, parsedValue)
       } else {
         setAmount0(undefined)
       }
