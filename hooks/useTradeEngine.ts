@@ -23,6 +23,7 @@ import {
 import { useRecoilValue } from 'recoil'
 import { currentETHPrice } from 'state/meta'
 import {
+  selectedOperation,
   selectedSlippageTolerance,
   token0Selector,
   token1Selector,
@@ -46,7 +47,6 @@ export enum TransactionState {
  * A wrapper to handle state whenever user buys or sells tokens.
  */
 const useTradeEngine = (
-  operation: Operation,
   version: VanillaVersion,
 ): {
   buy: (options: TransactionProps) => Promise<string | undefined>
@@ -74,6 +74,7 @@ const useTradeEngine = (
   // The Ethers signer and provider
   const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
+  const operation = useRecoilValue(selectedOperation)
   const { addTransaction } = useAllTransactions()
 
   const executeBuy = async ({

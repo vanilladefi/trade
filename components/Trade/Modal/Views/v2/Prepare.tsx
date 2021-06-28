@@ -11,8 +11,6 @@ import useVanillaRouter from 'hooks/useVanillaRouter'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import React, { Dispatch, SetStateAction, Suspense, useEffect } from 'react'
-import { useRecoilValue } from 'recoil'
-import { currentETHPrice } from 'state/meta'
 import { VanillaVersion } from 'types/general'
 import { Operation } from 'types/trade'
 import ErrorDisplay from '../../ErrorDisplay'
@@ -87,12 +85,8 @@ const PrepareView = ({
 }: ContentProps): JSX.Element => {
   const router = useRouter()
 
-  // ETH/USD price
-  const ethUsdPrice = useRecoilValue(currentETHPrice)
-
   const {
     token0,
-    token1,
     trade,
     error,
     setError,
@@ -103,12 +97,7 @@ const PrepareView = ({
     notEnoughLiquidity,
     token0Amount,
     token1Amount,
-    handleAmountChanged,
-    estimatedGas,
-    estimatedFees,
-    estimatedReward,
-    estimatedRewardInUsd,
-  } = useTradeEngine(operation, VanillaVersion.V1_0)
+  } = useTradeEngine(VanillaVersion.V1_0)
 
   // Vanilla router contract
   const vanillaRouter = useVanillaRouter(VanillaVersion.V1_0)
@@ -145,44 +134,12 @@ const PrepareView = ({
 
             <section className='modalMain'>
               <div className='row noBottomMargin'>
-                <TokenInput
-                  version={VanillaVersion.V1_0}
-                  operation={operation}
-                  onAmountChange={handleAmountChanged}
-                  token0Amount={token0Amount}
-                  token1Amount={token1Amount}
-                />
+                <TokenInput version={VanillaVersion.V1_0} />
               </div>
 
               {token0Amount && trade?.executionPrice && vanillaRouter && (
                 <div className='row'>
-                  <TradeInfoDisplay
-                    token0={token0}
-                    token1={token1}
-                    operation={operation}
-                    price={trade.executionPrice.toSignificant()}
-                    tradeValue={
-                      operation === Operation.Buy
-                        ? (
-                            parseFloat(trade?.inputAmount.toSignificant()) *
-                            ethUsdPrice
-                          ).toLocaleString('en-US')
-                        : (
-                            parseFloat(trade?.outputAmount.toSignificant()) *
-                            ethUsdPrice
-                          ).toLocaleString('en-US')
-                    }
-                    gasEstimate={estimatedGas}
-                    feeEstimate={estimatedFees}
-                    vnlReward={
-                      estimatedReward
-                        ? {
-                            vnl: estimatedReward.toString(),
-                            usd: estimatedRewardInUsd().toString(),
-                          }
-                        : undefined
-                    }
-                  />
+                  <TradeInfoDisplay version={VanillaVersion.V1_0} />
                 </div>
               )}
             </section>
@@ -192,7 +149,7 @@ const PrepareView = ({
             {token0Amount !== '0' ? (
               <Button
                 onClick={async () => {
-                  const hash = executeTrade()
+                  const hash = await executeTrade()
                   // Wait for a bit, and then redirect the user to the TradeFlower view with more trade info
                   setTimeout(() => {
                     setTransactionState(TransactionState.PREPARE)
