@@ -22,7 +22,7 @@ import {
   addUSDPrice,
   addVnlEligibility,
   getAllTokens,
-  getETHPrice
+  getETHPrice,
 } from 'lib/tokens'
 import type { GetStaticPropsResult } from 'next'
 import dynamic from 'next/dynamic'
@@ -34,12 +34,12 @@ import {
   uniswapV2TokenState,
   uniswapV3TokenState,
   userV2TokensState,
-  userV3TokensState
+  userV3TokensState,
 } from 'state/tokens'
 import {
   selectedExchange,
   selectedOperation,
-  selectedPairIdState
+  selectedPairIdState,
 } from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
@@ -48,7 +48,7 @@ import {
   HandleBuyClick,
   HandleSellClick,
   Operation,
-  Token
+  Token,
 } from 'types/trade'
 import { useWallet } from 'use-wallet'
 
@@ -106,7 +106,7 @@ const HeaderContent = (): JSX.Element => {
           }
         })
       : 0
-  }, [getUserTokens])
+  }, [userV2Tokens, userV3Tokens, getUserTokens])
 
   const unrealizedVnlInUsd = useCallback(() => {
     const unrealizedVnl = totalUnrealizedVnl()
