@@ -43,8 +43,9 @@ const purchaseHandler = ({
   setTransactionDetails,
   updateTransaction,
 }: TransactionHandlerProps) => {
-  const eventFragment = 'TokensPurchased'
-  const topicString = 'TokensPurchased(address,address,uint256,uint256,uint256)'
+  const eventName = 'TokensPurchased'
+  const eventFragment = contractInterface.getEvent(eventName)
+  const topicString = contractInterface.getEventTopic(eventName)
   const purchaseTopic = constructTopic(topicString)
 
   const purchase = findTopic(receipt, purchaseTopic)
@@ -102,9 +103,9 @@ const saleHandler = ({
   setTransactionDetails,
   updateTransaction,
 }: TransactionHandlerProps) => {
-  const eventFragment = 'TokensSold'
-  const topicString =
-    'TokensSold(address,address,uint256,uint256,uint256,uint256,uint256)'
+  const eventName = 'TokensSold'
+  const eventFragment = contractInterface.getEvent(eventName)
+  const topicString = contractInterface.getEventTopic(eventName)
   const saleTopic = constructTopic(topicString)
 
   const sale = findTopic(receipt, saleTopic)
@@ -167,21 +168,19 @@ const conversionHandler = ({
   updateTransaction,
 }: TransactionHandlerProps) => {
   try {
-    const eventFragment = 'VNLConverted'
-    const topicString = 'VNLConverted(address,uint256)'
+    const eventName = 'VNLConverted'
+    const eventFragment = contractInterface.getEvent(eventName)
+    const topicString = contractInterface.getEventTopic(eventName)
     const conversionTopic = constructTopic(topicString)
 
     const conversion = findTopic(receipt, conversionTopic)
     const data = conversion?.data || ''
 
-    const {
-      converter,
-      amount,
-    }: ethers.utils.Result = contractInterface.decodeEventLog(
+    const { amount }: ethers.utils.Result = contractInterface.decodeEventLog(
       eventFragment,
       data,
     )
-    console.log(converter, amount, receipt)
+
     let amountConverted
     if (amount as BigNumber) {
       amountConverted = amount.toString()
@@ -223,8 +222,9 @@ const approvalHandler = ({
   setTransactionDetails,
   updateTransaction,
 }: TransactionHandlerProps) => {
-  const eventFragment = 'Approval'
-  const topicString = 'Approval(address,address,uint256)'
+  const eventName = 'Approval'
+  const eventFragment = contractInterface.getEvent(eventName)
+  const topicString = contractInterface.getEventTopic(eventName)
   const topic = constructTopic(topicString)
 
   const approval = findTopic(receipt, topic)

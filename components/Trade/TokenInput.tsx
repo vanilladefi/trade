@@ -7,10 +7,12 @@ import useTokenBalance from 'hooks/useTokenBalance'
 import React, { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { token0Selector, token1Selector } from 'state/trade'
+import { VanillaVersion } from 'types/general'
 import { Operation } from 'types/trade'
 import { useWallet } from 'use-wallet'
 
 type Props = {
+  version: VanillaVersion
   operation: Operation
   onAmountChange: (
     tokenIndex: 0 | 1,
@@ -25,6 +27,7 @@ const ethLogoURI =
   'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png'
 
 const TokenInput = ({
+  version,
   operation,
   onAmountChange,
   token0Amount,
@@ -43,7 +46,7 @@ const TokenInput = ({
   const {
     formatted: eligibleBalance0,
     raw: eligibleBalance0Raw,
-  } = useEligibleTokenBalance(token0?.address)
+  } = useEligibleTokenBalance(version, token0?.address)
   const { formatted: balance1, raw: balance1Raw } = useTokenBalance(
     token1?.address,
     token1?.decimals,
