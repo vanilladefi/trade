@@ -13,19 +13,21 @@ import * as uniV2 from 'lib/uniswap/v2/trade'
 import * as uniV3 from 'lib/uniswap/v3/trade'
 import { estimateGas, estimateReward } from 'lib/vanilla'
 import { debounce } from 'lodash'
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react'
-import { useRecoilValue } from 'recoil'
+import { Dispatch, SetStateAction, useCallback, useEffect } from 'react'
+import { useRecoilState, useRecoilValue } from 'recoil'
 import { currentETHPrice } from 'state/meta'
 import {
+  currentErrorState,
+  currentFeeEstimate,
+  currentGasEstimate,
+  currentRewardEstimate,
+  currentTrade,
+  currentTransactionState,
   selectedOperation,
   selectedSlippageTolerance,
+  token0Amount,
   token0Selector,
+  token1Amount,
   token1Selector,
 } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
@@ -51,19 +53,17 @@ const useTradeEngine = (
 ): {
   buy: (options: TransactionProps) => Promise<string | undefined>
   sell: (options: TransactionProps) => Promise<string | undefined>
-  trade: V2Trade | V3Trade | undefined
+  trade: V2Trade | V3Trade | null
   executeTrade: () => Promise<string | undefined>
   transactionState: TransactionState
   setTransactionState: Dispatch<SetStateAction<TransactionState>>
   token0: Token | null
   token1: Token | null
-  token0Amount: string
-  token1Amount: string
   eligibleBalance0Raw: BigNumber
   balance1Raw: BigNumber
-  estimatedGas: string | undefined
-  estimatedFees: string | undefined
-  estimatedReward: string | undefined
+  estimatedGas: string | null
+  estimatedFees: string | null
+  estimatedReward: string | null
   notEnoughFunds: () => boolean
   notEnoughLiquidity: () => boolean
   handleAmountChanged: (tokenIndex: 0 | 1, value: string) => Promise<void>
@@ -95,7 +95,8 @@ const useTradeEngine = (
           signer: signer,
           blockDeadline: blockDeadline,
         })
-      } else if (version === version) {
+      } else if (version === VanillaVersion.V1_1) {
+        console.log(lpFeePercentage.numerator.toString())
         transaction = await uniV3.buy({
           amountReceived: amountReceived,
           amountPaid: amountPaid,
@@ -103,6 +104,7 @@ const useTradeEngine = (
           tokenReceived: tokenReceived,
           signer: signer,
           blockDeadline: blockDeadline,
+          feeTier: 3000,
         })
       }
       transaction?.hash &&
@@ -129,6 +131,7 @@ const useTradeEngine = (
     blockDeadline,
   }: TransactionProps) => {
     let transaction: Transaction | undefined = undefined
+    console.log(lpFeePercentage.numerator.toString())
     if (signer) {
       if (version === VanillaVersion.V1_0) {
         transaction = await uniV2.sell({
@@ -147,6 +150,7 @@ const useTradeEngine = (
           tokenReceived: tokenReceived,
           signer: signer,
           blockDeadline: blockDeadline,
+          feeTier: 3000,
         })
       }
       transaction?.hash &&
@@ -178,7 +182,9 @@ const useTradeEngine = (
   const slippageTolerance = useRecoilValue(selectedSlippageTolerance)
 
   // Contains the newest price
-  const [trade, setTrade] = useState<V2Trade | V3Trade>()
+  const [trade, setTrade] = useRecoilState<V2Trade | V3Trade | null>(
+    currentTrade,
+  )
 
   // Token selectors
   const token0 = useRecoilValue(token0Selector)
@@ -191,6 +197,7 @@ const useTradeEngine = (
     () => (operation === Operation.Buy ? token0 : token1),
     [operation, token0, token1],
   )
+
   // Balances of token0 and token1
   const { raw: eligibleBalance0Raw } = useEligibleTokenBalance(
     version,
@@ -203,29 +210,31 @@ const useTradeEngine = (
   )
 
   // Estimates
-  const [estimatedGas, setEstimatedGas] = useState<string>()
-  const [estimatedFees, setEstimatedFees] = useState<string>()
-  const [estimatedReward, setEstimatedReward] = useState<string>()
+  const [estimatedGas, setEstimatedGas] = useRecoilState(currentGasEstimate)
+  const [estimatedFees, setEstimatedFees] = useRecoilState(currentFeeEstimate)
+  const [estimatedReward, setEstimatedReward] = useRecoilState(
+    currentRewardEstimate,
+  )
 
   // Error shown in the chin of the modal
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useRecoilState(currentErrorState)
 
   // Transaction state [PREPARE, PROCESSING, DONE]
-  const [transactionState, setTransactionState] = useState<TransactionState>(
-    TransactionState.PREPARE,
+  const [transactionState, setTransactionState] = useRecoilState(
+    currentTransactionState,
   )
 
   // Token amounts
-  const [token0Amount, setToken0Amount] = useState<string>('0')
-  const [token1Amount, setToken1Amount] = useState<string>('0')
+  const [amount0, setAmount0] = useRecoilState(token0Amount)
+  const [amount1, setAmount1] = useRecoilState(token1Amount)
 
   const notEnoughFunds = useCallback(() => {
     try {
       if (
         (operation === Operation.Buy &&
-          parseUnits(token1Amount, token1?.decimals).gt(balance1Raw)) ||
+          parseUnits(amount1, token1?.decimals).gt(balance1Raw)) ||
         (operation === Operation.Sell &&
-          parseUnits(token0Amount, token0?.decimals).gt(eligibleBalance0Raw))
+          parseUnits(amount0, token0?.decimals).gt(eligibleBalance0Raw))
       ) {
         return true
       } else {
@@ -236,10 +245,10 @@ const useTradeEngine = (
     }
   }, [
     operation,
-    token1Amount,
+    amount1,
     token1?.decimals,
     balance1Raw,
-    token0Amount,
+    amount0,
     token0?.decimals,
     eligibleBalance0Raw,
   ])
@@ -266,10 +275,11 @@ const useTradeEngine = (
   // Estimate gas fees
   useEffect(() => {
     const debouncedGasEstimation = debounce(async () => {
-      if (trade && provider && token0) {
+      if (trade && provider && signer && token0) {
         const gasEstimate = await estimateGas(
           version,
           trade,
+          signer,
           provider,
           operation,
           token0,
@@ -279,7 +289,16 @@ const useTradeEngine = (
       }
     }, 500)
     debouncedGasEstimation()
-  }, [operation, provider, token0, slippageTolerance, trade, version])
+  }, [
+    operation,
+    provider,
+    token0,
+    slippageTolerance,
+    trade,
+    version,
+    signer,
+    setEstimatedGas,
+  ])
 
   // Estimate LP fees
   useEffect(() => {
@@ -288,8 +307,8 @@ const useTradeEngine = (
         const token = operation === Operation.Buy ? token1 : token0
         const amountParsed =
           operation === Operation.Buy
-            ? parseUnits(token1Amount, token1?.decimals)
-            : parseUnits(token0Amount, token0?.decimals)
+            ? parseUnits(amount1, token1?.decimals)
+            : parseUnits(amount0, token0?.decimals)
         const feeAmount = amountParsed
           .mul(lpFeePercentage.numerator.toString())
           .div(lpFeePercentage.denominator.toString())
@@ -312,8 +331,9 @@ const useTradeEngine = (
     token0,
     token1,
     operation,
-    token1Amount,
-    token0Amount,
+    amount1,
+    amount0,
+    setEstimatedFees,
   ])
 
   const updateTrade = async (
@@ -367,13 +387,13 @@ const useTradeEngine = (
   // Update trade on operation change to get updated pricing
   useEffect(() => {
     const updateTradeAndToken1 = debounce(async () => {
-      const trade = await updateTrade(0, token0Amount)
+      const trade = await updateTrade(0, amount0)
       if (trade && trade.inputAmount && trade.outputAmount) {
         const newToken1Amount =
           operation === Operation.Buy
             ? trade.inputAmount.toSignificant(6)
             : trade.outputAmount.toSignificant(6)
-        setToken1Amount(newToken1Amount)
+        setAmount1(newToken1Amount)
       }
     }, 200)
     updateTradeAndToken1()
@@ -388,36 +408,32 @@ const useTradeEngine = (
         signer &&
         token0 &&
         token1 &&
-        token0Amount &&
-        token1Amount
+        amount0 &&
+        amount1
       ) {
-        estimateReward(
-          version,
-          signer,
-          token0,
-          token1,
-          token0Amount,
-          token1Amount,
-        ).then((reward) => {
-          const formattedReward = reward
-            ? formatUnits(reward?.reward, 12)
-            : undefined
-          setEstimatedReward(formattedReward)
-        })
+        estimateReward(version, signer, token0, token1, amount0, amount1).then(
+          (reward) => {
+            const formattedReward = reward
+              ? formatUnits(reward?.reward, 12)
+              : null
+            setEstimatedReward(formattedReward)
+          },
+        )
       } else {
-        setEstimatedReward(undefined)
+        setEstimatedReward(null)
       }
     }, 500)
     estimateRewards()
   }, [
     operation,
-    token0Amount,
-    token1Amount,
     signer,
     token0,
     token1,
     slippageTolerance,
     version,
+    amount0,
+    amount1,
+    setEstimatedReward,
   ])
 
   const handleAmountChanged = async (tokenIndex: 0 | 1, value: string) => {
@@ -429,12 +445,12 @@ const useTradeEngine = (
             operation === Operation.Buy
               ? trade.inputAmount && trade.inputAmount.toSignificant(6)
               : trade.outputAmount && trade.outputAmount.toSignificant(6)
-          setToken1Amount(newToken1Amount)
+          setAmount1(newToken1Amount)
         } else {
-          setToken1Amount('0.0')
+          setAmount1('0.0')
         }
       }
-      setToken0Amount(value)
+      setAmount0(value)
     } else {
       if (parseFloat(value) > 0) {
         const trade = await updateTrade(tokenIndex, value)
@@ -443,11 +459,11 @@ const useTradeEngine = (
             operation === Operation.Buy
               ? trade.outputAmount && trade.outputAmount.toSignificant(6)
               : trade.inputAmount && trade.inputAmount.toSignificant(6)
-          setToken0Amount(newToken0Amount)
+          setAmount0(newToken0Amount)
         } else {
-          setToken0Amount('0.0')
+          setAmount0('0.0')
         }
-        setToken1Amount(value)
+        setAmount1(value)
       }
     }
   }
@@ -458,6 +474,7 @@ const useTradeEngine = (
       try {
         const block = await provider.getBlock('latest')
         const blockDeadline = block.timestamp + blockDeadlineThreshold
+
         setTransactionState(TransactionState.PROCESSING)
 
         if (operation === Operation.Buy) {
@@ -495,6 +512,17 @@ const useTradeEngine = (
     }
   }
 
+  // Unmount useEffect, clears state for next trade
+  useEffect(() => {
+    return () => {
+      setTrade(null)
+      setAmount0('0.0')
+      setAmount1('0.0')
+      setTransactionState(TransactionState.PREPARE)
+      setError(null)
+    }
+  }, [setAmount0, setAmount1, setError, setTrade, setTransactionState])
+
   return {
     buy: executeBuy,
     sell: executeSell,
@@ -504,8 +532,6 @@ const useTradeEngine = (
     setTransactionState,
     token0,
     token1,
-    token0Amount,
-    token1Amount,
     eligibleBalance0Raw,
     balance1Raw,
     estimatedGas,

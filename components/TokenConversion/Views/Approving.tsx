@@ -6,16 +6,15 @@ import {
   Width,
 } from 'components/grid/Flex'
 import Button, { ButtonColor } from 'components/input/Button'
+import useTokenConversion from 'hooks/useTokenConversion'
 import React from 'react'
 import { useSetRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
 import { ConversionState } from 'types/migration'
 import { ConversionViewProps } from '..'
 
-const Approving = ({
-  approve,
-  convertableBalance,
-}: ConversionViewProps): JSX.Element => {
+const Approving = ({ approve }: ConversionViewProps): JSX.Element => {
+  const { convertableBalance } = useTokenConversion()
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
   return (
     <Row alignItems={Alignment.STRETCH}>

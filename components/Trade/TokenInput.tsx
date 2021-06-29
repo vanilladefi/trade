@@ -7,7 +7,13 @@ import useTokenBalance from 'hooks/useTokenBalance'
 import useTradeEngine from 'hooks/useTradeEngine'
 import React, { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
-import { selectedOperation, token0Selector, token1Selector } from 'state/trade'
+import {
+  selectedOperation,
+  token0Amount,
+  token0Selector,
+  token1Amount,
+  token1Selector,
+} from 'state/trade'
 import { VanillaVersion } from 'types/general'
 import { Operation } from 'types/trade'
 import { useWallet } from 'use-wallet'
@@ -23,12 +29,12 @@ const ethLogoURI =
 const TokenInput = ({ version, useWethProxy = true }: Props): JSX.Element => {
   const wallet = useWallet()
 
-  const { token0Amount, token1Amount, handleAmountChanged } = useTradeEngine(
-    version,
-  )
+  const { handleAmountChanged } = useTradeEngine(version)
 
   const token0 = useRecoilValue(token0Selector)
   const token1 = useRecoilValue(token1Selector)
+  const token0AmountPretty = useRecoilValue(token0Amount)
+  const token1AmountPretty = useRecoilValue(token1Amount)
 
   const operation = useRecoilValue(selectedOperation)
 
@@ -36,10 +42,8 @@ const TokenInput = ({ version, useWethProxy = true }: Props): JSX.Element => {
   const [amount1, setAmount1] = useState<string | null | undefined>()
   const [focused, setFocused] = useState<number | undefined>(undefined)
 
-  const {
-    formatted: eligibleBalance0,
-    raw: eligibleBalance0Raw,
-  } = useEligibleTokenBalance(version, token0?.address)
+  const { formatted: eligibleBalance0, raw: eligibleBalance0Raw } =
+    useEligibleTokenBalance(version, token0?.address)
   const { formatted: balance1, raw: balance1Raw } = useTokenBalance(
     token1?.address,
     token1?.decimals,
@@ -55,18 +59,18 @@ const TokenInput = ({ version, useWethProxy = true }: Props): JSX.Element => {
     : balance1 && token1 && formatUnits(balance1Raw, token1.decimals)
 
   useEffect(() => {
-    token0Amount &&
-      token0Amount !== '0' &&
-      token0Amount !== '' &&
-      setAmount0(token0Amount)
-  }, [focused, token0Amount])
+    token0AmountPretty &&
+      token0AmountPretty !== '0' &&
+      token0AmountPretty !== '' &&
+      setAmount0(token0AmountPretty)
+  }, [focused, token0AmountPretty])
 
   useEffect(() => {
-    token1Amount &&
-      token1Amount !== '0' &&
-      token1Amount !== '' &&
-      setAmount1(token1Amount)
-  }, [focused, token1Amount])
+    token1AmountPretty &&
+      token1AmountPretty !== '0' &&
+      token1AmountPretty !== '' &&
+      setAmount1(token1AmountPretty)
+  }, [focused, token1AmountPretty])
 
   const handleAmountChange = (tokenIndex: 0 | 1, value: string) => {
     const parsedValue = value || undefined

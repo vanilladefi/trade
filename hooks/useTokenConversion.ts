@@ -3,8 +3,17 @@ import { addDays } from 'date-fns'
 import { BigNumber, ContractTransaction } from 'ethers'
 import { isAddress } from 'lib/tokens'
 import { snapshot } from 'lib/vanilla'
-import { useCallback, useEffect, useState } from 'react'
-import { useRecoilValue } from 'recoil'
+import { useCallback, useEffect } from 'react'
+import { useRecoilState, useRecoilValue } from 'recoil'
+import {
+  conversionDeadline,
+  conversionEligibility,
+  conversionStartDate,
+  convertableBalance,
+  merkleProof,
+  vanillaToken1,
+  vanillaToken2,
+} from 'state/migration'
 import { signerState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
 import {
@@ -30,23 +39,17 @@ export default function useTokenConversion(): {
   const { long: walletAddress } = useWalletAddress()
   const signer = useRecoilValue(signerState)
 
-  const [vnlToken1, setVnlToken1] = useState<VanillaV1Token01 | null>(null)
-  const [vnlToken2, setVnlToken2] = useState<VanillaV1Token02 | null>(null)
+  const [vnlToken1, setVnlToken1] = useRecoilState(vanillaToken1)
+  const [vnlToken2, setVnlToken2] = useRecoilState(vanillaToken2)
 
-  const [convertableBalance, setConvertableBalance] = useState<string | null>(
-    null,
-  )
-  const [conversionStartDate, setConversionStartDate] = useState<Date | null>(
-    null,
-  )
-  const [conversionDeadline, setConversionDeadline] = useState<Date | null>(
-    null,
-  )
-  const [eligible, setEligible] = useState<boolean>(false)
-  const [proof, setProof] = useState<string[] | null>(null)
+  const [convertable, setConvertable] = useRecoilState(convertableBalance)
+  const [currentStartDate, setStartDate] = useRecoilState(conversionStartDate)
+  const [currentDeadline, setDeadline] = useRecoilState(conversionDeadline)
+  const [eligible, setEligible] = useRecoilState(conversionEligibility)
+  const [proof, setProof] = useRecoilState(merkleProof)
 
   const approve = useCallback(async () => {
-    const balance = parseUnits(convertableBalance || '0', 12)
+    const balance = parseUnits(convertable || '0', 12)
     let approval: ContractTransaction | null = null
 
     if (!balance.isZero() && vnlToken2 && vnlToken1) {
@@ -55,14 +58,13 @@ export default function useTokenConversion(): {
           getVnlTokenAddress(VanillaVersion.V1_1) ||
           '',
       )
-      console.log(address)
       if (address) {
         approval = await vnlToken1.approve(address, balance)
       }
     }
 
     return approval
-  }, [convertableBalance, vnlToken1, vnlToken2])
+  }, [convertable, vnlToken1, vnlToken2])
 
   const getAllowance = useCallback(async () => {
     let allowance: BigNumber = BigNumber.from('0')
@@ -122,7 +124,7 @@ export default function useTokenConversion(): {
       setVnlToken1(null)
       setVnlToken2(null)
     }
-  }, [signer])
+  }, [setVnlToken1, setVnlToken2, signer])
 
   useEffect(() => {
     const getSnapShot = async () => {
@@ -136,15 +138,15 @@ export default function useTokenConversion(): {
           const mySnapshotState = snapshotState.accounts[walletAddress]
           const myConvertableBalance =
             mySnapshotState && formatUnits(mySnapshotState, 12)
-          setConvertableBalance(myConvertableBalance)
+          setConvertable(myConvertableBalance)
 
           const startDate = snapshotState
             ? new Date(snapshotState.timeStamp * 1000)
             : null
-          setConversionStartDate(startDate)
+          setStartDate(startDate)
 
           const deadline = startDate ? addDays(startDate, 30) : null
-          setConversionDeadline(deadline)
+          setDeadline(deadline)
 
           if (
             checkSummedAddress &&
@@ -172,20 +174,30 @@ export default function useTokenConversion(): {
     return () => {
       setEligible(false)
       setProof(null)
-      setConversionDeadline(null)
-      setConvertableBalance(null)
-      setConversionStartDate(null)
+      setDeadline(null)
+      setConvertable(null)
+      setStartDate(null)
     }
-  }, [signer, vnlToken1, vnlToken2, walletAddress])
+  }, [
+    setConvertable,
+    setDeadline,
+    setEligible,
+    setProof,
+    setStartDate,
+    signer,
+    vnlToken1,
+    vnlToken2,
+    walletAddress,
+  ])
 
   return {
     approve,
     convert,
     getAllowance,
     eligible,
-    conversionDeadline,
+    conversionDeadline: currentDeadline,
     proof,
-    conversionStartDate,
-    convertableBalance,
+    conversionStartDate: currentStartDate,
+    convertableBalance: convertable,
   }
 }
