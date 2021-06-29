@@ -10,10 +10,10 @@ import { cellProps, rowProps } from 'components/Table/Table'
 import { formatDistance } from 'date-fns'
 import { parseUnits } from 'ethers/lib/utils'
 import useTokenSearch from 'hooks/useTokenSearch'
-import useUserPositions from 'hooks/useUserPositions'
 import React, { MouseEvent, useCallback, useMemo } from 'react'
 import type { CellProps, Row } from 'react-table'
-import { VanillaVersion } from 'types/general'
+import { useRecoilValue } from 'recoil'
+import { userV2TokensState } from 'state/tokens'
 import type { HandleSellClick, ListColumn, Token } from 'types/trade'
 import { epoch } from 'utils/config'
 
@@ -253,7 +253,7 @@ const RowRenderer = (
 }
 
 export default function MyPositions({ onSellClick }: Props): JSX.Element {
-  const userPositions = useUserPositions(VanillaVersion.V1_0)
+  const userPositions = useRecoilValue(userV2TokensState)
   const [query, clearQuery] = useTokenSearch()
 
   const getColumns = useCallback(
@@ -298,10 +298,10 @@ export default function MyPositions({ onSellClick }: Props): JSX.Element {
     [],
   )
 
-  const columns = useMemo(() => getColumns({ onSellClick }), [
-    onSellClick,
-    getColumns,
-  ])
+  const columns = useMemo(
+    () => getColumns({ onSellClick }),
+    [onSellClick, getColumns],
+  )
 
   const initialSortBy = useMemo(() => [{ id: 'value', desc: true }], [])
 

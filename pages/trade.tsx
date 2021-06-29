@@ -106,7 +106,7 @@ const HeaderContent = (): JSX.Element => {
           }
         })
       : 0
-  }, [userV2Tokens, userV3Tokens, getUserTokens])
+  }, [getUserTokens])
 
   const unrealizedVnlInUsd = useCallback(() => {
     const unrealizedVnl = totalUnrealizedVnl()
@@ -307,7 +307,10 @@ const BodyContent = ({
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const setOperation = useSetRecoilState(selectedOperation)
   const setExchange = useSetRecoilState(selectedExchange)
-  const userV3Positions = useRecoilValue(userV3TokensState)
+
+  const userPositionsV3 = useUserPositions(VanillaVersion.V1_1)
+  const userPositionsV2 = useUserPositions(VanillaVersion.V1_0)
+
   const { account } = useWallet()
 
   useEffect(() => {
@@ -329,9 +332,9 @@ const BodyContent = ({
   ])
 
   const profitablePositions = useCallback(() => {
-    return userV3Positions?.filter((token) => token.profit && token.profit > 0)
+    return userPositionsV3?.filter((token) => token.profit && token.profit > 0)
       .length
-  }, [userV3Positions])
+  }, [userPositionsV3])
 
   const handleV2SellClick: HandleSellClick = useCallback(
     (pairInfo) => {
@@ -393,8 +396,6 @@ const BodyContent = ({
     ],
   )
 
-  const userPositionsV2 = useUserPositions(VanillaVersion.V1_0)
-
   return (
     <>
       <div className='token-search'>
@@ -410,9 +411,9 @@ const BodyContent = ({
                 <div className='tableHeaderWrapper'>
                   <h2 style={{ marginBottom: 0 }}>
                     MY POSITIONS
-                    {userV3Positions && userV3Positions.length > 0 && (
+                    {userPositionsV3 && userPositionsV3.length > 0 && (
                       <small>{`${profitablePositions()} of ${
-                        userV3Positions ? userV3Positions.length : 0
+                        userPositionsV3 ? userPositionsV3.length : 0
                       } profitable`}</small>
                     )}
                   </h2>
@@ -530,15 +531,13 @@ export async function getStaticProps(): Promise<
   tokensV2 = await addLogoColor(tokensV2)
 
   // Fetch these simultaneously
-  const [
-    blocksPerHourV2,
-    currentBlockNumberV2,
-    ethPriceV2,
-  ] = await Promise.all([
-    getAverageBlockCountPerHour(),
-    getCurrentBlockNumber(UniswapVersion.v2),
-    getETHPrice(UniswapVersion.v2),
-  ])
+  const [blocksPerHourV2, currentBlockNumberV2, ethPriceV2] = await Promise.all(
+    [
+      getAverageBlockCountPerHour(),
+      getCurrentBlockNumber(UniswapVersion.v2),
+      getETHPrice(UniswapVersion.v2),
+    ],
+  )
 
   if (ethPriceV2 === 0 || currentBlockNumberV2 === 0 || blocksPerHourV2 === 0) {
     throw Error('Query failed')
@@ -546,7 +545,7 @@ export async function getStaticProps(): Promise<
 
   let block24hAgo = currentBlockNumberV2 - 24 * blocksPerHourV2
 
-  tokensV2 = await addGraphInfo(UniswapVersion.v2, tokensV2)
+  tokensV2 = await addGraphInfo(UniswapVersion.v2, tokensV2, 0, ethPriceV2)
   tokensV2 = addUSDPrice(tokensV2, ethPriceV2)
   tokensV2 = await addVnlEligibility(tokensV2, VanillaVersion.V1_0)
 
@@ -565,15 +564,13 @@ export async function getStaticProps(): Promise<
   tokensV3 = await addLogoColor(tokensV3)
 
   // Fetch these simultaneously
-  const [
-    blocksPerHourV3,
-    currentBlockNumberV3,
-    ethPriceV3,
-  ] = await Promise.all([
-    getAverageBlockCountPerHour(),
-    getCurrentBlockNumber(UniswapVersion.v3),
-    getETHPrice(UniswapVersion.v3),
-  ])
+  const [blocksPerHourV3, currentBlockNumberV3, ethPriceV3] = await Promise.all(
+    [
+      getAverageBlockCountPerHour(),
+      getCurrentBlockNumber(UniswapVersion.v3),
+      getETHPrice(UniswapVersion.v3),
+    ],
+  )
 
   if (ethPriceV3 === 0 || currentBlockNumberV3 === 0 || blocksPerHourV3 === 0) {
     throw Error('Query failed')
