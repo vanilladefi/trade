@@ -15,12 +15,11 @@ import {
 import { Transaction } from 'ethers'
 import { getAddress, parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
-import { getContract, isAddress, tokenListChainId } from 'lib/tokens'
-import vanillaRouter from 'types/abis/vanillaRouter.json'
+import { isAddress, tokenListChainId } from 'lib/tokens'
 import { VanillaVersion } from 'types/general'
 import type { Token, UniSwapToken } from 'types/trade'
 import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Router02__factory'
-import { ethersOverrides, getVanillaRouterAddress } from 'utils/config'
+import { getVanillaRouterAddress } from 'utils/config'
 import { TransactionProps } from '..'
 
 export const buy = async ({
@@ -29,9 +28,10 @@ export const buy = async ({
   tokenReceived,
   signer,
   blockDeadline,
+  feeTier,
 }: TransactionProps): Promise<Transaction> => {
   const vnl1_1Addr = isAddress(getVanillaRouterAddress(VanillaVersion.V1_1))
-  if (vnl1_1Addr && tokenReceived?.address && signer) {
+  if (vnl1_1Addr && tokenReceived?.address && signer && feeTier) {
     const router = VanillaV1Router02__factory.connect(vnl1_1Addr, signer)
     const orderData = {
       token: tokenReceived.address,
@@ -39,7 +39,7 @@ export const buy = async ({
       numEth: amountPaid,
       numToken: amountReceived,
       blockTimeDeadline: blockDeadline,
-      fee: 3000,
+      fee: feeTier,
     }
     const receipt = await router.executePayable(
       [router.interface.encodeFunctionData('buy', [orderData])],
@@ -57,22 +57,26 @@ export const sell = async ({
   tokenPaid,
   signer,
   blockDeadline,
+  feeTier,
 }: TransactionProps): Promise<Transaction> => {
-  const router = getContract(
-    getVanillaRouterAddress(VanillaVersion.V1_1),
-    JSON.stringify(vanillaRouter.abi),
-    signer,
-  )
-
-  const receipt = await router.sellAndWithdraw(
-    tokenPaid?.address,
-    amountPaid,
-    amountReceived,
-    blockDeadline,
-    { ...ethersOverrides },
-  )
-
-  return receipt
+  const vnl1_1Addr = isAddress(getVanillaRouterAddress(VanillaVersion.V1_1))
+  if (vnl1_1Addr && tokenPaid?.address && signer && feeTier) {
+    const router = VanillaV1Router02__factory.connect(vnl1_1Addr, signer)
+    const orderData = {
+      token: tokenPaid.address,
+      wethOwner: vnl1_1Addr,
+      numEth: amountReceived,
+      numToken: amountPaid,
+      blockTimeDeadline: blockDeadline,
+      fee: feeTier,
+    }
+    const receipt = await router.executePayable([
+      router.interface.encodeFunctionData('sell', [orderData]),
+    ])
+    return receipt
+  } else {
+    return Promise.reject('No Vanilla v1.1 router on used chain!')
+  }
 }
 
 // Pricing function for UniSwap v3 trades

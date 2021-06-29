@@ -30,15 +30,13 @@ const TokenConversion = (): JSX.Element => {
     getAllowance,
     eligible,
     conversionDeadline,
-    conversionStartDate,
     convertableBalance,
   } = useTokenConversion()
   const { long: userAddress } = useWalletAddress()
   const vnlV1Address = isAddress(getVnlTokenAddress(VanillaVersion.V1_0))
   const vnlV2Address = isAddress(getVnlTokenAddress(VanillaVersion.V1_1))
-  const [conversionState, setConversionState] = useRecoilState(
-    tokenConversionState,
-  )
+  const [conversionState, setConversionState] =
+    useRecoilState(tokenConversionState)
   const { addTransaction } = useAllTransactions()
   const [transactionHash, setTransactionHash] = useState<string | null>(null)
 
@@ -88,18 +86,19 @@ const TokenConversion = (): JSX.Element => {
   useEffect(() => {
     if (eligible && convertableBalance !== '0') {
       setConversionState(ConversionState.AVAILABLE)
-    }
-    const checkAllowance = async () => {
-      try {
-        const allowance = await getAllowance()
-        if (!allowance.isZero()) {
-          setConversionState(ConversionState.APPROVED)
+
+      const checkAllowance = async () => {
+        try {
+          const allowance = await getAllowance()
+          if (!allowance.isZero()) {
+            setConversionState(ConversionState.APPROVED)
+          }
+        } catch (e) {
+          console.error(e)
         }
-      } catch (e) {
-        console.error(e)
       }
+      checkAllowance()
     }
-    checkAllowance()
     return () => {
       setConversionState(ConversionState.HIDDEN)
     }
@@ -118,20 +117,10 @@ const TokenConversion = (): JSX.Element => {
           )
           break
         case ConversionState.READY:
-          view = (
-            <Ready
-              conversionStartDate={conversionStartDate}
-              convertableBalance={convertableBalance}
-            />
-          )
+          view = <Ready />
           break
         case ConversionState.APPROVING:
-          view = (
-            <Approving
-              approve={approveCallback}
-              convertableBalance={convertableBalance}
-            />
-          )
+          view = <Approving approve={approveCallback} />
           break
         case ConversionState.APPROVED:
           view = (
@@ -149,14 +138,7 @@ const TokenConversion = (): JSX.Element => {
       }
       return view
     },
-    [
-      approveCallback,
-      conversionDeadline,
-      conversionStartDate,
-      convertableBalance,
-      runConversion,
-      transactionHash,
-    ],
+    [approveCallback, conversionDeadline, convertableBalance, transactionHash],
   )
 
   return (

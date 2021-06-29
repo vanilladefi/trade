@@ -17,6 +17,7 @@ import { MerkleTree } from 'merkletreejs'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import { VanillaVersion } from 'types/general'
 import { Operation, UniSwapToken } from 'types/trade'
+import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1'
 import type { VanillaV1Token01 } from 'types/typechain/vanilla_v1.1/VanillaV1Token01'
 import { blockDeadlineThreshold, getVanillaRouterAddress } from 'utils/config'
 
@@ -115,52 +116,106 @@ export const getEpoch = async (
 export const estimateGas = async (
   version: VanillaVersion,
   trade: TradeV2 | TradeV3,
+  signer: Signer,
   provider: providers.Provider,
   operation: Operation,
   token0: UniSwapToken,
   slippageTolerance: Percent,
 ): Promise<string> => {
-  const router = new ethers.Contract(
-    getVanillaRouterAddress(version),
+  const routerV1_0 = new ethers.Contract(
+    getVanillaRouterAddress(VanillaVersion.V1_0),
     JSON.stringify(vanillaRouter.abi),
-    provider,
+    signer,
   )
+  const routerV1_1 = VanillaV1Router02__factory.connect(
+    getVanillaRouterAddress(VanillaVersion.V1_1),
+    signer,
+  )
+
   let gasEstimate = '0'
   try {
-    if (provider && router && trade) {
+    if (signer && trade && provider) {
       const block = await provider.getBlock('latest')
+      const gasPrice = await signer.getGasPrice()
       const blockDeadline = block.timestamp + blockDeadlineThreshold
-      if (operation === Operation.Buy) {
-        gasEstimate = await router.estimateGas
-          .depositAndBuy(
-            token0.address,
-            trade?.minimumAmountOut(slippageTolerance).raw.toString(),
-            blockDeadline,
-            {
-              value: trade?.inputAmount.raw.toString(),
-            },
+
+      if (version === VanillaVersion.V1_0 && routerV1_0) {
+        if (operation === Operation.Buy) {
+          gasEstimate = await routerV1_0.estimateGas
+            .depositAndBuy(
+              token0.address,
+              trade?.minimumAmountOut(slippageTolerance).raw.toString(),
+              blockDeadline,
+              {
+                value: trade?.inputAmount.raw.toString(),
+              },
+            )
+            .then(async (value) => {
+              return formatUnits(value.mul(gasPrice))
+            })
+        } else {
+          gasEstimate = await routerV1_0.estimateGas
+            .sellAndWithdraw(
+              token0.address,
+              trade?.inputAmount.raw.toString(),
+              trade?.minimumAmountOut(slippageTolerance).raw.toString(),
+              blockDeadline,
+            )
+            .then(async (value) => {
+              const price = await signer.getGasPrice()
+              return formatUnits(value.mul(price))
+            })
+        }
+      } else if (version === VanillaVersion.V1_1 && routerV1_1) {
+        if (operation === Operation.Buy) {
+          const buyOrder = {
+            token: token0.address,
+            wethOwner: routerV1_1.address,
+            numEth: trade.inputAmount.raw.toString(),
+            numToken: trade.minimumAmountOut(slippageTolerance).raw.toString(),
+            blockTimeDeadline: blockDeadline,
+            fee: 3000,
+          }
+          gasEstimate = await routerV1_1.estimateGas
+            .executePayable(
+              [routerV1_1.interface.encodeFunctionData('buy', [buyOrder])],
+              { value: trade.inputAmount.raw.toString() },
+            )
+            .then(async (value) => {
+              return formatUnits(value.mul(gasPrice))
+            })
+        } else {
+          console.log(
+            trade,
+            trade
+              .minimumAmountOut(slippageTolerance)
+              .toSignificant()
+              .toString(),
+            trade.inputAmount.toSignificant().toString(),
           )
-          .then(async (value) => {
-            const price = await provider.getGasPrice()
-            return formatUnits(value.mul(price))
-          })
-      } else {
-        gasEstimate = await router.estimateGas
-          .sellAndWithdraw(
-            token0.address,
-            trade?.inputAmount.raw.toString(),
-            trade?.minimumAmountOut(slippageTolerance).raw.toString(),
-            blockDeadline,
-          )
-          .then(async (value) => {
-            const price = await provider.getGasPrice()
-            return formatUnits(value.mul(price))
-          })
+          const sellOrder = {
+            token: token0.address,
+            wethOwner: routerV1_1.address,
+            numEth: trade.minimumAmountOut(slippageTolerance).raw.toString(),
+            numToken: trade.inputAmount.raw.toString(),
+            blockTimeDeadline: blockDeadline,
+            fee: 3000,
+          }
+          gasEstimate = await routerV1_1.estimateGas
+            .executePayable([
+              routerV1_1.interface.encodeFunctionData('sell', [sellOrder]),
+            ])
+            .then(async (value) => {
+              const price = await signer.getGasPrice()
+              return formatUnits(value.mul(price))
+            })
+        }
       }
     }
   } catch (e) {
     console.error(e)
   }
+  console.log(gasEstimate)
   return gasEstimate
 }
 
@@ -199,7 +254,7 @@ export type AddressBalance = {
   amount: BigNumber
 }
 
-export const toKeccak256Leaf = (balance: AddressBalance) =>
+export const toKeccak256Leaf = (balance: AddressBalance): string =>
   utils.solidityKeccak256(
     ['address', 'string', 'uint256'],
     [balance.address, ':', balance.amount],
@@ -208,7 +263,13 @@ export const toKeccak256Leaf = (balance: AddressBalance) =>
 export const snapshot = async (
   vanilla: VanillaV1Token01,
   snapshotBlock?: number,
-) => {
+): Promise<{
+  snapshotState: SnapshotState
+  getProof: (balance: AddressBalance) => string[]
+  verify: (balance: AddressBalance, root: string) => boolean
+  root: string
+  merkleTree: MerkleTree
+}> => {
   const tokenTransfers = snapshotBlock
     ? await vanilla.queryFilter(
         vanilla.filters.Transfer(null, null, null),

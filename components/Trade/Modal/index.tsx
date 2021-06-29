@@ -27,17 +27,11 @@ const Loading = (): JSX.Element => (
   </Row>
 )
 
-const PrepareV2 = dynamic(() => import('./Views/v2/Prepare'), {
-  ssr: false,
-})
+const PrepareV2 = dynamic(() => import('./Views/v2/Prepare'))
 
-const PrepareV3 = dynamic(() => import('./Views/v3/Prepare'), {
-  ssr: false,
-})
+const PrepareV3 = dynamic(() => import('./Views/v3/Prepare'))
 
-const Success = dynamic(() => import('./Views/Success'), {
-  ssr: false,
-})
+const Success = dynamic(() => import('./Views/Success'))
 
 type Props = {
   open: boolean

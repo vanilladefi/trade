@@ -1,4 +1,7 @@
 import { Percent } from '@uniswap/sdk-core'
+import { Trade as V2Trade } from '@uniswap/v2-sdk'
+import { Trade as V3Trade } from '@uniswap/v3-sdk'
+import { TransactionState } from 'hooks/useTradeEngine'
 import { UniswapVersion } from 'lib/graphql'
 import { weth } from 'lib/tokens'
 import { atom, selector } from 'recoil'
@@ -65,6 +68,47 @@ export const selectedPairState = selector<PairByIdQueryResponse | null>({
       return pair
     }
   },
+})
+
+export const currentTrade = atom<V2Trade | V3Trade | null>({
+  key: 'currentTradeSelector',
+  default: null,
+  dangerouslyAllowMutability: true,
+})
+
+export const token0Amount = atom<string>({
+  key: 'token0AmountSelector',
+  default: '0',
+})
+
+export const token1Amount = atom<string>({
+  key: 'token1AmountSelector',
+  default: '0',
+})
+
+export const currentGasEstimate = atom<string | null>({
+  key: 'currentGasEstimate',
+  default: null,
+})
+
+export const currentFeeEstimate = atom<string | null>({
+  key: 'currentFeeEstimate',
+  default: null,
+})
+
+export const currentRewardEstimate = atom<string | null>({
+  key: 'currentRewardEstimate',
+  default: null,
+})
+
+export const currentTransactionState = atom<TransactionState>({
+  key: 'currentTransactionState',
+  default: TransactionState.PREPARE,
+})
+
+export const currentErrorState = atom<string | null>({
+  key: 'currentErrorState',
+  default: null,
 })
 
 export const token0Selector = selector<Token | null>({

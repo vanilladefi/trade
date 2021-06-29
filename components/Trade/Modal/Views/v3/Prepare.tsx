@@ -11,6 +11,8 @@ import useVanillaRouter from 'hooks/useVanillaRouter'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import React, { Dispatch, SetStateAction, Suspense, useEffect } from 'react'
+import { useRecoilValue } from 'recoil'
+import { token0Amount, token1Amount } from 'state/trade'
 import { VanillaVersion } from 'types/general'
 import { Operation } from 'types/trade'
 import ErrorDisplay from '../../ErrorDisplay'
@@ -23,9 +25,7 @@ type ContentProps = {
   setModalCloseEnabled: Dispatch<SetStateAction<boolean>>
 }
 
-const TokenInput = dynamic(() => import('components/Trade/TokenInput'), {
-  ssr: false,
-})
+const TokenInput = dynamic(() => import('components/Trade/TokenInput'))
 
 type ButtonAmountDisplayProps = {
   operationText: string
@@ -90,9 +90,10 @@ const PrepareView = ({
     notEnoughFunds,
     notEnoughLiquidity,
     eligibleBalance0Raw,
-    token0Amount,
-    token1Amount,
   } = useTradeEngine(VanillaVersion.V1_1)
+
+  const amount0 = useRecoilValue(token0Amount)
+  const amount1 = useRecoilValue(token1Amount)
 
   // Vanilla router contract
   const vanillaRouter = useVanillaRouter(VanillaVersion.V1_1)
@@ -132,7 +133,7 @@ const PrepareView = ({
                 <TokenInput version={VanillaVersion.V1_1} />
               </div>
 
-              {token0Amount && trade?.executionPrice && vanillaRouter && (
+              {amount0 && trade?.executionPrice && vanillaRouter && (
                 <div className='row'>
                   <TradeInfoDisplay version={VanillaVersion.V1_1} />
                 </div>
@@ -141,7 +142,7 @@ const PrepareView = ({
           </section>
 
           <div className='row footer'>
-            {token0Amount !== '0' ? (
+            {amount0 !== '0' ? (
               <Button
                 onClick={async () => {
                   const hash = await executeTrade()
@@ -168,7 +169,7 @@ const PrepareView = ({
                 }
                 grow
               >
-                {token1Amount === null ? (
+                {amount1 === null ? (
                   <Spinner />
                 ) : notEnoughLiquidity() ? (
                   'Not enough liquidity'
@@ -179,7 +180,7 @@ const PrepareView = ({
                     operationText={`${
                       operation.charAt(0).toUpperCase() + operation.slice(1)
                     }ing`}
-                    tokenAmount={token0Amount}
+                    tokenAmount={amount0}
                     tokenSymbol={token0?.symbol ?? ''}
                   />
                 ) : transactionState === TransactionState.PROCESSING ? (

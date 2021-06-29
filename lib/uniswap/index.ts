@@ -13,6 +13,7 @@ export interface TransactionProps {
   tokenReceived?: UniSwapToken
   signer?: providers.JsonRpcSigner
   blockDeadline: number
+  feeTier?: number
 }
 
 export interface SellProps {

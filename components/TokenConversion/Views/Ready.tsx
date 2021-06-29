@@ -7,13 +7,14 @@ import {
 } from 'components/grid/Flex'
 import Button, { ButtonColor } from 'components/input/Button'
 import { format } from 'date-fns'
+import useTokenConversion from 'hooks/useTokenConversion'
 import React from 'react'
 import { useSetRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
 import { ConversionState } from 'types/migration'
-import { ConversionViewProps } from '..'
 
-const Ready = ({ conversionStartDate }: ConversionViewProps): JSX.Element => {
+const Ready = (): JSX.Element => {
+  const { conversionStartDate } = useTokenConversion()
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
   return (
     <Row alignItems={Alignment.STRETCH}>
