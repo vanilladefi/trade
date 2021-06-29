@@ -52,7 +52,7 @@ function useTotalOwned(): { USD: number; ETH: number } {
     } else {
       return { USD: 0, ETH: 0 }
     }
-  }, [getUserTokens()])
+  }, [getUserTokens])
 }
 
 export default useTotalOwned
