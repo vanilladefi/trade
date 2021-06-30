@@ -1,3 +1,4 @@
+import { parseUnits } from 'ethers/lib/utils'
 import useAllTransactions from 'hooks/useAllTransactions'
 import useTokenConversion from 'hooks/useTokenConversion'
 import useWalletAddress from 'hooks/useWalletAddress'
@@ -84,33 +85,32 @@ const TokenConversion = (): JSX.Element => {
   }, [addTransaction, convert, userAddress])
 
   useEffect(() => {
-    console.log(
-      'balance: ',
-      convertableBalance,
-      ' eligibility: ',
-      eligible,
-      'conversionState: ',
-      conversionState,
-    )
-    if (eligible && convertableBalance !== '0') {
-      setConversionState(ConversionState.AVAILABLE)
-
-      const checkAllowance = async () => {
-        try {
-          const allowance = await getAllowance()
-          if (!allowance.isZero()) {
-            setConversionState(ConversionState.APPROVED)
-          }
-        } catch (e) {
-          console.error(e)
+    const checkAllowance = async () => {
+      try {
+        const allowance = await getAllowance()
+        const parsedConvertableBalance = parseUnits(
+          convertableBalance || '0',
+          13,
+        )
+        if (!allowance.isZero() && eligible) {
+          setConversionState(ConversionState.APPROVED)
+        } else if (!parsedConvertableBalance.isZero() && eligible) {
+          setConversionState(ConversionState.AVAILABLE)
         }
+      } catch (e) {
+        console.error(e)
       }
+    }
+    if (conversionState === ConversionState.HIDDEN) {
       checkAllowance()
     }
-    return () => {
-      setConversionState(ConversionState.HIDDEN)
-    }
-  }, [convertableBalance, eligible, getAllowance, setConversionState])
+  }, [
+    conversionState,
+    convertableBalance,
+    eligible,
+    getAllowance,
+    setConversionState,
+  ])
 
   const getView = useCallback(
     (conversionState: ConversionState): JSX.Element => {
