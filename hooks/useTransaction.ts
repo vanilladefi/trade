@@ -4,10 +4,11 @@ import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
 import VanillaV1Router01 from 'types/abis/VanillaV1Router01.json'
-import VanillaV1Router02 from 'types/abis/VanillaV1Router02.json'
 import VanillaV1Token02 from 'types/abis/VanillaV1Token02.json'
 import { VanillaVersion } from 'types/general'
 import { Action, TransactionDetails } from 'types/trade'
+import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1'
+import { getVanillaRouterAddress } from 'utils/config'
 import useAllTransactions from './useAllTransactions'
 
 type TransactionHandlerProps = {
@@ -45,22 +46,22 @@ const purchaseHandler = ({
 }: TransactionHandlerProps) => {
   const eventName = 'TokensPurchased'
   const eventFragment = contractInterface.getEvent(eventName)
-  const topicString = contractInterface.getEventTopic(eventName)
+  const topicString = contractInterface.getEventTopic(eventFragment)
   const purchaseTopic = constructTopic(topicString)
 
   const purchase = findTopic(receipt, purchaseTopic)
   const data = purchase?.data || ''
 
-  const { amount, eth }: ethers.utils.Result = contractInterface.decodeEventLog(
-    eventFragment,
-    data,
-  )
-
   let amountPaid = '0'
   let amountReceived = '0'
-  if ((amount as BigNumber) && (eth as BigNumber)) {
-    amountPaid = eth.toString()
-    amountReceived = amount.toString()
+
+  if (data !== '') {
+    const { amount, eth }: ethers.utils.Result =
+      contractInterface.decodeEventLog(eventFragment, data)
+    if ((amount as BigNumber) && (eth as BigNumber)) {
+      amountPaid = eth.toString()
+      amountReceived = amount.toString()
+    }
   }
 
   const newDetails = {
@@ -76,21 +77,22 @@ const purchaseHandler = ({
 
   setTransactionDetails(newDetails)
 
-  const newTransactionDetails: TransactionDetails = preliminaryTransactionDetails
-    ? {
-        ...preliminaryTransactionDetails,
-        receipt: receipt,
-        amountPaid: amountPaid,
-        amountReceived: amountReceived,
-      }
-    : {
-        hash: newDetails.hash,
-        action: purchase ? Action.PURCHASE : Action.SALE,
-        from: receipt.from,
-        receipt: receipt,
-        amountPaid: amountPaid,
-        amountReceived: amountReceived,
-      }
+  const newTransactionDetails: TransactionDetails =
+    preliminaryTransactionDetails
+      ? {
+          ...preliminaryTransactionDetails,
+          receipt: receipt,
+          amountPaid: amountPaid,
+          amountReceived: amountReceived,
+        }
+      : {
+          hash: newDetails.hash,
+          action: purchase ? Action.PURCHASE : Action.SALE,
+          from: receipt.from,
+          receipt: receipt,
+          amountPaid: amountPaid,
+          amountReceived: amountReceived,
+        }
 
   updateTransaction(newTransactionDetails.hash, newTransactionDetails)
 }
@@ -105,25 +107,25 @@ const saleHandler = ({
 }: TransactionHandlerProps) => {
   const eventName = 'TokensSold'
   const eventFragment = contractInterface.getEvent(eventName)
-  const topicString = contractInterface.getEventTopic(eventName)
+  const topicString = contractInterface.getEventTopic(eventFragment)
   const saleTopic = constructTopic(topicString)
 
   const sale = findTopic(receipt, saleTopic)
   const data = sale?.data || ''
 
-  const {
-    amount,
-    eth,
-    reward,
-  }: ethers.utils.Result = contractInterface.decodeEventLog(eventFragment, data)
-
   let amountPaid = '0'
   let amountReceived = '0'
   let vnlReceived: string | undefined
-  if ((amount as BigNumber) && (eth as BigNumber)) {
-    amountPaid = amount.toString()
-    amountReceived = eth.toString()
-    vnlReceived = reward.toString()
+
+  if (data !== '') {
+    const { amount, eth, reward }: ethers.utils.Result =
+      contractInterface.decodeEventLog(eventFragment, data)
+
+    if ((amount as BigNumber) && (eth as BigNumber)) {
+      amountPaid = amount.toString()
+      amountReceived = eth.toString()
+      vnlReceived = reward.toString()
+    }
   }
 
   const newDetails = {
@@ -140,21 +142,22 @@ const saleHandler = ({
 
   setTransactionDetails(newDetails)
 
-  const newTransactionDetails: TransactionDetails = preliminaryTransactionDetails
-    ? {
-        ...preliminaryTransactionDetails,
-        receipt: receipt,
-        amountPaid: amountPaid,
-        amountReceived: amountReceived,
-      }
-    : {
-        hash: newDetails.hash,
-        action: Action.SALE,
-        from: receipt.from,
-        receipt: receipt,
-        amountPaid: amountPaid,
-        amountReceived: amountReceived,
-      }
+  const newTransactionDetails: TransactionDetails =
+    preliminaryTransactionDetails
+      ? {
+          ...preliminaryTransactionDetails,
+          receipt: receipt,
+          amountPaid: amountPaid,
+          amountReceived: amountReceived,
+        }
+      : {
+          hash: newDetails.hash,
+          action: Action.SALE,
+          from: receipt.from,
+          receipt: receipt,
+          amountPaid: amountPaid,
+          amountReceived: amountReceived,
+        }
 
   updateTransaction(newTransactionDetails.hash, newTransactionDetails)
 }
@@ -170,7 +173,7 @@ const conversionHandler = ({
   try {
     const eventName = 'VNLConverted'
     const eventFragment = contractInterface.getEvent(eventName)
-    const topicString = contractInterface.getEventTopic(eventName)
+    const topicString = contractInterface.getEventTopic(eventFragment)
     const conversionTopic = constructTopic(topicString)
 
     const conversion = findTopic(receipt, conversionTopic)
@@ -196,17 +199,18 @@ const conversionHandler = ({
 
     setTransactionDetails(newDetails)
 
-    const newTransactionDetails: TransactionDetails = preliminaryTransactionDetails
-      ? {
-          ...preliminaryTransactionDetails,
-          receipt: receipt,
-        }
-      : {
-          hash: newDetails.hash,
-          action: Action.CONVERSION,
-          from: receipt.from,
-          receipt: receipt,
-        }
+    const newTransactionDetails: TransactionDetails =
+      preliminaryTransactionDetails
+        ? {
+            ...preliminaryTransactionDetails,
+            receipt: receipt,
+          }
+        : {
+            hash: newDetails.hash,
+            action: Action.CONVERSION,
+            from: receipt.from,
+            receipt: receipt,
+          }
 
     updateTransaction(newTransactionDetails.hash, newTransactionDetails)
   } catch (e) {
@@ -224,12 +228,12 @@ const approvalHandler = ({
 }: TransactionHandlerProps) => {
   const eventName = 'Approval'
   const eventFragment = contractInterface.getEvent(eventName)
-  const topicString = contractInterface.getEventTopic(eventName)
+  const topicString = contractInterface.getEventTopic(eventFragment)
   const topic = constructTopic(topicString)
 
   const approval = findTopic(receipt, topic)
   const data = approval?.data || ''
-  console.log(eventFragment, approval, data, topic, receipt)
+  console.log(contractInterface, eventFragment, approval, data, topic, receipt)
 
   const result: ethers.utils.Result | undefined =
     approval && contractInterface.decodeEventLog(eventFragment, data)
@@ -250,18 +254,19 @@ const approvalHandler = ({
 
   setTransactionDetails(newDetails)
 
-  const newTransactionDetails: TransactionDetails = preliminaryTransactionDetails
-    ? {
-        ...preliminaryTransactionDetails,
-        receipt: receipt,
-      }
-    : {
-        hash: newDetails.hash,
-        action: Action.APPROVAL,
-        amountApproved: amountApproved,
-        from: receipt.from,
-        receipt: receipt,
-      }
+  const newTransactionDetails: TransactionDetails =
+    preliminaryTransactionDetails
+      ? {
+          ...preliminaryTransactionDetails,
+          receipt: receipt,
+        }
+      : {
+          hash: newDetails.hash,
+          action: Action.APPROVAL,
+          amountApproved: amountApproved,
+          from: receipt.from,
+          receipt: receipt,
+        }
 
   updateTransaction(newTransactionDetails.hash, newTransactionDetails)
 }
@@ -271,11 +276,13 @@ function useTransaction(
   id: string,
 ): TransactionDetails | null {
   const { getTransaction, updateTransaction } = useAllTransactions()
-  const [
-    transactionDetails,
-    setTransactionDetails,
-  ] = useState<TransactionDetails | null>(null)
+  const [transactionDetails, setTransactionDetails] =
+    useState<TransactionDetails | null>(null)
   const provider = useRecoilValue(providerState)
+  const VanillaV1Router02Interface = VanillaV1Router02__factory.connect(
+    getVanillaRouterAddress(VanillaVersion.V1_1),
+    provider,
+  ).interface
 
   useEffect(() => {
     const waitForConfirmation = async () => {
@@ -287,20 +294,18 @@ function useTransaction(
         switch (preliminaryTransactionDetails?.action) {
           case Action.PURCHASE: {
             handler = purchaseHandler
-            contractInterface = new ethers.utils.Interface(
+            contractInterface =
               version === VanillaVersion.V1_0
-                ? VanillaV1Router01.abi
-                : VanillaV1Router02.abi,
-            )
+                ? new ethers.utils.Interface(VanillaV1Router01.abi)
+                : VanillaV1Router02Interface
             break
           }
           case Action.SALE:
             handler = saleHandler
-            contractInterface = new ethers.utils.Interface(
+            contractInterface =
               version === VanillaVersion.V1_0
-                ? VanillaV1Router01.abi
-                : VanillaV1Router02.abi,
-            )
+                ? new ethers.utils.Interface(VanillaV1Router01.abi)
+                : VanillaV1Router02Interface
             break
           case Action.CONVERSION:
             handler = conversionHandler

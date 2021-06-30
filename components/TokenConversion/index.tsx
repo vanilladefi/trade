@@ -84,6 +84,14 @@ const TokenConversion = (): JSX.Element => {
   }, [addTransaction, convert, userAddress])
 
   useEffect(() => {
+    console.log(
+      'balance: ',
+      convertableBalance,
+      ' eligibility: ',
+      eligible,
+      'conversionState: ',
+      conversionState,
+    )
     if (eligible && convertableBalance !== '0') {
       setConversionState(ConversionState.AVAILABLE)
 
@@ -138,7 +146,13 @@ const TokenConversion = (): JSX.Element => {
       }
       return view
     },
-    [approveCallback, conversionDeadline, convertableBalance, transactionHash],
+    [
+      approveCallback,
+      conversionDeadline,
+      convertableBalance,
+      runConversion,
+      transactionHash,
+    ],
   )
 
   return (

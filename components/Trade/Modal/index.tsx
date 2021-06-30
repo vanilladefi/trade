@@ -7,6 +7,7 @@ import { useRouter } from 'next/router'
 import React, { Suspense, useCallback, useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { selectedOperation, selectedPairIdState } from 'state/trade'
+import { VanillaVersion } from 'types/general'
 
 const Loading = (): JSX.Element => (
   <Row>
@@ -73,7 +74,11 @@ const TradeModal = ({
               setModalCloseEnabled={setModalCloseEnabled}
             />
           ) : (
-            <Success id={parsedId()} closeModal={onClose} />
+            <Success
+              id={parsedId()}
+              closeModal={onClose}
+              version={VanillaVersion.V1_0}
+            />
           ))}
         {uniswapVersion === UniswapVersion.v3 &&
           (!parsedId() ? (
@@ -83,7 +88,11 @@ const TradeModal = ({
               setModalCloseEnabled={setModalCloseEnabled}
             />
           ) : (
-            <Success id={parsedId()} closeModal={onClose} />
+            <Success
+              id={parsedId()}
+              closeModal={onClose}
+              version={VanillaVersion.V1_1}
+            />
           ))}
       </Suspense>
     </Modal>

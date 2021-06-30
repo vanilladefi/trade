@@ -12,7 +12,7 @@ import {
   TICK_SPACINGS,
   Trade,
 } from '@uniswap/v3-sdk'
-import { Transaction } from 'ethers'
+import { ethers, Transaction } from 'ethers'
 import { getAddress, parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { isAddress, tokenListChainId } from 'lib/tokens'
@@ -64,7 +64,7 @@ export const sell = async ({
     const router = VanillaV1Router02__factory.connect(vnl1_1Addr, signer)
     const orderData = {
       token: tokenPaid.address,
-      wethOwner: vnl1_1Addr,
+      wethOwner: ethers.constants.AddressZero,
       numEth: amountReceived,
       numToken: amountPaid,
       blockTimeDeadline: blockDeadline,
