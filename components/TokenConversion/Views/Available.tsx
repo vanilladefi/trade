@@ -42,7 +42,12 @@ const Available = ({
         width={Width.FOUR}
         alignItems={Alignment.END}
       >
-        <Button onClick={() => setTokenConversionState(ConversionState.READY)}>
+        <Button
+          onClick={() => {
+            console.log('Clicked')
+            setTokenConversionState(ConversionState.READY)
+          }}
+        >
           Convert now
         </Button>
       </Column>

@@ -11,6 +11,7 @@ import { VanillaVersion } from 'types/general'
 type Props = {
   id: string
   closeModal: () => void
+  version: VanillaVersion
 }
 
 const Loading = (): JSX.Element => (
@@ -32,8 +33,8 @@ const Loading = (): JSX.Element => (
   </Row>
 )
 
-const SuccessView = ({ id, closeModal }: Props): JSX.Element => {
-  const transaction = useTransaction(VanillaVersion.V1_0, id)
+const SuccessView = ({ id, closeModal, version }: Props): JSX.Element => {
+  const transaction = useTransaction(version, id)
 
   const amountPaid = useCallback(() => {
     return transaction
