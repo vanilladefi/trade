@@ -48,26 +48,43 @@ export const estimateReward = async (
     tryParseAmount(amountSold, tokenSold),
     tryParseAmount(amountReceived, tokenReceived),
   ]
-
-  const owner = await signer.getAddress()
-  const router = new ethers.Contract(
-    getVanillaRouterAddress(version),
-    JSON.stringify(vanillaRouter.abi),
-    signer,
-  )
-  let reward: RewardResponse | null
-
-  try {
-    reward = await router.estimateReward(
-      owner,
-      tokenSold.address,
-      parsedAmountReceived?.raw.toString(),
-      parsedAmountSold?.raw.toString(),
+  let reward: RewardResponse | null = null
+  if (
+    parsedAmountReceived &&
+    parsedAmountSold &&
+    parsedAmountReceived.greaterThan('0') &&
+    parsedAmountSold.greaterThan('0')
+  ) {
+    const owner = await signer.getAddress()
+    const routerV1_0 = new ethers.Contract(
+      getVanillaRouterAddress(VanillaVersion.V1_0),
+      JSON.stringify(vanillaRouter.abi),
+      signer,
     )
-  } catch (e) {
-    reward = null
-  }
+    const routerV1_1 = VanillaV1Router02__factory.connect(
+      getVanillaRouterAddress(VanillaVersion.V1_1),
+      signer,
+    )
 
+    try {
+      reward =
+        version === VanillaVersion.V1_0
+          ? await routerV1_0.estimateReward(
+              owner,
+              tokenSold.address,
+              parsedAmountReceived?.raw.toString(),
+              parsedAmountSold?.raw.toString(),
+            )
+          : await routerV1_1.estimateReward(
+              owner,
+              tokenSold.address,
+              parsedAmountReceived?.raw.toString(),
+              parsedAmountSold?.raw.toString(),
+            )
+    } catch (e) {
+      reward = null
+    }
+  }
   return reward
 }
 

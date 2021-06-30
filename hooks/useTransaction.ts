@@ -233,7 +233,6 @@ const approvalHandler = ({
 
   const approval = findTopic(receipt, topic)
   const data = approval?.data || ''
-  console.log(contractInterface, eventFragment, approval, data, topic, receipt)
 
   const result: ethers.utils.Result | undefined =
     approval && contractInterface.decodeEventLog(eventFragment, data)

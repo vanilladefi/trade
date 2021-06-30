@@ -36,6 +36,7 @@ const TokenConversion = (): JSX.Element => {
   const { long: userAddress } = useWalletAddress()
   const vnlV1Address = isAddress(getVnlTokenAddress(VanillaVersion.V1_0))
   const vnlV2Address = isAddress(getVnlTokenAddress(VanillaVersion.V1_1))
+
   const [conversionState, setConversionState] =
     useRecoilState(tokenConversionState)
   const { addTransaction } = useAllTransactions()
@@ -90,7 +91,7 @@ const TokenConversion = (): JSX.Element => {
         const allowance = await getAllowance()
         const parsedConvertableBalance = parseUnits(
           convertableBalance || '0',
-          13,
+          12,
         )
         if (!allowance.isZero() && eligible) {
           setConversionState(ConversionState.APPROVED)
