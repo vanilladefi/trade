@@ -48,3 +48,8 @@ export const conversionEligibility = atom<boolean>({
   key: 'conversionEligibility',
   default: false,
 })
+
+export const conversionAllowance = atom<string | null>({
+  key: 'conversionAllowance',
+  default: null,
+})

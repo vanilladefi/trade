@@ -6,6 +6,7 @@ import { snapshot } from 'lib/vanilla'
 import { useCallback, useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import {
+  conversionAllowance,
   conversionDeadline,
   conversionEligibility,
   conversionStartDate,
@@ -35,6 +36,7 @@ export default function useTokenConversion(): {
   conversionStartDate: Date | null
   proof: string[] | null
   convertableBalance: string | null
+  allowance: string | null
 } {
   const { long: walletAddress } = useWalletAddress()
   const signer = useRecoilValue(signerState)
@@ -47,6 +49,7 @@ export default function useTokenConversion(): {
   const [currentDeadline, setDeadline] = useRecoilState(conversionDeadline)
   const [eligible, setEligible] = useRecoilState(conversionEligibility)
   const [proof, setProof] = useRecoilState(merkleProof)
+  const [allowance, setAllowance] = useRecoilState(conversionAllowance)
 
   const approve = useCallback(async () => {
     const balance = parseUnits(convertable || '0', 12)
@@ -59,12 +62,17 @@ export default function useTokenConversion(): {
           '',
       )
       if (address) {
-        approval = await vnlToken1.approve(address, balance)
+        try {
+          approval = await vnlToken1.approve(address, balance)
+          setAllowance(formatUnits(balance, 12))
+        } catch (e) {
+          console.error(e)
+        }
       }
     }
 
     return approval
-  }, [convertable, vnlToken1, vnlToken2])
+  }, [convertable, setAllowance, vnlToken1, vnlToken2])
 
   const getAllowance = useCallback(async () => {
     let allowance: BigNumber = BigNumber.from('0')
@@ -82,16 +90,21 @@ export default function useTokenConversion(): {
   const convert = useCallback(async () => {
     let conversionReceipt: ContractTransaction | null = null
     if (vnlToken1 && vnlToken2) {
-      const { getProof } = await snapshot(vnlToken1)
-      const allowance = await getAllowance()
-      const proof = getProof({
-        amount: allowance,
-        address: walletAddress,
-      })
-      conversionReceipt = await vnlToken2.convertVNL(proof)
+      try {
+        const { getProof } = await snapshot(vnlToken1)
+        const latestAllowance = await getAllowance()
+        const proof = getProof({
+          amount: latestAllowance,
+          address: walletAddress,
+        })
+        conversionReceipt = await vnlToken2.convertVNL(proof)
+        setAllowance(null)
+      } catch (e) {
+        console.error(e)
+      }
     }
     return conversionReceipt
-  }, [getAllowance, vnlToken1, vnlToken2, walletAddress])
+  }, [getAllowance, setAllowance, vnlToken1, vnlToken2, walletAddress])
 
   useEffect(() => {
     const connectTokens = async () => {
@@ -199,5 +212,6 @@ export default function useTokenConversion(): {
     proof,
     conversionStartDate: currentStartDate,
     convertableBalance: convertable,
+    allowance,
   }
 }

@@ -4,11 +4,13 @@ import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
 import VanillaV1Router01 from 'types/abis/VanillaV1Router01.json'
-import VanillaV1Token02 from 'types/abis/VanillaV1Token02.json'
 import { VanillaVersion } from 'types/general'
 import { Action, TransactionDetails } from 'types/trade'
-import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1'
-import { getVanillaRouterAddress } from 'utils/config'
+import {
+  VanillaV1Router02__factory,
+  VanillaV1Token02__factory,
+} from 'types/typechain/vanilla_v1.1'
+import { getVanillaRouterAddress, getVnlTokenAddress } from 'utils/config'
 import useAllTransactions from './useAllTransactions'
 
 type TransactionHandlerProps = {
@@ -178,15 +180,17 @@ const conversionHandler = ({
 
     const conversion = findTopic(receipt, conversionTopic)
     const data = conversion?.data || ''
-
-    const { amount }: ethers.utils.Result = contractInterface.decodeEventLog(
-      eventFragment,
-      data,
-    )
-
     let amountConverted
-    if (amount as BigNumber) {
-      amountConverted = amount.toString()
+
+    if (data !== '') {
+      const { amount }: ethers.utils.Result = contractInterface.decodeEventLog(
+        eventFragment,
+        data,
+      )
+
+      if (amount as BigNumber) {
+        amountConverted = amount.toString()
+      }
     }
 
     const newDetails = {
@@ -195,6 +199,7 @@ const conversionHandler = ({
       hash: transactionHash,
       blockNumber: receipt.blockNumber,
       from: receipt.from,
+      receipt: receipt,
     }
 
     setTransactionDetails(newDetails)
@@ -233,13 +238,16 @@ const approvalHandler = ({
 
   const approval = findTopic(receipt, topic)
   const data = approval?.data || ''
-
-  const result: ethers.utils.Result | undefined =
-    approval && contractInterface.decodeEventLog(eventFragment, data)
-
   let amountApproved
-  if (result?.value as BigNumber) {
-    amountApproved = result?.value.toString()
+
+  if (data !== '') {
+    const { value }: ethers.utils.Result = contractInterface.decodeEventLog(
+      eventFragment,
+      data,
+    )
+    if (value as BigNumber) {
+      amountApproved = value.toString()
+    }
   }
 
   const newDetails = {
@@ -278,8 +286,8 @@ function useTransaction(
   const [transactionDetails, setTransactionDetails] =
     useState<TransactionDetails | null>(null)
   const provider = useRecoilValue(providerState)
-  const VanillaV1Router02Interface = VanillaV1Router02__factory.connect(
-    getVanillaRouterAddress(VanillaVersion.V1_1),
+  const VanillaV1Token02Interface = VanillaV1Token02__factory.connect(
+    getVnlTokenAddress(VanillaVersion.V1_1),
     provider,
   ).interface
 
@@ -292,6 +300,11 @@ function useTransaction(
         let contractInterface: Interface
         switch (preliminaryTransactionDetails?.action) {
           case Action.PURCHASE: {
+            const VanillaV1Router02Interface =
+              VanillaV1Router02__factory.connect(
+                getVanillaRouterAddress(VanillaVersion.V1_1),
+                provider,
+              ).interface
             handler = purchaseHandler
             contractInterface =
               version === VanillaVersion.V1_0
@@ -300,6 +313,11 @@ function useTransaction(
             break
           }
           case Action.SALE:
+            const VanillaV1Router02Interface =
+              VanillaV1Router02__factory.connect(
+                getVanillaRouterAddress(VanillaVersion.V1_1),
+                provider,
+              ).interface
             handler = saleHandler
             contractInterface =
               version === VanillaVersion.V1_0
@@ -308,11 +326,11 @@ function useTransaction(
             break
           case Action.CONVERSION:
             handler = conversionHandler
-            contractInterface = new ethers.utils.Interface(VanillaV1Token02.abi)
+            contractInterface = VanillaV1Token02Interface
             break
           case Action.APPROVAL:
             handler = approvalHandler
-            contractInterface = new ethers.utils.Interface(VanillaV1Token02.abi)
+            contractInterface = VanillaV1Token02Interface
             break
           default:
             return
@@ -332,7 +350,7 @@ function useTransaction(
     }
     waitForConfirmation()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
+  }, [id, provider, version])
 
   return transactionDetails
 }

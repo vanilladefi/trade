@@ -11,7 +11,7 @@ import Spacer from 'components/typography/Spacer'
 import { parseUnits } from 'ethers/lib/utils'
 import useTokenConversion from 'hooks/useTokenConversion'
 import useTransaction from 'hooks/useTransaction'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useSetRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
 import { VanillaVersion } from 'types/general'
@@ -19,38 +19,21 @@ import { ConversionState } from 'types/migration'
 import { ConversionViewProps } from '..'
 
 const Minted = ({ transactionHash }: ConversionViewProps): JSX.Element => {
-  const { getAllowance } = useTokenConversion()
+  const { allowance } = useTokenConversion()
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
   const [waiting, setWaiting] = useState(true)
   const transaction = useTransaction(VanillaVersion.V1_1, transactionHash || '')
-
-  useEffect(() => {
-    const checkAllowance = async () => {
-      try {
-        const allowance = await getAllowance()
-        if (allowance.isZero()) {
-          setWaiting(false)
-        }
-      } catch (e) {
-        console.error(e)
-      }
-    }
-    checkAllowance()
-    if (transactionHash && transaction?.receipt) {
-      setWaiting(false)
-    }
-    return () => {
-      setWaiting(true)
-    }
-  }, [transactionHash, transaction, getAllowance])
 
   const getAmountConverted = useCallback(() => {
     let parsedAmount = '0'
     if (transaction?.amountConverted) {
       parsedAmount = parseUnits(transaction?.amountConverted, 12).toString()
     }
+    if (!allowance) {
+      setWaiting(false)
+    }
     return parsedAmount
-  }, [transaction])
+  }, [allowance, transaction?.amountConverted])
 
   return (
     <Row alignItems={Alignment.STRETCH}>
