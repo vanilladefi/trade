@@ -28,35 +28,37 @@ export default function useTokenSubscription(
     version === UniswapVersion.v2 ? v2.TokenInfoSubBA : v3.TokenInfoSubBA
 
   const handleNewData = useRecoilCallback(
-    ({ set }) => async ({ data }: subReturnValue) => {
-      if (data?.tokens?.length && ethPrice > 0) {
-        set(
-          version === UniswapVersion.v2
-            ? uniswapV2TokenState
-            : uniswapV3TokenState,
-          (tokens) => addData(version, tokens, data.tokens, false, ethPrice),
-        )
-      }
-    },
+    ({ set }) =>
+      async ({ data }: subReturnValue) => {
+        if (data?.tokens?.length && ethPrice > 0) {
+          set(
+            version === UniswapVersion.v2
+              ? uniswapV2TokenState
+              : uniswapV3TokenState,
+            (tokens) => addData(version, tokens, data.tokens, false, ethPrice),
+          )
+        }
+      },
     [],
   )
 
   const addHistoricalData = useRecoilCallback(
-    ({ snapshot, set }) => async (blockNumber: number) => {
-      const tokens = await snapshot.getPromise(
-        version === UniswapVersion.v2
-          ? uniswapV2TokenState
-          : uniswapV3TokenState,
-      )
-      if (blockNumber > 0 && tokens?.length && ethPrice > 0) {
-        set(
+    ({ snapshot, set }) =>
+      async (blockNumber: number) => {
+        const tokens = await snapshot.getPromise(
           version === UniswapVersion.v2
             ? uniswapV2TokenState
             : uniswapV3TokenState,
-          await addGraphInfo(version, tokens, blockNumber, ethPrice),
         )
-      }
-    },
+        if (blockNumber > 0 && tokens?.length && ethPrice > 0) {
+          set(
+            version === UniswapVersion.v2
+              ? uniswapV2TokenState
+              : uniswapV3TokenState,
+            await addGraphInfo(version, tokens, blockNumber, ethPrice),
+          )
+        }
+      },
     [],
   )
 

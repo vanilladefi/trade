@@ -8,7 +8,6 @@ import {
 import Button from 'components/input/Button'
 import { Spinner } from 'components/Spinner'
 import Spacer from 'components/typography/Spacer'
-import { formatUnits } from 'ethers/lib/utils'
 import useTokenConversion from 'hooks/useTokenConversion'
 import useTransaction from 'hooks/useTransaction'
 import React, { useEffect, useState } from 'react'
@@ -22,33 +21,19 @@ const Approved = ({
   transactionHash,
   convert,
 }: ConversionViewProps): JSX.Element => {
-  const { getAllowance } = useTokenConversion()
+  const { allowance } = useTokenConversion()
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
   const [waiting, setWaiting] = useState<boolean>(true)
-  const [allowance, setAllowance] = useState<string>('')
   const transaction = useTransaction(VanillaVersion.V1_1, transactionHash || '')
 
   useEffect(() => {
-    const checkAllowance = async () => {
-      try {
-        const allowance = await getAllowance()
-        if (!allowance.isZero()) {
-          setWaiting(false)
-        }
-        const parsedAllowance = formatUnits(allowance, 12)
-        setAllowance(parsedAllowance)
-      } catch (e) {
-        console.error(e)
-      }
-    }
-    checkAllowance()
     if (transactionHash && transaction?.receipt) {
       setWaiting(false)
     }
     return () => {
       setWaiting(true)
     }
-  }, [transactionHash, transaction, getAllowance])
+  }, [transactionHash, transaction])
 
   return (
     <Row alignItems={Alignment.STRETCH}>
