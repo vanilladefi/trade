@@ -44,7 +44,6 @@ const Available = ({
       >
         <Button
           onClick={() => {
-            console.log('Clicked')
             setTokenConversionState(ConversionState.READY)
           }}
         >

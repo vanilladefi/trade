@@ -96,7 +96,6 @@ const useTradeEngine = (
           blockDeadline: blockDeadline,
         })
       } else if (version === VanillaVersion.V1_1) {
-        console.log(lpFeePercentage.numerator.toString())
         transaction = await uniV3.buy({
           amountReceived: amountReceived,
           amountPaid: amountPaid,
@@ -131,7 +130,6 @@ const useTradeEngine = (
     blockDeadline,
   }: TransactionProps) => {
     let transaction: Transaction | undefined = undefined
-    console.log(lpFeePercentage.numerator.toString())
     if (signer) {
       if (version === VanillaVersion.V1_0) {
         transaction = await uniV2.sell({
