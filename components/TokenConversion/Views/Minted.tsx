@@ -8,8 +8,7 @@ import {
 import Button from 'components/input/Button'
 import { Spinner } from 'components/Spinner'
 import Spacer from 'components/typography/Spacer'
-import { parseUnits } from 'ethers/lib/utils'
-import useTokenConversion from 'hooks/useTokenConversion'
+import { formatUnits } from 'ethers/lib/utils'
 import useTransaction from 'hooks/useTransaction'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useSetRecoilState } from 'recoil'
@@ -19,7 +18,6 @@ import { ConversionState } from 'types/migration'
 import { ConversionViewProps } from '..'
 
 const Minted = ({ transactionHash }: ConversionViewProps): JSX.Element => {
-  const { getAllowance, allowance } = useTokenConversion()
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
   const [waiting, setWaiting] = useState(true)
   const transaction = useTransaction(VanillaVersion.V1_1, transactionHash || '')
@@ -34,13 +32,11 @@ const Minted = ({ transactionHash }: ConversionViewProps): JSX.Element => {
   }, [transactionHash, transaction])
 
   const getAmountConverted = useCallback(() => {
-    let parsedAmount = '0'
-    console.log(allowance)
     if (transaction?.amountConverted) {
-      parsedAmount = parseUnits(transaction?.amountConverted, 12).toString()
+      return formatUnits(transaction.amountConverted, 12)
     }
-    return parsedAmount
-  }, [allowance, transaction?.amountConverted])
+    return '0'
+  }, [transaction])
 
   return (
     <Row alignItems={Alignment.STRETCH}>
