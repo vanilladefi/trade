@@ -202,14 +202,6 @@ export const estimateGas = async (
               return formatUnits(value.mul(gasPrice))
             })
         } else {
-          console.log(
-            trade,
-            trade
-              .minimumAmountOut(slippageTolerance)
-              .toSignificant()
-              .toString(),
-            trade.inputAmount.toSignificant().toString(),
-          )
           const sellOrder = {
             token: token0.address,
             wethOwner: routerV1_1.address,
@@ -232,7 +224,6 @@ export const estimateGas = async (
   } catch (e) {
     console.error(e)
   }
-  console.log(gasEstimate)
   return gasEstimate
 }
 
