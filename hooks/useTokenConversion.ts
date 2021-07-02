@@ -84,8 +84,9 @@ export default function useTokenConversion(): {
     if (vnlToken1 && isAddress(walletAddress) && vnl1_1Addr) {
       allowance = await vnlToken1.allowance(walletAddress, vnl1_1Addr)
     }
+    setAllowance(formatUnits(allowance, 12))
     return allowance
-  }, [vnlToken1, vnlToken2?.resolvedAddress, walletAddress])
+  }, [setAllowance, vnlToken1, vnlToken2?.resolvedAddress, walletAddress])
 
   const convert = useCallback(async () => {
     let conversionReceipt: ContractTransaction | null = null

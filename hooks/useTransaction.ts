@@ -75,6 +75,7 @@ const purchaseHandler = ({
     hash: transactionHash,
     blockNumber: receipt.blockNumber,
     from: receipt.from,
+    receipt: receipt,
   }
 
   setTransactionDetails(newDetails)
@@ -83,18 +84,9 @@ const purchaseHandler = ({
     preliminaryTransactionDetails
       ? {
           ...preliminaryTransactionDetails,
-          receipt: receipt,
-          amountPaid: amountPaid,
-          amountReceived: amountReceived,
+          ...newDetails,
         }
-      : {
-          hash: newDetails.hash,
-          action: purchase ? Action.PURCHASE : Action.SALE,
-          from: receipt.from,
-          receipt: receipt,
-          amountPaid: amountPaid,
-          amountReceived: amountReceived,
-        }
+      : newDetails
 
   updateTransaction(newTransactionDetails.hash, newTransactionDetails)
 }
@@ -140,6 +132,7 @@ const saleHandler = ({
     blockNumber: receipt.blockNumber,
     from: receipt.from,
     reward: vnlReceived,
+    receipt: receipt,
   }
 
   setTransactionDetails(newDetails)
@@ -148,18 +141,9 @@ const saleHandler = ({
     preliminaryTransactionDetails
       ? {
           ...preliminaryTransactionDetails,
-          receipt: receipt,
-          amountPaid: amountPaid,
-          amountReceived: amountReceived,
+          ...newDetails,
         }
-      : {
-          hash: newDetails.hash,
-          action: Action.SALE,
-          from: receipt.from,
-          receipt: receipt,
-          amountPaid: amountPaid,
-          amountReceived: amountReceived,
-        }
+      : newDetails
 
   updateTransaction(newTransactionDetails.hash, newTransactionDetails)
 }
@@ -208,14 +192,9 @@ const conversionHandler = ({
       preliminaryTransactionDetails
         ? {
             ...preliminaryTransactionDetails,
-            receipt: receipt,
+            ...newDetails,
           }
-        : {
-            hash: newDetails.hash,
-            action: Action.CONVERSION,
-            from: receipt.from,
-            receipt: receipt,
-          }
+        : newDetails
 
     updateTransaction(newTransactionDetails.hash, newTransactionDetails)
   } catch (e) {
@@ -265,15 +244,9 @@ const approvalHandler = ({
     preliminaryTransactionDetails
       ? {
           ...preliminaryTransactionDetails,
-          receipt: receipt,
+          ...newDetails,
         }
-      : {
-          hash: newDetails.hash,
-          action: Action.APPROVAL,
-          amountApproved: amountApproved,
-          from: receipt.from,
-          receipt: receipt,
-        }
+      : newDetails
 
   updateTransaction(newTransactionDetails.hash, newTransactionDetails)
 }
