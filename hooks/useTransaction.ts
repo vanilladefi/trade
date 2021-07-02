@@ -1,5 +1,4 @@
-import { BigNumber, ethers } from 'ethers'
-import { Interface } from 'ethers/lib/utils'
+import { Contract, ethers } from 'ethers'
 import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
@@ -16,7 +15,7 @@ import useAllTransactions from './useAllTransactions'
 type TransactionHandlerProps = {
   transactionHash: string
   preliminaryTransactionDetails: TransactionDetails | null
-  contractInterface: Interface
+  contract: Contract
   receipt: ethers.providers.TransactionReceipt
   setTransactionDetails: (newDetails: TransactionDetails) => void
   updateTransaction: (hash: string, newDetails: TransactionDetails) => void
@@ -24,43 +23,26 @@ type TransactionHandlerProps = {
 
 type TransactionHandler = (arg0: TransactionHandlerProps) => void
 
-const findTopic = (
-  receipt: ethers.providers.TransactionReceipt,
-  topic: string,
-) =>
-  receipt.logs.find((log) => {
-    if (log.topics.find((logTopic) => logTopic === topic)) {
-      return true
-    } else {
-      return false
-    }
-  })
-
-const constructTopic = (topic: string) => ethers.utils.id(topic)
-
-const purchaseHandler = ({
+const purchaseHandler = async ({
   transactionHash,
   preliminaryTransactionDetails,
-  contractInterface,
+  contract,
   receipt,
   setTransactionDetails,
   updateTransaction,
 }: TransactionHandlerProps) => {
-  const eventName = 'TokensPurchased'
-  const eventFragment = contractInterface.getEvent(eventName)
-  const topicString = contractInterface.getEventTopic(eventFragment)
-  const purchaseTopic = constructTopic(topicString)
-
-  const purchase = findTopic(receipt, purchaseTopic)
-  const data = purchase?.data || ''
-
   let amountPaid = '0'
   let amountReceived = '0'
 
-  if (data !== '') {
-    const { amount, eth }: ethers.utils.Result =
-      contractInterface.decodeEventLog(eventFragment, data)
-    if ((amount as BigNumber) && (eth as BigNumber)) {
+  if (contract?.filters?.TokensPurchased as ethers.EventFilter) {
+    const purchaseFilter: ethers.EventFilter =
+      contract.filters.TokensPurchased()
+    const events: ethers.Event[] = await contract.queryFilter(
+      purchaseFilter,
+      receipt.blockNumber,
+    )
+    if (events.length > 0) {
+      const { eth, amount } = events[0].args || { eth: '0', amount: '0' }
       amountPaid = eth.toString()
       amountReceived = amount.toString()
     }
@@ -91,34 +73,28 @@ const purchaseHandler = ({
   updateTransaction(newTransactionDetails.hash, newTransactionDetails)
 }
 
-const saleHandler = ({
+const saleHandler = async ({
   transactionHash,
   preliminaryTransactionDetails,
-  contractInterface,
+  contract,
   receipt,
   setTransactionDetails,
   updateTransaction,
 }: TransactionHandlerProps) => {
-  const eventName = 'TokensSold'
-  const eventFragment = contractInterface.getEvent(eventName)
-  const topicString = contractInterface.getEventTopic(eventFragment)
-  const saleTopic = constructTopic(topicString)
-
-  const sale = findTopic(receipt, saleTopic)
-  const data = sale?.data || ''
-
   let amountPaid = '0'
   let amountReceived = '0'
   let vnlReceived: string | undefined
 
-  if (data !== '') {
-    const { amount, eth, reward }: ethers.utils.Result =
-      contractInterface.decodeEventLog(eventFragment, data)
-
-    if ((amount as BigNumber) && (eth as BigNumber)) {
+  if (contract?.filters?.TokensSold as ethers.EventFilter) {
+    const saleFilter: ethers.EventFilter = contract.filters.TokensSold()
+    const events: ethers.Event[] = await contract.queryFilter(
+      saleFilter,
+      receipt.blockNumber,
+    )
+    if (events.length > 0) {
+      const { eth, amount } = events[0].args || { eth: '0', amount: '0' }
       amountPaid = amount.toString()
       amountReceived = eth.toString()
-      vnlReceived = reward.toString()
     }
   }
 
@@ -148,31 +124,26 @@ const saleHandler = ({
   updateTransaction(newTransactionDetails.hash, newTransactionDetails)
 }
 
-const conversionHandler = ({
+const conversionHandler = async ({
   transactionHash,
   preliminaryTransactionDetails,
-  contractInterface,
+  contract,
   receipt,
   setTransactionDetails,
   updateTransaction,
 }: TransactionHandlerProps) => {
   try {
-    const eventName = 'VNLConverted'
-    const eventFragment = contractInterface.getEvent(eventName)
-    const topicString = contractInterface.getEventTopic(eventFragment)
-    const conversionTopic = constructTopic(topicString)
-
-    const conversion = findTopic(receipt, conversionTopic)
-    const data = conversion?.data || ''
     let amountConverted
 
-    if (data !== '') {
-      const { amount }: ethers.utils.Result = contractInterface.decodeEventLog(
-        eventFragment,
-        data,
+    if (contract?.filters?.VNLConverted as ethers.EventFilter) {
+      const conversionFilter: ethers.EventFilter =
+        contract.filters.VNLConverted()
+      const events: ethers.Event[] = await contract.queryFilter(
+        conversionFilter,
+        receipt.blockNumber,
       )
-
-      if (amount as BigNumber) {
+      if (events.length > 0) {
+        const { amount } = events[0].args || { amount: '0' }
         amountConverted = amount.toString()
       }
     }
@@ -202,30 +173,25 @@ const conversionHandler = ({
   }
 }
 
-const approvalHandler = ({
+const approvalHandler = async ({
   transactionHash,
   preliminaryTransactionDetails,
-  contractInterface,
+  contract,
   receipt,
   setTransactionDetails,
   updateTransaction,
 }: TransactionHandlerProps) => {
-  const eventName = 'Approval'
-  const eventFragment = contractInterface.getEvent(eventName)
-  const topicString = contractInterface.getEventTopic(eventFragment)
-  const topic = constructTopic(topicString)
-
-  const approval = findTopic(receipt, topic)
-  const data = approval?.data || ''
   let amountApproved
 
-  if (data !== '') {
-    const { value }: ethers.utils.Result = contractInterface.decodeEventLog(
-      eventFragment,
-      data,
+  if (contract?.filters?.Approval as ethers.EventFilter) {
+    const approvalFilter: ethers.EventFilter = contract.filters.Approval()
+    const events: ethers.Event[] = await contract.queryFilter(
+      approvalFilter,
+      receipt.blockNumber,
     )
-    if (value as BigNumber) {
-      amountApproved = value.toString()
+    if (events.length > 0) {
+      const { amount } = events[0].args || { amount: '0' }
+      amountApproved = amount.toString()
     }
   }
 
@@ -259,10 +225,10 @@ function useTransaction(
   const [transactionDetails, setTransactionDetails] =
     useState<TransactionDetails | null>(null)
   const provider = useRecoilValue(providerState)
-  const VanillaV1Token02Interface = VanillaV1Token02__factory.connect(
+  const VanillaV1Token02 = VanillaV1Token02__factory.connect(
     getVnlTokenAddress(VanillaVersion.V1_1),
     provider,
-  ).interface
+  )
 
   useEffect(() => {
     const waitForConfirmation = async () => {
@@ -270,40 +236,48 @@ function useTransaction(
         const preliminaryTransactionDetails = getTransaction(id)
 
         let handler: TransactionHandler
-        let contractInterface: Interface
+        let contract: Contract
+
         switch (preliminaryTransactionDetails?.action) {
           case Action.PURCHASE: {
-            const VanillaV1Router02Interface =
-              VanillaV1Router02__factory.connect(
-                getVanillaRouterAddress(VanillaVersion.V1_1),
-                provider,
-              ).interface
+            const VanillaV1Router02 = VanillaV1Router02__factory.connect(
+              getVanillaRouterAddress(VanillaVersion.V1_1),
+              provider,
+            )
             handler = purchaseHandler
-            contractInterface =
+            contract =
               version === VanillaVersion.V1_0
-                ? new ethers.utils.Interface(VanillaV1Router01.abi)
-                : VanillaV1Router02Interface
+                ? new ethers.Contract(
+                    getVanillaRouterAddress(version),
+                    VanillaV1Router01.abi,
+                    provider,
+                  )
+                : VanillaV1Router02
             break
           }
           case Action.SALE:
-            const VanillaV1Router02Interface =
-              VanillaV1Router02__factory.connect(
-                getVanillaRouterAddress(VanillaVersion.V1_1),
-                provider,
-              ).interface
+            const VanillaV1Router02 = VanillaV1Router02__factory.connect(
+              getVanillaRouterAddress(VanillaVersion.V1_1),
+              provider,
+            )
+
             handler = saleHandler
-            contractInterface =
+            contract =
               version === VanillaVersion.V1_0
-                ? new ethers.utils.Interface(VanillaV1Router01.abi)
-                : VanillaV1Router02Interface
+                ? new ethers.Contract(
+                    getVanillaRouterAddress(version),
+                    VanillaV1Router01.abi,
+                    provider,
+                  )
+                : VanillaV1Router02
             break
           case Action.CONVERSION:
             handler = conversionHandler
-            contractInterface = VanillaV1Token02Interface
+            contract = VanillaV1Token02
             break
           case Action.APPROVAL:
             handler = approvalHandler
-            contractInterface = VanillaV1Token02Interface
+            contract = VanillaV1Token02
             break
           default:
             return
@@ -314,7 +288,7 @@ function useTransaction(
         handler({
           transactionHash: id,
           preliminaryTransactionDetails: preliminaryTransactionDetails,
-          contractInterface: contractInterface,
+          contract: contract,
           receipt: receipt,
           setTransactionDetails: setTransactionDetails,
           updateTransaction: updateTransaction,
