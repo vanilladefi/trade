@@ -11,7 +11,7 @@ import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { TransactionProps } from 'lib/uniswap'
 import * as uniV2 from 'lib/uniswap/v2/trade'
 import * as uniV3 from 'lib/uniswap/v3/trade'
-import { estimateGas, estimateReward } from 'lib/vanilla'
+import { calculateGasMargin, estimateGas, estimateReward } from 'lib/vanilla'
 import { debounce } from 'lodash'
 import { Dispatch, SetStateAction, useCallback, useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
@@ -20,6 +20,7 @@ import {
   currentErrorState,
   currentFeeEstimate,
   currentGasEstimate,
+  currentGasLimitEstimate,
   currentRewardEstimate,
   currentTrade,
   currentTransactionState,
@@ -61,6 +62,7 @@ const useTradeEngine = (
   token1: Token | null
   eligibleBalance0Raw: BigNumber
   balance1Raw: BigNumber
+  estimatedGasLimit: BigNumber | null
   estimatedGas: string | null
   estimatedFees: string | null
   estimatedReward: string | null
@@ -83,6 +85,7 @@ const useTradeEngine = (
     tokenPaid,
     tokenReceived,
     blockDeadline,
+    gasLimit,
   }: TransactionProps) => {
     let transaction: Transaction | undefined = undefined
     if (signer) {
@@ -94,6 +97,7 @@ const useTradeEngine = (
           tokenReceived: tokenReceived,
           signer: signer,
           blockDeadline: blockDeadline,
+          gasLimit: gasLimit,
         })
       } else if (version === VanillaVersion.V1_1) {
         transaction = await uniV3.buy({
@@ -104,6 +108,7 @@ const useTradeEngine = (
           signer: signer,
           blockDeadline: blockDeadline,
           feeTier: 3000,
+          gasLimit: gasLimit,
         })
       }
       transaction?.hash &&
@@ -128,6 +133,7 @@ const useTradeEngine = (
     tokenPaid,
     tokenReceived,
     blockDeadline,
+    gasLimit,
   }: TransactionProps) => {
     let transaction: Transaction | undefined = undefined
     if (signer) {
@@ -139,6 +145,7 @@ const useTradeEngine = (
           tokenReceived: tokenReceived,
           signer: signer,
           blockDeadline: blockDeadline,
+          gasLimit: gasLimit,
         })
       } else if (version === version) {
         transaction = await uniV3.sell({
@@ -149,6 +156,7 @@ const useTradeEngine = (
           signer: signer,
           blockDeadline: blockDeadline,
           feeTier: 3000,
+          gasLimit: gasLimit,
         })
       }
       transaction?.hash &&
@@ -208,6 +216,9 @@ const useTradeEngine = (
   )
 
   // Estimates
+  const [estimatedGasLimit, setEstimatedGasLimit] = useRecoilState(
+    currentGasLimitEstimate,
+  )
   const [estimatedGas, setEstimatedGas] = useRecoilState(currentGasEstimate)
   const [estimatedFees, setEstimatedFees] = useRecoilState(currentFeeEstimate)
   const [estimatedReward, setEstimatedReward] = useRecoilState(
@@ -282,8 +293,12 @@ const useTradeEngine = (
           operation,
           token0,
           slippageTolerance,
-        )
-        setEstimatedGas(gasEstimate)
+        ).then(calculateGasMargin)
+        setEstimatedGasLimit(gasEstimate)
+        const gasPrice = await signer.getGasPrice()
+        if (gasPrice) {
+          setEstimatedGas(formatUnits(gasEstimate.mul(gasPrice)))
+        }
       }
     }, 500)
     debouncedGasEstimation()
@@ -295,6 +310,7 @@ const useTradeEngine = (
     trade,
     version,
     signer,
+    setEstimatedGasLimit,
     setEstimatedGas,
   ])
 
@@ -485,6 +501,7 @@ const useTradeEngine = (
             tokenReceived: token0,
             signer: signer,
             blockDeadline: blockDeadline,
+            gasLimit: estimatedGasLimit,
           })
         } else {
           hash = await executeSell({
@@ -496,6 +513,7 @@ const useTradeEngine = (
             tokenReceived: token1,
             signer: signer,
             blockDeadline: blockDeadline,
+            gasLimit: estimatedGasLimit,
           })
         }
 
@@ -532,6 +550,7 @@ const useTradeEngine = (
     token1,
     eligibleBalance0Raw,
     balance1Raw,
+    estimatedGasLimit,
     estimatedGas,
     estimatedFees,
     estimatedReward,

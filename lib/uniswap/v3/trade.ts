@@ -19,7 +19,7 @@ import { isAddress, tokenListChainId } from 'lib/tokens'
 import { VanillaVersion } from 'types/general'
 import type { Token, UniSwapToken } from 'types/trade'
 import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Router02__factory'
-import { getVanillaRouterAddress } from 'utils/config'
+import { ethersOverrides, getVanillaRouterAddress } from 'utils/config'
 import { TransactionProps } from '..'
 
 export const buy = async ({
@@ -29,10 +29,12 @@ export const buy = async ({
   signer,
   blockDeadline,
   feeTier,
+  gasLimit,
 }: TransactionProps): Promise<Transaction> => {
   const vnl1_1Addr = isAddress(getVanillaRouterAddress(VanillaVersion.V1_1))
   if (vnl1_1Addr && tokenReceived?.address && signer && feeTier) {
     const router = VanillaV1Router02__factory.connect(vnl1_1Addr, signer)
+    const usedGasLimit = gasLimit ? gasLimit : ethersOverrides.gasLimit
     const orderData = {
       token: tokenReceived.address,
       wethOwner: vnl1_1Addr,
@@ -43,7 +45,7 @@ export const buy = async ({
     }
     const receipt = await router.executePayable(
       [router.interface.encodeFunctionData('buy', [orderData])],
-      { value: amountPaid },
+      { value: amountPaid, gasLimit: usedGasLimit },
     )
     return receipt
   } else {
@@ -58,10 +60,12 @@ export const sell = async ({
   signer,
   blockDeadline,
   feeTier,
+  gasLimit,
 }: TransactionProps): Promise<Transaction> => {
   const vnl1_1Addr = isAddress(getVanillaRouterAddress(VanillaVersion.V1_1))
   if (vnl1_1Addr && tokenPaid?.address && signer && feeTier) {
     const router = VanillaV1Router02__factory.connect(vnl1_1Addr, signer)
+    const usedGasLimit = gasLimit ? gasLimit : ethersOverrides.gasLimit
     const orderData = {
       token: tokenPaid.address,
       wethOwner: ethers.constants.AddressZero,
@@ -70,9 +74,10 @@ export const sell = async ({
       blockTimeDeadline: blockDeadline,
       fee: feeTier,
     }
-    const receipt = await router.executePayable([
-      router.interface.encodeFunctionData('sell', [orderData]),
-    ])
+    const receipt = await router.executePayable(
+      [router.interface.encodeFunctionData('sell', [orderData])],
+      { gasLimit: usedGasLimit },
+    )
     return receipt
   } else {
     return Promise.reject('No Vanilla v1.1 router on used chain!')
