@@ -151,13 +151,15 @@ const PrepareView = ({
               <Button
                 onClick={async () => {
                   const hash = await executeTrade()
-                  // Wait for a bit, and then redirect the user to the TradeFlower view with more trade info
-                  setTimeout(() => {
-                    setTransactionState(TransactionState.PREPARE)
-                    router.push(`/trade?id=${hash}`, undefined, {
-                      shallow: true,
-                    })
-                  }, 1500)
+                  if (hash) {
+                    // Wait for a bit, and then redirect the user to the TradeFlower view with more trade info
+                    setTimeout(() => {
+                      setTransactionState(TransactionState.PREPARE)
+                      router.push(`/trade?id=${hash}`, undefined, {
+                        shallow: true,
+                      })
+                    }, 1500)
+                  }
                 }}
                 size={ButtonSize.LARGE}
                 buttonState={
