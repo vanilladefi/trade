@@ -19,6 +19,7 @@ export const buy = async ({
   tokenReceived,
   signer,
   blockDeadline,
+  gasLimit,
 }: TransactionProps): Promise<Transaction> => {
   const router = getContract(
     getVanillaRouterAddress(VanillaVersion.V1_0),
@@ -26,11 +27,14 @@ export const buy = async ({
     signer,
   )
 
+  const usedGasLimit =
+    gasLimit !== undefined ? gasLimit : ethersOverrides.gasLimit
+
   const receipt = await router.depositAndBuy(
     tokenReceived?.address,
     amountReceived,
     blockDeadline,
-    { value: amountPaid, ...ethersOverrides },
+    { value: amountPaid, gasLimit: usedGasLimit },
   )
 
   return receipt
@@ -42,6 +46,7 @@ export const sell = async ({
   tokenPaid,
   signer,
   blockDeadline,
+  gasLimit,
 }: TransactionProps): Promise<Transaction> => {
   const router = getContract(
     getVanillaRouterAddress(VanillaVersion.V1_0),
@@ -49,12 +54,15 @@ export const sell = async ({
     signer,
   )
 
+  const usedGasLimit =
+    gasLimit !== undefined ? gasLimit : ethersOverrides.gasLimit
+
   const receipt = await router.sellAndWithdraw(
     tokenPaid?.address,
     amountPaid,
     amountReceived,
     blockDeadline,
-    { ...ethersOverrides },
+    { gasLimit: usedGasLimit },
   )
 
   return receipt

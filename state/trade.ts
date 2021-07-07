@@ -1,6 +1,7 @@
 import { Percent } from '@uniswap/sdk-core'
 import { Trade as V2Trade } from '@uniswap/v2-sdk'
 import { Trade as V3Trade } from '@uniswap/v3-sdk'
+import { BigNumber } from 'ethers'
 import { TransactionState } from 'hooks/useTradeEngine'
 import { UniswapVersion } from 'lib/graphql'
 import { weth } from 'lib/tokens'
@@ -84,6 +85,11 @@ export const token0Amount = atom<string>({
 export const token1Amount = atom<string>({
   key: 'token1AmountSelector',
   default: '0',
+})
+
+export const currentGasLimitEstimate = atom<BigNumber | null>({
+  key: 'currentGasLimitEstimate',
+  default: null,
 })
 
 export const currentGasEstimate = atom<string | null>({

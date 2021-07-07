@@ -24,6 +24,7 @@ const TradeInfoDisplay = ({ version }: TradeInfoProps): JSX.Element => {
   } = useTradeEngine(version)
   const ethUsdPrice = useRecoilValue(currentETHPrice)
   const operation = useRecoilValue(selectedOperation)
+
   return (
     <>
       <Column width={Width.TWELVE}>

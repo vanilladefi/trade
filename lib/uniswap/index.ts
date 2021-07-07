@@ -1,4 +1,4 @@
-import { providers } from 'ethers'
+import { BigNumber, providers } from 'ethers'
 import { UniSwapToken } from 'types/trade'
 
 export enum Field {
@@ -14,13 +14,5 @@ export interface TransactionProps {
   signer?: providers.JsonRpcSigner
   blockDeadline: number
   feeTier?: number
-}
-
-export interface SellProps {
-  amountReceived: string
-  amountPaid: string
-  tokenPaid: UniSwapToken
-  tokenReceived: UniSwapToken
-  signer?: providers.JsonRpcSigner
-  blockDeadline: number
+  gasLimit: BigNumber | null
 }

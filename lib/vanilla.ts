@@ -10,7 +10,6 @@ import {
   Signer,
   utils,
 } from 'ethers'
-import { formatUnits } from 'ethers/lib/utils'
 import keccak256 from 'keccak256'
 import { tryParseAmount } from 'lib/uniswap/v2/trade'
 import { MerkleTree } from 'merkletreejs'
@@ -138,7 +137,7 @@ export const estimateGas = async (
   operation: Operation,
   token0: UniSwapToken,
   slippageTolerance: Percent,
-): Promise<string> => {
+): Promise<BigNumber> => {
   const routerV1_0 = new ethers.Contract(
     getVanillaRouterAddress(VanillaVersion.V1_0),
     JSON.stringify(vanillaRouter.abi),
@@ -149,39 +148,29 @@ export const estimateGas = async (
     signer,
   )
 
-  let gasEstimate = '0'
+  let gasEstimate: BigNumber = BigNumber.from('0')
   try {
     if (signer && trade && provider) {
       const block = await provider.getBlock('latest')
-      const gasPrice = await signer.getGasPrice()
       const blockDeadline = block.timestamp + blockDeadlineThreshold
 
       if (version === VanillaVersion.V1_0 && routerV1_0) {
         if (operation === Operation.Buy) {
-          gasEstimate = await routerV1_0.estimateGas
-            .depositAndBuy(
-              token0.address,
-              trade?.minimumAmountOut(slippageTolerance).raw.toString(),
-              blockDeadline,
-              {
-                value: trade?.inputAmount.raw.toString(),
-              },
-            )
-            .then(async (value) => {
-              return formatUnits(value.mul(gasPrice))
-            })
+          gasEstimate = await routerV1_0.estimateGas.depositAndBuy(
+            token0.address,
+            trade?.minimumAmountOut(slippageTolerance).raw.toString(),
+            blockDeadline,
+            {
+              value: trade?.inputAmount.raw.toString(),
+            },
+          )
         } else {
-          gasEstimate = await routerV1_0.estimateGas
-            .sellAndWithdraw(
-              token0.address,
-              trade?.inputAmount.raw.toString(),
-              trade?.minimumAmountOut(slippageTolerance).raw.toString(),
-              blockDeadline,
-            )
-            .then(async (value) => {
-              const price = await signer.getGasPrice()
-              return formatUnits(value.mul(price))
-            })
+          gasEstimate = await routerV1_0.estimateGas.sellAndWithdraw(
+            token0.address,
+            trade?.inputAmount.raw.toString(),
+            trade?.minimumAmountOut(slippageTolerance).raw.toString(),
+            blockDeadline,
+          )
         }
       } else if (version === VanillaVersion.V1_1 && routerV1_1) {
         if (operation === Operation.Buy) {
@@ -193,14 +182,10 @@ export const estimateGas = async (
             blockTimeDeadline: blockDeadline,
             fee: 3000,
           }
-          gasEstimate = await routerV1_1.estimateGas
-            .executePayable(
-              [routerV1_1.interface.encodeFunctionData('buy', [buyOrder])],
-              { value: trade.inputAmount.raw.toString() },
-            )
-            .then(async (value) => {
-              return formatUnits(value.mul(gasPrice))
-            })
+          gasEstimate = await routerV1_1.estimateGas.executePayable(
+            [routerV1_1.interface.encodeFunctionData('buy', [buyOrder])],
+            { value: trade.inputAmount.raw.toString() },
+          )
         } else {
           const sellOrder = {
             token: token0.address,
@@ -210,14 +195,9 @@ export const estimateGas = async (
             blockTimeDeadline: blockDeadline,
             fee: 3000,
           }
-          gasEstimate = await routerV1_1.estimateGas
-            .executePayable([
-              routerV1_1.interface.encodeFunctionData('sell', [sellOrder]),
-            ])
-            .then(async (value) => {
-              const price = await signer.getGasPrice()
-              return formatUnits(value.mul(price))
-            })
+          gasEstimate = await routerV1_1.estimateGas.executePayable([
+            routerV1_1.interface.encodeFunctionData('sell', [sellOrder]),
+          ])
         }
       }
     }
@@ -334,4 +314,8 @@ export const snapshot = async (
     root,
     merkleTree,
   }
+}
+
+export function calculateGasMargin(value: BigNumber): BigNumber {
+  return value.mul(BigNumber.from(10000 + 2500)).div(BigNumber.from(10000))
 }
