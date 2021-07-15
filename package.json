@@ -8,7 +8,9 @@
     "start": "next start",
     "type-check": "tsc",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "e2e": "node ./e2e/smoke-test.spec.js",
+    "e2e-prep": "node ./node_modules/puppeteer-core/install.js"
   },
   "husky": {
     "hooks": {
@@ -64,6 +66,7 @@
     "web3": "^1.3.4"
   },
   "devDependencies": {
+    "@nodefactory/dappeteer": "^2.0.1",
     "@types/dom-to-image": "^2.6.2",
     "@types/lodash.debounce": "^4.0.6",
     "@types/node": "^12.19.16",
@@ -81,6 +84,7 @@
     "husky": "^5.0.9",
     "lint-staged": "^10.5.4",
     "prettier": "^2.2.1",
+    "puppeteer-core": "^10.1.0",
     "typescript": "^4.1.5"
   },
   "license": "MIT"
