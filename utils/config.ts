@@ -34,3 +34,5 @@ export const blockDeadlineThreshold = 600 // 600 seconds added to the latest blo
 export const ethersOverrides = { gasLimit: 400000 }
 
 export const epoch = Number(process.env.NEXT_PUBLIC_EPOCH) || 0
+
+export const hiddenTokens = ['0xd46ba6d942050d489dbd938a2c909a5d5039a161']

@@ -8,6 +8,7 @@ import type { CellProps } from 'react-table'
 import { useRecoilValue } from 'recoil'
 import { allTokensStoreState } from 'state/tokens'
 import { HandleBuyClick, Liquidity, ListColumn, Token } from 'types/trade'
+import { hiddenTokens } from 'utils/config'
 
 interface Props {
   onBuyClick: HandleBuyClick
@@ -79,7 +80,9 @@ export default function AvailableTokens({
   const initialSortBy = useMemo(() => [{ id: 'liquidity', desc: true }], [])
 
   const filterMinableTokens = (input: Token[]) =>
-    input.filter((token) => token.eligible)
+    input.filter(
+      (token) => token.eligible && !hiddenTokens.includes(token.address),
+    )
 
   return (
     <>
