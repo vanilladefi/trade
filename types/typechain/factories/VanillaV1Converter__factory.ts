@@ -5,18 +5,43 @@
 import { Contract, Signer } from "ethers";
 import { Provider } from "@ethersproject/providers";
 
-import type { IVanillaV1Converter } from "../IVanillaV1Converter";
+import type { VanillaV1Converter } from "../VanillaV1Converter";
 
-export class IVanillaV1Converter__factory {
+export class VanillaV1Converter__factory {
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): IVanillaV1Converter {
-    return new Contract(address, _abi, signerOrProvider) as IVanillaV1Converter;
+  ): VanillaV1Converter {
+    return new Contract(address, _abi, signerOrProvider) as VanillaV1Converter;
   }
 }
 
 const _abi = [
+  {
+    inputs: [],
+    name: "ConversionWindowClosed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "FreezerBalanceMismatch",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NoConvertibleVNL",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "UnexpectedTokensAfterConversion",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "VerificationFailed",
+    type: "error",
+  },
   {
     anonymous: false,
     inputs: [

@@ -23,6 +23,16 @@ export class IVanillaV1MigrationState__factory {
 const _abi = [
   {
     inputs: [],
+    name: "MigrationStateUpdateDisabled",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "UnauthorizedAccess",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "blockNumber",
     outputs: [
       {

@@ -17,13 +17,10 @@ import {
 } from 'state/migration'
 import { signerState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
-import {
-  VanillaV1Router02__factory,
-  VanillaV1Token01,
-  VanillaV1Token01__factory,
-  VanillaV1Token02,
-  VanillaV1Token02__factory,
-} from 'types/typechain/vanilla_v1.1'
+import { VanillaV1Token01, VanillaV1Token02 } from 'types/typechain'
+import { VanillaV1Router02__factory } from 'types/typechain/factories/VanillaV1Router02__factory'
+import { VanillaV1Token01__factory } from 'types/typechain/factories/VanillaV1Token01__factory'
+import { VanillaV1Token02__factory } from 'types/typechain/factories/VanillaV1Token02__factory'
 import { getVanillaRouterAddress, getVnlTokenAddress } from 'utils/config'
 import useWalletAddress from './useWalletAddress'
 

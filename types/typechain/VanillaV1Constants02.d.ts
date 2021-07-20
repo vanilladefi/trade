@@ -11,38 +11,19 @@ import {
   PopulatedTransaction,
   Contract,
   ContractTransaction,
-  CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface IVanillaV1Safelist01Interface extends ethers.utils.Interface {
-  functions: {
-    "isSafelisted(address)": FunctionFragment;
-  };
+interface VanillaV1Constants02Interface extends ethers.utils.Interface {
+  functions: {};
 
-  encodeFunctionData(
-    functionFragment: "isSafelisted",
-    values: [string]
-  ): string;
-
-  decodeFunctionResult(
-    functionFragment: "isSafelisted",
-    data: BytesLike
-  ): Result;
-
-  events: {
-    "TokensAdded(address[])": EventFragment;
-    "TokensRemoved(address[])": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "TokensAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TokensRemoved"): EventFragment;
+  events: {};
 }
 
-export class IVanillaV1Safelist01 extends Contract {
+export class VanillaV1Constants02 extends Contract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -83,61 +64,15 @@ export class IVanillaV1Safelist01 extends Contract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: IVanillaV1Safelist01Interface;
+  interface: VanillaV1Constants02Interface;
 
-  functions: {
-    isSafelisted(token: string, overrides?: CallOverrides): Promise<[boolean]>;
+  functions: {};
 
-    "isSafelisted(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-  };
+  callStatic: {};
 
-  isSafelisted(token: string, overrides?: CallOverrides): Promise<boolean>;
+  filters: {};
 
-  "isSafelisted(address)"(
-    token: string,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  estimateGas: {};
 
-  callStatic: {
-    isSafelisted(token: string, overrides?: CallOverrides): Promise<boolean>;
-
-    "isSafelisted(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-  };
-
-  filters: {
-    TokensAdded(
-      tokens: null
-    ): TypedEventFilter<[string[]], { tokens: string[] }>;
-
-    TokensRemoved(
-      tokens: null
-    ): TypedEventFilter<[string[]], { tokens: string[] }>;
-  };
-
-  estimateGas: {
-    isSafelisted(token: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "isSafelisted(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    isSafelisted(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "isSafelisted(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-  };
+  populateTransaction: {};
 }

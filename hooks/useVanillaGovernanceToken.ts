@@ -14,9 +14,7 @@ import { useContract, useTokenContract } from './useContract'
 import useTokenBalance from './useTokenBalance'
 import useWalletAddress from './useWalletAddress'
 
-function useVanillaGovernanceToken(
-  version: VanillaVersion,
-): {
+function useVanillaGovernanceToken(version: VanillaVersion): {
   address: string
   decimals: number
   balance: string

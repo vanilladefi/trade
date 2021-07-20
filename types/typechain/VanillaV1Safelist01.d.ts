@@ -21,10 +21,16 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface VanillaV1Safelist01Interface extends ethers.utils.Interface {
   functions: {
+    "approveNextVersion(address)": FunctionFragment;
     "isSafelisted(address)": FunctionFragment;
     "modify(address[],address[])": FunctionFragment;
+    "nextVersion()": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "approveNextVersion",
+    values: [string]
+  ): string;
   encodeFunctionData(
     functionFragment: "isSafelisted",
     values: [string]
@@ -33,12 +39,24 @@ interface VanillaV1Safelist01Interface extends ethers.utils.Interface {
     functionFragment: "modify",
     values: [string[], string[]]
   ): string;
+  encodeFunctionData(
+    functionFragment: "nextVersion",
+    values?: undefined
+  ): string;
 
+  decodeFunctionResult(
+    functionFragment: "approveNextVersion",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "isSafelisted",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "modify", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "nextVersion",
+    data: BytesLike
+  ): Result;
 
   events: {
     "TokensAdded(address[])": EventFragment;
@@ -93,6 +111,16 @@ export class VanillaV1Safelist01 extends Contract {
   interface: VanillaV1Safelist01Interface;
 
   functions: {
+    approveNextVersion(
+      implementation: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "approveNextVersion(address)"(
+      implementation: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     isSafelisted(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
 
     "isSafelisted(address)"(
@@ -111,7 +139,21 @@ export class VanillaV1Safelist01 extends Contract {
       removed: string[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    nextVersion(overrides?: CallOverrides): Promise<[string]>;
+
+    "nextVersion()"(overrides?: CallOverrides): Promise<[string]>;
   };
+
+  approveNextVersion(
+    implementation: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "approveNextVersion(address)"(
+    implementation: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   isSafelisted(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
@@ -132,7 +174,21 @@ export class VanillaV1Safelist01 extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  nextVersion(overrides?: CallOverrides): Promise<string>;
+
+  "nextVersion()"(overrides?: CallOverrides): Promise<string>;
+
   callStatic: {
+    approveNextVersion(
+      implementation: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "approveNextVersion(address)"(
+      implementation: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     isSafelisted(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
     "isSafelisted(address)"(
@@ -151,6 +207,10 @@ export class VanillaV1Safelist01 extends Contract {
       removed: string[],
       overrides?: CallOverrides
     ): Promise<void>;
+
+    nextVersion(overrides?: CallOverrides): Promise<string>;
+
+    "nextVersion()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
@@ -164,6 +224,16 @@ export class VanillaV1Safelist01 extends Contract {
   };
 
   estimateGas: {
+    approveNextVersion(
+      implementation: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "approveNextVersion(address)"(
+      implementation: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     isSafelisted(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     "isSafelisted(address)"(
@@ -182,9 +252,23 @@ export class VanillaV1Safelist01 extends Contract {
       removed: string[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    nextVersion(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "nextVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    approveNextVersion(
+      implementation: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "approveNextVersion(address)"(
+      implementation: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     isSafelisted(
       arg0: string,
       overrides?: CallOverrides
@@ -206,5 +290,9 @@ export class VanillaV1Safelist01 extends Contract {
       removed: string[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    nextVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "nextVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

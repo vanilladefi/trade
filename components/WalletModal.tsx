@@ -1,8 +1,9 @@
+import { ethers } from 'ethers'
 import React from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { userV2TokensState, userV3TokensState } from 'state/tokens'
 import { walletModalOpenState } from 'state/wallet'
-import { Connectors, useWallet } from 'use-wallet'
+import { Connectors, useWallet, Wallet } from 'use-wallet'
 import { ModalGradient } from './backgrounds/gradient'
 import { Alignment, Column, Justification, Row, Width } from './grid/Flex'
 import Button, { ButtonColor, ButtonSize } from './input/Button'
@@ -132,7 +133,7 @@ const ProviderOptions = (): JSX.Element => {
 }
 
 const WalletView = (): JSX.Element => {
-  const wallet = useWallet()
+  const wallet = useWallet<Wallet<ethers.Signer>>()
   const { account, connector } = wallet
   const setV2Tokens = useSetRecoilState(userV2TokensState)
   const setV3Tokens = useSetRecoilState(userV3TokensState)
@@ -310,9 +311,8 @@ const WalletView = (): JSX.Element => {
 const WalletModal = (): JSX.Element => {
   const { status } = useWallet()
 
-  const [walletModalOpen, setWalletModalOpen] = useRecoilState(
-    walletModalOpenState,
-  )
+  const [walletModalOpen, setWalletModalOpen] =
+    useRecoilState(walletModalOpenState)
 
   return (
     <Modal

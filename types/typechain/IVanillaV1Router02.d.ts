@@ -20,7 +20,7 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface VanillaV1Router02Interface extends ethers.utils.Interface {
+interface IVanillaV1Router02Interface extends ethers.utils.Interface {
   functions: {
     "buy(tuple)": FunctionFragment;
     "epoch()": FunctionFragment;
@@ -31,7 +31,6 @@ interface VanillaV1Router02Interface extends ethers.utils.Interface {
     "safeList()": FunctionFragment;
     "sell(tuple)": FunctionFragment;
     "tokenPriceData(address,address)": FunctionFragment;
-    "uniswapV3SwapCallback(int256,int256,bytes)": FunctionFragment;
     "vnlContract()": FunctionFragment;
     "withdrawTokens(address)": FunctionFragment;
   };
@@ -85,10 +84,6 @@ interface VanillaV1Router02Interface extends ethers.utils.Interface {
     values: [string, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "uniswapV3SwapCallback",
-    values: [BigNumberish, BigNumberish, BytesLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "vnlContract",
     values?: undefined
   ): string;
@@ -119,10 +114,6 @@ interface VanillaV1Router02Interface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "uniswapV3SwapCallback",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "vnlContract",
     data: BytesLike
   ): Result;
@@ -140,7 +131,7 @@ interface VanillaV1Router02Interface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "TokensSold"): EventFragment;
 }
 
-export class VanillaV1Router02 extends Contract {
+export class IVanillaV1Router02 extends Contract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -181,7 +172,7 @@ export class VanillaV1Router02 extends Contract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: VanillaV1Router02Interface;
+  interface: IVanillaV1Router02Interface;
 
   functions: {
     buy(
@@ -593,8 +584,8 @@ export class VanillaV1Router02 extends Contract {
     ): Promise<ContractTransaction>;
 
     tokenPriceData(
-      arg0: string,
-      arg1: string,
+      owner: string,
+      token: string,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber, BigNumber, number] & {
@@ -606,8 +597,8 @@ export class VanillaV1Router02 extends Contract {
     >;
 
     "tokenPriceData(address,address)"(
-      arg0: string,
-      arg1: string,
+      owner: string,
+      token: string,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber, BigNumber, number] & {
@@ -617,20 +608,6 @@ export class VanillaV1Router02 extends Contract {
         latestBlock: number;
       }
     >;
-
-    uniswapV3SwapCallback(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "uniswapV3SwapCallback(int256,int256,bytes)"(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
 
     vnlContract(overrides?: CallOverrides): Promise<[string]>;
 
@@ -1056,8 +1033,8 @@ export class VanillaV1Router02 extends Contract {
   ): Promise<ContractTransaction>;
 
   tokenPriceData(
-    arg0: string,
-    arg1: string,
+    owner: string,
+    token: string,
     overrides?: CallOverrides
   ): Promise<
     [BigNumber, BigNumber, BigNumber, number] & {
@@ -1069,8 +1046,8 @@ export class VanillaV1Router02 extends Contract {
   >;
 
   "tokenPriceData(address,address)"(
-    arg0: string,
-    arg1: string,
+    owner: string,
+    token: string,
     overrides?: CallOverrides
   ): Promise<
     [BigNumber, BigNumber, BigNumber, number] & {
@@ -1080,20 +1057,6 @@ export class VanillaV1Router02 extends Contract {
       latestBlock: number;
     }
   >;
-
-  uniswapV3SwapCallback(
-    amount0Delta: BigNumberish,
-    amount1Delta: BigNumberish,
-    data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "uniswapV3SwapCallback(int256,int256,bytes)"(
-    amount0Delta: BigNumberish,
-    amount1Delta: BigNumberish,
-    data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
 
   vnlContract(overrides?: CallOverrides): Promise<string>;
 
@@ -1516,8 +1479,8 @@ export class VanillaV1Router02 extends Contract {
     ): Promise<void>;
 
     tokenPriceData(
-      arg0: string,
-      arg1: string,
+      owner: string,
+      token: string,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber, BigNumber, number] & {
@@ -1529,8 +1492,8 @@ export class VanillaV1Router02 extends Contract {
     >;
 
     "tokenPriceData(address,address)"(
-      arg0: string,
-      arg1: string,
+      owner: string,
+      token: string,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber, BigNumber, number] & {
@@ -1540,20 +1503,6 @@ export class VanillaV1Router02 extends Contract {
         latestBlock: number;
       }
     >;
-
-    uniswapV3SwapCallback(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "uniswapV3SwapCallback(int256,int256,bytes)"(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     vnlContract(overrides?: CallOverrides): Promise<string>;
 
@@ -1704,29 +1653,15 @@ export class VanillaV1Router02 extends Contract {
     ): Promise<BigNumber>;
 
     tokenPriceData(
-      arg0: string,
-      arg1: string,
+      owner: string,
+      token: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     "tokenPriceData(address,address)"(
-      arg0: string,
-      arg1: string,
+      owner: string,
+      token: string,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    uniswapV3SwapCallback(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "uniswapV3SwapCallback(int256,int256,bytes)"(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     vnlContract(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1850,29 +1785,15 @@ export class VanillaV1Router02 extends Contract {
     ): Promise<PopulatedTransaction>;
 
     tokenPriceData(
-      arg0: string,
-      arg1: string,
+      owner: string,
+      token: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     "tokenPriceData(address,address)"(
-      arg0: string,
-      arg1: string,
+      owner: string,
+      token: string,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    uniswapV3SwapCallback(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "uniswapV3SwapCallback(int256,int256,bytes)"(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     vnlContract(overrides?: CallOverrides): Promise<PopulatedTransaction>;
