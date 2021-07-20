@@ -32,6 +32,7 @@ const Minted = ({ transactionHash }: ConversionViewProps): JSX.Element => {
   }, [transactionHash, transaction])
 
   const getAmountConverted = useCallback(() => {
+    console.log(transaction)
     if (transaction?.amountConverted) {
       return formatUnits(transaction.amountConverted, 12)
     }

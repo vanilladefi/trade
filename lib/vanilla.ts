@@ -16,8 +16,8 @@ import { MerkleTree } from 'merkletreejs'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import { VanillaVersion } from 'types/general'
 import { Operation, UniSwapToken } from 'types/trade'
-import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1'
-import type { VanillaV1Token01 } from 'types/typechain/vanilla_v1.1/VanillaV1Token01'
+import type { VanillaV1Token01 } from 'types/typechain'
+import { VanillaV1Router02__factory } from 'types/typechain/factories/VanillaV1Router02__factory'
 import { blockDeadlineThreshold, getVanillaRouterAddress } from 'utils/config'
 
 export interface TokenPriceResponse {
@@ -81,6 +81,7 @@ export const estimateReward = async (
               parsedAmountSold?.raw.toString(),
             )
     } catch (e) {
+      console.error(e)
       reward = null
     }
   }

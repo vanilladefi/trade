@@ -11,7 +11,6 @@ import {
   PopulatedTransaction,
   Contract,
   ContractTransaction,
-  Overrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -19,25 +18,40 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface VanillaV1Uniswap02Interface extends ethers.utils.Interface {
+interface IVanillaV1Safelist01Interface extends ethers.utils.Interface {
   functions: {
-    "uniswapV3SwapCallback(int256,int256,bytes)": FunctionFragment;
+    "isSafelisted(address)": FunctionFragment;
+    "nextVersion()": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "uniswapV3SwapCallback",
-    values: [BigNumberish, BigNumberish, BytesLike]
+    functionFragment: "isSafelisted",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "nextVersion",
+    values?: undefined
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "uniswapV3SwapCallback",
+    functionFragment: "isSafelisted",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "nextVersion",
     data: BytesLike
   ): Result;
 
-  events: {};
+  events: {
+    "TokensAdded(address[])": EventFragment;
+    "TokensRemoved(address[])": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "TokensAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokensRemoved"): EventFragment;
 }
 
-export class VanillaV1Uniswap02 extends Contract {
+export class IVanillaV1Safelist01 extends Contract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -78,85 +92,81 @@ export class VanillaV1Uniswap02 extends Contract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: VanillaV1Uniswap02Interface;
+  interface: IVanillaV1Safelist01Interface;
 
   functions: {
-    uniswapV3SwapCallback(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    isSafelisted(token: string, overrides?: CallOverrides): Promise<[boolean]>;
 
-    "uniswapV3SwapCallback(int256,int256,bytes)"(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    "isSafelisted(address)"(
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    nextVersion(overrides?: CallOverrides): Promise<[string]>;
+
+    "nextVersion()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
-  uniswapV3SwapCallback(
-    amount0Delta: BigNumberish,
-    amount1Delta: BigNumberish,
-    data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  isSafelisted(token: string, overrides?: CallOverrides): Promise<boolean>;
 
-  "uniswapV3SwapCallback(int256,int256,bytes)"(
-    amount0Delta: BigNumberish,
-    amount1Delta: BigNumberish,
-    data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  "isSafelisted(address)"(
+    token: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  nextVersion(overrides?: CallOverrides): Promise<string>;
+
+  "nextVersion()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    uniswapV3SwapCallback(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    isSafelisted(token: string, overrides?: CallOverrides): Promise<boolean>;
 
-    "uniswapV3SwapCallback(int256,int256,bytes)"(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
+    "isSafelisted(address)"(
+      token: string,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<boolean>;
+
+    nextVersion(overrides?: CallOverrides): Promise<string>;
+
+    "nextVersion()"(overrides?: CallOverrides): Promise<string>;
   };
 
-  filters: {};
+  filters: {
+    TokensAdded(
+      tokens: null
+    ): TypedEventFilter<[string[]], { tokens: string[] }>;
+
+    TokensRemoved(
+      tokens: null
+    ): TypedEventFilter<[string[]], { tokens: string[] }>;
+  };
 
   estimateGas: {
-    uniswapV3SwapCallback(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+    isSafelisted(token: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    "isSafelisted(address)"(
+      token: string,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "uniswapV3SwapCallback(int256,int256,bytes)"(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    nextVersion(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "nextVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    uniswapV3SwapCallback(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+    isSafelisted(
+      token: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "uniswapV3SwapCallback(int256,int256,bytes)"(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+    "isSafelisted(address)"(
+      token: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    nextVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "nextVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

@@ -77,14 +77,14 @@ export const currentTrade = atom<V2Trade | V3Trade | null>({
   dangerouslyAllowMutability: true,
 })
 
-export const token0Amount = atom<string>({
+export const token0Amount = atom<string | null | undefined>({
   key: 'token0AmountSelector',
-  default: '0',
+  default: undefined,
 })
 
-export const token1Amount = atom<string>({
+export const token1Amount = atom<string | null | undefined>({
   key: 'token1AmountSelector',
-  default: '0',
+  default: undefined,
 })
 
 export const currentGasLimitEstimate = atom<BigNumber | null>({

@@ -18,6 +18,31 @@ export class IVanillaV1Token02__factory {
 
 const _abi = [
   {
+    inputs: [],
+    name: "ConversionWindowClosed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "FreezerBalanceMismatch",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NoConvertibleVNL",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "UnexpectedTokensAfterConversion",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "VerificationFailed",
+    type: "error",
+  },
+  {
     anonymous: false,
     inputs: [
       {

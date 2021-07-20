@@ -34,7 +34,7 @@ import {
 import { providerState, signerState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
 import { Action, Operation, Token } from 'types/trade'
-import { blockDeadlineThreshold } from 'utils/config'
+import { blockDeadlineThreshold, ethersOverrides } from 'utils/config'
 import useAllTransactions from './useAllTransactions'
 import useEligibleTokenBalance from './useEligibleTokenBalance'
 import useTokenBalance from './useTokenBalance'
@@ -241,8 +241,10 @@ const useTradeEngine = (
     try {
       if (
         (operation === Operation.Buy &&
+          amount1 &&
           parseUnits(amount1, token1?.decimals).gt(balance1Raw)) ||
         (operation === Operation.Sell &&
+          amount0 &&
           parseUnits(amount0, token0?.decimals).gt(eligibleBalance0Raw))
       ) {
         return true
@@ -294,7 +296,11 @@ const useTradeEngine = (
           token0,
           slippageTolerance,
         ).then(calculateGasMargin)
-        setEstimatedGasLimit(gasEstimate)
+        if (!gasEstimate.isZero()) {
+          setEstimatedGasLimit(gasEstimate)
+        } else {
+          setEstimatedGasLimit(BigNumber.from(ethersOverrides.gasLimit))
+        }
         const gasPrice = await signer.getGasPrice()
         if (gasPrice) {
           setEstimatedGas(formatUnits(gasEstimate.mul(gasPrice)))
@@ -317,7 +323,7 @@ const useTradeEngine = (
   // Estimate LP fees
   useEffect(() => {
     try {
-      if (token1 && token0) {
+      if (token1 && token0 && amount0 && amount1) {
         const token = operation === Operation.Buy ? token1 : token0
         const amountParsed =
           operation === Operation.Buy
@@ -352,9 +358,9 @@ const useTradeEngine = (
 
   const updateTrade = async (
     tokenChanged: 0 | 1,
-    amount: string,
+    amount: string | undefined,
   ): Promise<V2Trade | V3Trade | null> => {
-    if (token0 && token1) {
+    if (token0 && token1 && amount && amount !== '') {
       const receivedToken = tokenReceived()
       const paidToken = tokenPaid()
 
@@ -401,13 +407,15 @@ const useTradeEngine = (
   // Update trade on operation change to get updated pricing
   useEffect(() => {
     const updateTradeAndToken1 = debounce(async () => {
-      const trade = await updateTrade(0, amount0)
-      if (trade && trade.inputAmount && trade.outputAmount) {
-        const newToken1Amount =
-          operation === Operation.Buy
-            ? trade.inputAmount.toSignificant(6)
-            : trade.outputAmount.toSignificant(6)
-        setAmount1(newToken1Amount)
+      if (amount0) {
+        const trade = await updateTrade(0, amount0)
+        if (trade && trade.inputAmount && trade.outputAmount) {
+          const newToken1Amount =
+            operation === Operation.Buy
+              ? trade.inputAmount.toSignificant(6)
+              : trade.outputAmount.toSignificant(6)
+          setAmount1(newToken1Amount)
+        }
       }
     }, 200)
     updateTradeAndToken1()
@@ -532,8 +540,8 @@ const useTradeEngine = (
   useEffect(() => {
     return () => {
       setTrade(null)
-      setAmount0('0.0')
-      setAmount1('0.0')
+      setAmount0(undefined)
+      setAmount1(undefined)
       setTransactionState(TransactionState.PREPARE)
       setError(null)
     }

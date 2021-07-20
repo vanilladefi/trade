@@ -5,10 +5,8 @@ import { providerState } from 'state/wallet'
 import VanillaV1Router01 from 'types/abis/VanillaV1Router01.json'
 import { VanillaVersion } from 'types/general'
 import { Action, TransactionDetails } from 'types/trade'
-import {
-  VanillaV1Router02__factory,
-  VanillaV1Token02__factory,
-} from 'types/typechain/vanilla_v1.1'
+import { VanillaV1Router02__factory } from 'types/typechain/factories/VanillaV1Router02__factory'
+import { VanillaV1Token02__factory } from 'types/typechain/factories/VanillaV1Token02__factory'
 import { getVanillaRouterAddress, getVnlTokenAddress } from 'utils/config'
 import useAllTransactions from './useAllTransactions'
 
@@ -142,6 +140,7 @@ const conversionHandler = async ({
         conversionFilter,
         receipt.blockNumber,
       )
+      console.log(events, receipt, conversionFilter)
       if (events.length > 0) {
         const { amount } = events[0].args || { amount: '0' }
         amountConverted = amount.toString()
@@ -234,16 +233,16 @@ function useTransaction(
     const waitForConfirmation = async () => {
       if (provider) {
         const preliminaryTransactionDetails = getTransaction(id)
+        const VanillaV1Router02 = VanillaV1Router02__factory.connect(
+          getVanillaRouterAddress(VanillaVersion.V1_1),
+          provider,
+        )
 
         let handler: TransactionHandler
         let contract: Contract
 
         switch (preliminaryTransactionDetails?.action) {
           case Action.PURCHASE: {
-            const VanillaV1Router02 = VanillaV1Router02__factory.connect(
-              getVanillaRouterAddress(VanillaVersion.V1_1),
-              provider,
-            )
             handler = purchaseHandler
             contract =
               version === VanillaVersion.V1_0
@@ -256,11 +255,6 @@ function useTransaction(
             break
           }
           case Action.SALE:
-            const VanillaV1Router02 = VanillaV1Router02__factory.connect(
-              getVanillaRouterAddress(VanillaVersion.V1_1),
-              provider,
-            )
-
             handler = saleHandler
             contract =
               version === VanillaVersion.V1_0

@@ -71,16 +71,15 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
               // Fetch price data from Vanilla router
               let tokenSum
               try {
-                const priceResponse: TokenPriceResponse = await vanillaRouter.tokenPriceData(
-                  userAddress,
-                  token.address,
-                )
+                const priceResponse: TokenPriceResponse =
+                  await vanillaRouter.tokenPriceData(userAddress, token.address)
                 tokenSum = priceResponse.tokenSum
               } catch (e) {
                 tokenSum = BigNumber.from('0')
               }
 
               if (!tokenSum.isZero()) {
+                console.log(tokenSum.toString())
                 // VNL governance token
                 const vnlToken = new UniswapToken(
                   tokenListChainId,

@@ -22,6 +22,11 @@ export class IVanillaV1Safelist01__factory {
 
 const _abi = [
   {
+    inputs: [],
+    name: "UnauthorizedAccess",
+    type: "error",
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -61,6 +66,19 @@ const _abi = [
         internalType: "bool",
         name: "",
         type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "nextVersion",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
     stateMutability: "view",

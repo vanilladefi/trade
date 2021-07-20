@@ -5,10 +5,8 @@ import { useRecoilValue } from 'recoil'
 import { providerState, signerState } from 'state/wallet'
 import VanillaV1Router01 from 'types/abis/VanillaV1Router01.json'
 import { VanillaVersion } from 'types/general'
-import {
-  VanillaV1Router02,
-  VanillaV1Router02__factory,
-} from 'types/typechain/vanilla_v1.1'
+import { VanillaV1Router02 } from 'types/typechain'
+import { VanillaV1Router02__factory } from 'types/typechain/factories/VanillaV1Router02__factory'
 import { getVanillaRouterAddress } from 'utils/config'
 
 function useVanillaRouter(

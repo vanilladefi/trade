@@ -176,11 +176,6 @@ const _abi = [
     outputs: [
       {
         internalType: "uint256",
-        name: "profitablePrice",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
         name: "avgBlock",
         type: "uint256",
       },
@@ -190,9 +185,122 @@ const _abi = [
         type: "uint256",
       },
       {
-        internalType: "uint256",
-        name: "reward",
-        type: "uint256",
+        components: [
+          {
+            components: [
+              {
+                internalType: "uint256",
+                name: "price",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "twapPeriodInSeconds",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "profitablePrice",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "maxProfitablePrice",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "rewardableProfit",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "reward",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct IVanillaV1Router02.TradeResult",
+            name: "low",
+            type: "tuple",
+          },
+          {
+            components: [
+              {
+                internalType: "uint256",
+                name: "price",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "twapPeriodInSeconds",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "profitablePrice",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "maxProfitablePrice",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "rewardableProfit",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "reward",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct IVanillaV1Router02.TradeResult",
+            name: "medium",
+            type: "tuple",
+          },
+          {
+            components: [
+              {
+                internalType: "uint256",
+                name: "price",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "twapPeriodInSeconds",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "profitablePrice",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "maxProfitablePrice",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "rewardableProfit",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "reward",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct IVanillaV1Router02.TradeResult",
+            name: "high",
+            type: "tuple",
+          },
+        ],
+        internalType: "struct IVanillaV1Router02.RewardEstimate",
+        name: "estimate",
+        type: "tuple",
       },
     ],
     stateMutability: "view",
@@ -329,23 +437,23 @@ const _abi = [
     outputs: [
       {
         internalType: "uint256",
-        name: "ethSum",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "tokenSum",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
         name: "weightedBlockSum",
         type: "uint256",
       },
       {
-        internalType: "uint256",
+        internalType: "uint112",
+        name: "ethSum",
+        type: "uint112",
+      },
+      {
+        internalType: "uint112",
+        name: "tokenSum",
+        type: "uint112",
+      },
+      {
+        internalType: "uint32",
         name: "latestBlock",
-        type: "uint256",
+        type: "uint32",
       },
     ],
     stateMutability: "view",
