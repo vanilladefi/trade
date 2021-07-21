@@ -9,7 +9,7 @@
     "type-check": "tsc",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "e2e": "node ./e2e/smoke-test.spec.js",
+    "e2e": "node ./e2e/*.spec.js",
     "e2e-prep": "node ./node_modules/puppeteer-core/install.js"
   },
   "husky": {
