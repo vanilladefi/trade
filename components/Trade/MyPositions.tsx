@@ -133,7 +133,9 @@ const RowRenderer = (
             })}{' '}
           </span>
           <span className='liquidityWarning'>
-            {row.original.reserve && row.original.reserve < 600
+            {row.original.symbol === 'AMPL'
+              ? 'please contact hello@vanilladefi.com for important information about your AMPL position'
+              : row.original.reserve && row.original.reserve < 600
               ? 'ETH reserve of 500 and under result in a VPC of 0.'
               : ''}
           </span>
