@@ -11,7 +11,7 @@ import { ConversionState } from 'types/migration'
 import { Action, TransactionDetails } from 'types/trade'
 import { getVnlTokenAddress } from 'utils/config'
 import Wrapper from '../Wrapper'
-import { Approved, Approving, Available, Minted, Ready } from './Views'
+import { Approved, Approving, Available, Error, Minted, Ready } from './Views'
 
 export type ConversionViewProps = {
   approve?: () => Promise<boolean>
@@ -22,6 +22,8 @@ export type ConversionViewProps = {
   proof?: string[]
   convertableBalance?: string | null
   transactionHash?: string | null
+  errorTitle?: string | null
+  errorSubtitle?: string | null
 }
 
 const TokenConversion = (): JSX.Element => {
@@ -34,11 +36,13 @@ const TokenConversion = (): JSX.Element => {
     convertableBalance,
   } = useTokenConversion()
   const { long: userAddress } = useWalletAddress()
+
   const vnlV1Address = isAddress(getVnlTokenAddress(VanillaVersion.V1_0))
   const vnlV2Address = isAddress(getVnlTokenAddress(VanillaVersion.V1_1))
 
-  const [conversionState, setConversionState] =
-    useRecoilState(tokenConversionState)
+  const [conversionState, setConversionState] = useRecoilState(
+    tokenConversionState,
+  )
   const { addTransaction } = useAllTransactions()
   const [transactionHash, setTransactionHash] = useState<string | null>(null)
 
@@ -141,6 +145,9 @@ const TokenConversion = (): JSX.Element => {
           break
         case ConversionState.MINTED:
           view = <Minted transactionHash={transactionHash} />
+          break
+        case ConversionState.ERROR:
+          view = <Error />
           break
         default:
           view = <Available />

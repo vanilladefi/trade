@@ -32,8 +32,8 @@ const Ready = (): JSX.Element => {
         <span>
           Please note: If you have profit mined VNL after{' '}
           {conversionStartDate && format(conversionStartDate, 'dd.MM.yyyy')},
-          you’ll need to wait for the next weekly token state snapshot on [date]
-          to convert those tokens
+          you’ll need to wait for the next token state snapshot to convert those
+          tokens.
         </span>
       </Column>
       <Column
