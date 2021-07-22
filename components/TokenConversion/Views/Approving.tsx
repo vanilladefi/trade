@@ -32,9 +32,13 @@ const Approving = ({ approve }: ConversionViewProps): JSX.Element => {
       >
         <Button
           onClick={async () => {
-            const approval = approve && (await approve())
-            if (approval) {
-              setTokenConversionState(ConversionState.APPROVED)
+            try {
+              const approval = approve && (await approve())
+              if (approval) {
+                setTokenConversionState(ConversionState.APPROVED)
+              }
+            } catch (e) {
+              setTokenConversionState(ConversionState.ERROR)
             }
           }}
         >
