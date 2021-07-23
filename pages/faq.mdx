@@ -85,8 +85,6 @@ For security reasons. Safe-listing protects the VNL distribution against customi
 
 Profit mining is based on profit which is calculated from the purchasing and selling prices. If prices can be easily manipulated, then profits and subsequently VNL distribution can be easily manipulated. When using Uniswap, prices can be manipulated in many ways.
 
-The [_Value-Protection Coefficient_](#what-is-the-value-protection-coefficient-and-why-does-vanilla-use-it) in the reward algorithm protects against the unavoidable Uniswap price manipulation by incentivizing the trades in tokens whose prices are more expensive to manipulate (i.e. have more WETH liquidity in Uniswap). However, when price manipulation happens in an ERC-20 that has been purpose built for manipulation, the liquidity-based protections are not enough. The safe-list is a solution to this.
-
 ## Why is token X on the safe-list and not token Y?
 
 As contracts are non-upgradeable and have no owners, the safe-list had to be immutable and therefore selected before the deployment. Instead of hand-picking ERC-20s to the safe-list, the Vanilla team decided to use a selection criteria which should be more fair and verifiable. The criteria we picked was as follows - a token got safe-listed if it had:
@@ -105,14 +103,13 @@ Obviously, even though this selection criteria is verifiable and deterministic, 
 To calculate mining rewards in trade `i` which sells tokens, Vanilla uses the following algorithm:
 
 $$
-  R_{i}=P_{i}*V_{i}*H_{i}
+  R_{i}=P_{i}*H_{i}
 $$
 
 where
 
 - $R_{i}$ is the amount of VNL reward the trader gets.
 - $P_{i}$ is the amount of Ether profit made in the trade.
-- $V_{i}$ is the _Value-Protection Coefficient_
 - $H_{i}$ is the _Holding/Trading Ratio (Squared)_
 
 
@@ -153,31 +150,7 @@ $$
 {price}_{i}^{avg}=\frac{T_{i}}{E_{i}}
 $$
 
-## What is the Value-Protection Coefficient and why does Vanilla use it?
-
-With constant function market makers like Uniswap, the price manipulation of a single token is always possible. Given that VNL rewards are based solely on profit,  price manipulation may be used to influence the VNL distribution and therefore its value. Vanilla uses a Value-Protection Coefficient to incentivize trades in tokens that are costlier to manipulate. The idea is based on the guarantee that the manipulation of a constant-product price has [a cost relative to the liquidity pool size](https://arxiv.org/abs/1911.03380).
-
-The Coefficient formula is
-
-$$
-V_{i}=1-min(\frac{P_{i}+L}{W_{i}},1)
-$$
-
-where
-- $L$ is the immutable WETH reserve limit. Rewards are never minted when selling a token whose WETH liquidity reserves are lower than $L$. In mainnet, this reserve limit is set to _500 Ether_.
-- $W_{i}$ is the internally tracked WETH reserve size for the Uniswap liquidity pair. This means that trades of high-liquidity tokens will get a higher coefficient and reward than low-liquidity tokens.
-
-For example, making a profit of 10ETH in a token A with 1000ETH reserves would result in $V_{i} = 0.49$, but making the same profit in a token B with 10000ETH in reserves would result in $V_{i} = 0.949$. Even if the Ether-denominated profits are the same, the VNL rewards will differ greatly.
-
-To further protect the token value against the more sophisticated market manipulation, the internally tracked $W_{i}$ is updated using Uniswap WETH reserves for the traded token $U_{i}$ with the following rules:
-
-- $W_{i}=max(W_{i-1},U_{i})$ when _buying the token_, which means that price manipulators can only manipulate the reserve upwards either by providing liquidity or buying token which drives price up, and
-- $W_{i}=min(W_{i-1},U_{i})$ when _selling the token_, which means that Uniswap reserves can only be manipulated downwards either by removing liquidity or selling token which drives the price down
-
-In summary, the purpose of the Value-Protection Coefficient is to protect the VNL generation from all kinds of Uniswap price manipulation attempts by making it costlier and less rewarding.
-
 ## What is the Holding/Trading Ratio (Squared) and why does Vanilla use it?
-
 
 For each token you trade, Vanilla maintains the _Weighted Average Purchase Block_ (WAPB) or $B_{i}^{w}$.
 The WAPB after $i$ trades is calculated by using two variables, $A_{i}$ which represents the token-volume weighted sum of block numbers of the purchases and $T_{i}$, which represents the trader's token balance, used already in Weighted Average Exchange Rate- calculations.
@@ -224,7 +197,7 @@ In other words, the Holding/Trading Ratio (Squared) is just a ratio of times: Th
 
 The following charts and tables depict simple heuristics of the incentive mechanisms. In all heuristics we vary one input in the VNL reward formula while keeping the other inputs unchanged and plot the amount of VNL in each case.
 
-The first case observes the VNL attribution as a function of profits. We keep the Holding/Trading Ratios constant and inspect what happens to the attributed VNL. As we increase the sell price of the trade, while keeping the WAER constant, our profits increase. As profits increase 5-fold from 2 ETH to 10 ETH or 10-fold from 2 ETH to 20 ETH, there is almost a linear relationship with the increase associated with the VNL reward. A small difference to the linear dependence between ETH profits and VNL results from the change in Value Protection Coefficient.
+The first case observes the VNL attribution as a function of profits. We keep the Holding/Trading Ratios constant and inspect what happens to the attributed VNL. As we increase the sell price of the trade, while keeping the WAER constant, our profits increase. As profits increase 5-fold from 2 ETH to 10 ETH or 10-fold from 2 ETH to 20 ETH, there is a linear relationship with the increase associated with the VNL reward.
 
 <ResponsiveImage src="/images/faq/VNL_vs_profit.jpg"/>
 
@@ -234,17 +207,8 @@ The second case observes the VNL attribution when we keep profits constant, but 
 
 We can easily see that when the Holding/Trading Ratio (Squared) increases from 25 % to almost 100 % (factor of 4) also the VNL rewards increase accordingly.
 
-A similar relationship can be seen by varying the WETH reserves of the tokens. The tokens with largest WETH reserves are more expensive to manipulate in price and thus yield more VNL.
-
-<ResponsiveImage src="/images/faq/VNL_vs_WETH_reserve.jpg"/>
-
-Thus, we sum up the mechanisms:
-- The profit $P_i$ made in ETH determines the theoretical maximum of VNL attributed for a particular trade
-- The Value-Protection Coefficient $V_i$ and Holding/Trading Ratio (Squared) $H_i$ scale the theoretical value downward.
-
 A trader can increase VNL rewards by:
 - Making higher percentage returns on his trades or trading larger ETH positions, i.e. making higher absolute ETH returns -> Higher profit component $P_i$
-- Trading tokens with higher WETH reserves -> Higher Value-Protection Coefficient $V_i$
 - Opening trades early as possible -> Higher Holding/Trading Ratio (Squared) $H_i$
 - Holding the trades longer -> Higher Holding/Trading Ratio (Squared) $H_i$
 
