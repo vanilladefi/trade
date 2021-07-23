@@ -4,8 +4,8 @@ import useTokenConversion from 'hooks/useTokenConversion'
 import useWalletAddress from 'hooks/useWalletAddress'
 import { isAddress } from 'lib/tokens'
 import React, { useCallback, useEffect, useState } from 'react'
-import { useRecoilState } from 'recoil'
-import { tokenConversionState } from 'state/migration'
+import { useRecoilState, useRecoilValue } from 'recoil'
+import { tokenConversionState, vanillaToken2 } from 'state/migration'
 import { VanillaVersion } from 'types/general'
 import { ConversionState } from 'types/migration'
 import { Action, TransactionDetails } from 'types/trade'
@@ -40,9 +40,10 @@ const TokenConversion = (): JSX.Element => {
   const vnlV1Address = isAddress(getVnlTokenAddress(VanillaVersion.V1_0))
   const vnlV2Address = isAddress(getVnlTokenAddress(VanillaVersion.V1_1))
 
-  const [conversionState, setConversionState] = useRecoilState(
-    tokenConversionState,
-  )
+  const vnlToken2 = useRecoilValue(vanillaToken2)
+
+  const [conversionState, setConversionState] =
+    useRecoilState(tokenConversionState)
   const { addTransaction } = useAllTransactions()
   const [transactionHash, setTransactionHash] = useState<string | null>(null)
 
@@ -90,7 +91,7 @@ const TokenConversion = (): JSX.Element => {
   }, [addTransaction, convert, userAddress])
 
   useEffect(() => {
-    const checkAllowance = async () => {
+    const checkDeploymentAndAllowance = async () => {
       try {
         const allowance = await getAllowance()
         const parsedConvertableBalance = parseUnits(
@@ -101,13 +102,15 @@ const TokenConversion = (): JSX.Element => {
           setConversionState(ConversionState.APPROVED)
         } else if (!parsedConvertableBalance.isZero() && eligible) {
           setConversionState(ConversionState.AVAILABLE)
+        } else if (vnlToken2 === null) {
+          setConversionState(ConversionState.ERROR)
         }
       } catch (e) {
         console.error(e)
       }
     }
     if (conversionState === ConversionState.HIDDEN) {
-      checkAllowance()
+      checkDeploymentAndAllowance()
     }
   }, [
     conversionState,
@@ -115,6 +118,7 @@ const TokenConversion = (): JSX.Element => {
     eligible,
     getAllowance,
     setConversionState,
+    vnlToken2,
   ])
 
   const getView = useCallback(

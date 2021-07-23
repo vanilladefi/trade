@@ -79,7 +79,6 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
               }
 
               if (!tokenSum.isZero()) {
-                console.log(tokenSum.toString())
                 // VNL governance token
                 const vnlToken = new UniswapToken(
                   tokenListChainId,
