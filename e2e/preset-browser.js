@@ -20,11 +20,11 @@ async function useHardhatNetwork (metamaskPage) {
   const localhost8545 = await metamaskPage.$('div.color-indicator--color-ui-4')
   await localhost8545.click()
 
-  const chainIdInput = await metamaskPage.$('input#chainId')
-  await chainIdInput.click({ clickCount: 3 }) // select all text; easy overwrite
+  const chainIdInput = await metamaskPage.waitForSelector('input#chainId')
+  await chainIdInput.click({ clickCount: 3 }) // select all text for easy overwrite
   await chainIdInput.type('1')
 
-  const saveNetwork = await metamaskPage.$('div.network-form__footer > button.button.btn-secondary')
+  const saveNetwork = await metamaskPage.waitForSelector('div.network-form__footer > button.button.btn-secondary')
   await saveNetwork.click()
 
   const closeSettings = await metamaskPage.$('div.settings-page__close-button')
