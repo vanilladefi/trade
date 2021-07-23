@@ -106,27 +106,27 @@ export default function useTokenConversion(): {
 
   useEffect(() => {
     const connectTokens = async () => {
-      if (signer) {
-        const vnlRouter = VanillaV1Router02__factory.connect(
-          getVanillaRouterAddress(VanillaVersion.V1_1),
-          signer,
-        )
-        const legacyAddr = isAddress(
-          getVnlTokenAddress(VanillaVersion.V1_0) || '',
-        )
-        const targetAddr = isAddress(await vnlRouter.vnlContract())
-        if (legacyAddr && targetAddr) {
-          const VNLToken1: VanillaV1Token01 = VanillaV1Token01__factory.connect(
-            legacyAddr,
+      try {
+        if (signer) {
+          const vnlRouter = VanillaV1Router02__factory.connect(
+            getVanillaRouterAddress(VanillaVersion.V1_1),
             signer,
           )
-          setVnlToken1(VNLToken1)
-          const VNLToken2: VanillaV1Token02 = VanillaV1Token02__factory.connect(
-            targetAddr,
-            signer,
+          const legacyAddr = isAddress(
+            getVnlTokenAddress(VanillaVersion.V1_0) || '',
           )
-          setVnlToken2(VNLToken2)
+          const targetAddr = isAddress(await vnlRouter.vnlContract())
+          if (legacyAddr && targetAddr) {
+            const VNLToken1: VanillaV1Token01 =
+              VanillaV1Token01__factory.connect(legacyAddr, signer)
+            setVnlToken1(VNLToken1)
+            const VNLToken2: VanillaV1Token02 =
+              VanillaV1Token02__factory.connect(targetAddr, signer)
+            setVnlToken2(VNLToken2)
+          }
         }
+      } catch (e) {
+        console.error(e)
       }
     }
     connectTokens()
