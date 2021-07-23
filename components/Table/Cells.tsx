@@ -38,7 +38,8 @@ export function TokenLogo({
     : Liquidity.LOW
 
   const warningSrc: false | string =
-    liquidityWarning && row?.original?.reserve
+    (liquidityWarning && row?.original?.reserve) ||
+    row?.original?.symbol === 'AMPL'
       ? liquidity === Liquidity.LOW
         ? alertSrc
         : liquidity === Liquidity.MEDIUM
@@ -58,12 +59,16 @@ export function TokenLogo({
 
   const clickHandler = useCallback(
     (e: MouseEvent): void => {
-      if (liquidityWarning && openLiquidityModal) {
+      if (
+        liquidityWarning &&
+        openLiquidityModal &&
+        row?.original?.symbol !== 'AMPL'
+      ) {
         e.stopPropagation()
         openLiquidityModal(liquidity)
       }
     },
-    [liquidity, liquidityWarning, openLiquidityModal],
+    [liquidity, liquidityWarning, openLiquidityModal, row.original.symbol],
   )
 
   return (
