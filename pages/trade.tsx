@@ -296,8 +296,8 @@ const BodyContent = ({
   activeExchange,
 }: BodyProps): JSX.Element => {
   useMetaSubscription()
-  useTokenSubscription(UniswapVersion.v2)
-  useTokenSubscription(UniswapVersion.v3)
+  useTokenSubscription(VanillaVersion.V1_0)
+  useTokenSubscription(VanillaVersion.V1_1)
 
   const setETHPrice = useSetRecoilState(currentETHPrice)
   const setV2Tokens = useSetRecoilState(uniswapV2TokenState)
@@ -527,7 +527,7 @@ export async function getStaticProps(): Promise<
   GetStaticPropsResult<PageProps>
 > {
   // Fetch Uniswap V2 token info
-  let tokensV2 = getAllTokens()
+  let tokensV2 = getAllTokens(VanillaVersion.V1_0)
   tokensV2 = await addLogoColor(tokensV2)
 
   // Fetch these simultaneously
@@ -560,7 +560,7 @@ export async function getStaticProps(): Promise<
   }
 
   // Fetch Uniswap V3 token info
-  let tokensV3 = getAllTokens()
+  let tokensV3 = getAllTokens(VanillaVersion.V1_1)
   tokensV3 = await addLogoColor(tokensV3)
 
   // Fetch these simultaneously

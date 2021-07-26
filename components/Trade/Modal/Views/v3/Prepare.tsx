@@ -182,7 +182,7 @@ const PrepareView = ({
                     operationText={`${
                       operation.charAt(0).toUpperCase() + operation.slice(1)
                     }ing`}
-                    tokenAmount={amount0}
+                    tokenAmount={amount0 || '0.0'}
                     tokenSymbol={token0?.symbol ?? ''}
                   />
                 ) : transactionState === TransactionState.PROCESSING ? (
