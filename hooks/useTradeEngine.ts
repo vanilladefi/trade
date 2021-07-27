@@ -442,9 +442,10 @@ const useTradeEngine = (
       ) {
         estimateReward(version, signer, token0, token1, amount0, amount1).then(
           (reward) => {
-            const formattedReward = reward
-              ? formatUnits(reward?.reward, 12)
-              : null
+            let formattedReward: string | null = null
+            if (reward?.reward) {
+              formattedReward = formatUnits(reward.reward, 12)
+            }
             setEstimatedReward(formattedReward)
           },
         )
