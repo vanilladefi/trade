@@ -1,4 +1,5 @@
-import { Contract, ethers } from 'ethers'
+import { BigNumber, Contract, ethers } from 'ethers'
+import { parseUnits } from 'ethers/lib/utils'
 import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
@@ -9,6 +10,7 @@ import { VanillaV1Router02__factory } from 'types/typechain/factories/VanillaV1R
 import { VanillaV1Token02__factory } from 'types/typechain/factories/VanillaV1Token02__factory'
 import { getVanillaRouterAddress, getVnlTokenAddress } from 'utils/config'
 import useAllTransactions from './useAllTransactions'
+import usePositionUpdater, { PositionUpdater } from './usePositionUpdater'
 
 type TransactionHandlerProps = {
   transactionHash: string
@@ -17,6 +19,7 @@ type TransactionHandlerProps = {
   receipt: ethers.providers.TransactionReceipt
   setTransactionDetails: (newDetails: TransactionDetails) => void
   updateTransaction: (hash: string, newDetails: TransactionDetails) => void
+  updatePosition?: PositionUpdater
 }
 
 type TransactionHandler = (arg0: TransactionHandlerProps) => void
@@ -28,6 +31,7 @@ const purchaseHandler = async ({
   receipt,
   setTransactionDetails,
   updateTransaction,
+  updatePosition,
 }: TransactionHandlerProps) => {
   let amountPaid = '0'
   let amountReceived = '0'
@@ -69,6 +73,11 @@ const purchaseHandler = async ({
       : newDetails
 
   updateTransaction(newTransactionDetails.hash, newTransactionDetails)
+
+  if (updatePosition && newDetails.received) {
+    const delta = parseUnits(amountReceived, newDetails.received.decimals)
+    updatePosition(newDetails.received, delta)
+  }
 }
 
 const saleHandler = async ({
@@ -78,6 +87,7 @@ const saleHandler = async ({
   receipt,
   setTransactionDetails,
   updateTransaction,
+  updatePosition,
 }: TransactionHandlerProps) => {
   let amountPaid = '0'
   let amountReceived = '0'
@@ -120,6 +130,13 @@ const saleHandler = async ({
       : newDetails
 
   updateTransaction(newTransactionDetails.hash, newTransactionDetails)
+
+  if (updatePosition && newDetails.paid) {
+    const delta = BigNumber.from('0').sub(
+      parseUnits(amountPaid, newDetails.paid.decimals),
+    )
+    updatePosition(newDetails.paid, delta)
+  }
 }
 
 const conversionHandler = async ({
@@ -220,10 +237,14 @@ function useTransaction(
   version: VanillaVersion,
   id: string,
 ): TransactionDetails | null {
+  const provider = useRecoilValue(providerState)
+  const positionUpdater = usePositionUpdater(version)
+
   const { getTransaction, updateTransaction } = useAllTransactions()
+
   const [transactionDetails, setTransactionDetails] =
     useState<TransactionDetails | null>(null)
-  const provider = useRecoilValue(providerState)
+
   const VanillaV1Token02 = VanillaV1Token02__factory.connect(
     getVnlTokenAddress(VanillaVersion.V1_1),
     provider,
