@@ -290,19 +290,26 @@ const useTradeEngine = (
   useEffect(() => {
     const debouncedGasEstimation = debounce(async () => {
       if (trade && provider && signer && token0) {
-        const gasEstimate = await estimateGas(
-          version,
-          trade,
-          signer,
-          provider,
-          operation,
-          token0,
-          slippageTolerance,
-        ).then(calculateGasMargin)
-        if (!gasEstimate.isZero()) {
-          setEstimatedGasLimit(gasEstimate)
-        } else {
-          setEstimatedGasLimit(BigNumber.from(ethersOverrides.gasLimit))
+        let gasEstimate = BigNumber.from(ethersOverrides.gasLimit)
+        try {
+          gasEstimate = await estimateGas(
+            version,
+            trade,
+            signer,
+            provider,
+            operation,
+            token0,
+            slippageTolerance,
+          ).then(calculateGasMargin)
+          if (!gasEstimate.isZero()) {
+            setEstimatedGasLimit(gasEstimate)
+          } else {
+            setEstimatedGasLimit(BigNumber.from(ethersOverrides.gasLimit))
+          }
+        } catch (e) {
+          console.error(
+            'Could not estimate gas limit, falling back to ethersOverride of 400000',
+          )
         }
         const gasPrice = await signer.getGasPrice()
         if (gasPrice) {

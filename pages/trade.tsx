@@ -526,24 +526,26 @@ export default function TradePage({
 export async function getStaticProps(): Promise<
   GetStaticPropsResult<PageProps>
 > {
+  let ethPriceV2, ethPriceV3, blocksPerHourV2, blocksPerHourV3, block24hAgo
+
+  const currentBlockNumberV2 = await getCurrentBlockNumber(UniswapVersion.v2)
+  const currentBlockNumberV3 = await getCurrentBlockNumber(UniswapVersion.v3)
+
   // Fetch Uniswap V2 token info
   let tokensV2 = getAllTokens(VanillaVersion.V1_0)
   tokensV2 = await addLogoColor(tokensV2)
 
   // Fetch these simultaneously
-  const [blocksPerHourV2, currentBlockNumberV2, ethPriceV2] = await Promise.all(
-    [
-      getAverageBlockCountPerHour(),
-      getCurrentBlockNumber(UniswapVersion.v2),
-      getETHPrice(UniswapVersion.v2),
-    ],
-  )
+  ;[blocksPerHourV2, ethPriceV2] = await Promise.all([
+    getAverageBlockCountPerHour(),
+    getETHPrice(UniswapVersion.v2),
+  ])
 
   if (ethPriceV2 === 0 || currentBlockNumberV2 === 0 || blocksPerHourV2 === 0) {
     throw Error('Query failed')
   }
 
-  let block24hAgo = currentBlockNumberV2 - 24 * blocksPerHourV2
+  block24hAgo = currentBlockNumberV2 - 24 * blocksPerHourV2
 
   tokensV2 = await addGraphInfo(UniswapVersion.v2, tokensV2, 0, ethPriceV2)
   tokensV2 = addUSDPrice(tokensV2, ethPriceV2)
@@ -564,13 +566,10 @@ export async function getStaticProps(): Promise<
   tokensV3 = await addLogoColor(tokensV3)
 
   // Fetch these simultaneously
-  const [blocksPerHourV3, currentBlockNumberV3, ethPriceV3] = await Promise.all(
-    [
-      getAverageBlockCountPerHour(),
-      getCurrentBlockNumber(UniswapVersion.v3),
-      getETHPrice(UniswapVersion.v3),
-    ],
-  )
+  ;[blocksPerHourV3, ethPriceV3] = await Promise.all([
+    getAverageBlockCountPerHour(),
+    getETHPrice(UniswapVersion.v3),
+  ])
 
   if (ethPriceV3 === 0 || currentBlockNumberV3 === 0 || blocksPerHourV3 === 0) {
     throw Error('Query failed')
