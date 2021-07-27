@@ -526,7 +526,7 @@ export default function TradePage({
 export async function getStaticProps(): Promise<
   GetStaticPropsResult<PageProps>
 > {
-  let block24hAgo
+  let ethPriceV2, ethPriceV3, blocksPerHourV2, blocksPerHourV3, block24hAgo
 
   const currentBlockNumberV2 = await getCurrentBlockNumber(UniswapVersion.v2)
   const currentBlockNumberV3 = await getCurrentBlockNumber(UniswapVersion.v3)
@@ -536,7 +536,7 @@ export async function getStaticProps(): Promise<
   tokensV2 = await addLogoColor(tokensV2)
 
   // Fetch these simultaneously
-  const [blocksPerHourV2, ethPriceV2] = await Promise.all([
+  ;[blocksPerHourV2, ethPriceV2] = await Promise.all([
     getAverageBlockCountPerHour(),
     getETHPrice(UniswapVersion.v2),
   ])
@@ -566,7 +566,7 @@ export async function getStaticProps(): Promise<
   tokensV3 = await addLogoColor(tokensV3)
 
   // Fetch these simultaneously
-  const [blocksPerHourV3, ethPriceV3] = await Promise.all([
+  ;[blocksPerHourV3, ethPriceV3] = await Promise.all([
     getAverageBlockCountPerHour(),
     getETHPrice(UniswapVersion.v3),
   ])
