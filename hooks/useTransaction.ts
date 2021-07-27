@@ -307,6 +307,7 @@ function useTransaction(
           receipt: receipt,
           setTransactionDetails: setTransactionDetails,
           updateTransaction: updateTransaction,
+          updatePosition: positionUpdater,
         })
       }
     }
