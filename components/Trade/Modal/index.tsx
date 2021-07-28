@@ -4,7 +4,7 @@ import { Spinner } from 'components/Spinner'
 import { UniswapVersion } from 'lib/graphql'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
-import React, { Suspense, useCallback, useState } from 'react'
+import React, { Suspense, useCallback } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { selectedOperation, selectedPairIdState } from 'state/trade'
 import { VanillaVersion } from 'types/general'
@@ -46,7 +46,6 @@ const TradeModal = ({
   uniswapVersion,
 }: Props): JSX.Element => {
   const [operation, setOperation] = useRecoilState(selectedOperation)
-  const [modalCloseEnabled, setModalCloseEnabled] = useState<boolean>(true)
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
 
   const router = useRouter()
@@ -56,11 +55,9 @@ const TradeModal = ({
   }, [router.query])
 
   const onClose = () => {
-    if (modalCloseEnabled) {
-      setSelectedPairId(null)
-      onRequestClose()
-      router.push('/trade', undefined, { shallow: true }) // Shallow to disable fetching getInitialProps() again
-    }
+    setSelectedPairId(null)
+    onRequestClose()
+    router.push('/trade', undefined, { shallow: true }) // Shallow to disable fetching getInitialProps() again
   }
 
   return (
@@ -68,11 +65,7 @@ const TradeModal = ({
       <Suspense fallback={<Loading />}>
         {uniswapVersion === UniswapVersion.v2 &&
           (!parsedId() ? (
-            <PrepareV2
-              operation={operation}
-              setOperation={setOperation}
-              setModalCloseEnabled={setModalCloseEnabled}
-            />
+            <PrepareV2 operation={operation} setOperation={setOperation} />
           ) : (
             <Success
               id={parsedId()}
@@ -82,11 +75,7 @@ const TradeModal = ({
           ))}
         {uniswapVersion === UniswapVersion.v3 &&
           (!parsedId() ? (
-            <PrepareV3
-              operation={operation}
-              setOperation={setOperation}
-              setModalCloseEnabled={setModalCloseEnabled}
-            />
+            <PrepareV3 operation={operation} setOperation={setOperation} />
           ) : (
             <Success
               id={parsedId()}
