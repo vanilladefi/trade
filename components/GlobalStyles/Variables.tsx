@@ -9,15 +9,18 @@ const Variables = (): JSX.Element => (
       --dark: #2c1929;
       --yellow: #fbf3db;
       --beige: #f3f1ea;
+      --alertyellow: #ffd866;
+      --red: rgb(193, 22, 63);
+      --green: #3b870c;
       --inactivelink: #62555f;
       --activelink: var(--dark);
       --curtain-background: rgba(44, 21, 45, 0.83);
       --curtain-backdropfilter: blur(40px);
-      --roadmapcolor: #ffd866;
+      --roadmapcolor: var(--alertyellow);
       --link-on-white: #854900;
       --bordercolor: var(--dark);
-      --alertcolor: rgb(193, 22, 63);
-      --successcolor: #3b870c;
+      --alertcolor: var(--red);
+      --successcolor: var(--green);
       --negativeValue: var(--alertcolor);
       --positiveValue: var(--successcolor);
       --alertbackground: rgba(193, 22, 63, 0.1);
@@ -35,7 +38,7 @@ const Variables = (): JSX.Element => (
       );
       --buttongradient: linear-gradient(
         272.09deg,
-        #ffd866 4.89%,
+        var(--alertyellow) 4.89%,
         #ffc684 95.55%
       );
       --tradeflowergradient: linear-gradient(
