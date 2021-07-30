@@ -17,7 +17,7 @@ const TokenABFragment = gql`
       name
       decimals
     }
-    liquidity: totalValueLockedToken1
+    liquidity: totalValueLockedUSD
     price: token0Price
   }
 `
@@ -30,7 +30,7 @@ const TokenBAFragment = gql`
       name
       decimals
     }
-    liquidity: totalValueLockedToken0
+    liquidity: totalValueLockedUSD
     price: token1Price
   }
 `
@@ -87,7 +87,7 @@ export const TokenInfoSubAB = gql`
       }
     ) {
       pairId: id
-      liquidity: totalValueLockedToken0
+      liquidity: totalValueLockedUSD
       inRangeLiquidity: liquidity
       feeTier
       sqrtPrice
@@ -116,7 +116,7 @@ export const TokenInfoSubBA = gql`
       }
     ) {
       pairId: id
-      liquidity: totalValueLockedToken1
+      liquidity: totalValueLockedUSD
       inRangeLiquidity: liquidity
       feeTier
       sqrtPrice
