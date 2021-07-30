@@ -2,6 +2,7 @@
 const { default: getMetamaskPath } = require('@nodefactory/dappeteer/dist/metamaskDownloader.js')
 const puppeteer = require('puppeteer-core')
 const { seed, address, password } = require('./constants')
+const { newPending, goToPending } = require('./utils/metamask')
 
 const launchOptions = {
   headless: false,
@@ -88,15 +89,10 @@ async function connectMetamask (browser, vanilla, metamask) {
   const connectMetamask = await vanilla.waitForSelector('div > button > div')
   await Promise.all([
     connectMetamask.click(),
-    new Promise(resolve => browser.once('targetcreated', resolve))
+    newPending(browser)
   ])
 
-  await metamask.bringToFront()
-  // await new Promise(resolve => setTimeout(resolve, 3000))
-  const send = await metamask.waitForSelector('#app-content > div > div.main-container-wrapper > div > div > div > div.home__balance-wrapper > div > div.wallet-overview__buttons > button:nth-child(2)')
-  await send.click()
-  const cancel = await metamask.waitForSelector('#app-content > div > div.main-container-wrapper > div > div.page-container__header.send__header > a')
-  await cancel.click()
+  await goToPending(metamask)
   const next = await metamask.waitForSelector('#app-content > div > div.main-container-wrapper > div > div.permissions-connect-choose-account > div.permissions-connect-choose-account__footer-container > div.permissions-connect-choose-account__bottom-buttons > button.button.btn-primary')
   await next.click()
   const connect = await metamask.waitForSelector('#app-content > div > div.main-container-wrapper > div > div.page-container.permission-approval-container > div.permission-approval-container__footers > div.page-container__footer > footer > button.button.btn-primary.page-container__footer-button')

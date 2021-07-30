@@ -1,6 +1,8 @@
 'use strict'
 const assert = require('assert')
 const preset = require('./preset-browser')
+const { newPending, goToPending, chooseConfirm } = require('./utils/metamask')
+const { closeTrade } = require('./utils/vanilla')
 
 ;(async () => {
   const { browser, vanilla, metamask } = await preset()
@@ -18,8 +20,6 @@ const preset = require('./preset-browser')
     return Number(el.innerText.slice(0, -4))
   }))
 
-  // slow to load my positions and available tokens; seems to happen when hardhat is first started
-  await vanilla.waitForSelector('div.jsx-1755455904.list-empty')
   await vanilla.waitForSelector('div.jsx-3967655271 button')
   const availableTokens = await vanilla.$$('div.jsx-3967655271 button')
   assert(availableTokens.length)
@@ -27,24 +27,22 @@ const preset = require('./preset-browser')
   async function buyToken (availableToken) {
     await availableToken.click()
 
-    // await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise(resolve => setTimeout(resolve, 2000))
     const amountToBuy = await vanilla.waitForSelector('input.jsx-3822091943')
     await amountToBuy.click()
     await amountToBuy.press('ArrowUp')
 
     const buyToken = await vanilla.waitForSelector('span.jsx-459007937')
-    await buyToken.click()
+    await Promise.all([
+      buyToken.click(),
+      newPending(browser)
+    ])
+    await goToPending(metamask)
+    await chooseConfirm(metamask)
 
-    await metamask.confirmTransaction()
     await vanilla.bringToFront()
 
-    const closeButton = await vanilla.waitForSelector('button.jsx-783097308')
-    // timeout added
-    // component seems to be rendered twice, first .click() sometimes wasnt enough.
-    // todo: remove timeout
-    // await new Promise(resolve => setTimeout(resolve, 1000))
-    await closeButton.click()
-    // await new Promise(resolve => setTimeout(resolve, 2000))
+    await closeTrade(vanilla)
   }
 
   await buyToken(availableTokens[0])
@@ -53,8 +51,33 @@ const preset = require('./preset-browser')
 
   // wait for token positions to show
   assert(await vanilla.waitForSelector('div[role="rowgroup"].jsx-1755455904 > :nth-child(3) .jsx-2866363978'))
+  const sellPositions = await vanilla.$$('div[role="rowgroup"].jsx-1755455904 .buttonGroup > button.roundedTopLeft')
 
-  async function sellToken () {}
+  async function sellToken (sellPosition) {
+    await sellPosition.click()
+
+    const max = await vanilla.waitForSelector('#__next > div.jsx-3194571062.curtain > div > section > div > section > section > div > div > div:nth-child(1) > div.jsx-863677993 > div > button')
+    await max.click()
+
+    const sell = await vanilla.waitForSelector('#__next > div.jsx-3194571062.curtain > div > section > div > div > button > div')
+    await Promise.all([
+      sell.click(),
+      newPending(browser)
+    ])
+    await goToPending(metamask)
+    await chooseConfirm(metamask)
+
+    await vanilla.bringToFront()
+
+    await closeTrade(vanilla)
+  }
+
+  await sellToken(sellPositions[0])
+  await sellToken(sellPositions[1])
+  await sellToken(sellPositions[2])
+
+  // wait for token positions to update
+  await vanilla.waitForSelector('div.jsx-1755455904.list-empty')
 
   console.log('finished')
   setTimeout(() => browser.close(), 2000)
