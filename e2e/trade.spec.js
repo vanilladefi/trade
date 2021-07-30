@@ -1,35 +1,25 @@
 'use strict'
 const assert = require('assert')
 const preset = require('./preset-browser')
-const { address } = require('./constants')
 
 ;(async () => {
   const { browser, vanilla, metamask } = await preset()
 
-  const trade = await vanilla.$('a[href="/trade"]')
+  await vanilla.bringToFront()
+  const trade = await vanilla.waitForSelector('a[href="/trade"]')
   await Promise.all([
     vanilla.waitForNavigation(),
     trade.click()
   ])
 
-  const connectWallet = await vanilla.$('nav > button')
-  await connectWallet.click()
-  const connectMetamask = await vanilla.$('div > button > div')
-  await connectMetamask.click()
-  await metamask.approve()
-
-  await vanilla.bringToFront()
-  await vanilla.waitForSelector(`span[title="${address}"]`)
-  const closeButton = await vanilla.$('div.closeButton')
-  await closeButton.click()
-
-  const ethBalance = await vanilla.$eval('div.jsx-4148302646', el => {
+  const ethBalance = await vanilla.waitForSelector('div.jsx-4148302646')
+  assert(await ethBalance.evaluate(el => {
     // remove ' ETH' from '<ethBalance> ETH' and convert to number
     return Number(el.innerText.slice(0, -4))
-  })
-  assert(ethBalance)
+  }))
 
-  // slow to load available tokens; seems to happen when hardhat is first started
+  // slow to load my positions and available tokens; seems to happen when hardhat is first started
+  await vanilla.waitForSelector('div.jsx-1755455904.list-empty')
   await vanilla.waitForSelector('div.jsx-3967655271 button')
   const availableTokens = await vanilla.$$('div.jsx-3967655271 button')
   assert(availableTokens.length)
@@ -37,6 +27,7 @@ const { address } = require('./constants')
   async function buyToken (availableToken) {
     await availableToken.click()
 
+    // await new Promise(resolve => setTimeout(resolve, 2000))
     const amountToBuy = await vanilla.waitForSelector('input.jsx-3822091943')
     await amountToBuy.click()
     await amountToBuy.press('ArrowUp')
@@ -51,8 +42,9 @@ const { address } = require('./constants')
     // timeout added
     // component seems to be rendered twice, first .click() sometimes wasnt enough.
     // todo: remove timeout
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // await new Promise(resolve => setTimeout(resolve, 1000))
     await closeButton.click()
+    // await new Promise(resolve => setTimeout(resolve, 2000))
   }
 
   await buyToken(availableTokens[0])
@@ -61,6 +53,8 @@ const { address } = require('./constants')
 
   // wait for token positions to show
   assert(await vanilla.waitForSelector('div[role="rowgroup"].jsx-1755455904 > :nth-child(3) .jsx-2866363978'))
+
+  async function sellToken () {}
 
   console.log('finished')
   setTimeout(() => browser.close(), 2000)
