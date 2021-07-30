@@ -20,6 +20,7 @@ import { VanillaVersion } from 'types/general'
 import type { Token, UniSwapToken } from 'types/trade'
 import { VanillaV1Router02__factory } from 'types/typechain/factories/VanillaV1Router02__factory'
 import { ethersOverrides, getVanillaRouterAddress } from 'utils/config'
+import { getFeeTier } from 'utils/transactions'
 import { TransactionProps } from '..'
 
 export const buy = async ({
@@ -91,7 +92,7 @@ export async function constructTrade(
   tokenPaid: Token,
   tradeType = TradeType.EXACT_OUTPUT,
 ): Promise<Trade> {
-  const feeAmount = FeeAmount.HIGH
+  const defaultFeeTier = FeeAmount.MEDIUM
   try {
     // The asset that "amountToTrade" refers to changes on tradetype,
     // so we need to set asset and counterAsset here
@@ -121,39 +122,38 @@ export async function constructTrade(
       tokenReceived.inRangeLiquidity || tokenPaid.inRangeLiquidity || null
     const sqrtPrice = tokenReceived.sqrtPrice || tokenPaid.sqrtPrice || null
 
+    const feeTier =
+      getFeeTier(tokenReceived.feeTier) ||
+      getFeeTier(tokenPaid.feeTier) ||
+      defaultFeeTier
+
     if (liquidity !== null && sqrtPrice !== null) {
       const liquidityJSBI = JSBI.BigInt(liquidity)
       const sqrtPriceJSBI = JSBI.BigInt(sqrtPrice)
 
-      // Construct a medium fee pool based on TheGraph data
+      // Construct pool based on TheGraph data
       const pool = new Pool(
         convertedAsset,
         convertedCounterAsset,
-        feeAmount,
+        feeTier,
         sqrtPriceJSBI,
         liquidityJSBI,
         TickMath.getTickAtSqrtRatio(sqrtPriceJSBI),
         [
           {
-            index: nearestUsableTick(
-              TickMath.MIN_TICK,
-              TICK_SPACINGS[feeAmount],
-            ),
+            index: nearestUsableTick(TickMath.MIN_TICK, TICK_SPACINGS[feeTier]),
             liquidityNet: liquidityJSBI,
             liquidityGross: liquidityJSBI,
           },
           {
-            index: nearestUsableTick(
-              TickMath.MAX_TICK,
-              TICK_SPACINGS[feeAmount],
-            ),
+            index: nearestUsableTick(TickMath.MAX_TICK, TICK_SPACINGS[feeTier]),
             liquidityNet: JSBI.multiply(liquidityJSBI, JSBI.BigInt(-1)),
             liquidityGross: liquidityJSBI,
           },
         ],
       )
 
-      // Construct a route based on the parsed liquidity pools
+      // Construct a route based on the parsed liquidity pool
       const route = new Route(
         [pool],
         tradeType === TradeType.EXACT_OUTPUT

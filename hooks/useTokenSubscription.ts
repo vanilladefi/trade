@@ -9,12 +9,18 @@ import { VanillaVersion } from 'types/general'
 import type { TokenInfoQueryResponse } from 'types/trade'
 
 const getVariables = (version: VanillaVersion) => {
-  return {
+  const allTokens = getAllTokens(version)
+  let variables = {
     weth: weth.address.toLowerCase(),
-    tokenAddresses: getAllTokens(version).map(({ address }) =>
-      address.toLowerCase(),
-    ),
+    tokenAddresses: allTokens.map(({ address }) => address.toLowerCase()),
   }
+  if (version === VanillaVersion.V1_1) {
+    variables = {
+      feeTiers: allTokens.map(({ feeTier }) => feeTier),
+      ...variables,
+    }
+  }
+  return variables
 }
 
 interface subReturnValue {
