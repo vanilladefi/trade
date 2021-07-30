@@ -74,9 +74,17 @@ export const TokenInfoQueryHistorical = gql`
 `
 
 export const TokenInfoSubAB = gql`
-  subscription tokenInfoAB($weth: String, $tokenAddresses: [String]) {
+  subscription tokenInfoAB(
+    $weth: String
+    $tokenAddresses: [String]
+    $feeTiers: [String]
+  ) {
     tokens: pools(
-      where: { token0: $weth, token1_in: $tokenAddresses, feeTier: "3000" }
+      where: {
+        token0: $weth
+        token1_in: $tokenAddresses
+        feeTier_in: $feeTiers
+      }
     ) {
       pairId: id
       liquidity: totalValueLockedToken0
@@ -95,9 +103,17 @@ export const TokenInfoSubAB = gql`
 `
 
 export const TokenInfoSubBA = gql`
-  subscription tokenInfoBA($weth: String, $tokenAddresses: [String]) {
+  subscription tokenInfoBA(
+    $weth: String
+    $tokenAddresses: [String]
+    $feeTiers: [String]
+  ) {
     tokens: pools(
-      where: { token1: $weth, token0_in: $tokenAddresses, feeTier: "3000" }
+      where: {
+        token1: $weth
+        token0_in: $tokenAddresses
+        feeTier_in: $feeTiers
+      }
     ) {
       pairId: id
       liquidity: totalValueLockedToken1

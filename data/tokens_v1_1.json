@@ -5,7 +5,8 @@
     "name": "USD Coin",
     "symbol": "USDC",
     "decimals": 6,
-    "logoURI": "https://etherscan.io/token/images/centre-usdc_28.png"
+    "logoURI": "https://etherscan.io/token/images/centre-usdc_28.png",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -13,7 +14,8 @@
     "name": "Tether USD",
     "symbol": "USDT",
     "decimals": 6,
-    "logoURI": "https://etherscan.io/token/images/tether_32.png"
+    "logoURI": "https://etherscan.io/token/images/tether_32.png",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -21,7 +23,8 @@
     "name": "Dai Stablecoin",
     "symbol": "DAI",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/MCDDai_32.png"
+    "logoURI": "https://etherscan.io/token/images/MCDDai_32.png",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -29,7 +32,8 @@
     "name": "Liquity USD",
     "symbol": "LUSD",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/liquitylusd_32.png"
+    "logoURI": "https://etherscan.io/token/images/liquitylusd_32.png",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -37,7 +41,8 @@
     "name": "Wrapped BTC",
     "symbol": "BTC",
     "decimals": 8,
-    "logoURI": "https://etherscan.io/token/images/wbtc_28.png?v=1"
+    "logoURI": "https://etherscan.io/token/images/wbtc_28.png?v=1",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -45,7 +50,8 @@
     "name": "Uniswap",
     "symbol": "UNI",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/uniswap_32.png"
+    "logoURI": "https://etherscan.io/token/images/uniswap_32.png",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -53,7 +59,8 @@
     "name": "ChainLink Token",
     "symbol": "LINK",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/chainlinktoken_32.png?v=6"
+    "logoURI": "https://etherscan.io/token/images/chainlinktoken_32.png?v=6",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -61,7 +68,8 @@
     "name": "Celsius",
     "symbol": "CEL",
     "decimals": 4,
-    "logoURI": "https://etherscan.io/token/images/celsiustoken1_28.png"
+    "logoURI": "https://etherscan.io/token/images/celsiustoken1_28.png",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -69,7 +77,8 @@
     "name": "Perpetual",
     "symbol": "PERP",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/perpetual_32.png"
+    "logoURI": "https://etherscan.io/token/images/perpetual_32.png",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -77,7 +86,8 @@
     "name": "Maker",
     "symbol": "MKR",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/mkr-etherscan-35.png"
+    "logoURI": "https://etherscan.io/token/images/mkr-etherscan-35.png",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -85,7 +95,8 @@
     "name": "Shiba Inu",
     "symbol": "SHIB",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/shibatoken_32.png"
+    "logoURI": "https://etherscan.io/token/images/shibatoken_32.png",
+    "fee": "10000"
   },
   {
     "chainId": 1,
@@ -93,7 +104,8 @@
     "name": "Tribe",
     "symbol": "TRIBE",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/tribe_32.png"
+    "logoURI": "https://etherscan.io/token/images/tribe_32.png",
+    "fee": "10000"
   },
   {
     "chainId": 1,
@@ -101,7 +113,8 @@
     "name": "Matic Token",
     "symbol": "MATIC",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/matic-polygon_32.png"
+    "logoURI": "https://etherscan.io/token/images/matic-polygon_32.png",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -109,7 +122,8 @@
     "name": "Woofy",
     "symbol": "WOOFY",
     "decimals": 12,
-    "logoURI": "https://etherscan.io/token/images/woofy_32.png?v=2"
+    "logoURI": "https://etherscan.io/token/images/woofy_32.png?v=2",
+    "fee": "10000"
   },
   {
     "chainId": 1,
@@ -117,7 +131,8 @@
     "name": "Gitcoin",
     "symbol": "GTC",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/gitcoinGTC_32.png"
+    "logoURI": "https://etherscan.io/token/images/gitcoinGTC_32.png",
+    "fee": "10000"
   },
   {
     "chainId": 1,
@@ -125,7 +140,8 @@
     "name": "Audius",
     "symbol": "AUDIO",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/audius_32.png"
+    "logoURI": "https://etherscan.io/token/images/audius_32.png",
+    "fee": "10000"
   },
   {
     "chainId": 1,
@@ -133,7 +149,8 @@
     "name": "yearn.finance",
     "symbol": "YFI",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/yfi_32.png"
+    "logoURI": "https://etherscan.io/token/images/yfi_32.png",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -141,7 +158,8 @@
     "name": "Rocket Pool",
     "symbol": "RPL",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/Rocketpool_32.png"
+    "logoURI": "https://etherscan.io/token/images/Rocketpool_32.png",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -149,7 +167,8 @@
     "name": "Aave Token",
     "symbol": "AAVE",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/aave_32.png"
+    "logoURI": "https://etherscan.io/token/images/aave_32.png",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -157,7 +176,8 @@
     "name": "DefiPulse Index",
     "symbol": "DPI",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/dpi_32.png"
+    "logoURI": "https://etherscan.io/token/images/dpi_32.png",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -165,7 +185,8 @@
     "name": "QuickSwap",
     "symbol": "QUICK",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/quickswap_32.png"
+    "logoURI": "https://etherscan.io/token/images/quickswap_32.png",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -173,7 +194,8 @@
     "name": "Sushi Token",
     "symbol": "SUSHI",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/sushitoken_32.png"
+    "logoURI": "https://etherscan.io/token/images/sushitoken_32.png",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -181,7 +203,8 @@
     "name": "Synthetix Network Token",
     "symbol": "SNX",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/SynthetixSNX_32.png"
+    "logoURI": "https://etherscan.io/token/images/SynthetixSNX_32.png",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -189,7 +212,8 @@
     "name": "HoloToken",
     "symbol": "HOT",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/holo_28.png"
+    "logoURI": "https://etherscan.io/token/images/holo_28.png",
+    "fee": "10000"
   },
   {
     "chainId": 1,
@@ -197,7 +221,8 @@
     "name": "Wrapped NXM",
     "symbol": "wNXM",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/nxm_32.png"
+    "logoURI": "https://etherscan.io/token/images/nxm_32.png",
+    "fee": "10000"
   },
   {
     "chainId": 1,
@@ -205,7 +230,8 @@
     "name": "Golem Network Token",
     "symbol": "GLM",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/golem-glm_32.png"
+    "logoURI": "https://etherscan.io/token/images/golem-glm_32.png",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -213,7 +239,8 @@
     "name": "Ocean Token",
     "symbol": "OCEAN",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/oceantoken_28.png"
+    "logoURI": "https://etherscan.io/token/images/oceantoken_28.png",
+    "fee": "10000"
   },
   {
     "chainId": 1,
@@ -221,7 +248,8 @@
     "name": "Bancor",
     "symbol": "BNT",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/bancor_32.png"
+    "logoURI": "https://etherscan.io/token/images/bancor_32.png",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -229,7 +257,8 @@
     "name": "Compound",
     "symbol": "COMP",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/comp_32.png"
+    "logoURI": "https://etherscan.io/token/images/comp_32.png",
+    "fee": "3000"
   },
   {
     "chainId": 1,
@@ -237,6 +266,7 @@
     "name": "1INCH Token",
     "symbol": "1INCH",
     "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/1inch_32.png"
+    "logoURI": "https://etherscan.io/token/images/1inch_32.png",
+    "fee": "3000"
   }
 ]
