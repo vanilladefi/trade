@@ -8,8 +8,10 @@ export function getTransactionKey(
 }
 
 export function getFeeTier(
-  feeTierString: string | null | undefined,
+  input: string | number | null | undefined,
 ): FeeAmount | undefined {
+  const feeTierString = input?.toString()
+
   let feeTier: FeeAmount | undefined
   switch (feeTierString) {
     case '500':
@@ -24,5 +26,6 @@ export function getFeeTier(
     default:
       feeTier = undefined
   }
+
   return feeTier
 }

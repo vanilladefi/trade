@@ -123,8 +123,8 @@ export async function constructTrade(
     const sqrtPrice = tokenReceived.sqrtPrice || tokenPaid.sqrtPrice || null
 
     const feeTier =
-      getFeeTier(tokenReceived.feeTier) ||
-      getFeeTier(tokenPaid.feeTier) ||
+      getFeeTier(tokenReceived.fee) ||
+      getFeeTier(tokenPaid.fee) ||
       defaultFeeTier
 
     if (liquidity !== null && sqrtPrice !== null) {
