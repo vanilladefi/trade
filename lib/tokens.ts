@@ -261,10 +261,18 @@ export async function addGraphInfo(
       ? v3.TokenInfoQuery
       : v3.TokenInfoQueryHistorical
 
-  const variables = getTokenInfoQueryVariables(
-    version === UniswapVersion.v2 ? VanillaVersion.V1_0 : VanillaVersion.V1_1,
-    blockNumber,
-  )
+  const variables = historical
+    ? getTokenInfoQueryVariables(
+        version === UniswapVersion.v2
+          ? VanillaVersion.V1_0
+          : VanillaVersion.V1_1,
+        blockNumber,
+      )
+    : getTokenInfoQueryVariables(
+        version === UniswapVersion.v2
+          ? VanillaVersion.V1_0
+          : VanillaVersion.V1_1,
+      )
 
   try {
     const { http } = getTheGraphClient(version)
