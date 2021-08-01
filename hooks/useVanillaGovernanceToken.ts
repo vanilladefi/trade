@@ -101,7 +101,8 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
           weth: weth.address.toLowerCase(),
           tokenAddresses: [versionAddress.toLowerCase()],
         }
-        const { http } = getTheGraphClient(uniswapVersion)
+        // TODO: Change this to Uniswap.v3 when VNL gets liquidity there
+        const { http } = getTheGraphClient(UniswapVersion.v2)
         if (http) {
           const response = await http.request(v2.TokenInfoQuery, variables)
           const data = [...response?.tokensAB, ...response?.tokensBA]
