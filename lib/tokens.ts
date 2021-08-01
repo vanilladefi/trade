@@ -4,6 +4,7 @@ import v1_1Tokens from 'data/tokens_v1_1.json'
 import { BigNumber, constants, Contract, providers, Signer } from 'ethers'
 import { getAddress } from 'ethers/lib/utils'
 import { ETHPriceQueryResponse } from 'hooks/useETHPrice'
+import { getTokenInfoQueryVariables } from 'hooks/useTokenSubscription'
 import { getTheGraphClient, UniswapVersion, v2, v3 } from 'lib/graphql'
 import { ipfsToHttp } from 'lib/ipfs'
 import Vibrant from 'node-vibrant'
@@ -260,11 +261,10 @@ export async function addGraphInfo(
       ? v3.TokenInfoQuery
       : v3.TokenInfoQueryHistorical
 
-  const variables = {
+  const variables = getTokenInfoQueryVariables(
+    version === UniswapVersion.v2 ? VanillaVersion.V1_0 : VanillaVersion.V1_1,
     blockNumber,
-    weth: weth.address.toLowerCase(),
-    tokenAddresses: tokens.map(({ address }) => address.toLowerCase()),
-  }
+  )
 
   try {
     const { http } = getTheGraphClient(version)

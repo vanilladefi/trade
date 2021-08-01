@@ -12,3 +12,10 @@ export enum VanillaVersion {
   V1_0,
   V1_1,
 }
+
+export type TokenQueryVariables = {
+  blockNumber?: number | null
+  weth: string
+  tokenAddresses: string[]
+  poolAddresses?: string[] | null
+}
