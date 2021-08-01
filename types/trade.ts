@@ -4,6 +4,7 @@ import type { Column } from 'react-table'
 
 export interface PairInfo {
   pairId: string | null
+  feeTier?: string | number | null
 }
 
 export enum Operation {
