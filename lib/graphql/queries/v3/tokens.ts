@@ -36,12 +36,28 @@ const TokenBAFragment = gql`
 `
 
 export const TokenInfoQuery = gql`
-  query tokenInfo($weth: String, $tokenAddresses: [String]) {
-    tokensAB: pools(where: { token0: $weth, token1_in: $tokenAddresses }) {
+  query tokenInfo(
+    $weth: String
+    $tokenAddresses: [String]
+    $poolAddresses: [String]
+  ) {
+    tokensAB: pools(
+      where: {
+        token0: $weth
+        token1_in: $tokenAddresses
+        id_in: $poolAddresses
+      }
+    ) {
       ...TokenCommonFragment
       ...TokenABFragment
     }
-    tokensBA: pools(where: { token1: $weth, token0_in: $tokenAddresses }) {
+    tokensBA: pools(
+      where: {
+        token1: $weth
+        token0_in: $tokenAddresses
+        id_in: $poolAddresses
+      }
+    ) {
       ...TokenCommonFragment
       ...TokenBAFragment
     }
@@ -52,17 +68,30 @@ export const TokenInfoQuery = gql`
 `
 
 export const TokenInfoQueryHistorical = gql`
-  query tokenInfo($blockNumber: Int, $weth: String, $tokenAddresses: [String]) {
+  query tokenInfo(
+    $blockNumber: Int
+    $weth: String
+    $tokenAddresses: [String]
+    $poolAddresses: [String]
+  ) {
     tokensAB: pools(
       block: { number: $blockNumber }
-      where: { token0: $weth, token1_in: $tokenAddresses }
+      where: {
+        token0: $weth
+        token1_in: $tokenAddresses
+        id_in: $poolAddresses
+      }
     ) {
       ...TokenCommonFragment
       ...TokenABFragment
     }
     tokensBA: pools(
       block: { number: $blockNumber }
-      where: { token1: $weth, token0_in: $tokenAddresses }
+      where: {
+        token1: $weth
+        token0_in: $tokenAddresses
+        id_in: $poolAddresses
+      }
     ) {
       ...TokenCommonFragment
       ...TokenBAFragment
@@ -77,13 +106,13 @@ export const TokenInfoSubAB = gql`
   subscription tokenInfoAB(
     $weth: String
     $tokenAddresses: [String]
-    $feeTiers: [String]
+    $poolAddresses: [String]
   ) {
     tokens: pools(
       where: {
         token0: $weth
         token1_in: $tokenAddresses
-        feeTier_in: $feeTiers
+        id_in: $$poolAddresses
       }
     ) {
       pairId: id
@@ -106,13 +135,13 @@ export const TokenInfoSubBA = gql`
   subscription tokenInfoBA(
     $weth: String
     $tokenAddresses: [String]
-    $feeTiers: [String]
+    $poolAddresses: [String]
   ) {
     tokens: pools(
       where: {
         token1: $weth
         token0_in: $tokenAddresses
-        feeTier_in: $feeTiers
+        id_in: $$poolAddresses
       }
     ) {
       pairId: id

@@ -5,18 +5,35 @@ import { useEffect } from 'react'
 import { useRecoilCallback, useRecoilValue } from 'recoil'
 import { currentBlockNumberState, currentETHPrice } from 'state/meta'
 import { uniswapV2TokenState, uniswapV3TokenState } from 'state/tokens'
-import { VanillaVersion } from 'types/general'
+import { TokenQueryVariables, VanillaVersion } from 'types/general'
 import type { TokenInfoQueryResponse } from 'types/trade'
 
-const getVariables = (version: VanillaVersion) => {
+export const getTokenInfoQueryVariables = (
+  version: VanillaVersion,
+  blockNumber?: number,
+): TokenQueryVariables => {
   const allTokens = getAllTokens(version)
-  let variables = {
+
+  const poolAddresses = allTokens
+    .filter((token) => token && token.pools && token.pools.length)
+    .flatMap((token) => token.pools)
+    .flatMap((pool) => pool?.address.toLowerCase() || '')
+
+  let variables: TokenQueryVariables = {
     weth: weth.address.toLowerCase(),
     tokenAddresses: allTokens.map(({ address }) => address.toLowerCase()),
   }
-  if (version === VanillaVersion.V1_1) {
+
+  if (blockNumber !== undefined) {
     variables = {
-      feeTiers: allTokens.map(({ feeTier }) => feeTier),
+      blockNumber: blockNumber,
+      ...variables,
+    }
+  }
+
+  if (version === VanillaVersion.V1_1 && poolAddresses.length > 0) {
+    variables = {
+      poolAddresses: poolAddresses,
       ...variables,
     }
   }
@@ -79,7 +96,7 @@ export default function useTokenSubscription(version: VanillaVersion): void {
       next: handleNewData,
     }
 
-    const variables = getVariables(version)
+    const variables = getTokenInfoQueryVariables(version)
 
     const { ws } = getTheGraphClient(uniswapVersion)
 

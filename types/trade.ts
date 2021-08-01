@@ -16,8 +16,13 @@ export enum Eligibility {
   Eligible,
 }
 
+export interface Pool {
+  address: string
+  fee: string
+}
+
 export interface UniSwapToken {
-  [index: string]: string | number | null | undefined
+  //[index: string]: string | number | null | undefined
   name?: string
   address: string
   symbol: string
@@ -46,7 +51,7 @@ export interface Token extends UniSwapToken {
   reserveToken?: string | null
   inRangeLiquidity?: string | null
   sqrtPrice?: string | null
-  feeTier?: string | null
+  pools?: Pool[] | null
 }
 
 export interface TokenInfoQueryResponse {
@@ -63,7 +68,6 @@ export interface TokenInfoQueryResponse {
   inRangeLiquidity?: string | null
   sqrtPrice?: string | null
   totalValueLockedETH?: string | null
-  feeTier?: string | null
 }
 
 /**
