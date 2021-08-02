@@ -122,6 +122,17 @@ const _abi = [
     type: "error",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "invalidVersion",
+        type: "address",
+      },
+    ],
+    name: "UnapprovedMigrationTarget",
+    type: "error",
+  },
+  {
     inputs: [],
     name: "UnauthorizedCallback",
     type: "error",

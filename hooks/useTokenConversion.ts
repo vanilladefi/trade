@@ -1,8 +1,9 @@
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { addDays } from 'date-fns'
-import { BigNumber, ContractTransaction } from 'ethers'
+import { ContractTransaction } from 'ethers'
 import { isAddress } from 'lib/tokens'
 import { snapshot } from 'lib/vanilla'
+import { debounce } from 'lodash'
 import { useCallback, useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import {
@@ -12,22 +13,27 @@ import {
   conversionStartDate,
   convertableBalance,
   merkleProof,
+  tokenConversionState,
   vanillaToken1,
   vanillaToken2,
 } from 'state/migration'
 import { signerState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
+import { ConversionState } from 'types/migration'
 import { VanillaV1Token01, VanillaV1Token02 } from 'types/typechain'
 import { VanillaV1Router02__factory } from 'types/typechain/factories/VanillaV1Router02__factory'
 import { VanillaV1Token01__factory } from 'types/typechain/factories/VanillaV1Token01__factory'
 import { VanillaV1Token02__factory } from 'types/typechain/factories/VanillaV1Token02__factory'
-import { getVanillaRouterAddress, getVnlTokenAddress } from 'utils/config'
+import {
+  getVanillaRouterAddress,
+  getVnlTokenAddress,
+  vnlDecimals,
+} from 'utils/config'
 import useWalletAddress from './useWalletAddress'
 
 export default function useTokenConversion(): {
   approve: () => Promise<ContractTransaction | null>
   convert: () => Promise<ContractTransaction | null>
-  getAllowance: () => Promise<BigNumber>
   eligible: boolean
   conversionDeadline: Date | null
   conversionStartDate: Date | null
@@ -37,6 +43,9 @@ export default function useTokenConversion(): {
 } {
   const { long: walletAddress } = useWalletAddress()
   const signer = useRecoilValue(signerState)
+
+  const [conversionState, setConversionState] =
+    useRecoilState(tokenConversionState)
 
   const [vnlToken1, setVnlToken1] = useRecoilState(vanillaToken1)
   const [vnlToken2, setVnlToken2] = useRecoilState(vanillaToken2)
@@ -49,7 +58,7 @@ export default function useTokenConversion(): {
   const [allowance, setAllowance] = useRecoilState(conversionAllowance)
 
   const approve = useCallback(async () => {
-    const balance = parseUnits(convertable || '0', 12)
+    const balance = parseUnits(convertable || '0', vnlDecimals)
     let approval: ContractTransaction | null = null
 
     if (!balance.isZero() && vnlToken2 && vnlToken1) {
@@ -61,7 +70,7 @@ export default function useTokenConversion(): {
       if (address) {
         try {
           approval = await vnlToken1.approve(address, balance)
-          setAllowance(formatUnits(balance, 12))
+          setAllowance(formatUnits(balance, vnlDecimals))
         } catch (e) {
           console.error(e)
         }
@@ -71,140 +80,150 @@ export default function useTokenConversion(): {
     return approval
   }, [convertable, setAllowance, vnlToken1, vnlToken2])
 
-  const getAllowance = useCallback(async () => {
-    let allowance: BigNumber = BigNumber.from('0')
-    const vnl1_1Addr = isAddress(
-      (await vnlToken2?.resolvedAddress) ||
-        getVnlTokenAddress(VanillaVersion.V1_1) ||
-        '',
-    )
-    if (vnlToken1 && isAddress(walletAddress) && vnl1_1Addr) {
-      allowance = await vnlToken1.allowance(walletAddress, vnl1_1Addr)
-    }
-    setAllowance(formatUnits(allowance, 12))
-    return allowance
-  }, [setAllowance, vnlToken1, vnlToken2?.resolvedAddress, walletAddress])
-
   const convert = useCallback(async () => {
     let conversionReceipt: ContractTransaction | null = null
-    if (vnlToken1 && vnlToken2) {
+    if (vnlToken1 && vnlToken2 && allowance) {
       try {
-        const { getProof } = await snapshot(vnlToken1)
-        const latestAllowance = await getAllowance()
-        const proof = getProof({
-          amount: latestAllowance,
-          address: walletAddress,
-        })
-        conversionReceipt = await vnlToken2.convertVNL(proof)
-        setAllowance(null)
+        const parsedAllowance = parseUnits(allowance, vnlDecimals)
+        if (!parsedAllowance.isZero()) {
+          const { getProof } = await snapshot(vnlToken1)
+          const proof = getProof({
+            amount: parsedAllowance,
+            address: walletAddress,
+          })
+          conversionReceipt = await vnlToken2.convertVNL(proof)
+          setAllowance(null)
+        }
       } catch (e) {
         console.error(e)
       }
     }
     return conversionReceipt
-  }, [getAllowance, setAllowance, vnlToken1, vnlToken2, walletAddress])
+  }, [allowance, setAllowance, vnlToken1, vnlToken2, walletAddress])
 
   useEffect(() => {
-    const connectTokens = async () => {
+    const getState = debounce(async () => {
+      let nextConversionState: ConversionState | null = null
       try {
-        if (signer) {
-          const vnlRouter = VanillaV1Router02__factory.connect(
-            getVanillaRouterAddress(VanillaVersion.V1_1),
-            signer,
+        if (signer && conversionState === ConversionState.LOADING) {
+          const checkSummedAddress = isAddress(
+            (await signer?.getAddress()) || '',
           )
-          const legacyAddr = isAddress(
-            getVnlTokenAddress(VanillaVersion.V1_0) || '',
-          )
-          const targetAddr = isAddress(await vnlRouter.vnlContract())
-          if (legacyAddr && targetAddr) {
-            const VNLToken1: VanillaV1Token01 =
-              VanillaV1Token01__factory.connect(legacyAddr, signer)
-            setVnlToken1(VNLToken1)
-            const VNLToken2: VanillaV1Token02 =
-              VanillaV1Token02__factory.connect(targetAddr, signer)
-            setVnlToken2(VNLToken2)
+
+          // If signer is connected, try fetching migration state
+          if (checkSummedAddress) {
+            const vnlRouter = VanillaV1Router02__factory.connect(
+              getVanillaRouterAddress(VanillaVersion.V1_1),
+              signer,
+            )
+            const legacyAddr = isAddress(
+              getVnlTokenAddress(VanillaVersion.V1_0) || '',
+            )
+            const targetAddr = isAddress(await vnlRouter.vnlContract())
+
+            // Connect to token contracts
+            let VNLToken1: VanillaV1Token01 | undefined
+            let VNLToken2: VanillaV1Token02 | undefined
+            if (legacyAddr && targetAddr) {
+              VNLToken1 = VanillaV1Token01__factory.connect(legacyAddr, signer)
+              VNLToken2 = VanillaV1Token02__factory.connect(targetAddr, signer)
+              setVnlToken1(VNLToken1)
+              setVnlToken2(VNLToken2)
+            } else {
+              nextConversionState = ConversionState.ERROR
+            }
+
+            const legacyBalance = await VNLToken1?.balanceOf(checkSummedAddress)
+
+            // If both tokens are connected correctly and user has legacy balance, continue
+            if (VNLToken1 && VNLToken2 && !legacyBalance?.isZero()) {
+              const { getProof, verify, root, snapshotState } = await snapshot(
+                VNLToken1,
+              )
+
+              // Get v1.0 token state snapshot
+              const mySnapshotState = snapshotState.accounts[walletAddress]
+              const myConvertableBalance =
+                mySnapshotState && formatUnits(mySnapshotState, vnlDecimals)
+              if (mySnapshotState.isZero()) {
+                nextConversionState = ConversionState.HIDDEN
+              } else {
+                nextConversionState = ConversionState.AVAILABLE
+                setConvertable(myConvertableBalance)
+              }
+
+              // Get start date for conversion
+              const startDate = snapshotState
+                ? new Date(snapshotState.timeStamp * 1000)
+                : null
+              setStartDate(startDate)
+              if (startDate === new Date(0) || mySnapshotState.isZero()) {
+                nextConversionState = ConversionState.ERROR
+              }
+
+              // Calculate conversion deadline
+              const deadline = startDate ? addDays(startDate, 30) : null
+              setDeadline(deadline)
+
+              // Verify proof to check eligibility
+              if (
+                verify(
+                  { amount: mySnapshotState, address: checkSummedAddress },
+                  root,
+                ) &&
+                startDate !== new Date(0) &&
+                !mySnapshotState.isZero()
+              ) {
+                const proof = getProof({
+                  amount: mySnapshotState,
+                  address: checkSummedAddress,
+                })
+                setProof(proof)
+                const eligible = await VNLToken2.checkEligibility(proof)
+                setEligible(eligible.convertible)
+                nextConversionState = ConversionState.AVAILABLE
+              }
+
+              // Check allowance, skip straight to minting if allowance > 0
+              const allowanceResponse = await VNLToken1.allowance(
+                checkSummedAddress,
+                VNLToken2.address,
+              )
+              setAllowance(formatUnits(allowanceResponse, vnlDecimals))
+              if (!allowanceResponse.isZero()) {
+                nextConversionState = ConversionState.APPROVED
+              }
+            }
           }
         }
       } catch (e) {
+        nextConversionState = ConversionState.ERROR
         console.error(e)
       }
-    }
-    connectTokens()
 
-    return () => {
-      setVnlToken1(null)
-      setVnlToken2(null)
-    }
-  }, [setVnlToken1, setVnlToken2, signer])
+      // Set the state
+      nextConversionState && setConversionState(nextConversionState)
+    }, 2000)
 
-  useEffect(() => {
-    const getSnapShot = async () => {
-      const checkSummedAddress = isAddress((await signer?.getAddress()) || '')
-      if (vnlToken1 && vnlToken2) {
-        try {
-          const { getProof, verify, root, snapshotState } = await snapshot(
-            vnlToken1,
-          )
-
-          const mySnapshotState = snapshotState.accounts[walletAddress]
-          const myConvertableBalance =
-            mySnapshotState && formatUnits(mySnapshotState, 12)
-          setConvertable(myConvertableBalance)
-
-          const startDate = snapshotState
-            ? new Date(snapshotState.timeStamp * 1000)
-            : null
-          setStartDate(startDate)
-
-          const deadline = startDate ? addDays(startDate, 30) : null
-          setDeadline(deadline)
-
-          if (
-            checkSummedAddress &&
-            !mySnapshotState.isZero() &&
-            verify(
-              { amount: mySnapshotState, address: checkSummedAddress },
-              root,
-            )
-          ) {
-            const proof = getProof({
-              amount: mySnapshotState,
-              address: checkSummedAddress,
-            })
-            setProof(proof)
-            const eligible = await vnlToken2.checkEligibility(proof)
-            setEligible(eligible.convertible)
-          }
-        } catch (e) {
-          console.error(e)
-        }
-      }
-    }
-    getSnapShot()
-
-    return () => {
-      setEligible(false)
-      setProof(null)
-      setDeadline(null)
-      setConvertable(null)
-      setStartDate(null)
-    }
+    getState()
   }, [
+    conversionState,
+    setAllowance,
+    setConversionState,
     setConvertable,
     setDeadline,
     setEligible,
     setProof,
     setStartDate,
+    setVnlToken1,
+    setVnlToken2,
     signer,
-    vnlToken1,
-    vnlToken2,
     walletAddress,
   ])
 
   return {
     approve,
     convert,
-    getAllowance,
     eligible,
     conversionDeadline: currentDeadline,
     proof,

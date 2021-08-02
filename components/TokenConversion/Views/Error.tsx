@@ -24,11 +24,7 @@ const ErrorView = (): JSX.Element => {
   )
 
   useEffect(() => {
-    if (
-      !eligible &&
-      conversionDeadline &&
-      conversionDeadline.getFullYear() > 1970
-    ) {
+    if (!eligible && conversionDeadline) {
       setErrorTitle('Tokens not found in the latest snapshot')
       setErrorSubtitle(
         'Your tokens were not in the most recent token state snapshot. Please try again after a week.',
@@ -39,9 +35,13 @@ const ErrorView = (): JSX.Element => {
         'Deployment still pending, sorry! Please check back soon.',
       )
       setNextConversionState(ConversionState.AVAILABLE)
-    } else if (conversionDeadline >= new Date(Date.now())) {
+    } else if (eligible && conversionDeadline <= new Date(Date.now())) {
       setErrorTitle('Migration no longer available')
       setErrorSubtitle('The deadline for conversion has passed.')
+    }
+    return () => {
+      setErrorTitle('')
+      setErrorSubtitle('')
     }
   }, [eligible, conversionDeadline])
 

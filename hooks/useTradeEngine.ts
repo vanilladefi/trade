@@ -35,7 +35,11 @@ import {
 import { providerState, signerState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
 import { Action, Operation, Token } from 'types/trade'
-import { blockDeadlineThreshold, ethersOverrides } from 'utils/config'
+import {
+  blockDeadlineThreshold,
+  ethersOverrides,
+  vnlDecimals,
+} from 'utils/config'
 import { getFeeTier, padUniswapTokenToToken } from 'utils/transactions'
 import useAllTransactions from './useAllTransactions'
 import useEligibleTokenBalance from './useEligibleTokenBalance'
@@ -464,7 +468,7 @@ const useTradeEngine = (
           (reward) => {
             let formattedReward: string | null = null
             if (reward?.reward) {
-              formattedReward = formatUnits(reward.reward, 12)
+              formattedReward = formatUnits(reward.reward, vnlDecimals)
             }
             setEstimatedReward(formattedReward)
           },

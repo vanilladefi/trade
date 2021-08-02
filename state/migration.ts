@@ -5,7 +5,7 @@ import { VanillaV1Token02 } from 'types/typechain/VanillaV1Token02'
 
 export const tokenConversionState = atom<ConversionState>({
   key: 'tokenConversionState',
-  default: ConversionState.HIDDEN,
+  default: ConversionState.LOADING,
 })
 
 export const vanillaToken1 = atom<VanillaV1Token01 | null>({

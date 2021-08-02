@@ -54,3 +54,5 @@ export const getVnlTokenAddress = (version: VanillaVersion): string =>
     : version === VanillaVersion.V1_1
     ? process.env.NEXT_PUBLIC_VNL_TOKEN_V1_1_ADDRESS || ''
     : ''
+
+export const vnlDecimals = 12
