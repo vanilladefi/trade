@@ -19,7 +19,7 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
   decimals: number
   balance: string
   balanceRaw: BigNumber
-  getTokenAmount: () => TokenAmount
+  getTokenAmount: () => TokenAmount | undefined
   price: string
   userMintedTotal: string
 } {

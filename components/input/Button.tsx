@@ -100,7 +100,6 @@ const Button = ({
     dark: color === ButtonColor.DARK,
     transparent: color === ButtonColor.TRANSPARENT,
     white: color === ButtonColor.WHITE,
-    yellow: color === ButtonColor.YELLOW,
     bordered: bordered,
     noRightBorder: noRightBorder,
     disabled: disabled,
