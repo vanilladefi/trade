@@ -36,7 +36,7 @@ import { providerState, signerState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
 import { Action, Operation, Token } from 'types/trade'
 import { blockDeadlineThreshold, ethersOverrides } from 'utils/config'
-import { getFeeTier } from 'utils/transactions'
+import { getFeeTier, padUniswapTokenToToken } from 'utils/transactions'
 import useAllTransactions from './useAllTransactions'
 import useEligibleTokenBalance from './useEligibleTokenBalance'
 import useTokenBalance from './useTokenBalance'
@@ -114,14 +114,15 @@ const useTradeEngine = (
           gasLimit: gasLimit,
         })
       }
+
       transaction?.hash &&
         transaction?.from &&
         addTransaction({
           action: Action.PURCHASE,
           hash: transaction.hash,
           from: transaction.from,
-          received: tokenReceived,
-          paid: tokenPaid,
+          received: padUniswapTokenToToken(tokenReceived),
+          paid: padUniswapTokenToToken(tokenPaid),
           amountPaid: amountPaid,
           amountReceived: amountReceived,
           addedTime: Date.now(),
@@ -168,8 +169,8 @@ const useTradeEngine = (
           action: Action.SALE,
           hash: transaction.hash,
           from: transaction.from,
-          received: tokenReceived,
-          paid: tokenPaid,
+          received: padUniswapTokenToToken(tokenReceived),
+          paid: padUniswapTokenToToken(tokenPaid),
           amountPaid: amountPaid,
           amountReceived: amountReceived,
           addedTime: Date.now(),
