@@ -30,6 +30,11 @@ export enum Rounding {
   BOTTOMLEFT,
 }
 
+export enum Opacity {
+  OPAQUE,
+  SEETHROUGH,
+}
+
 export enum Overflow {
   AUTO = 'overflow: auto;',
   HIDDEN = 'overflow: hidden;',
@@ -66,6 +71,7 @@ type Props = {
   alignItems?: Alignment
   buttonState?: ButtonState
   disabled?: boolean
+  opacity?: Opacity
 }
 
 const Button = ({
@@ -86,6 +92,7 @@ const Button = ({
   justifyContent = Justification.CENTER,
   buttonState = ButtonState.NORMAL,
   disabled,
+  opacity,
 }: Props): JSX.Element => {
   const buttonClass = classNames({
     [`${size}`]: true,
@@ -93,9 +100,11 @@ const Button = ({
     dark: color === ButtonColor.DARK,
     transparent: color === ButtonColor.TRANSPARENT,
     white: color === ButtonColor.WHITE,
+    yellow: color === ButtonColor.YELLOW,
     bordered: bordered,
     noRightBorder: noRightBorder,
     disabled: disabled,
+    seeThrough: opacity === Opacity.SEETHROUGH,
     'roundedTopLeft roundedTopRight roundedBottomRight roundedBottomLeft':
       rounded === Rounding.ALL,
     'roundedTopLeft roundedTopRight': rounded === Rounding.TOP,
@@ -173,7 +182,7 @@ const Button = ({
           justify-content: ${justifyContent};
           position: relative;
           opacity: 1;
-          transition: 0.3s ease box-shadow;
+          transition: 0.3s ease box-shadow, 0.3s ease opacity;
           max-width: 100%;
         }
         button.large {
@@ -210,6 +219,9 @@ const Button = ({
           border-width: 2px;
           border-style: solid;
           border-image: var(--bordercolor);
+        }
+        button.seeThrough {
+          opacity: 0.3;
         }
         button.roundedTopLeft {
           border-top-left-radius: 9999px;

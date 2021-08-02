@@ -18,6 +18,8 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
   address: string
   decimals: number
   balance: string
+  balanceRaw: BigNumber
+  getTokenAmount: () => TokenAmount
   price: string
   userMintedTotal: string
 } {
@@ -43,7 +45,22 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
 
   const contract1 = useTokenContract(addresses[0])
   const contract2 = useContract(addresses[1], VanillaV1Token02.abi)
-  const { formatted: vnlBalance } = useTokenBalance(versionAddress, vnlDecimals)
+  const { formatted: vnlBalance, raw: vnlBalanceRaw } = useTokenBalance(
+    versionAddress,
+    vnlDecimals,
+  )
+
+  const getTokenAmount = useCallback(() => {
+    if (versionAddress && isAddress(versionAddress)) {
+      const token = new Token(
+        tokenListChainId,
+        versionAddress || '',
+        vnlDecimals,
+      )
+      const tokenAmount = new TokenAmount(token, vnlBalanceRaw.toString())
+      return tokenAmount
+    }
+  }, [versionAddress, vnlBalanceRaw])
 
   const userMintedTotal = useCallback(() => {
     if (versionAddress) {
@@ -125,6 +142,8 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
     address: versionAddress || '',
     decimals: vnlDecimals,
     balance: vnlBalance !== '' ? vnlBalance : '0',
+    balanceRaw: vnlBalanceRaw,
+    getTokenAmount: getTokenAmount,
     price: vnlEthPrice,
     userMintedTotal: userMintedTotal() || '0',
   }
