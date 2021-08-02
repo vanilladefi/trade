@@ -20,7 +20,7 @@ const ErrorView = (): JSX.Element => {
   const [errorTitle, setErrorTitle] = useState('')
   const [errorSubtitle, setErrorSubtitle] = useState('')
   const [nextConversionState, setNextConversionState] = useState(
-    ConversionState.HIDDEN,
+    ConversionState.AVAILABLE,
   )
 
   useEffect(() => {
@@ -38,10 +38,6 @@ const ErrorView = (): JSX.Element => {
     } else if (eligible && conversionDeadline <= new Date(Date.now())) {
       setErrorTitle('Migration no longer available')
       setErrorSubtitle('The deadline for conversion has passed.')
-    }
-    return () => {
-      setErrorTitle('')
-      setErrorSubtitle('')
     }
   }, [eligible, conversionDeadline])
 
