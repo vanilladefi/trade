@@ -2,9 +2,11 @@ import { utils as ethersUtils } from 'ethers'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import useWalletAddress from 'hooks/useWalletAddress'
 import { useCallback, useMemo } from 'react'
-import { useRecoilState } from 'recoil'
+import { useRecoilState, useSetRecoilState } from 'recoil'
+import { tokenConversionState } from 'state/migration'
 import { walletModalOpenState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
+import { ConversionState } from 'types/migration'
 import { useWallet } from 'use-wallet'
 import BottomFloater from './BottomFloater'
 import { BreakPoint } from './GlobalStyles/Breakpoints'
@@ -34,6 +36,17 @@ const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
     VanillaVersion.V1_0,
   )
   const { balance: vnlBalance } = useVanillaGovernanceToken(VanillaVersion.V1_1)
+  const setTokenConversionState = useSetRecoilState(tokenConversionState)
+
+  const getLegacyBalanceState = useCallback(() => {
+    let userHasLegacyBalance = false
+    try {
+      userHasLegacyBalance = Number(legacyBalance) > 0
+    } catch (e) {
+      userHasLegacyBalance = true
+    }
+    return userHasLegacyBalance
+  }, [legacyBalance])
 
   const getVnlBalance = useCallback(() => {
     const legacyAmount = Number(legacyBalance)
@@ -55,6 +68,8 @@ const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
     <ButtonGroup grow={grow}>
       <Button
         onClick={() => {
+          getLegacyBalanceState() &&
+            setTokenConversionState(ConversionState.LOADING)
           setWalletModalOpen(!walletModalOpen)
         }}
         size={ButtonSize.SMALL}
@@ -63,9 +78,9 @@ const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
         bordered
         noRightBorder
         grow={grow}
-        opacity={Number(legacyBalance) > 0 ? Opacity.SEETHROUGH : undefined}
+        opacity={getLegacyBalanceState() ? Opacity.SEETHROUGH : undefined}
         title={
-          Number(legacyBalance) > 0
+          getLegacyBalanceState()
             ? "You've got unconverted v1.0 balances!"
             : undefined
         }
