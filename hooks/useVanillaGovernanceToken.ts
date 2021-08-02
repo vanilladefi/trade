@@ -9,7 +9,7 @@ import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
 import VanillaV1Token02 from 'types/abis/VanillaV1Token02.json'
 import { VanillaVersion } from 'types/general'
-import { getVnlTokenAddress } from 'utils/config'
+import { getVnlTokenAddress, vnlDecimals } from 'utils/config'
 import { useContract, useTokenContract } from './useContract'
 import useTokenBalance from './useTokenBalance'
 import useWalletAddress from './useWalletAddress'
@@ -22,7 +22,6 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
   userMintedTotal: string
 } {
   const provider = useRecoilValue(providerState)
-  const decimals = 12
 
   const addresses = useMemo(
     () => [
@@ -44,7 +43,7 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
 
   const contract1 = useTokenContract(addresses[0])
   const contract2 = useContract(addresses[1], VanillaV1Token02.abi)
-  const { formatted: vnlBalance } = useTokenBalance(versionAddress, decimals)
+  const { formatted: vnlBalance } = useTokenBalance(versionAddress, vnlDecimals)
 
   const userMintedTotal = useCallback(() => {
     if (versionAddress) {
@@ -53,7 +52,7 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
           ? mints.reduce((accumulator, current) => accumulator.add(current))
           : BigNumber.from('0')
       if (bigSum) {
-        const token = new Token(tokenListChainId, versionAddress, decimals)
+        const token = new Token(tokenListChainId, versionAddress, vnlDecimals)
         const tokenAmount = new TokenAmount(token, bigSum.toString())
         return tokenAmount.toSignificant()
       }
@@ -124,7 +123,7 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
 
   return {
     address: versionAddress || '',
-    decimals: 12,
+    decimals: vnlDecimals,
     balance: vnlBalance !== '' ? vnlBalance : '0',
     price: vnlEthPrice,
     userMintedTotal: userMintedTotal() || '0',

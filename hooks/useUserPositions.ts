@@ -238,10 +238,12 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
   }, [
     userAddress,
     counterAsset,
-    ETHPrice,
     wallet.status,
     setTokens,
     vnl.address,
+    provider,
+    signer,
+    version,
   ])
 
   return tokens
