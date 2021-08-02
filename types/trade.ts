@@ -105,14 +105,15 @@ export interface TransactionDetails {
   receipt?: ethers.providers.TransactionReceipt
   from: string
   blockNumber?: number
-  paid?: UniSwapToken
-  received?: UniSwapToken
+  paid?: Token
+  received?: Token
   amountConverted?: string
   amountApproved?: string
   amountPaid?: string
   amountReceived?: string
   addedTime?: number
   reward?: string
+  pairId?: string
 }
 
 export type HandleBuyClick = (pairInfo: PairInfo) => void

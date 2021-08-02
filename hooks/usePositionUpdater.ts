@@ -9,7 +9,8 @@ import {
   userV3TokensState,
 } from 'state/tokens'
 import { VanillaVersion } from 'types/general'
-import { Eligibility, Token } from 'types/trade'
+import type { Token } from 'types/trade'
+import { Eligibility } from 'types/trade'
 
 export type PositionUpdater = (token: Token, delta: BigNumber) => void
 

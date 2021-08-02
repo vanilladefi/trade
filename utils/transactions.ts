@@ -1,4 +1,5 @@
 import { FeeAmount } from '@uniswap/v3-sdk'
+import { Token, UniSwapToken } from 'types/trade'
 
 export function getTransactionKey(
   transactionHash: string,
@@ -28,4 +29,13 @@ export function getFeeTier(
   }
 
   return feeTier
+}
+
+export function padUniswapTokenToToken(input: UniSwapToken): Token {
+  const token = {
+    pairId: null,
+    logoColor: null,
+    ...input,
+  }
+  return token
 }

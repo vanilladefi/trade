@@ -60,6 +60,8 @@ const purchaseHandler = async ({
     blockNumber: receipt.blockNumber,
     from: receipt.from,
     receipt: receipt,
+    pairId: preliminaryTransactionDetails?.pairId || '',
+    logoColor: '',
   }
 
   setTransactionDetails(newDetails)
@@ -117,6 +119,8 @@ const saleHandler = async ({
     from: receipt.from,
     reward: vnlReceived,
     receipt: receipt,
+    pairId: preliminaryTransactionDetails?.pairId || '',
+    logoColor: '',
   }
 
   setTransactionDetails(newDetails)
