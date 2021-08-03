@@ -1,7 +1,5 @@
 import { Token, TokenAmount } from '@uniswap/sdk-core'
-import ERC20 from '@uniswap/v2-periphery/build/ERC20.json'
 import { BigNumber, constants } from 'ethers'
-import { Interface, Result } from 'ethers/lib/utils'
 import { getTheGraphClient, UniswapVersion, v2 } from 'lib/graphql'
 import { isAddress, tokenListChainId, weth } from 'lib/tokens'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -81,26 +79,23 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
   useEffect(() => {
     const getMints = async () => {
       if (contract1 && contract2 && provider && isAddress(userAddress)) {
-        const ercInterface = new Interface(ERC20.abi)
-        const events =
+        const [contract, eventFilter] =
           version === VanillaVersion.V1_0
-            ? contract1?.filters.Transfer(constants.AddressZero, userAddress)
-            : contract2?.filters.Transfer(constants.AddressZero, userAddress)
+            ? [
+                contract1,
+                contract1.filters.Transfer(constants.AddressZero, userAddress),
+              ]
+            : [
+                contract2,
+                contract2.filters.Transfer(constants.AddressZero, userAddress),
+              ]
         try {
           const blockNumber = await provider.getBlockNumber()
-          const logs = await provider.getLogs({
-            fromBlock: 0,
-            toBlock: blockNumber,
-            topics: events.topics,
-          })
-          const mintEvents: BigNumber[] = logs.map((log) => {
-            const { value }: Result = ercInterface.decodeEventLog(
-              'Transfer',
-              log.data,
-            )
-            return value
-          })
-          setMints(mintEvents)
+          const mintedValues = await contract
+            .connect(provider)
+            .queryFilter(eventFilter, 0, blockNumber)
+            .then((events) => events.map((event) => event.args?.value))
+          setMints(mintedValues)
         } catch (e) {
           console.error(e)
           setMints([BigNumber.from('0')])
