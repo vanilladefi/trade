@@ -1,25 +1,34 @@
 'use strict'
+const timeout = require('./timeout')
 
 function newPending (browser) {
-  return new Promise(resolve => browser.once('targetcreated', () => setTimeout(resolve, 3000)))
+  return new Promise(resolve => browser.once(
+    'targetcreated',
+    () => timeout(3000).then(resolve)
+  ))
 }
 
 async function goToPending (metamask) {
   await metamask.bringToFront()
 
-  const sendSelector = '#app-content > div > div.main-container-wrapper > div > div > div > div.home__balance-wrapper > div > div.wallet-overview__buttons > button:nth-child(2)'
-  const send = await metamask.waitForSelector(sendSelector)
+  const send = await metamask.waitForSelector('.wallet-overview__buttons > :nth-child(2)')
   await send.click()
 
-  const cancelSelector = '#app-content > div > div.main-container-wrapper > div > div.page-container__header.send__header > a'
-  const cancel = await metamask.waitForSelector(cancelSelector)
+  const cancel = await metamask.waitForSelector('.page-container__header-close-text')
   await cancel.click()
 }
 
 async function chooseConfirm (metamask) {
-  const confirmSelector = '#app-content > div > div.main-container-wrapper > div > div.confirm-page-container-content > div.page-container__footer > footer > button.button.btn-primary.page-container__footer-button'
-  const confirm = await metamask.waitForSelector(confirmSelector)
+  const confirm = await metamask.waitForSelector('.btn-primary')
   await confirm.click()
+}
+
+async function connectAccount (metamask) {
+  const next = await metamask.waitForSelector('.btn-primary')
+  await next.click()
+
+  const connect = await metamask.waitForSelector('.page-container__footer .btn-primary')
+  await connect.click()
 }
 
 module.exports = {
