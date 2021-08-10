@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   PayableOverrides,
@@ -116,7 +116,7 @@ interface VanillaV1API01Interface extends ethers.utils.Interface {
   events: {};
 }
 
-export class VanillaV1API01 extends Contract {
+export class VanillaV1API01 extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -168,22 +168,7 @@ export class VanillaV1API01 extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "buy(address,uint256,uint256,uint256)"(
-      token: string,
-      numEth: BigNumberish,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     depositAndBuy(
-      token: string,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "depositAndBuy(address,uint256,uint256)"(
       token: string,
       numToken: BigNumberish,
       blockTimeDeadline: BigNumberish,
@@ -192,25 +177,7 @@ export class VanillaV1API01 extends Contract {
 
     epoch(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "epoch()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     estimateReward(
-      owner: string,
-      token: string,
-      numEth: BigNumberish,
-      numTokensSold: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        profitablePrice: BigNumber;
-        avgBlock: BigNumber;
-        htrs: BigNumber;
-        vpc: BigNumber;
-        reward: BigNumber;
-      }
-    >;
-
-    "estimateReward(address,address,uint256,uint256)"(
       owner: string,
       token: string,
       numEth: BigNumberish,
@@ -231,14 +198,7 @@ export class VanillaV1API01 extends Contract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    "isTokenRewarded(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     reserveLimit(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "reserveLimit()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     sell(
       token: string,
@@ -248,23 +208,7 @@ export class VanillaV1API01 extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "sell(address,uint256,uint256,uint256)"(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     sellAndWithdraw(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "sellAndWithdraw(address,uint256,uint256,uint256)"(
       token: string,
       numToken: BigNumberish,
       numEthLimit: BigNumberish,
@@ -285,43 +229,15 @@ export class VanillaV1API01 extends Contract {
       }
     >;
 
-    "tokenPriceData(address,address)"(
-      owner: string,
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber] & {
-        ethSum: BigNumber;
-        tokenSum: BigNumber;
-        weightedBlockSum: BigNumber;
-        latestBlock: BigNumber;
-      }
-    >;
-
     vnlContract(overrides?: CallOverrides): Promise<[string]>;
 
-    "vnlContract()"(overrides?: CallOverrides): Promise<[string]>;
-
     wethReserves(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "wethReserves(address)"(
       token: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
   };
 
   buy(
-    token: string,
-    numEth: BigNumberish,
-    numToken: BigNumberish,
-    blockTimeDeadline: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "buy(address,uint256,uint256,uint256)"(
     token: string,
     numEth: BigNumberish,
     numToken: BigNumberish,
@@ -336,16 +252,7 @@ export class VanillaV1API01 extends Contract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "depositAndBuy(address,uint256,uint256)"(
-    token: string,
-    numToken: BigNumberish,
-    blockTimeDeadline: BigNumberish,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   epoch(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "epoch()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   estimateReward(
     owner: string,
@@ -363,32 +270,9 @@ export class VanillaV1API01 extends Contract {
     }
   >;
 
-  "estimateReward(address,address,uint256,uint256)"(
-    owner: string,
-    token: string,
-    numEth: BigNumberish,
-    numTokensSold: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-      profitablePrice: BigNumber;
-      avgBlock: BigNumber;
-      htrs: BigNumber;
-      vpc: BigNumber;
-      reward: BigNumber;
-    }
-  >;
-
   isTokenRewarded(token: string, overrides?: CallOverrides): Promise<boolean>;
 
-  "isTokenRewarded(address)"(
-    token: string,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   reserveLimit(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "reserveLimit()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   sell(
     token: string,
@@ -398,23 +282,7 @@ export class VanillaV1API01 extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "sell(address,uint256,uint256,uint256)"(
-    token: string,
-    numToken: BigNumberish,
-    numEthLimit: BigNumberish,
-    blockTimeDeadline: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   sellAndWithdraw(
-    token: string,
-    numToken: BigNumberish,
-    numEthLimit: BigNumberish,
-    blockTimeDeadline: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "sellAndWithdraw(address,uint256,uint256,uint256)"(
     token: string,
     numToken: BigNumberish,
     numEthLimit: BigNumberish,
@@ -435,40 +303,12 @@ export class VanillaV1API01 extends Contract {
     }
   >;
 
-  "tokenPriceData(address,address)"(
-    owner: string,
-    token: string,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, BigNumber, BigNumber] & {
-      ethSum: BigNumber;
-      tokenSum: BigNumber;
-      weightedBlockSum: BigNumber;
-      latestBlock: BigNumber;
-    }
-  >;
-
   vnlContract(overrides?: CallOverrides): Promise<string>;
-
-  "vnlContract()"(overrides?: CallOverrides): Promise<string>;
 
   wethReserves(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-  "wethReserves(address)"(
-    token: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   callStatic: {
     buy(
-      token: string,
-      numEth: BigNumberish,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "buy(address,uint256,uint256,uint256)"(
       token: string,
       numEth: BigNumberish,
       numToken: BigNumberish,
@@ -483,34 +323,9 @@ export class VanillaV1API01 extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "depositAndBuy(address,uint256,uint256)"(
-      token: string,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     epoch(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "epoch()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     estimateReward(
-      owner: string,
-      token: string,
-      numEth: BigNumberish,
-      numTokensSold: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        profitablePrice: BigNumber;
-        avgBlock: BigNumber;
-        htrs: BigNumber;
-        vpc: BigNumber;
-        reward: BigNumber;
-      }
-    >;
-
-    "estimateReward(address,address,uint256,uint256)"(
       owner: string,
       token: string,
       numEth: BigNumberish,
@@ -528,24 +343,9 @@ export class VanillaV1API01 extends Contract {
 
     isTokenRewarded(token: string, overrides?: CallOverrides): Promise<boolean>;
 
-    "isTokenRewarded(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     reserveLimit(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "reserveLimit()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     sell(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "sell(address,uint256,uint256,uint256)"(
       token: string,
       numToken: BigNumberish,
       numEthLimit: BigNumberish,
@@ -561,28 +361,7 @@ export class VanillaV1API01 extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "sellAndWithdraw(address,uint256,uint256,uint256)"(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     tokenPriceData(
-      owner: string,
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber] & {
-        ethSum: BigNumber;
-        tokenSum: BigNumber;
-        weightedBlockSum: BigNumber;
-        latestBlock: BigNumber;
-      }
-    >;
-
-    "tokenPriceData(address,address)"(
       owner: string,
       token: string,
       overrides?: CallOverrides
@@ -597,14 +376,7 @@ export class VanillaV1API01 extends Contract {
 
     vnlContract(overrides?: CallOverrides): Promise<string>;
 
-    "vnlContract()"(overrides?: CallOverrides): Promise<string>;
-
     wethReserves(token: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "wethReserves(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   filters: {};
@@ -618,22 +390,7 @@ export class VanillaV1API01 extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "buy(address,uint256,uint256,uint256)"(
-      token: string,
-      numEth: BigNumberish,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     depositAndBuy(
-      token: string,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "depositAndBuy(address,uint256,uint256)"(
       token: string,
       numToken: BigNumberish,
       blockTimeDeadline: BigNumberish,
@@ -642,17 +399,7 @@ export class VanillaV1API01 extends Contract {
 
     epoch(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "epoch()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     estimateReward(
-      owner: string,
-      token: string,
-      numEth: BigNumberish,
-      numTokensSold: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "estimateReward(address,address,uint256,uint256)"(
       owner: string,
       token: string,
       numEth: BigNumberish,
@@ -665,24 +412,9 @@ export class VanillaV1API01 extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "isTokenRewarded(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     reserveLimit(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "reserveLimit()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     sell(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "sell(address,uint256,uint256,uint256)"(
       token: string,
       numToken: BigNumberish,
       numEthLimit: BigNumberish,
@@ -698,21 +430,7 @@ export class VanillaV1API01 extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "sellAndWithdraw(address,uint256,uint256,uint256)"(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     tokenPriceData(
-      owner: string,
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "tokenPriceData(address,address)"(
       owner: string,
       token: string,
       overrides?: CallOverrides
@@ -720,14 +438,7 @@ export class VanillaV1API01 extends Contract {
 
     vnlContract(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "vnlContract()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     wethReserves(token: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "wethReserves(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -739,22 +450,7 @@ export class VanillaV1API01 extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "buy(address,uint256,uint256,uint256)"(
-      token: string,
-      numEth: BigNumberish,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     depositAndBuy(
-      token: string,
-      numToken: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "depositAndBuy(address,uint256,uint256)"(
       token: string,
       numToken: BigNumberish,
       blockTimeDeadline: BigNumberish,
@@ -763,17 +459,7 @@ export class VanillaV1API01 extends Contract {
 
     epoch(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "epoch()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     estimateReward(
-      owner: string,
-      token: string,
-      numEth: BigNumberish,
-      numTokensSold: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "estimateReward(address,address,uint256,uint256)"(
       owner: string,
       token: string,
       numEth: BigNumberish,
@@ -786,24 +472,9 @@ export class VanillaV1API01 extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "isTokenRewarded(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     reserveLimit(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "reserveLimit()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     sell(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "sell(address,uint256,uint256,uint256)"(
       token: string,
       numToken: BigNumberish,
       numEthLimit: BigNumberish,
@@ -819,21 +490,7 @@ export class VanillaV1API01 extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "sellAndWithdraw(address,uint256,uint256,uint256)"(
-      token: string,
-      numToken: BigNumberish,
-      numEthLimit: BigNumberish,
-      blockTimeDeadline: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     tokenPriceData(
-      owner: string,
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "tokenPriceData(address,address)"(
       owner: string,
       token: string,
       overrides?: CallOverrides
@@ -841,14 +498,7 @@ export class VanillaV1API01 extends Contract {
 
     vnlContract(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "vnlContract()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     wethReserves(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "wethReserves(address)"(
       token: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

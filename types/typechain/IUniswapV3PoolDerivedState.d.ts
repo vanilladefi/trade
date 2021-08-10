@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   CallOverrides,
 } from "ethers";
@@ -42,7 +42,7 @@ interface IUniswapV3PoolDerivedStateInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class IUniswapV3PoolDerivedState extends Contract {
+export class IUniswapV3PoolDerivedState extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -96,29 +96,7 @@ export class IUniswapV3PoolDerivedState extends Contract {
       }
     >;
 
-    "observe(uint32[])"(
-      secondsAgos: BigNumberish[],
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber[], BigNumber[]] & {
-        tickCumulatives: BigNumber[];
-        secondsPerLiquidityCumulativeX128s: BigNumber[];
-      }
-    >;
-
     snapshotCumulativesInside(
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, number] & {
-        tickCumulativeInside: BigNumber;
-        secondsPerLiquidityInsideX128: BigNumber;
-        secondsInside: number;
-      }
-    >;
-
-    "snapshotCumulativesInside(int24,int24)"(
       tickLower: BigNumberish,
       tickUpper: BigNumberish,
       overrides?: CallOverrides
@@ -141,29 +119,7 @@ export class IUniswapV3PoolDerivedState extends Contract {
     }
   >;
 
-  "observe(uint32[])"(
-    secondsAgos: BigNumberish[],
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber[], BigNumber[]] & {
-      tickCumulatives: BigNumber[];
-      secondsPerLiquidityCumulativeX128s: BigNumber[];
-    }
-  >;
-
   snapshotCumulativesInside(
-    tickLower: BigNumberish,
-    tickUpper: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, number] & {
-      tickCumulativeInside: BigNumber;
-      secondsPerLiquidityInsideX128: BigNumber;
-      secondsInside: number;
-    }
-  >;
-
-  "snapshotCumulativesInside(int24,int24)"(
     tickLower: BigNumberish,
     tickUpper: BigNumberish,
     overrides?: CallOverrides
@@ -186,29 +142,7 @@ export class IUniswapV3PoolDerivedState extends Contract {
       }
     >;
 
-    "observe(uint32[])"(
-      secondsAgos: BigNumberish[],
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber[], BigNumber[]] & {
-        tickCumulatives: BigNumber[];
-        secondsPerLiquidityCumulativeX128s: BigNumber[];
-      }
-    >;
-
     snapshotCumulativesInside(
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, number] & {
-        tickCumulativeInside: BigNumber;
-        secondsPerLiquidityInsideX128: BigNumber;
-        secondsInside: number;
-      }
-    >;
-
-    "snapshotCumulativesInside(int24,int24)"(
       tickLower: BigNumberish,
       tickUpper: BigNumberish,
       overrides?: CallOverrides
@@ -229,18 +163,7 @@ export class IUniswapV3PoolDerivedState extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "observe(uint32[])"(
-      secondsAgos: BigNumberish[],
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     snapshotCumulativesInside(
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "snapshotCumulativesInside(int24,int24)"(
       tickLower: BigNumberish,
       tickUpper: BigNumberish,
       overrides?: CallOverrides
@@ -253,18 +176,7 @@ export class IUniswapV3PoolDerivedState extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "observe(uint32[])"(
-      secondsAgos: BigNumberish[],
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     snapshotCumulativesInside(
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "snapshotCumulativesInside(int24,int24)"(
       tickLower: BigNumberish,
       tickUpper: BigNumberish,
       overrides?: CallOverrides

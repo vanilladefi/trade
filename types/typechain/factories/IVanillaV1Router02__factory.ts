@@ -2,19 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { IVanillaV1Router02 } from "../IVanillaV1Router02";
-
-export class IVanillaV1Router02__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IVanillaV1Router02 {
-    return new Contract(address, _abi, signerOrProvider) as IVanillaV1Router02;
-  }
-}
+import type {
+  IVanillaV1Router02,
+  IVanillaV1Router02Interface,
+} from "../IVanillaV1Router02";
 
 const _abi = [
   {
@@ -101,9 +94,9 @@ const _abi = [
             type: "address",
           },
           {
-            internalType: "address",
-            name: "wethOwner",
-            type: "address",
+            internalType: "bool",
+            name: "useWETH",
+            type: "bool",
           },
           {
             internalType: "uint256",
@@ -385,9 +378,9 @@ const _abi = [
             type: "address",
           },
           {
-            internalType: "address",
-            name: "wethOwner",
-            type: "address",
+            internalType: "bool",
+            name: "useWETH",
+            type: "bool",
           },
           {
             internalType: "uint256",
@@ -486,3 +479,16 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class IVanillaV1Router02__factory {
+  static readonly abi = _abi;
+  static createInterface(): IVanillaV1Router02Interface {
+    return new utils.Interface(_abi) as IVanillaV1Router02Interface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IVanillaV1Router02 {
+    return new Contract(address, _abi, signerOrProvider) as IVanillaV1Router02;
+  }
+}

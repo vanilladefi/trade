@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   CallOverrides,
 } from "ethers";
@@ -84,7 +84,7 @@ interface IUniswapV3PoolStateInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class IUniswapV3PoolState extends Contract {
+export class IUniswapV3PoolState extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -130,29 +130,11 @@ export class IUniswapV3PoolState extends Contract {
   functions: {
     feeGrowthGlobal0X128(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "feeGrowthGlobal0X128()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     feeGrowthGlobal1X128(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "feeGrowthGlobal1X128()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     liquidity(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "liquidity()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     observations(
-      index: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [number, BigNumber, BigNumber, boolean] & {
-        blockTimestamp: number;
-        tickCumulative: BigNumber;
-        secondsPerLiquidityCumulativeX128: BigNumber;
-        initialized: boolean;
-      }
-    >;
-
-    "observations(uint256)"(
       index: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
@@ -177,26 +159,7 @@ export class IUniswapV3PoolState extends Contract {
       }
     >;
 
-    "positions(bytes32)"(
-      key: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        _liquidity: BigNumber;
-        feeGrowthInside0LastX128: BigNumber;
-        feeGrowthInside1LastX128: BigNumber;
-        tokensOwed0: BigNumber;
-        tokensOwed1: BigNumber;
-      }
-    >;
-
     protocolFees(
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { token0: BigNumber; token1: BigNumber }
-    >;
-
-    "protocolFees()"(
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber] & { token0: BigNumber; token1: BigNumber }
@@ -216,26 +179,7 @@ export class IUniswapV3PoolState extends Contract {
       }
     >;
 
-    "slot0()"(
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, number, number, number, number, number, boolean] & {
-        sqrtPriceX96: BigNumber;
-        tick: number;
-        observationIndex: number;
-        observationCardinality: number;
-        observationCardinalityNext: number;
-        feeProtocol: number;
-        unlocked: boolean;
-      }
-    >;
-
     tickBitmap(
-      wordPosition: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "tickBitmap(int16)"(
       wordPosition: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -264,58 +208,15 @@ export class IUniswapV3PoolState extends Contract {
         initialized: boolean;
       }
     >;
-
-    "ticks(int24)"(
-      tick: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        number,
-        boolean
-      ] & {
-        liquidityGross: BigNumber;
-        liquidityNet: BigNumber;
-        feeGrowthOutside0X128: BigNumber;
-        feeGrowthOutside1X128: BigNumber;
-        tickCumulativeOutside: BigNumber;
-        secondsPerLiquidityOutsideX128: BigNumber;
-        secondsOutside: number;
-        initialized: boolean;
-      }
-    >;
   };
 
   feeGrowthGlobal0X128(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "feeGrowthGlobal0X128()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   feeGrowthGlobal1X128(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "feeGrowthGlobal1X128()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   liquidity(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "liquidity()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   observations(
-    index: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [number, BigNumber, BigNumber, boolean] & {
-      blockTimestamp: number;
-      tickCumulative: BigNumber;
-      secondsPerLiquidityCumulativeX128: BigNumber;
-      initialized: boolean;
-    }
-  >;
-
-  "observations(uint256)"(
     index: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
@@ -340,24 +241,7 @@ export class IUniswapV3PoolState extends Contract {
     }
   >;
 
-  "positions(bytes32)"(
-    key: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-      _liquidity: BigNumber;
-      feeGrowthInside0LastX128: BigNumber;
-      feeGrowthInside1LastX128: BigNumber;
-      tokensOwed0: BigNumber;
-      tokensOwed1: BigNumber;
-    }
-  >;
-
   protocolFees(
-    overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber] & { token0: BigNumber; token1: BigNumber }>;
-
-  "protocolFees()"(
     overrides?: CallOverrides
   ): Promise<[BigNumber, BigNumber] & { token0: BigNumber; token1: BigNumber }>;
 
@@ -375,26 +259,7 @@ export class IUniswapV3PoolState extends Contract {
     }
   >;
 
-  "slot0()"(
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, number, number, number, number, number, boolean] & {
-      sqrtPriceX96: BigNumber;
-      tick: number;
-      observationIndex: number;
-      observationCardinality: number;
-      observationCardinalityNext: number;
-      feeProtocol: number;
-      unlocked: boolean;
-    }
-  >;
-
   tickBitmap(
-    wordPosition: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "tickBitmap(int16)"(
     wordPosition: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -424,57 +289,14 @@ export class IUniswapV3PoolState extends Contract {
     }
   >;
 
-  "ticks(int24)"(
-    tick: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      number,
-      boolean
-    ] & {
-      liquidityGross: BigNumber;
-      liquidityNet: BigNumber;
-      feeGrowthOutside0X128: BigNumber;
-      feeGrowthOutside1X128: BigNumber;
-      tickCumulativeOutside: BigNumber;
-      secondsPerLiquidityOutsideX128: BigNumber;
-      secondsOutside: number;
-      initialized: boolean;
-    }
-  >;
-
   callStatic: {
     feeGrowthGlobal0X128(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "feeGrowthGlobal0X128()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     feeGrowthGlobal1X128(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "feeGrowthGlobal1X128()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     liquidity(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "liquidity()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     observations(
-      index: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [number, BigNumber, BigNumber, boolean] & {
-        blockTimestamp: number;
-        tickCumulative: BigNumber;
-        secondsPerLiquidityCumulativeX128: BigNumber;
-        initialized: boolean;
-      }
-    >;
-
-    "observations(uint256)"(
       index: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
@@ -499,26 +321,7 @@ export class IUniswapV3PoolState extends Contract {
       }
     >;
 
-    "positions(bytes32)"(
-      key: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        _liquidity: BigNumber;
-        feeGrowthInside0LastX128: BigNumber;
-        feeGrowthInside1LastX128: BigNumber;
-        tokensOwed0: BigNumber;
-        tokensOwed1: BigNumber;
-      }
-    >;
-
     protocolFees(
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { token0: BigNumber; token1: BigNumber }
-    >;
-
-    "protocolFees()"(
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber] & { token0: BigNumber; token1: BigNumber }
@@ -538,56 +341,12 @@ export class IUniswapV3PoolState extends Contract {
       }
     >;
 
-    "slot0()"(
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, number, number, number, number, number, boolean] & {
-        sqrtPriceX96: BigNumber;
-        tick: number;
-        observationIndex: number;
-        observationCardinality: number;
-        observationCardinalityNext: number;
-        feeProtocol: number;
-        unlocked: boolean;
-      }
-    >;
-
     tickBitmap(
       wordPosition: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "tickBitmap(int16)"(
-      wordPosition: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     ticks(
-      tick: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        number,
-        boolean
-      ] & {
-        liquidityGross: BigNumber;
-        liquidityNet: BigNumber;
-        feeGrowthOutside0X128: BigNumber;
-        feeGrowthOutside1X128: BigNumber;
-        tickCumulativeOutside: BigNumber;
-        secondsPerLiquidityOutsideX128: BigNumber;
-        secondsOutside: number;
-        initialized: boolean;
-      }
-    >;
-
-    "ticks(int24)"(
       tick: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
@@ -618,57 +377,27 @@ export class IUniswapV3PoolState extends Contract {
   estimateGas: {
     feeGrowthGlobal0X128(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "feeGrowthGlobal0X128()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     feeGrowthGlobal1X128(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "feeGrowthGlobal1X128()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     liquidity(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "liquidity()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     observations(
       index: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "observations(uint256)"(
-      index: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     positions(key: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "positions(bytes32)"(
-      key: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     protocolFees(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "protocolFees()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     slot0(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "slot0()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     tickBitmap(
       wordPosition: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "tickBitmap(int16)"(
-      wordPosition: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     ticks(tick: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "ticks(int24)"(
-      tick: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -676,28 +405,13 @@ export class IUniswapV3PoolState extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "feeGrowthGlobal0X128()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     feeGrowthGlobal1X128(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "feeGrowthGlobal1X128()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     liquidity(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "liquidity()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     observations(
-      index: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "observations(uint256)"(
       index: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -707,35 +421,16 @@ export class IUniswapV3PoolState extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "positions(bytes32)"(
-      key: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     protocolFees(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "protocolFees()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     slot0(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "slot0()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     tickBitmap(
       wordPosition: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "tickBitmap(int16)"(
-      wordPosition: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     ticks(
-      tick: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "ticks(int24)"(
       tick: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

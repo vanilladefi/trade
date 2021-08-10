@@ -154,6 +154,7 @@ export const estimateGas = async (
     if (signer && trade && provider) {
       const block = await provider.getBlock('latest')
       const blockDeadline = block.timestamp + blockDeadlineThreshold
+      const gasPrice = await provider.getGasPrice()
 
       if (version === VanillaVersion.V1_0 && routerV1_0) {
         if (operation === Operation.Buy) {
@@ -163,6 +164,7 @@ export const estimateGas = async (
             blockDeadline,
             {
               value: trade?.inputAmount.raw.toString(),
+              gasPrice: gasPrice,
             },
           )
         } else {
@@ -171,13 +173,16 @@ export const estimateGas = async (
             trade?.inputAmount.raw.toString(),
             trade?.minimumAmountOut(slippageTolerance).raw.toString(),
             blockDeadline,
+            {
+              gasPrice: gasPrice,
+            },
           )
         }
       } else if (version === VanillaVersion.V1_1 && routerV1_1) {
         if (operation === Operation.Buy) {
           const buyOrder = {
             token: token0.address,
-            wethOwner: routerV1_1.address,
+            useWETH: false,
             numEth: trade.inputAmount.raw.toString(),
             numToken: trade.minimumAmountOut(slippageTolerance).raw.toString(),
             blockTimeDeadline: blockDeadline,
@@ -185,20 +190,21 @@ export const estimateGas = async (
           }
           gasEstimate = await routerV1_1.estimateGas.executePayable(
             [routerV1_1.interface.encodeFunctionData('buy', [buyOrder])],
-            { value: trade.inputAmount.raw.toString() },
+            { value: trade.inputAmount.raw.toString(), gasPrice: gasPrice },
           )
         } else {
           const sellOrder = {
             token: token0.address,
-            wethOwner: routerV1_1.address,
+            useWETH: false,
             numEth: trade.minimumAmountOut(slippageTolerance).raw.toString(),
             numToken: trade.inputAmount.raw.toString(),
             blockTimeDeadline: blockDeadline,
             fee: 3000,
           }
-          gasEstimate = await routerV1_1.estimateGas.executePayable([
-            routerV1_1.interface.encodeFunctionData('sell', [sellOrder]),
-          ])
+          gasEstimate = await routerV1_1.estimateGas.executePayable(
+            [routerV1_1.interface.encodeFunctionData('sell', [sellOrder])],
+            { gasPrice: gasPrice },
+          )
         }
       }
     }

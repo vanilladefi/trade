@@ -12,7 +12,7 @@ import {
   TICK_SPACINGS,
   Trade,
 } from '@uniswap/v3-sdk'
-import { ethers, Transaction } from 'ethers'
+import { Transaction } from 'ethers'
 import { getAddress, parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { isAddress, tokenListChainId } from 'lib/tokens'
@@ -38,7 +38,7 @@ export const buy = async ({
     const usedGasLimit = gasLimit ? gasLimit : ethersOverrides.gasLimit
     const orderData = {
       token: tokenReceived.address,
-      wethOwner: vnl1_1Addr,
+      useWETH: false,
       numEth: amountPaid,
       numToken: amountReceived,
       blockTimeDeadline: blockDeadline,
@@ -69,7 +69,7 @@ export const sell = async ({
     const usedGasLimit = gasLimit ? gasLimit : ethersOverrides.gasLimit
     const orderData = {
       token: tokenPaid.address,
-      wethOwner: ethers.constants.AddressZero,
+      useWETH: false,
       numEth: amountReceived,
       numToken: amountPaid,
       blockTimeDeadline: blockDeadline,

@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   PayableOverrides,
@@ -41,7 +41,7 @@ interface VanillaV1Router02Interface extends ethers.utils.Interface {
     values: [
       {
         token: string;
-        wethOwner: string;
+        useWETH: boolean;
         numEth: BigNumberish;
         numToken: BigNumberish;
         blockTimeDeadline: BigNumberish;
@@ -72,7 +72,7 @@ interface VanillaV1Router02Interface extends ethers.utils.Interface {
     values: [
       {
         token: string;
-        wethOwner: string;
+        useWETH: boolean;
         numEth: BigNumberish;
         numToken: BigNumberish;
         blockTimeDeadline: BigNumberish;
@@ -140,7 +140,7 @@ interface VanillaV1Router02Interface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "TokensSold"): EventFragment;
 }
 
-export class VanillaV1Router02 extends Contract {
+export class VanillaV1Router02 extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -187,19 +187,7 @@ export class VanillaV1Router02 extends Contract {
     buy(
       buyOrder: {
         token: string;
-        wethOwner: string;
-        numEth: BigNumberish;
-        numToken: BigNumberish;
-        blockTimeDeadline: BigNumberish;
-        fee: BigNumberish;
-      },
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "buy((address,address,uint256,uint256,uint256,uint24))"(
-      buyOrder: {
-        token: string;
-        wethOwner: string;
+        useWETH: boolean;
         numEth: BigNumberish;
         numToken: BigNumberish;
         blockTimeDeadline: BigNumberish;
@@ -210,169 +198,7 @@ export class VanillaV1Router02 extends Contract {
 
     epoch(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "epoch()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     estimateReward(
-      owner: string,
-      token: string,
-      numEth: BigNumberish,
-      numTokensSold: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        BigNumber,
-        BigNumber,
-        [
-          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          },
-          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          },
-          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          }
-        ] & {
-          low: [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          };
-          medium: [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          };
-          high: [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          };
-        }
-      ] & {
-        avgBlock: BigNumber;
-        htrs: BigNumber;
-        estimate: [
-          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          },
-          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          },
-          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          }
-        ] & {
-          low: [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          };
-          medium: [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          };
-          high: [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          };
-        };
-      }
-    >;
-
-    "estimateReward(address,address,uint256,uint256)"(
       owner: string,
       token: string,
       numEth: BigNumberish,
@@ -537,17 +363,7 @@ export class VanillaV1Router02 extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "execute(bytes[])"(
-      data: BytesLike[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     executePayable(
-      data: BytesLike[],
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "executePayable(bytes[])"(
       data: BytesLike[],
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -558,32 +374,12 @@ export class VanillaV1Router02 extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "migratePosition(address,address)"(
-      token: string,
-      nextVersion: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     safeList(overrides?: CallOverrides): Promise<[string]>;
-
-    "safeList()"(overrides?: CallOverrides): Promise<[string]>;
 
     sell(
       sellOrder: {
         token: string;
-        wethOwner: string;
-        numEth: BigNumberish;
-        numToken: BigNumberish;
-        blockTimeDeadline: BigNumberish;
-        fee: BigNumberish;
-      },
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "sell((address,address,uint256,uint256,uint256,uint24))"(
-      sellOrder: {
-        token: string;
-        wethOwner: string;
+        useWETH: boolean;
         numEth: BigNumberish;
         numToken: BigNumberish;
         blockTimeDeadline: BigNumberish;
@@ -605,27 +401,7 @@ export class VanillaV1Router02 extends Contract {
       }
     >;
 
-    "tokenPriceData(address,address)"(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, number] & {
-        weightedBlockSum: BigNumber;
-        ethSum: BigNumber;
-        tokenSum: BigNumber;
-        latestBlock: number;
-      }
-    >;
-
     uniswapV3SwapCallback(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "uniswapV3SwapCallback(int256,int256,bytes)"(
       amount0Delta: BigNumberish,
       amount1Delta: BigNumberish,
       data: BytesLike,
@@ -634,14 +410,7 @@ export class VanillaV1Router02 extends Contract {
 
     vnlContract(overrides?: CallOverrides): Promise<[string]>;
 
-    "vnlContract()"(overrides?: CallOverrides): Promise<[string]>;
-
     withdrawTokens(
-      token: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "withdrawTokens(address)"(
       token: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -650,19 +419,7 @@ export class VanillaV1Router02 extends Contract {
   buy(
     buyOrder: {
       token: string;
-      wethOwner: string;
-      numEth: BigNumberish;
-      numToken: BigNumberish;
-      blockTimeDeadline: BigNumberish;
-      fee: BigNumberish;
-    },
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "buy((address,address,uint256,uint256,uint256,uint24))"(
-    buyOrder: {
-      token: string;
-      wethOwner: string;
+      useWETH: boolean;
       numEth: BigNumberish;
       numToken: BigNumberish;
       blockTimeDeadline: BigNumberish;
@@ -673,169 +430,7 @@ export class VanillaV1Router02 extends Contract {
 
   epoch(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "epoch()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   estimateReward(
-    owner: string,
-    token: string,
-    numEth: BigNumberish,
-    numTokensSold: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [
-      BigNumber,
-      BigNumber,
-      [
-        [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-          price: BigNumber;
-          twapPeriodInSeconds: BigNumber;
-          profitablePrice: BigNumber;
-          maxProfitablePrice: BigNumber;
-          rewardableProfit: BigNumber;
-          reward: BigNumber;
-        },
-        [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-          price: BigNumber;
-          twapPeriodInSeconds: BigNumber;
-          profitablePrice: BigNumber;
-          maxProfitablePrice: BigNumber;
-          rewardableProfit: BigNumber;
-          reward: BigNumber;
-        },
-        [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-          price: BigNumber;
-          twapPeriodInSeconds: BigNumber;
-          profitablePrice: BigNumber;
-          maxProfitablePrice: BigNumber;
-          rewardableProfit: BigNumber;
-          reward: BigNumber;
-        }
-      ] & {
-        low: [
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber
-        ] & {
-          price: BigNumber;
-          twapPeriodInSeconds: BigNumber;
-          profitablePrice: BigNumber;
-          maxProfitablePrice: BigNumber;
-          rewardableProfit: BigNumber;
-          reward: BigNumber;
-        };
-        medium: [
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber
-        ] & {
-          price: BigNumber;
-          twapPeriodInSeconds: BigNumber;
-          profitablePrice: BigNumber;
-          maxProfitablePrice: BigNumber;
-          rewardableProfit: BigNumber;
-          reward: BigNumber;
-        };
-        high: [
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber
-        ] & {
-          price: BigNumber;
-          twapPeriodInSeconds: BigNumber;
-          profitablePrice: BigNumber;
-          maxProfitablePrice: BigNumber;
-          rewardableProfit: BigNumber;
-          reward: BigNumber;
-        };
-      }
-    ] & {
-      avgBlock: BigNumber;
-      htrs: BigNumber;
-      estimate: [
-        [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-          price: BigNumber;
-          twapPeriodInSeconds: BigNumber;
-          profitablePrice: BigNumber;
-          maxProfitablePrice: BigNumber;
-          rewardableProfit: BigNumber;
-          reward: BigNumber;
-        },
-        [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-          price: BigNumber;
-          twapPeriodInSeconds: BigNumber;
-          profitablePrice: BigNumber;
-          maxProfitablePrice: BigNumber;
-          rewardableProfit: BigNumber;
-          reward: BigNumber;
-        },
-        [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-          price: BigNumber;
-          twapPeriodInSeconds: BigNumber;
-          profitablePrice: BigNumber;
-          maxProfitablePrice: BigNumber;
-          rewardableProfit: BigNumber;
-          reward: BigNumber;
-        }
-      ] & {
-        low: [
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber
-        ] & {
-          price: BigNumber;
-          twapPeriodInSeconds: BigNumber;
-          profitablePrice: BigNumber;
-          maxProfitablePrice: BigNumber;
-          rewardableProfit: BigNumber;
-          reward: BigNumber;
-        };
-        medium: [
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber
-        ] & {
-          price: BigNumber;
-          twapPeriodInSeconds: BigNumber;
-          profitablePrice: BigNumber;
-          maxProfitablePrice: BigNumber;
-          rewardableProfit: BigNumber;
-          reward: BigNumber;
-        };
-        high: [
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber
-        ] & {
-          price: BigNumber;
-          twapPeriodInSeconds: BigNumber;
-          profitablePrice: BigNumber;
-          maxProfitablePrice: BigNumber;
-          rewardableProfit: BigNumber;
-          reward: BigNumber;
-        };
-      };
-    }
-  >;
-
-  "estimateReward(address,address,uint256,uint256)"(
     owner: string,
     token: string,
     numEth: BigNumberish,
@@ -1000,17 +595,7 @@ export class VanillaV1Router02 extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "execute(bytes[])"(
-    data: BytesLike[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   executePayable(
-    data: BytesLike[],
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "executePayable(bytes[])"(
     data: BytesLike[],
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -1021,32 +606,12 @@ export class VanillaV1Router02 extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "migratePosition(address,address)"(
-    token: string,
-    nextVersion: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   safeList(overrides?: CallOverrides): Promise<string>;
-
-  "safeList()"(overrides?: CallOverrides): Promise<string>;
 
   sell(
     sellOrder: {
       token: string;
-      wethOwner: string;
-      numEth: BigNumberish;
-      numToken: BigNumberish;
-      blockTimeDeadline: BigNumberish;
-      fee: BigNumberish;
-    },
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "sell((address,address,uint256,uint256,uint256,uint24))"(
-    sellOrder: {
-      token: string;
-      wethOwner: string;
+      useWETH: boolean;
       numEth: BigNumberish;
       numToken: BigNumberish;
       blockTimeDeadline: BigNumberish;
@@ -1068,27 +633,7 @@ export class VanillaV1Router02 extends Contract {
     }
   >;
 
-  "tokenPriceData(address,address)"(
-    arg0: string,
-    arg1: string,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, BigNumber, number] & {
-      weightedBlockSum: BigNumber;
-      ethSum: BigNumber;
-      tokenSum: BigNumber;
-      latestBlock: number;
-    }
-  >;
-
   uniswapV3SwapCallback(
-    amount0Delta: BigNumberish,
-    amount1Delta: BigNumberish,
-    data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "uniswapV3SwapCallback(int256,int256,bytes)"(
     amount0Delta: BigNumberish,
     amount1Delta: BigNumberish,
     data: BytesLike,
@@ -1097,14 +642,7 @@ export class VanillaV1Router02 extends Contract {
 
   vnlContract(overrides?: CallOverrides): Promise<string>;
 
-  "vnlContract()"(overrides?: CallOverrides): Promise<string>;
-
   withdrawTokens(
-    token: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "withdrawTokens(address)"(
     token: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -1113,19 +651,7 @@ export class VanillaV1Router02 extends Contract {
     buy(
       buyOrder: {
         token: string;
-        wethOwner: string;
-        numEth: BigNumberish;
-        numToken: BigNumberish;
-        blockTimeDeadline: BigNumberish;
-        fee: BigNumberish;
-      },
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "buy((address,address,uint256,uint256,uint256,uint24))"(
-      buyOrder: {
-        token: string;
-        wethOwner: string;
+        useWETH: boolean;
         numEth: BigNumberish;
         numToken: BigNumberish;
         blockTimeDeadline: BigNumberish;
@@ -1136,169 +662,7 @@ export class VanillaV1Router02 extends Contract {
 
     epoch(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "epoch()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     estimateReward(
-      owner: string,
-      token: string,
-      numEth: BigNumberish,
-      numTokensSold: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        BigNumber,
-        BigNumber,
-        [
-          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          },
-          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          },
-          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          }
-        ] & {
-          low: [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          };
-          medium: [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          };
-          high: [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          };
-        }
-      ] & {
-        avgBlock: BigNumber;
-        htrs: BigNumber;
-        estimate: [
-          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          },
-          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          },
-          [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          }
-        ] & {
-          low: [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          };
-          medium: [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          };
-          high: [
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber,
-            BigNumber
-          ] & {
-            price: BigNumber;
-            twapPeriodInSeconds: BigNumber;
-            profitablePrice: BigNumber;
-            maxProfitablePrice: BigNumber;
-            rewardableProfit: BigNumber;
-            reward: BigNumber;
-          };
-        };
-      }
-    >;
-
-    "estimateReward(address,address,uint256,uint256)"(
       owner: string,
       token: string,
       numEth: BigNumberish,
@@ -1460,17 +824,7 @@ export class VanillaV1Router02 extends Contract {
 
     execute(data: BytesLike[], overrides?: CallOverrides): Promise<string[]>;
 
-    "execute(bytes[])"(
-      data: BytesLike[],
-      overrides?: CallOverrides
-    ): Promise<string[]>;
-
     executePayable(
-      data: BytesLike[],
-      overrides?: CallOverrides
-    ): Promise<string[]>;
-
-    "executePayable(bytes[])"(
       data: BytesLike[],
       overrides?: CallOverrides
     ): Promise<string[]>;
@@ -1481,32 +835,12 @@ export class VanillaV1Router02 extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "migratePosition(address,address)"(
-      token: string,
-      nextVersion: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     safeList(overrides?: CallOverrides): Promise<string>;
-
-    "safeList()"(overrides?: CallOverrides): Promise<string>;
 
     sell(
       sellOrder: {
         token: string;
-        wethOwner: string;
-        numEth: BigNumberish;
-        numToken: BigNumberish;
-        blockTimeDeadline: BigNumberish;
-        fee: BigNumberish;
-      },
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "sell((address,address,uint256,uint256,uint256,uint24))"(
-      sellOrder: {
-        token: string;
-        wethOwner: string;
+        useWETH: boolean;
         numEth: BigNumberish;
         numToken: BigNumberish;
         blockTimeDeadline: BigNumberish;
@@ -1528,27 +862,7 @@ export class VanillaV1Router02 extends Contract {
       }
     >;
 
-    "tokenPriceData(address,address)"(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, number] & {
-        weightedBlockSum: BigNumber;
-        ethSum: BigNumber;
-        tokenSum: BigNumber;
-        latestBlock: number;
-      }
-    >;
-
     uniswapV3SwapCallback(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "uniswapV3SwapCallback(int256,int256,bytes)"(
       amount0Delta: BigNumberish,
       amount1Delta: BigNumberish,
       data: BytesLike,
@@ -1557,34 +871,27 @@ export class VanillaV1Router02 extends Contract {
 
     vnlContract(overrides?: CallOverrides): Promise<string>;
 
-    "vnlContract()"(overrides?: CallOverrides): Promise<string>;
-
     withdrawTokens(token: string, overrides?: CallOverrides): Promise<void>;
-
-    "withdrawTokens(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
   filters: {
     TokensPurchased(
-      buyer: string | null,
-      token: string | null,
-      eth: null,
-      amount: null
+      buyer?: string | null,
+      token?: string | null,
+      eth?: null,
+      amount?: null
     ): TypedEventFilter<
       [string, string, BigNumber, BigNumber],
       { buyer: string; token: string; eth: BigNumber; amount: BigNumber }
     >;
 
     TokensSold(
-      seller: string | null,
-      token: string | null,
-      amount: null,
-      eth: null,
-      profit: null,
-      reward: null
+      seller?: string | null,
+      token?: string | null,
+      amount?: null,
+      eth?: null,
+      profit?: null,
+      reward?: null
     ): TypedEventFilter<
       [string, string, BigNumber, BigNumber, BigNumber, BigNumber],
       {
@@ -1602,19 +909,7 @@ export class VanillaV1Router02 extends Contract {
     buy(
       buyOrder: {
         token: string;
-        wethOwner: string;
-        numEth: BigNumberish;
-        numToken: BigNumberish;
-        blockTimeDeadline: BigNumberish;
-        fee: BigNumberish;
-      },
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "buy((address,address,uint256,uint256,uint256,uint24))"(
-      buyOrder: {
-        token: string;
-        wethOwner: string;
+        useWETH: boolean;
         numEth: BigNumberish;
         numToken: BigNumberish;
         blockTimeDeadline: BigNumberish;
@@ -1625,17 +920,7 @@ export class VanillaV1Router02 extends Contract {
 
     epoch(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "epoch()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     estimateReward(
-      owner: string,
-      token: string,
-      numEth: BigNumberish,
-      numTokensSold: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "estimateReward(address,address,uint256,uint256)"(
       owner: string,
       token: string,
       numEth: BigNumberish,
@@ -1648,17 +933,7 @@ export class VanillaV1Router02 extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "execute(bytes[])"(
-      data: BytesLike[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     executePayable(
-      data: BytesLike[],
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "executePayable(bytes[])"(
       data: BytesLike[],
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1669,32 +944,12 @@ export class VanillaV1Router02 extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "migratePosition(address,address)"(
-      token: string,
-      nextVersion: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     safeList(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "safeList()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     sell(
       sellOrder: {
         token: string;
-        wethOwner: string;
-        numEth: BigNumberish;
-        numToken: BigNumberish;
-        blockTimeDeadline: BigNumberish;
-        fee: BigNumberish;
-      },
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "sell((address,address,uint256,uint256,uint256,uint24))"(
-      sellOrder: {
-        token: string;
-        wethOwner: string;
+        useWETH: boolean;
         numEth: BigNumberish;
         numToken: BigNumberish;
         blockTimeDeadline: BigNumberish;
@@ -1709,20 +964,7 @@ export class VanillaV1Router02 extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "tokenPriceData(address,address)"(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     uniswapV3SwapCallback(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "uniswapV3SwapCallback(int256,int256,bytes)"(
       amount0Delta: BigNumberish,
       amount1Delta: BigNumberish,
       data: BytesLike,
@@ -1731,14 +973,7 @@ export class VanillaV1Router02 extends Contract {
 
     vnlContract(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "vnlContract()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     withdrawTokens(
-      token: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "withdrawTokens(address)"(
       token: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1748,19 +983,7 @@ export class VanillaV1Router02 extends Contract {
     buy(
       buyOrder: {
         token: string;
-        wethOwner: string;
-        numEth: BigNumberish;
-        numToken: BigNumberish;
-        blockTimeDeadline: BigNumberish;
-        fee: BigNumberish;
-      },
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "buy((address,address,uint256,uint256,uint256,uint24))"(
-      buyOrder: {
-        token: string;
-        wethOwner: string;
+        useWETH: boolean;
         numEth: BigNumberish;
         numToken: BigNumberish;
         blockTimeDeadline: BigNumberish;
@@ -1771,17 +994,7 @@ export class VanillaV1Router02 extends Contract {
 
     epoch(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "epoch()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     estimateReward(
-      owner: string,
-      token: string,
-      numEth: BigNumberish,
-      numTokensSold: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "estimateReward(address,address,uint256,uint256)"(
       owner: string,
       token: string,
       numEth: BigNumberish,
@@ -1794,17 +1007,7 @@ export class VanillaV1Router02 extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "execute(bytes[])"(
-      data: BytesLike[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     executePayable(
-      data: BytesLike[],
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "executePayable(bytes[])"(
       data: BytesLike[],
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1815,32 +1018,12 @@ export class VanillaV1Router02 extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "migratePosition(address,address)"(
-      token: string,
-      nextVersion: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     safeList(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "safeList()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     sell(
       sellOrder: {
         token: string;
-        wethOwner: string;
-        numEth: BigNumberish;
-        numToken: BigNumberish;
-        blockTimeDeadline: BigNumberish;
-        fee: BigNumberish;
-      },
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "sell((address,address,uint256,uint256,uint256,uint24))"(
-      sellOrder: {
-        token: string;
-        wethOwner: string;
+        useWETH: boolean;
         numEth: BigNumberish;
         numToken: BigNumberish;
         blockTimeDeadline: BigNumberish;
@@ -1855,20 +1038,7 @@ export class VanillaV1Router02 extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "tokenPriceData(address,address)"(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     uniswapV3SwapCallback(
-      amount0Delta: BigNumberish,
-      amount1Delta: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "uniswapV3SwapCallback(int256,int256,bytes)"(
       amount0Delta: BigNumberish,
       amount1Delta: BigNumberish,
       data: BytesLike,
@@ -1877,14 +1047,7 @@ export class VanillaV1Router02 extends Contract {
 
     vnlContract(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "vnlContract()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     withdrawTokens(
-      token: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "withdrawTokens(address)"(
       token: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;

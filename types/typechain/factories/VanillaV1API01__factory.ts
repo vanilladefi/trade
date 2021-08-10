@@ -2,19 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { VanillaV1API01 } from "../VanillaV1API01";
-
-export class VanillaV1API01__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): VanillaV1API01 {
-    return new Contract(address, _abi, signerOrProvider) as VanillaV1API01;
-  }
-}
+import type {
+  VanillaV1API01,
+  VanillaV1API01Interface,
+} from "../VanillaV1API01";
 
 const _abi = [
   {
@@ -295,3 +288,16 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class VanillaV1API01__factory {
+  static readonly abi = _abi;
+  static createInterface(): VanillaV1API01Interface {
+    return new utils.Interface(_abi) as VanillaV1API01Interface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): VanillaV1API01 {
+    return new Contract(address, _abi, signerOrProvider) as VanillaV1API01;
+  }
+}
