@@ -29,15 +29,17 @@ const ErrorView = (): JSX.Element => {
       setErrorSubtitle(
         'Your tokens were not in the most recent token state snapshot. Please try again after a week.',
       )
+      setNextConversionState(ConversionState.HIDDEN)
     } else if (!conversionDeadline) {
       setErrorTitle('Migration not started yet')
       setErrorSubtitle(
         'Deployment still pending, sorry! Please check back soon.',
       )
-      setNextConversionState(ConversionState.AVAILABLE)
+      setNextConversionState(ConversionState.HIDDEN)
     } else if (eligible && conversionDeadline <= new Date(Date.now())) {
       setErrorTitle('Migration no longer available')
       setErrorSubtitle('The deadline for conversion has passed.')
+      setNextConversionState(ConversionState.HIDDEN)
     }
   }, [eligible, conversionDeadline])
 
