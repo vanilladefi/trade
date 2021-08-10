@@ -2,19 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { IVanillaV1Converter } from "../IVanillaV1Converter";
-
-export class IVanillaV1Converter__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IVanillaV1Converter {
-    return new Contract(address, _abi, signerOrProvider) as IVanillaV1Converter;
-  }
-}
+import type {
+  IVanillaV1Converter,
+  IVanillaV1ConverterInterface,
+} from "../IVanillaV1Converter";
 
 const _abi = [
   {
@@ -112,3 +105,16 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class IVanillaV1Converter__factory {
+  static readonly abi = _abi;
+  static createInterface(): IVanillaV1ConverterInterface {
+    return new utils.Interface(_abi) as IVanillaV1ConverterInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IVanillaV1Converter {
+    return new Contract(address, _abi, signerOrProvider) as IVanillaV1Converter;
+  }
+}

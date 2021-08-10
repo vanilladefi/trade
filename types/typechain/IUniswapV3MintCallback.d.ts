@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -37,7 +37,7 @@ interface IUniswapV3MintCallbackInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class IUniswapV3MintCallback extends Contract {
+export class IUniswapV3MintCallback extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -87,13 +87,6 @@ export class IUniswapV3MintCallback extends Contract {
       data: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    "uniswapV3MintCallback(uint256,uint256,bytes)"(
-      amount0Owed: BigNumberish,
-      amount1Owed: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
   };
 
   uniswapV3MintCallback(
@@ -103,22 +96,8 @@ export class IUniswapV3MintCallback extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "uniswapV3MintCallback(uint256,uint256,bytes)"(
-    amount0Owed: BigNumberish,
-    amount1Owed: BigNumberish,
-    data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     uniswapV3MintCallback(
-      amount0Owed: BigNumberish,
-      amount1Owed: BigNumberish,
-      data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "uniswapV3MintCallback(uint256,uint256,bytes)"(
       amount0Owed: BigNumberish,
       amount1Owed: BigNumberish,
       data: BytesLike,
@@ -135,24 +114,10 @@ export class IUniswapV3MintCallback extends Contract {
       data: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    "uniswapV3MintCallback(uint256,uint256,bytes)"(
-      amount0Owed: BigNumberish,
-      amount1Owed: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     uniswapV3MintCallback(
-      amount0Owed: BigNumberish,
-      amount1Owed: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "uniswapV3MintCallback(uint256,uint256,bytes)"(
       amount0Owed: BigNumberish,
       amount1Owed: BigNumberish,
       data: BytesLike,

@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -56,7 +56,7 @@ interface IVanillaV1ConverterInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "VNLConverted"): EventFragment;
 }
 
-export class IVanillaV1Converter extends Contract {
+export class IVanillaV1Converter extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -107,36 +107,15 @@ export class IVanillaV1Converter extends Contract {
       [boolean, boolean] & { convertible: boolean; transferable: boolean }
     >;
 
-    "checkEligibility(bytes32[])"(
-      proof: BytesLike[],
-      overrides?: CallOverrides
-    ): Promise<
-      [boolean, boolean] & { convertible: boolean; transferable: boolean }
-    >;
-
     convertVNL(
       proof: BytesLike[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "convertVNL(bytes32[])"(
-      proof: BytesLike[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     migrationState(overrides?: CallOverrides): Promise<[string]>;
-
-    "migrationState()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
   checkEligibility(
-    proof: BytesLike[],
-    overrides?: CallOverrides
-  ): Promise<
-    [boolean, boolean] & { convertible: boolean; transferable: boolean }
-  >;
-
-  "checkEligibility(bytes32[])"(
     proof: BytesLike[],
     overrides?: CallOverrides
   ): Promise<
@@ -148,14 +127,7 @@ export class IVanillaV1Converter extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "convertVNL(bytes32[])"(
-    proof: BytesLike[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   migrationState(overrides?: CallOverrides): Promise<string>;
-
-  "migrationState()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
     checkEligibility(
@@ -165,29 +137,15 @@ export class IVanillaV1Converter extends Contract {
       [boolean, boolean] & { convertible: boolean; transferable: boolean }
     >;
 
-    "checkEligibility(bytes32[])"(
-      proof: BytesLike[],
-      overrides?: CallOverrides
-    ): Promise<
-      [boolean, boolean] & { convertible: boolean; transferable: boolean }
-    >;
-
     convertVNL(proof: BytesLike[], overrides?: CallOverrides): Promise<void>;
 
-    "convertVNL(bytes32[])"(
-      proof: BytesLike[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     migrationState(overrides?: CallOverrides): Promise<string>;
-
-    "migrationState()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
     VNLConverted(
-      converter: null,
-      amount: null
+      converter?: null,
+      amount?: null
     ): TypedEventFilter<
       [string, BigNumber],
       { converter: string; amount: BigNumber }
@@ -200,24 +158,12 @@ export class IVanillaV1Converter extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "checkEligibility(bytes32[])"(
-      proof: BytesLike[],
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     convertVNL(
       proof: BytesLike[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "convertVNL(bytes32[])"(
-      proof: BytesLike[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     migrationState(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "migrationState()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -226,25 +172,11 @@ export class IVanillaV1Converter extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "checkEligibility(bytes32[])"(
-      proof: BytesLike[],
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     convertVNL(
       proof: BytesLike[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "convertVNL(bytes32[])"(
-      proof: BytesLike[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     migrationState(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "migrationState()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
   };
 }

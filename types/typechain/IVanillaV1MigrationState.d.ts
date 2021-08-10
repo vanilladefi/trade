@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -67,7 +67,7 @@ interface IVanillaV1MigrationStateInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class IVanillaV1MigrationState extends Contract {
+export class IVanillaV1MigrationState extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -113,23 +113,11 @@ export class IVanillaV1MigrationState extends Contract {
   functions: {
     blockNumber(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "blockNumber()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     conversionDeadline(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "conversionDeadline()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     stateRoot(overrides?: CallOverrides): Promise<[string]>;
 
-    "stateRoot()"(overrides?: CallOverrides): Promise<[string]>;
-
     updateConvertibleState(
-      newStateRoot: BytesLike,
-      blockNum: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "updateConvertibleState(bytes32,uint64)"(
       newStateRoot: BytesLike,
       blockNum: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -141,34 +129,15 @@ export class IVanillaV1MigrationState extends Contract {
       amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    "verifyEligibility(bytes32[],address,uint256)"(
-      proof: BytesLike[],
-      tokenOwner: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
   };
 
   blockNumber(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "blockNumber()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   conversionDeadline(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "conversionDeadline()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   stateRoot(overrides?: CallOverrides): Promise<string>;
 
-  "stateRoot()"(overrides?: CallOverrides): Promise<string>;
-
   updateConvertibleState(
-    newStateRoot: BytesLike,
-    blockNum: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "updateConvertibleState(bytes32,uint64)"(
     newStateRoot: BytesLike,
     blockNum: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -181,25 +150,12 @@ export class IVanillaV1MigrationState extends Contract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  "verifyEligibility(bytes32[],address,uint256)"(
-    proof: BytesLike[],
-    tokenOwner: string,
-    amount: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   callStatic: {
     blockNumber(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "blockNumber()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     conversionDeadline(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "conversionDeadline()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     stateRoot(overrides?: CallOverrides): Promise<string>;
-
-    "stateRoot()"(overrides?: CallOverrides): Promise<string>;
 
     updateConvertibleState(
       newStateRoot: BytesLike,
@@ -207,20 +163,7 @@ export class IVanillaV1MigrationState extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "updateConvertibleState(bytes32,uint64)"(
-      newStateRoot: BytesLike,
-      blockNum: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     verifyEligibility(
-      proof: BytesLike[],
-      tokenOwner: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "verifyEligibility(bytes32[],address,uint256)"(
       proof: BytesLike[],
       tokenOwner: string,
       amount: BigNumberish,
@@ -233,15 +176,9 @@ export class IVanillaV1MigrationState extends Contract {
   estimateGas: {
     blockNumber(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "blockNumber()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     conversionDeadline(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "conversionDeadline()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     stateRoot(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "stateRoot()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     updateConvertibleState(
       newStateRoot: BytesLike,
@@ -249,20 +186,7 @@ export class IVanillaV1MigrationState extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "updateConvertibleState(bytes32,uint64)"(
-      newStateRoot: BytesLike,
-      blockNum: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     verifyEligibility(
-      proof: BytesLike[],
-      tokenOwner: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "verifyEligibility(bytes32[],address,uint256)"(
       proof: BytesLike[],
       tokenOwner: string,
       amount: BigNumberish,
@@ -273,19 +197,11 @@ export class IVanillaV1MigrationState extends Contract {
   populateTransaction: {
     blockNumber(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "blockNumber()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     conversionDeadline(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "conversionDeadline()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     stateRoot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "stateRoot()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     updateConvertibleState(
       newStateRoot: BytesLike,
@@ -293,20 +209,7 @@ export class IVanillaV1MigrationState extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "updateConvertibleState(bytes32,uint64)"(
-      newStateRoot: BytesLike,
-      blockNum: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     verifyEligibility(
-      proof: BytesLike[],
-      tokenOwner: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "verifyEligibility(bytes32[],address,uint256)"(
       proof: BytesLike[],
       tokenOwner: string,
       amount: BigNumberish,

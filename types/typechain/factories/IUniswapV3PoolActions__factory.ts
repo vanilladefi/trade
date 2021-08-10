@@ -2,23 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-
-import type { IUniswapV3PoolActions } from "../IUniswapV3PoolActions";
-
-export class IUniswapV3PoolActions__factory {
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IUniswapV3PoolActions {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as IUniswapV3PoolActions;
-  }
-}
+import type {
+  IUniswapV3PoolActions,
+  IUniswapV3PoolActionsInterface,
+} from "../IUniswapV3PoolActions";
 
 const _abi = [
   {
@@ -242,3 +231,20 @@ const _abi = [
     type: "function",
   },
 ];
+
+export class IUniswapV3PoolActions__factory {
+  static readonly abi = _abi;
+  static createInterface(): IUniswapV3PoolActionsInterface {
+    return new utils.Interface(_abi) as IUniswapV3PoolActionsInterface;
+  }
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IUniswapV3PoolActions {
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as IUniswapV3PoolActions;
+  }
+}

@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -73,7 +73,7 @@ interface IUniswapV3PoolActionsInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class IUniswapV3PoolActions extends Contract {
+export class IUniswapV3PoolActions extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -124,23 +124,7 @@ export class IUniswapV3PoolActions extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "burn(int24,int24,uint128)"(
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     collect(
-      recipient: string,
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount0Requested: BigNumberish,
-      amount1Requested: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "collect(address,int24,int24,uint128,uint128)"(
       recipient: string,
       tickLower: BigNumberish,
       tickUpper: BigNumberish,
@@ -157,20 +141,7 @@ export class IUniswapV3PoolActions extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "flash(address,uint256,uint256,bytes)"(
-      recipient: string,
-      amount0: BigNumberish,
-      amount1: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     increaseObservationCardinalityNext(
-      observationCardinalityNext: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "increaseObservationCardinalityNext(uint16)"(
       observationCardinalityNext: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -180,21 +151,7 @@ export class IUniswapV3PoolActions extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "initialize(uint160)"(
-      sqrtPriceX96: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     mint(
-      recipient: string,
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "mint(address,int24,int24,uint128,bytes)"(
       recipient: string,
       tickLower: BigNumberish,
       tickUpper: BigNumberish,
@@ -211,15 +168,6 @@ export class IUniswapV3PoolActions extends Contract {
       data: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    "swap(address,bool,int256,uint160,bytes)"(
-      recipient: string,
-      zeroForOne: boolean,
-      amountSpecified: BigNumberish,
-      sqrtPriceLimitX96: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
   };
 
   burn(
@@ -229,23 +177,7 @@ export class IUniswapV3PoolActions extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "burn(int24,int24,uint128)"(
-    tickLower: BigNumberish,
-    tickUpper: BigNumberish,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   collect(
-    recipient: string,
-    tickLower: BigNumberish,
-    tickUpper: BigNumberish,
-    amount0Requested: BigNumberish,
-    amount1Requested: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "collect(address,int24,int24,uint128,uint128)"(
     recipient: string,
     tickLower: BigNumberish,
     tickUpper: BigNumberish,
@@ -262,30 +194,12 @@ export class IUniswapV3PoolActions extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "flash(address,uint256,uint256,bytes)"(
-    recipient: string,
-    amount0: BigNumberish,
-    amount1: BigNumberish,
-    data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   increaseObservationCardinalityNext(
     observationCardinalityNext: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "increaseObservationCardinalityNext(uint16)"(
-    observationCardinalityNext: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   initialize(
-    sqrtPriceX96: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "initialize(uint160)"(
     sqrtPriceX96: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -299,25 +213,7 @@ export class IUniswapV3PoolActions extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "mint(address,int24,int24,uint128,bytes)"(
-    recipient: string,
-    tickLower: BigNumberish,
-    tickUpper: BigNumberish,
-    amount: BigNumberish,
-    data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   swap(
-    recipient: string,
-    zeroForOne: boolean,
-    amountSpecified: BigNumberish,
-    sqrtPriceLimitX96: BigNumberish,
-    data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "swap(address,bool,int256,uint160,bytes)"(
     recipient: string,
     zeroForOne: boolean,
     amountSpecified: BigNumberish,
@@ -336,27 +232,7 @@ export class IUniswapV3PoolActions extends Contract {
       [BigNumber, BigNumber] & { amount0: BigNumber; amount1: BigNumber }
     >;
 
-    "burn(int24,int24,uint128)"(
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { amount0: BigNumber; amount1: BigNumber }
-    >;
-
     collect(
-      recipient: string,
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount0Requested: BigNumberish,
-      amount1Requested: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { amount0: BigNumber; amount1: BigNumber }
-    >;
-
-    "collect(address,int24,int24,uint128,uint128)"(
       recipient: string,
       tickLower: BigNumberish,
       tickUpper: BigNumberish,
@@ -375,30 +251,12 @@ export class IUniswapV3PoolActions extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "flash(address,uint256,uint256,bytes)"(
-      recipient: string,
-      amount0: BigNumberish,
-      amount1: BigNumberish,
-      data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     increaseObservationCardinalityNext(
       observationCardinalityNext: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "increaseObservationCardinalityNext(uint16)"(
-      observationCardinalityNext: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     initialize(
-      sqrtPriceX96: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "initialize(uint160)"(
       sqrtPriceX96: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -414,29 +272,7 @@ export class IUniswapV3PoolActions extends Contract {
       [BigNumber, BigNumber] & { amount0: BigNumber; amount1: BigNumber }
     >;
 
-    "mint(address,int24,int24,uint128,bytes)"(
-      recipient: string,
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { amount0: BigNumber; amount1: BigNumber }
-    >;
-
     swap(
-      recipient: string,
-      zeroForOne: boolean,
-      amountSpecified: BigNumberish,
-      sqrtPriceLimitX96: BigNumberish,
-      data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { amount0: BigNumber; amount1: BigNumber }
-    >;
-
-    "swap(address,bool,int256,uint160,bytes)"(
       recipient: string,
       zeroForOne: boolean,
       amountSpecified: BigNumberish,
@@ -458,23 +294,7 @@ export class IUniswapV3PoolActions extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "burn(int24,int24,uint128)"(
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     collect(
-      recipient: string,
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount0Requested: BigNumberish,
-      amount1Requested: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "collect(address,int24,int24,uint128,uint128)"(
       recipient: string,
       tickLower: BigNumberish,
       tickUpper: BigNumberish,
@@ -491,30 +311,12 @@ export class IUniswapV3PoolActions extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "flash(address,uint256,uint256,bytes)"(
-      recipient: string,
-      amount0: BigNumberish,
-      amount1: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     increaseObservationCardinalityNext(
       observationCardinalityNext: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "increaseObservationCardinalityNext(uint16)"(
-      observationCardinalityNext: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     initialize(
-      sqrtPriceX96: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "initialize(uint160)"(
       sqrtPriceX96: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -528,25 +330,7 @@ export class IUniswapV3PoolActions extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "mint(address,int24,int24,uint128,bytes)"(
-      recipient: string,
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     swap(
-      recipient: string,
-      zeroForOne: boolean,
-      amountSpecified: BigNumberish,
-      sqrtPriceLimitX96: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "swap(address,bool,int256,uint160,bytes)"(
       recipient: string,
       zeroForOne: boolean,
       amountSpecified: BigNumberish,
@@ -564,23 +348,7 @@ export class IUniswapV3PoolActions extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "burn(int24,int24,uint128)"(
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     collect(
-      recipient: string,
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount0Requested: BigNumberish,
-      amount1Requested: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "collect(address,int24,int24,uint128,uint128)"(
       recipient: string,
       tickLower: BigNumberish,
       tickUpper: BigNumberish,
@@ -597,30 +365,12 @@ export class IUniswapV3PoolActions extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "flash(address,uint256,uint256,bytes)"(
-      recipient: string,
-      amount0: BigNumberish,
-      amount1: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     increaseObservationCardinalityNext(
       observationCardinalityNext: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "increaseObservationCardinalityNext(uint16)"(
-      observationCardinalityNext: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     initialize(
-      sqrtPriceX96: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "initialize(uint160)"(
       sqrtPriceX96: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -634,25 +384,7 @@ export class IUniswapV3PoolActions extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "mint(address,int24,int24,uint128,bytes)"(
-      recipient: string,
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     swap(
-      recipient: string,
-      zeroForOne: boolean,
-      amountSpecified: BigNumberish,
-      sqrtPriceLimitX96: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "swap(address,bool,int256,uint160,bytes)"(
       recipient: string,
       zeroForOne: boolean,
       amountSpecified: BigNumberish,

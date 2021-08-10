@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   CallOverrides,
 } from "ethers";
@@ -51,7 +51,7 @@ interface IVanillaV1Safelist01Interface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "TokensRemoved"): EventFragment;
 }
 
-export class IVanillaV1Safelist01 extends Contract {
+export class IVanillaV1Safelist01 extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -97,61 +97,33 @@ export class IVanillaV1Safelist01 extends Contract {
   functions: {
     isSafelisted(token: string, overrides?: CallOverrides): Promise<[boolean]>;
 
-    "isSafelisted(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     nextVersion(overrides?: CallOverrides): Promise<[string]>;
-
-    "nextVersion()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
   isSafelisted(token: string, overrides?: CallOverrides): Promise<boolean>;
 
-  "isSafelisted(address)"(
-    token: string,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   nextVersion(overrides?: CallOverrides): Promise<string>;
-
-  "nextVersion()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
     isSafelisted(token: string, overrides?: CallOverrides): Promise<boolean>;
 
-    "isSafelisted(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     nextVersion(overrides?: CallOverrides): Promise<string>;
-
-    "nextVersion()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
     TokensAdded(
-      tokens: null
+      tokens?: null
     ): TypedEventFilter<[string[]], { tokens: string[] }>;
 
     TokensRemoved(
-      tokens: null
+      tokens?: null
     ): TypedEventFilter<[string[]], { tokens: string[] }>;
   };
 
   estimateGas: {
     isSafelisted(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "isSafelisted(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     nextVersion(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "nextVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -160,13 +132,6 @@ export class IVanillaV1Safelist01 extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "isSafelisted(address)"(
-      token: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     nextVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "nextVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

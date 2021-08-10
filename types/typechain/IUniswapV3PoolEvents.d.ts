@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -45,7 +45,7 @@ interface IUniswapV3PoolEventsInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Swap"): EventFragment;
 }
 
-export class IUniswapV3PoolEvents extends Contract {
+export class IUniswapV3PoolEvents extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -94,12 +94,12 @@ export class IUniswapV3PoolEvents extends Contract {
 
   filters: {
     Burn(
-      owner: string | null,
-      tickLower: BigNumberish | null,
-      tickUpper: BigNumberish | null,
-      amount: null,
-      amount0: null,
-      amount1: null
+      owner?: string | null,
+      tickLower?: BigNumberish | null,
+      tickUpper?: BigNumberish | null,
+      amount?: null,
+      amount0?: null,
+      amount1?: null
     ): TypedEventFilter<
       [string, number, number, BigNumber, BigNumber, BigNumber],
       {
@@ -113,12 +113,12 @@ export class IUniswapV3PoolEvents extends Contract {
     >;
 
     Collect(
-      owner: string | null,
-      recipient: null,
-      tickLower: BigNumberish | null,
-      tickUpper: BigNumberish | null,
-      amount0: null,
-      amount1: null
+      owner?: string | null,
+      recipient?: null,
+      tickLower?: BigNumberish | null,
+      tickUpper?: BigNumberish | null,
+      amount0?: null,
+      amount1?: null
     ): TypedEventFilter<
       [string, string, number, number, BigNumber, BigNumber],
       {
@@ -132,10 +132,10 @@ export class IUniswapV3PoolEvents extends Contract {
     >;
 
     CollectProtocol(
-      sender: string | null,
-      recipient: string | null,
-      amount0: null,
-      amount1: null
+      sender?: string | null,
+      recipient?: string | null,
+      amount0?: null,
+      amount1?: null
     ): TypedEventFilter<
       [string, string, BigNumber, BigNumber],
       {
@@ -147,12 +147,12 @@ export class IUniswapV3PoolEvents extends Contract {
     >;
 
     Flash(
-      sender: string | null,
-      recipient: string | null,
-      amount0: null,
-      amount1: null,
-      paid0: null,
-      paid1: null
+      sender?: string | null,
+      recipient?: string | null,
+      amount0?: null,
+      amount1?: null,
+      paid0?: null,
+      paid1?: null
     ): TypedEventFilter<
       [string, string, BigNumber, BigNumber, BigNumber, BigNumber],
       {
@@ -166,8 +166,8 @@ export class IUniswapV3PoolEvents extends Contract {
     >;
 
     IncreaseObservationCardinalityNext(
-      observationCardinalityNextOld: null,
-      observationCardinalityNextNew: null
+      observationCardinalityNextOld?: null,
+      observationCardinalityNextNew?: null
     ): TypedEventFilter<
       [number, number],
       {
@@ -177,21 +177,21 @@ export class IUniswapV3PoolEvents extends Contract {
     >;
 
     Initialize(
-      sqrtPriceX96: null,
-      tick: null
+      sqrtPriceX96?: null,
+      tick?: null
     ): TypedEventFilter<
       [BigNumber, number],
       { sqrtPriceX96: BigNumber; tick: number }
     >;
 
     Mint(
-      sender: null,
-      owner: string | null,
-      tickLower: BigNumberish | null,
-      tickUpper: BigNumberish | null,
-      amount: null,
-      amount0: null,
-      amount1: null
+      sender?: null,
+      owner?: string | null,
+      tickLower?: BigNumberish | null,
+      tickUpper?: BigNumberish | null,
+      amount?: null,
+      amount0?: null,
+      amount1?: null
     ): TypedEventFilter<
       [string, string, number, number, BigNumber, BigNumber, BigNumber],
       {
@@ -206,10 +206,10 @@ export class IUniswapV3PoolEvents extends Contract {
     >;
 
     SetFeeProtocol(
-      feeProtocol0Old: null,
-      feeProtocol1Old: null,
-      feeProtocol0New: null,
-      feeProtocol1New: null
+      feeProtocol0Old?: null,
+      feeProtocol1Old?: null,
+      feeProtocol0New?: null,
+      feeProtocol1New?: null
     ): TypedEventFilter<
       [number, number, number, number],
       {
@@ -221,13 +221,13 @@ export class IUniswapV3PoolEvents extends Contract {
     >;
 
     Swap(
-      sender: string | null,
-      recipient: string | null,
-      amount0: null,
-      amount1: null,
-      sqrtPriceX96: null,
-      liquidity: null,
-      tick: null
+      sender?: string | null,
+      recipient?: string | null,
+      amount0?: null,
+      amount1?: null,
+      sqrtPriceX96?: null,
+      liquidity?: null,
+      tick?: null
     ): TypedEventFilter<
       [string, string, BigNumber, BigNumber, BigNumber, BigNumber, number],
       {

@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -43,7 +43,7 @@ interface UniswapV3TestHelperInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class UniswapV3TestHelper extends Contract {
+export class UniswapV3TestHelper extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -96,23 +96,7 @@ export class UniswapV3TestHelper extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "mint(address,address,int24,int24,uint128)"(
-      pool: string,
-      recipient: string,
-      low: BigNumberish,
-      high: BigNumberish,
-      liquidity: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     uniswapV3MintCallback(
-      amount0Owed: BigNumberish,
-      amount1Owed: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "uniswapV3MintCallback(uint256,uint256,bytes)"(
       amount0Owed: BigNumberish,
       amount1Owed: BigNumberish,
       data: BytesLike,
@@ -129,23 +113,7 @@ export class UniswapV3TestHelper extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "mint(address,address,int24,int24,uint128)"(
-    pool: string,
-    recipient: string,
-    low: BigNumberish,
-    high: BigNumberish,
-    liquidity: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   uniswapV3MintCallback(
-    amount0Owed: BigNumberish,
-    amount1Owed: BigNumberish,
-    data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "uniswapV3MintCallback(uint256,uint256,bytes)"(
     amount0Owed: BigNumberish,
     amount1Owed: BigNumberish,
     data: BytesLike,
@@ -162,23 +130,7 @@ export class UniswapV3TestHelper extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "mint(address,address,int24,int24,uint128)"(
-      pool: string,
-      recipient: string,
-      low: BigNumberish,
-      high: BigNumberish,
-      liquidity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     uniswapV3MintCallback(
-      amount0Owed: BigNumberish,
-      amount1Owed: BigNumberish,
-      data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "uniswapV3MintCallback(uint256,uint256,bytes)"(
       amount0Owed: BigNumberish,
       amount1Owed: BigNumberish,
       data: BytesLike,
@@ -198,23 +150,7 @@ export class UniswapV3TestHelper extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "mint(address,address,int24,int24,uint128)"(
-      pool: string,
-      recipient: string,
-      low: BigNumberish,
-      high: BigNumberish,
-      liquidity: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     uniswapV3MintCallback(
-      amount0Owed: BigNumberish,
-      amount1Owed: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "uniswapV3MintCallback(uint256,uint256,bytes)"(
       amount0Owed: BigNumberish,
       amount1Owed: BigNumberish,
       data: BytesLike,
@@ -232,23 +168,7 @@ export class UniswapV3TestHelper extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "mint(address,address,int24,int24,uint128)"(
-      pool: string,
-      recipient: string,
-      low: BigNumberish,
-      high: BigNumberish,
-      liquidity: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     uniswapV3MintCallback(
-      amount0Owed: BigNumberish,
-      amount1Owed: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "uniswapV3MintCallback(uint256,uint256,bytes)"(
       amount0Owed: BigNumberish,
       amount1Owed: BigNumberish,
       data: BytesLike,

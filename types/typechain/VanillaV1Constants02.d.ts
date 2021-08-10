@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -23,7 +23,7 @@ interface VanillaV1Constants02Interface extends ethers.utils.Interface {
   events: {};
 }
 
-export class VanillaV1Constants02 extends Contract {
+export class VanillaV1Constants02 extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
