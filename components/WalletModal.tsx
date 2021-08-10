@@ -72,6 +72,18 @@ const ProviderOptions = (): JSX.Element => {
                 <WalletIcon walletType={'walletconnect'} />
               </Row>
             </Button>
+            {/* <Button
+              color={ButtonColor.WHITE}
+              onClick={() => connectWallet('ledger')}
+            >
+              <Row
+                justifyContent={Justification.SPACE_BETWEEN}
+                alignItems={Alignment.CENTER}
+              >
+                Ledger
+                <WalletIcon walletType={'ledger'} />
+              </Row>
+            </Button> */}
           </div>
         </Column>
       </div>

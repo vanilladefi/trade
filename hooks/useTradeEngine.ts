@@ -316,7 +316,8 @@ const useTradeEngine = (
             'Could not estimate gas limit, falling back to ethersOverride of 400000',
           )
         }
-        const gasPrice = await signer.getGasPrice()
+        const gasPrice = await provider.getGasPrice()
+        console.log(gasPrice.toString())
         if (gasPrice) {
           setEstimatedGas(formatUnits(gasEstimate.mul(gasPrice)))
         }

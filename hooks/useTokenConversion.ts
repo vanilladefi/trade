@@ -17,7 +17,7 @@ import {
   vanillaToken1,
   vanillaToken2,
 } from 'state/migration'
-import { signerState } from 'state/wallet'
+import { providerState, signerState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
 import { ConversionState } from 'types/migration'
 import { VanillaV1Token01, VanillaV1Token02 } from 'types/typechain'
@@ -43,6 +43,7 @@ export default function useTokenConversion(): {
 } {
   const { long: walletAddress } = useWalletAddress()
   const signer = useRecoilValue(signerState)
+  const provider = useRecoilValue(providerState)
 
   const [conversionState, setConversionState] =
     useRecoilState(tokenConversionState)
@@ -67,9 +68,10 @@ export default function useTokenConversion(): {
           getVnlTokenAddress(VanillaVersion.V1_1) ||
           '',
       )
-      if (address) {
+      if (address && signer && provider) {
         try {
-          approval = await vnlToken1.approve(address, balance)
+          const gasPrice = await provider.getGasPrice()
+          approval = await vnlToken1.approve(address, balance, { gasPrice })
           setAllowance(formatUnits(balance, vnlDecimals))
         } catch (e) {
           console.error(e)
@@ -78,11 +80,11 @@ export default function useTokenConversion(): {
     }
 
     return approval
-  }, [convertable, setAllowance, vnlToken1, vnlToken2])
+  }, [convertable, provider, setAllowance, signer, vnlToken1, vnlToken2])
 
   const convert = useCallback(async () => {
     let conversionReceipt: ContractTransaction | null = null
-    if (vnlToken1 && vnlToken2 && allowance) {
+    if (vnlToken1 && vnlToken2 && allowance && signer && provider) {
       try {
         const parsedAllowance = parseUnits(allowance, vnlDecimals)
         if (!parsedAllowance.isZero()) {
@@ -91,7 +93,8 @@ export default function useTokenConversion(): {
             amount: parsedAllowance,
             address: walletAddress,
           })
-          conversionReceipt = await vnlToken2.convertVNL(proof)
+          const gasPrice = await provider.getGasPrice()
+          conversionReceipt = await vnlToken2.convertVNL(proof, { gasPrice })
           setAllowance(null)
         }
       } catch (e) {
@@ -99,7 +102,15 @@ export default function useTokenConversion(): {
       }
     }
     return conversionReceipt
-  }, [allowance, setAllowance, vnlToken1, vnlToken2, walletAddress])
+  }, [
+    allowance,
+    provider,
+    setAllowance,
+    signer,
+    vnlToken1,
+    vnlToken2,
+    walletAddress,
+  ])
 
   useEffect(() => {
     const getState = debounce(async () => {
