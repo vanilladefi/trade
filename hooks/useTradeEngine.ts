@@ -317,7 +317,6 @@ const useTradeEngine = (
           )
         }
         const gasPrice = await provider.getGasPrice()
-        console.log(gasPrice.toString())
         if (gasPrice) {
           setEstimatedGas(formatUnits(gasEstimate.mul(gasPrice)))
         }
