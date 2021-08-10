@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -67,7 +67,7 @@ interface VanillaV1Safelist01Interface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "TokensRemoved"): EventFragment;
 }
 
-export class VanillaV1Safelist01 extends Contract {
+export class VanillaV1Safelist01 extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -116,17 +116,7 @@ export class VanillaV1Safelist01 extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "approveNextVersion(address)"(
-      implementation: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     isSafelisted(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
-
-    "isSafelisted(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
 
     modify(
       added: string[],
@@ -134,15 +124,7 @@ export class VanillaV1Safelist01 extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "modify(address[],address[])"(
-      added: string[],
-      removed: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     nextVersion(overrides?: CallOverrides): Promise<[string]>;
-
-    "nextVersion()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
   approveNextVersion(
@@ -150,17 +132,7 @@ export class VanillaV1Safelist01 extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "approveNextVersion(address)"(
-    implementation: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   isSafelisted(arg0: string, overrides?: CallOverrides): Promise<boolean>;
-
-  "isSafelisted(address)"(
-    arg0: string,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
 
   modify(
     added: string[],
@@ -168,15 +140,7 @@ export class VanillaV1Safelist01 extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "modify(address[],address[])"(
-    added: string[],
-    removed: string[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   nextVersion(overrides?: CallOverrides): Promise<string>;
-
-  "nextVersion()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
     approveNextVersion(
@@ -184,17 +148,7 @@ export class VanillaV1Safelist01 extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "approveNextVersion(address)"(
-      implementation: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     isSafelisted(arg0: string, overrides?: CallOverrides): Promise<boolean>;
-
-    "isSafelisted(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
 
     modify(
       added: string[],
@@ -202,24 +156,16 @@ export class VanillaV1Safelist01 extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "modify(address[],address[])"(
-      added: string[],
-      removed: string[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     nextVersion(overrides?: CallOverrides): Promise<string>;
-
-    "nextVersion()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
     TokensAdded(
-      tokens: null
+      tokens?: null
     ): TypedEventFilter<[string[]], { tokens: string[] }>;
 
     TokensRemoved(
-      tokens: null
+      tokens?: null
     ): TypedEventFilter<[string[]], { tokens: string[] }>;
   };
 
@@ -229,17 +175,7 @@ export class VanillaV1Safelist01 extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "approveNextVersion(address)"(
-      implementation: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     isSafelisted(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "isSafelisted(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     modify(
       added: string[],
@@ -247,24 +183,11 @@ export class VanillaV1Safelist01 extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "modify(address[],address[])"(
-      added: string[],
-      removed: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     nextVersion(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "nextVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
     approveNextVersion(
-      implementation: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "approveNextVersion(address)"(
       implementation: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -274,25 +197,12 @@ export class VanillaV1Safelist01 extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "isSafelisted(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     modify(
       added: string[],
       removed: string[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "modify(address[],address[])"(
-      added: string[],
-      removed: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     nextVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "nextVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

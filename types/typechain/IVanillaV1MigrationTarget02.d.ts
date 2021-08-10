@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -44,7 +44,7 @@ interface IVanillaV1MigrationTarget02Interface extends ethers.utils.Interface {
   events: {};
 }
 
-export class IVanillaV1MigrationTarget02 extends Contract {
+export class IVanillaV1MigrationTarget02 extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -97,16 +97,6 @@ export class IVanillaV1MigrationTarget02 extends Contract {
       latestBlock: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    "migrateState(address,address,uint256,uint256,uint256,uint256)"(
-      owner: string,
-      token: string,
-      ethSum: BigNumberish,
-      tokenSum: BigNumberish,
-      weightedBlockSum: BigNumberish,
-      latestBlock: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
   };
 
   migrateState(
@@ -119,28 +109,8 @@ export class IVanillaV1MigrationTarget02 extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "migrateState(address,address,uint256,uint256,uint256,uint256)"(
-    owner: string,
-    token: string,
-    ethSum: BigNumberish,
-    tokenSum: BigNumberish,
-    weightedBlockSum: BigNumberish,
-    latestBlock: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     migrateState(
-      owner: string,
-      token: string,
-      ethSum: BigNumberish,
-      tokenSum: BigNumberish,
-      weightedBlockSum: BigNumberish,
-      latestBlock: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "migrateState(address,address,uint256,uint256,uint256,uint256)"(
       owner: string,
       token: string,
       ethSum: BigNumberish,
@@ -163,30 +133,10 @@ export class IVanillaV1MigrationTarget02 extends Contract {
       latestBlock: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    "migrateState(address,address,uint256,uint256,uint256,uint256)"(
-      owner: string,
-      token: string,
-      ethSum: BigNumberish,
-      tokenSum: BigNumberish,
-      weightedBlockSum: BigNumberish,
-      latestBlock: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     migrateState(
-      owner: string,
-      token: string,
-      ethSum: BigNumberish,
-      tokenSum: BigNumberish,
-      weightedBlockSum: BigNumberish,
-      latestBlock: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "migrateState(address,address,uint256,uint256,uint256,uint256)"(
       owner: string,
       token: string,
       ethSum: BigNumberish,

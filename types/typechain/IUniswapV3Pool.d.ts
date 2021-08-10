@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   Overrides,
   CallOverrides,
@@ -215,7 +215,7 @@ interface IUniswapV3PoolInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Swap"): EventFragment;
 }
 
-export class IUniswapV3Pool extends Contract {
+export class IUniswapV3Pool extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -266,23 +266,7 @@ export class IUniswapV3Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "burn(int24,int24,uint128)"(
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     collect(
-      recipient: string,
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount0Requested: BigNumberish,
-      amount1Requested: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "collect(address,int24,int24,uint128,uint128)"(
       recipient: string,
       tickLower: BigNumberish,
       tickUpper: BigNumberish,
@@ -298,38 +282,15 @@ export class IUniswapV3Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "collectProtocol(address,uint128,uint128)"(
-      recipient: string,
-      amount0Requested: BigNumberish,
-      amount1Requested: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     factory(overrides?: CallOverrides): Promise<[string]>;
-
-    "factory()"(overrides?: CallOverrides): Promise<[string]>;
 
     fee(overrides?: CallOverrides): Promise<[number]>;
 
-    "fee()"(overrides?: CallOverrides): Promise<[number]>;
-
     feeGrowthGlobal0X128(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "feeGrowthGlobal0X128()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     feeGrowthGlobal1X128(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "feeGrowthGlobal1X128()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     flash(
-      recipient: string,
-      amount0: BigNumberish,
-      amount1: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "flash(address,uint256,uint256,bytes)"(
       recipient: string,
       amount0: BigNumberish,
       amount1: BigNumberish,
@@ -342,39 +303,16 @@ export class IUniswapV3Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "increaseObservationCardinalityNext(uint16)"(
-      observationCardinalityNext: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     initialize(
-      sqrtPriceX96: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "initialize(uint160)"(
       sqrtPriceX96: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     liquidity(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "liquidity()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     maxLiquidityPerTick(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "maxLiquidityPerTick()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     mint(
-      recipient: string,
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "mint(address,int24,int24,uint128,bytes)"(
       recipient: string,
       tickLower: BigNumberish,
       tickUpper: BigNumberish,
@@ -395,29 +333,7 @@ export class IUniswapV3Pool extends Contract {
       }
     >;
 
-    "observations(uint256)"(
-      index: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [number, BigNumber, BigNumber, boolean] & {
-        blockTimestamp: number;
-        tickCumulative: BigNumber;
-        secondsPerLiquidityCumulativeX128: BigNumber;
-        initialized: boolean;
-      }
-    >;
-
     observe(
-      secondsAgos: BigNumberish[],
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber[], BigNumber[]] & {
-        tickCumulatives: BigNumber[];
-        secondsPerLiquidityCumulativeX128s: BigNumber[];
-      }
-    >;
-
-    "observe(uint32[])"(
       secondsAgos: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<
@@ -440,26 +356,7 @@ export class IUniswapV3Pool extends Contract {
       }
     >;
 
-    "positions(bytes32)"(
-      key: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        _liquidity: BigNumber;
-        feeGrowthInside0LastX128: BigNumber;
-        feeGrowthInside1LastX128: BigNumber;
-        tokensOwed0: BigNumber;
-        tokensOwed1: BigNumber;
-      }
-    >;
-
     protocolFees(
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { token0: BigNumber; token1: BigNumber }
-    >;
-
-    "protocolFees()"(
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber] & { token0: BigNumber; token1: BigNumber }
@@ -471,27 +368,7 @@ export class IUniswapV3Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "setFeeProtocol(uint8,uint8)"(
-      feeProtocol0: BigNumberish,
-      feeProtocol1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     slot0(
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, number, number, number, number, number, boolean] & {
-        sqrtPriceX96: BigNumber;
-        tick: number;
-        observationIndex: number;
-        observationCardinality: number;
-        observationCardinalityNext: number;
-        feeProtocol: number;
-        unlocked: boolean;
-      }
-    >;
-
-    "slot0()"(
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, number, number, number, number, number, boolean] & {
@@ -517,28 +394,7 @@ export class IUniswapV3Pool extends Contract {
       }
     >;
 
-    "snapshotCumulativesInside(int24,int24)"(
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, number] & {
-        tickCumulativeInside: BigNumber;
-        secondsPerLiquidityInsideX128: BigNumber;
-        secondsInside: number;
-      }
-    >;
-
     swap(
-      recipient: string,
-      zeroForOne: boolean,
-      amountSpecified: BigNumberish,
-      sqrtPriceLimitX96: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "swap(address,bool,int256,uint160,bytes)"(
       recipient: string,
       zeroForOne: boolean,
       amountSpecified: BigNumberish,
@@ -552,41 +408,9 @@ export class IUniswapV3Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    "tickBitmap(int16)"(
-      wordPosition: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     tickSpacing(overrides?: CallOverrides): Promise<[number]>;
 
-    "tickSpacing()"(overrides?: CallOverrides): Promise<[number]>;
-
     ticks(
-      tick: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        number,
-        boolean
-      ] & {
-        liquidityGross: BigNumber;
-        liquidityNet: BigNumber;
-        feeGrowthOutside0X128: BigNumber;
-        feeGrowthOutside1X128: BigNumber;
-        tickCumulativeOutside: BigNumber;
-        secondsPerLiquidityOutsideX128: BigNumber;
-        secondsOutside: number;
-        initialized: boolean;
-      }
-    >;
-
-    "ticks(int24)"(
       tick: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
@@ -613,21 +437,10 @@ export class IUniswapV3Pool extends Contract {
 
     token0(overrides?: CallOverrides): Promise<[string]>;
 
-    "token0()"(overrides?: CallOverrides): Promise<[string]>;
-
     token1(overrides?: CallOverrides): Promise<[string]>;
-
-    "token1()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
   burn(
-    tickLower: BigNumberish,
-    tickUpper: BigNumberish,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "burn(int24,int24,uint128)"(
     tickLower: BigNumberish,
     tickUpper: BigNumberish,
     amount: BigNumberish,
@@ -643,23 +456,7 @@ export class IUniswapV3Pool extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "collect(address,int24,int24,uint128,uint128)"(
-    recipient: string,
-    tickLower: BigNumberish,
-    tickUpper: BigNumberish,
-    amount0Requested: BigNumberish,
-    amount1Requested: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   collectProtocol(
-    recipient: string,
-    amount0Requested: BigNumberish,
-    amount1Requested: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "collectProtocol(address,uint128,uint128)"(
     recipient: string,
     amount0Requested: BigNumberish,
     amount1Requested: BigNumberish,
@@ -668,29 +465,13 @@ export class IUniswapV3Pool extends Contract {
 
   factory(overrides?: CallOverrides): Promise<string>;
 
-  "factory()"(overrides?: CallOverrides): Promise<string>;
-
   fee(overrides?: CallOverrides): Promise<number>;
-
-  "fee()"(overrides?: CallOverrides): Promise<number>;
 
   feeGrowthGlobal0X128(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "feeGrowthGlobal0X128()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   feeGrowthGlobal1X128(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "feeGrowthGlobal1X128()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   flash(
-    recipient: string,
-    amount0: BigNumberish,
-    amount1: BigNumberish,
-    data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "flash(address,uint256,uint256,bytes)"(
     recipient: string,
     amount0: BigNumberish,
     amount1: BigNumberish,
@@ -703,39 +484,16 @@ export class IUniswapV3Pool extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "increaseObservationCardinalityNext(uint16)"(
-    observationCardinalityNext: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   initialize(
-    sqrtPriceX96: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "initialize(uint160)"(
     sqrtPriceX96: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   liquidity(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "liquidity()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   maxLiquidityPerTick(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "maxLiquidityPerTick()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   mint(
-    recipient: string,
-    tickLower: BigNumberish,
-    tickUpper: BigNumberish,
-    amount: BigNumberish,
-    data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "mint(address,int24,int24,uint128,bytes)"(
     recipient: string,
     tickLower: BigNumberish,
     tickUpper: BigNumberish,
@@ -756,29 +514,7 @@ export class IUniswapV3Pool extends Contract {
     }
   >;
 
-  "observations(uint256)"(
-    index: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [number, BigNumber, BigNumber, boolean] & {
-      blockTimestamp: number;
-      tickCumulative: BigNumber;
-      secondsPerLiquidityCumulativeX128: BigNumber;
-      initialized: boolean;
-    }
-  >;
-
   observe(
-    secondsAgos: BigNumberish[],
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber[], BigNumber[]] & {
-      tickCumulatives: BigNumber[];
-      secondsPerLiquidityCumulativeX128s: BigNumber[];
-    }
-  >;
-
-  "observe(uint32[])"(
     secondsAgos: BigNumberish[],
     overrides?: CallOverrides
   ): Promise<
@@ -801,24 +537,7 @@ export class IUniswapV3Pool extends Contract {
     }
   >;
 
-  "positions(bytes32)"(
-    key: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-      _liquidity: BigNumber;
-      feeGrowthInside0LastX128: BigNumber;
-      feeGrowthInside1LastX128: BigNumber;
-      tokensOwed0: BigNumber;
-      tokensOwed1: BigNumber;
-    }
-  >;
-
   protocolFees(
-    overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber] & { token0: BigNumber; token1: BigNumber }>;
-
-  "protocolFees()"(
     overrides?: CallOverrides
   ): Promise<[BigNumber, BigNumber] & { token0: BigNumber; token1: BigNumber }>;
 
@@ -828,27 +547,7 @@ export class IUniswapV3Pool extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "setFeeProtocol(uint8,uint8)"(
-    feeProtocol0: BigNumberish,
-    feeProtocol1: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   slot0(
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, number, number, number, number, number, boolean] & {
-      sqrtPriceX96: BigNumber;
-      tick: number;
-      observationIndex: number;
-      observationCardinality: number;
-      observationCardinalityNext: number;
-      feeProtocol: number;
-      unlocked: boolean;
-    }
-  >;
-
-  "slot0()"(
     overrides?: CallOverrides
   ): Promise<
     [BigNumber, number, number, number, number, number, boolean] & {
@@ -874,28 +573,7 @@ export class IUniswapV3Pool extends Contract {
     }
   >;
 
-  "snapshotCumulativesInside(int24,int24)"(
-    tickLower: BigNumberish,
-    tickUpper: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, number] & {
-      tickCumulativeInside: BigNumber;
-      secondsPerLiquidityInsideX128: BigNumber;
-      secondsInside: number;
-    }
-  >;
-
   swap(
-    recipient: string,
-    zeroForOne: boolean,
-    amountSpecified: BigNumberish,
-    sqrtPriceLimitX96: BigNumberish,
-    data: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "swap(address,bool,int256,uint160,bytes)"(
     recipient: string,
     zeroForOne: boolean,
     amountSpecified: BigNumberish,
@@ -909,14 +587,7 @@ export class IUniswapV3Pool extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  "tickBitmap(int16)"(
-    wordPosition: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   tickSpacing(overrides?: CallOverrides): Promise<number>;
-
-  "tickSpacing()"(overrides?: CallOverrides): Promise<number>;
 
   ticks(
     tick: BigNumberish,
@@ -943,50 +614,12 @@ export class IUniswapV3Pool extends Contract {
     }
   >;
 
-  "ticks(int24)"(
-    tick: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      number,
-      boolean
-    ] & {
-      liquidityGross: BigNumber;
-      liquidityNet: BigNumber;
-      feeGrowthOutside0X128: BigNumber;
-      feeGrowthOutside1X128: BigNumber;
-      tickCumulativeOutside: BigNumber;
-      secondsPerLiquidityOutsideX128: BigNumber;
-      secondsOutside: number;
-      initialized: boolean;
-    }
-  >;
-
   token0(overrides?: CallOverrides): Promise<string>;
-
-  "token0()"(overrides?: CallOverrides): Promise<string>;
 
   token1(overrides?: CallOverrides): Promise<string>;
 
-  "token1()"(overrides?: CallOverrides): Promise<string>;
-
   callStatic: {
     burn(
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { amount0: BigNumber; amount1: BigNumber }
-    >;
-
-    "burn(int24,int24,uint128)"(
       tickLower: BigNumberish,
       tickUpper: BigNumberish,
       amount: BigNumberish,
@@ -1006,27 +639,7 @@ export class IUniswapV3Pool extends Contract {
       [BigNumber, BigNumber] & { amount0: BigNumber; amount1: BigNumber }
     >;
 
-    "collect(address,int24,int24,uint128,uint128)"(
-      recipient: string,
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount0Requested: BigNumberish,
-      amount1Requested: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { amount0: BigNumber; amount1: BigNumber }
-    >;
-
     collectProtocol(
-      recipient: string,
-      amount0Requested: BigNumberish,
-      amount1Requested: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { amount0: BigNumber; amount1: BigNumber }
-    >;
-
-    "collectProtocol(address,uint128,uint128)"(
       recipient: string,
       amount0Requested: BigNumberish,
       amount1Requested: BigNumberish,
@@ -1037,29 +650,13 @@ export class IUniswapV3Pool extends Contract {
 
     factory(overrides?: CallOverrides): Promise<string>;
 
-    "factory()"(overrides?: CallOverrides): Promise<string>;
-
     fee(overrides?: CallOverrides): Promise<number>;
-
-    "fee()"(overrides?: CallOverrides): Promise<number>;
 
     feeGrowthGlobal0X128(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "feeGrowthGlobal0X128()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     feeGrowthGlobal1X128(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "feeGrowthGlobal1X128()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     flash(
-      recipient: string,
-      amount0: BigNumberish,
-      amount1: BigNumberish,
-      data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "flash(address,uint256,uint256,bytes)"(
       recipient: string,
       amount0: BigNumberish,
       amount1: BigNumberish,
@@ -1072,41 +669,16 @@ export class IUniswapV3Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "increaseObservationCardinalityNext(uint16)"(
-      observationCardinalityNext: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     initialize(
-      sqrtPriceX96: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "initialize(uint160)"(
       sqrtPriceX96: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
     liquidity(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "liquidity()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     maxLiquidityPerTick(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "maxLiquidityPerTick()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     mint(
-      recipient: string,
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { amount0: BigNumber; amount1: BigNumber }
-    >;
-
-    "mint(address,int24,int24,uint128,bytes)"(
       recipient: string,
       tickLower: BigNumberish,
       tickUpper: BigNumberish,
@@ -1129,29 +701,7 @@ export class IUniswapV3Pool extends Contract {
       }
     >;
 
-    "observations(uint256)"(
-      index: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [number, BigNumber, BigNumber, boolean] & {
-        blockTimestamp: number;
-        tickCumulative: BigNumber;
-        secondsPerLiquidityCumulativeX128: BigNumber;
-        initialized: boolean;
-      }
-    >;
-
     observe(
-      secondsAgos: BigNumberish[],
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber[], BigNumber[]] & {
-        tickCumulatives: BigNumber[];
-        secondsPerLiquidityCumulativeX128s: BigNumber[];
-      }
-    >;
-
-    "observe(uint32[])"(
       secondsAgos: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<
@@ -1174,26 +724,7 @@ export class IUniswapV3Pool extends Contract {
       }
     >;
 
-    "positions(bytes32)"(
-      key: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        _liquidity: BigNumber;
-        feeGrowthInside0LastX128: BigNumber;
-        feeGrowthInside1LastX128: BigNumber;
-        tokensOwed0: BigNumber;
-        tokensOwed1: BigNumber;
-      }
-    >;
-
     protocolFees(
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { token0: BigNumber; token1: BigNumber }
-    >;
-
-    "protocolFees()"(
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber] & { token0: BigNumber; token1: BigNumber }
@@ -1205,27 +736,7 @@ export class IUniswapV3Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "setFeeProtocol(uint8,uint8)"(
-      feeProtocol0: BigNumberish,
-      feeProtocol1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     slot0(
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, number, number, number, number, number, boolean] & {
-        sqrtPriceX96: BigNumber;
-        tick: number;
-        observationIndex: number;
-        observationCardinality: number;
-        observationCardinalityNext: number;
-        feeProtocol: number;
-        unlocked: boolean;
-      }
-    >;
-
-    "slot0()"(
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, number, number, number, number, number, boolean] & {
@@ -1251,30 +762,7 @@ export class IUniswapV3Pool extends Contract {
       }
     >;
 
-    "snapshotCumulativesInside(int24,int24)"(
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, number] & {
-        tickCumulativeInside: BigNumber;
-        secondsPerLiquidityInsideX128: BigNumber;
-        secondsInside: number;
-      }
-    >;
-
     swap(
-      recipient: string,
-      zeroForOne: boolean,
-      amountSpecified: BigNumberish,
-      sqrtPriceLimitX96: BigNumberish,
-      data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & { amount0: BigNumber; amount1: BigNumber }
-    >;
-
-    "swap(address,bool,int256,uint160,bytes)"(
       recipient: string,
       zeroForOne: boolean,
       amountSpecified: BigNumberish,
@@ -1290,41 +778,9 @@ export class IUniswapV3Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "tickBitmap(int16)"(
-      wordPosition: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     tickSpacing(overrides?: CallOverrides): Promise<number>;
 
-    "tickSpacing()"(overrides?: CallOverrides): Promise<number>;
-
     ticks(
-      tick: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        number,
-        boolean
-      ] & {
-        liquidityGross: BigNumber;
-        liquidityNet: BigNumber;
-        feeGrowthOutside0X128: BigNumber;
-        feeGrowthOutside1X128: BigNumber;
-        tickCumulativeOutside: BigNumber;
-        secondsPerLiquidityOutsideX128: BigNumber;
-        secondsOutside: number;
-        initialized: boolean;
-      }
-    >;
-
-    "ticks(int24)"(
       tick: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
@@ -1351,21 +807,17 @@ export class IUniswapV3Pool extends Contract {
 
     token0(overrides?: CallOverrides): Promise<string>;
 
-    "token0()"(overrides?: CallOverrides): Promise<string>;
-
     token1(overrides?: CallOverrides): Promise<string>;
-
-    "token1()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
     Burn(
-      owner: string | null,
-      tickLower: BigNumberish | null,
-      tickUpper: BigNumberish | null,
-      amount: null,
-      amount0: null,
-      amount1: null
+      owner?: string | null,
+      tickLower?: BigNumberish | null,
+      tickUpper?: BigNumberish | null,
+      amount?: null,
+      amount0?: null,
+      amount1?: null
     ): TypedEventFilter<
       [string, number, number, BigNumber, BigNumber, BigNumber],
       {
@@ -1379,12 +831,12 @@ export class IUniswapV3Pool extends Contract {
     >;
 
     Collect(
-      owner: string | null,
-      recipient: null,
-      tickLower: BigNumberish | null,
-      tickUpper: BigNumberish | null,
-      amount0: null,
-      amount1: null
+      owner?: string | null,
+      recipient?: null,
+      tickLower?: BigNumberish | null,
+      tickUpper?: BigNumberish | null,
+      amount0?: null,
+      amount1?: null
     ): TypedEventFilter<
       [string, string, number, number, BigNumber, BigNumber],
       {
@@ -1398,10 +850,10 @@ export class IUniswapV3Pool extends Contract {
     >;
 
     CollectProtocol(
-      sender: string | null,
-      recipient: string | null,
-      amount0: null,
-      amount1: null
+      sender?: string | null,
+      recipient?: string | null,
+      amount0?: null,
+      amount1?: null
     ): TypedEventFilter<
       [string, string, BigNumber, BigNumber],
       {
@@ -1413,12 +865,12 @@ export class IUniswapV3Pool extends Contract {
     >;
 
     Flash(
-      sender: string | null,
-      recipient: string | null,
-      amount0: null,
-      amount1: null,
-      paid0: null,
-      paid1: null
+      sender?: string | null,
+      recipient?: string | null,
+      amount0?: null,
+      amount1?: null,
+      paid0?: null,
+      paid1?: null
     ): TypedEventFilter<
       [string, string, BigNumber, BigNumber, BigNumber, BigNumber],
       {
@@ -1432,8 +884,8 @@ export class IUniswapV3Pool extends Contract {
     >;
 
     IncreaseObservationCardinalityNext(
-      observationCardinalityNextOld: null,
-      observationCardinalityNextNew: null
+      observationCardinalityNextOld?: null,
+      observationCardinalityNextNew?: null
     ): TypedEventFilter<
       [number, number],
       {
@@ -1443,21 +895,21 @@ export class IUniswapV3Pool extends Contract {
     >;
 
     Initialize(
-      sqrtPriceX96: null,
-      tick: null
+      sqrtPriceX96?: null,
+      tick?: null
     ): TypedEventFilter<
       [BigNumber, number],
       { sqrtPriceX96: BigNumber; tick: number }
     >;
 
     Mint(
-      sender: null,
-      owner: string | null,
-      tickLower: BigNumberish | null,
-      tickUpper: BigNumberish | null,
-      amount: null,
-      amount0: null,
-      amount1: null
+      sender?: null,
+      owner?: string | null,
+      tickLower?: BigNumberish | null,
+      tickUpper?: BigNumberish | null,
+      amount?: null,
+      amount0?: null,
+      amount1?: null
     ): TypedEventFilter<
       [string, string, number, number, BigNumber, BigNumber, BigNumber],
       {
@@ -1472,10 +924,10 @@ export class IUniswapV3Pool extends Contract {
     >;
 
     SetFeeProtocol(
-      feeProtocol0Old: null,
-      feeProtocol1Old: null,
-      feeProtocol0New: null,
-      feeProtocol1New: null
+      feeProtocol0Old?: null,
+      feeProtocol1Old?: null,
+      feeProtocol0New?: null,
+      feeProtocol1New?: null
     ): TypedEventFilter<
       [number, number, number, number],
       {
@@ -1487,13 +939,13 @@ export class IUniswapV3Pool extends Contract {
     >;
 
     Swap(
-      sender: string | null,
-      recipient: string | null,
-      amount0: null,
-      amount1: null,
-      sqrtPriceX96: null,
-      liquidity: null,
-      tick: null
+      sender?: string | null,
+      recipient?: string | null,
+      amount0?: null,
+      amount1?: null,
+      sqrtPriceX96?: null,
+      liquidity?: null,
+      tick?: null
     ): TypedEventFilter<
       [string, string, BigNumber, BigNumber, BigNumber, BigNumber, number],
       {
@@ -1516,23 +968,7 @@ export class IUniswapV3Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "burn(int24,int24,uint128)"(
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     collect(
-      recipient: string,
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount0Requested: BigNumberish,
-      amount1Requested: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "collect(address,int24,int24,uint128,uint128)"(
       recipient: string,
       tickLower: BigNumberish,
       tickUpper: BigNumberish,
@@ -1548,38 +984,15 @@ export class IUniswapV3Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "collectProtocol(address,uint128,uint128)"(
-      recipient: string,
-      amount0Requested: BigNumberish,
-      amount1Requested: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     factory(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "factory()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     fee(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "fee()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     feeGrowthGlobal0X128(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "feeGrowthGlobal0X128()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     feeGrowthGlobal1X128(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "feeGrowthGlobal1X128()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     flash(
-      recipient: string,
-      amount0: BigNumberish,
-      amount1: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "flash(address,uint256,uint256,bytes)"(
       recipient: string,
       amount0: BigNumberish,
       amount1: BigNumberish,
@@ -1592,39 +1005,16 @@ export class IUniswapV3Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "increaseObservationCardinalityNext(uint16)"(
-      observationCardinalityNext: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     initialize(
-      sqrtPriceX96: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "initialize(uint160)"(
       sqrtPriceX96: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     liquidity(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "liquidity()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     maxLiquidityPerTick(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "maxLiquidityPerTick()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     mint(
-      recipient: string,
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "mint(address,int24,int24,uint128,bytes)"(
       recipient: string,
       tickLower: BigNumberish,
       tickUpper: BigNumberish,
@@ -1638,31 +1028,14 @@ export class IUniswapV3Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "observations(uint256)"(
-      index: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     observe(
-      secondsAgos: BigNumberish[],
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "observe(uint32[])"(
       secondsAgos: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     positions(key: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "positions(bytes32)"(
-      key: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     protocolFees(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "protocolFees()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     setFeeProtocol(
       feeProtocol0: BigNumberish,
@@ -1670,23 +1043,9 @@ export class IUniswapV3Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "setFeeProtocol(uint8,uint8)"(
-      feeProtocol0: BigNumberish,
-      feeProtocol1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     slot0(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "slot0()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     snapshotCumulativesInside(
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "snapshotCumulativesInside(int24,int24)"(
       tickLower: BigNumberish,
       tickUpper: BigNumberish,
       overrides?: CallOverrides
@@ -1701,43 +1060,18 @@ export class IUniswapV3Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "swap(address,bool,int256,uint160,bytes)"(
-      recipient: string,
-      zeroForOne: boolean,
-      amountSpecified: BigNumberish,
-      sqrtPriceLimitX96: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     tickBitmap(
-      wordPosition: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "tickBitmap(int16)"(
       wordPosition: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     tickSpacing(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "tickSpacing()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     ticks(tick: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "ticks(int24)"(
-      tick: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     token0(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "token0()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     token1(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "token1()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -1748,23 +1082,7 @@ export class IUniswapV3Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "burn(int24,int24,uint128)"(
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     collect(
-      recipient: string,
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount0Requested: BigNumberish,
-      amount1Requested: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "collect(address,int24,int24,uint128,uint128)"(
       recipient: string,
       tickLower: BigNumberish,
       tickUpper: BigNumberish,
@@ -1780,26 +1098,11 @@ export class IUniswapV3Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "collectProtocol(address,uint128,uint128)"(
-      recipient: string,
-      amount0Requested: BigNumberish,
-      amount1Requested: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     factory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "factory()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     fee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "fee()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     feeGrowthGlobal0X128(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "feeGrowthGlobal0X128()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1807,19 +1110,7 @@ export class IUniswapV3Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "feeGrowthGlobal1X128()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     flash(
-      recipient: string,
-      amount0: BigNumberish,
-      amount1: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "flash(address,uint256,uint256,bytes)"(
       recipient: string,
       amount0: BigNumberish,
       amount1: BigNumberish,
@@ -1832,43 +1123,18 @@ export class IUniswapV3Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "increaseObservationCardinalityNext(uint16)"(
-      observationCardinalityNext: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     initialize(
-      sqrtPriceX96: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "initialize(uint160)"(
       sqrtPriceX96: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     liquidity(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "liquidity()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     maxLiquidityPerTick(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "maxLiquidityPerTick()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     mint(
-      recipient: string,
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "mint(address,int24,int24,uint128,bytes)"(
       recipient: string,
       tickLower: BigNumberish,
       tickUpper: BigNumberish,
@@ -1882,17 +1148,7 @@ export class IUniswapV3Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "observations(uint256)"(
-      index: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     observe(
-      secondsAgos: BigNumberish[],
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "observe(uint32[])"(
       secondsAgos: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1902,14 +1158,7 @@ export class IUniswapV3Pool extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "positions(bytes32)"(
-      key: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     protocolFees(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "protocolFees()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     setFeeProtocol(
       feeProtocol0: BigNumberish,
@@ -1917,23 +1166,9 @@ export class IUniswapV3Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setFeeProtocol(uint8,uint8)"(
-      feeProtocol0: BigNumberish,
-      feeProtocol1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     slot0(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "slot0()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     snapshotCumulativesInside(
-      tickLower: BigNumberish,
-      tickUpper: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "snapshotCumulativesInside(int24,int24)"(
       tickLower: BigNumberish,
       tickUpper: BigNumberish,
       overrides?: CallOverrides
@@ -1948,45 +1183,20 @@ export class IUniswapV3Pool extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "swap(address,bool,int256,uint160,bytes)"(
-      recipient: string,
-      zeroForOne: boolean,
-      amountSpecified: BigNumberish,
-      sqrtPriceLimitX96: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     tickBitmap(
-      wordPosition: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "tickBitmap(int16)"(
       wordPosition: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     tickSpacing(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "tickSpacing()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     ticks(
-      tick: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "ticks(int24)"(
       tick: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     token0(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "token0()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     token1(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "token1()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

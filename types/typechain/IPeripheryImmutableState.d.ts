@@ -9,7 +9,7 @@ import {
   BigNumber,
   BigNumberish,
   PopulatedTransaction,
-  Contract,
+  BaseContract,
   ContractTransaction,
   CallOverrides,
 } from "ethers";
@@ -33,7 +33,7 @@ interface IPeripheryImmutableStateInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class IPeripheryImmutableState extends Contract {
+export class IPeripheryImmutableState extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -79,29 +79,17 @@ export class IPeripheryImmutableState extends Contract {
   functions: {
     WETH9(overrides?: CallOverrides): Promise<[string]>;
 
-    "WETH9()"(overrides?: CallOverrides): Promise<[string]>;
-
     factory(overrides?: CallOverrides): Promise<[string]>;
-
-    "factory()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
   WETH9(overrides?: CallOverrides): Promise<string>;
 
-  "WETH9()"(overrides?: CallOverrides): Promise<string>;
-
   factory(overrides?: CallOverrides): Promise<string>;
-
-  "factory()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
     WETH9(overrides?: CallOverrides): Promise<string>;
 
-    "WETH9()"(overrides?: CallOverrides): Promise<string>;
-
     factory(overrides?: CallOverrides): Promise<string>;
-
-    "factory()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
@@ -109,20 +97,12 @@ export class IPeripheryImmutableState extends Contract {
   estimateGas: {
     WETH9(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "WETH9()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     factory(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "factory()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
     WETH9(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "WETH9()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     factory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "factory()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }
