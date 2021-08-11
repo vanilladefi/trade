@@ -1,3 +1,4 @@
+import { CurrencyAmount, Percent, Price, TradeType } from '@uniswap/sdk-core'
 import type { BreakPointOptions } from 'components/GlobalStyles/Breakpoints'
 import { ethers } from 'ethers'
 import type { Column } from 'react-table'
@@ -133,3 +134,15 @@ export type ListColumn<T extends Record<string, unknown>> = Column<T> &
   LeftOrRightAlignable &
   ResponsivelyHidable &
   ColorBasedOnValue
+
+export declare class V3Trade {
+  get executionPrice(): Price
+  minimumAmountOut(slippageTolerance: Percent): CurrencyAmount
+  maximumAmountIn(slippageTolerance: Percent): CurrencyAmount
+  inputAmount: CurrencyAmount
+  outputAmount: CurrencyAmount
+  route: null
+  price: Price
+  tradeType: TradeType
+  worstExecutionPrice: () => Price
+}

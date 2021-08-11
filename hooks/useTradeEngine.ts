@@ -5,7 +5,7 @@ import {
   TradeType,
 } from '@uniswap/sdk-core'
 import { Trade as V2Trade } from '@uniswap/v2-sdk'
-import { FeeAmount, Trade as V3Trade } from '@uniswap/v3-sdk'
+import { FeeAmount } from '@uniswap/v3-sdk'
 import { BigNumber, Transaction } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { TransactionProps } from 'lib/uniswap'
@@ -34,7 +34,7 @@ import {
 } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
-import { Action, Operation, Token } from 'types/trade'
+import { Action, Operation, Token, V3Trade } from 'types/trade'
 import {
   blockDeadlineThreshold,
   ethersOverrides,
@@ -45,6 +45,7 @@ import useAllTransactions from './useAllTransactions'
 import useEligibleTokenBalance from './useEligibleTokenBalance'
 import useTokenBalance from './useTokenBalance'
 import useVanillaGovernanceToken from './useVanillaGovernanceToken'
+import useWalletAddress from './useWalletAddress'
 
 export enum TransactionState {
   PREPARE,
@@ -82,6 +83,7 @@ const useTradeEngine = (
   // The Ethers signer and provider
   const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
+  const walletAddress = useWalletAddress()
   const operation = useRecoilValue(selectedOperation)
   const pairState = useRecoilValue(selectedPairState)
   const { addTransaction } = useAllTransactions()
@@ -420,10 +422,13 @@ const useTradeEngine = (
                   tradeType,
                 )
               : await uniV3.constructTrade(
+                  provider,
                   amount,
                   receivedToken,
                   paidToken,
                   tradeType,
+                  walletAddress.long,
+                  slippageTolerance,
                 )
           setTrade(trade)
           return trade

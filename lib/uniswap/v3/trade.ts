@@ -1,27 +1,72 @@
 import {
+  CurrencyAmount,
+  Fraction,
+  Percent,
+  Price,
   Token as UniswapToken,
   TokenAmount,
   TradeType,
 } from '@uniswap/sdk-core'
-import {
-  FeeAmount,
-  nearestUsableTick,
-  Pool,
-  Route,
-  TickMath,
-  TICK_SPACINGS,
-  Trade,
-} from '@uniswap/v3-sdk'
-import { Transaction } from 'ethers'
+import { FeeAmount } from '@uniswap/v3-sdk'
+import { BigNumberish, constants, providers, Transaction } from 'ethers'
 import { getAddress, parseUnits } from 'ethers/lib/utils'
-import JSBI from 'jsbi'
+import { UniswapVersion } from 'lib/graphql'
 import { isAddress, tokenListChainId } from 'lib/tokens'
 import { VanillaVersion } from 'types/general'
 import type { Token, UniSwapToken } from 'types/trade'
+import { SwapRouter__factory } from 'types/typechain/uniswap_v3_periphery'
+import { SwapRouter } from 'types/typechain/uniswap_v3_periphery/SwapRouter'
 import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Router02__factory'
-import { ethersOverrides, getVanillaRouterAddress } from 'utils/config'
+import {
+  ethersOverrides,
+  getUniswapRouterAddress,
+  getVanillaRouterAddress,
+} from 'utils/config'
 import { getFeeTier } from 'utils/transactions'
 import { TransactionProps } from '..'
+
+export const UniswapRouter = (swapRouter: SwapRouter) => ({
+  swap(tokenIn: string, tokenOut: string, recipient: string) {
+    return {
+      swapParams(amountIn: TokenAmount, fee: number) {
+        return {
+          tokenIn,
+          tokenOut,
+          fee,
+          amountOutMinimum: 1,
+          sqrtPriceLimitX96: 0,
+          recipient,
+          deadline: constants.MaxUint256,
+          amountIn,
+        }
+      },
+      async estimateAmountOut(
+        amountIn: TokenAmount,
+        fee: number,
+        overrides: { value?: BigNumberish } = {},
+      ) {
+        try {
+          return await swapRouter.callStatic.exactInputSingle(
+            this.swapParams(amountIn, fee),
+            overrides,
+          )
+        } catch (e) {
+          return undefined
+        }
+      },
+      with(
+        amountIn: TokenAmount,
+        fee: number,
+        overrides: { value?: BigNumberish } = {},
+      ) {
+        return swapRouter.exactInputSingle(
+          this.swapParams(amountIn, fee),
+          overrides,
+        )
+      },
+    }
+  },
+})
 
 export const buy = async ({
   amountPaid,
@@ -85,13 +130,80 @@ export const sell = async ({
   }
 }
 
+class V3Trade {
+  public inputAmount: TokenAmount
+  public outputAmount: TokenAmount
+  public tradeType: TradeType
+  public slippageTolerance: Percent
+  public price: Price
+
+  public route = null
+
+  constructor(
+    inputAmount: TokenAmount,
+    outputAmount: TokenAmount,
+    slippageTolerance: Percent,
+    tradeType: TradeType,
+  ) {
+    this.inputAmount = inputAmount
+    this.outputAmount = outputAmount
+    this.slippageTolerance = slippageTolerance
+    this.tradeType = tradeType
+    this.price = new Price(
+      this.inputAmount.token,
+      this.outputAmount.token,
+      this.inputAmount.raw.toString(),
+      this.outputAmount.raw.toString(),
+    )
+    this.route = null
+  }
+
+  worstExecutionPrice() {
+    return this.price
+  }
+
+  get executionPrice() {
+    return this.price
+  }
+
+  minimumAmountOut() {
+    if (this.tradeType === TradeType.EXACT_OUTPUT) {
+      return this.outputAmount
+    } else {
+      const slippageAdjustedAmountOut = new Fraction(1)
+        .add(this.slippageTolerance)
+        .invert()
+        .multiply(this.outputAmount.raw).quotient
+      return this.outputAmount instanceof TokenAmount
+        ? new TokenAmount(this.outputAmount.token, slippageAdjustedAmountOut)
+        : CurrencyAmount.ether(slippageAdjustedAmountOut)
+    }
+  }
+
+  maximumAmountIn() {
+    if (this.tradeType === TradeType.EXACT_INPUT) {
+      return this.inputAmount
+    } else {
+      const slippageAdjustedAmountIn = new Fraction(1)
+        .add(this.slippageTolerance)
+        .multiply(this.inputAmount.raw).quotient
+      return this.inputAmount instanceof TokenAmount
+        ? new TokenAmount(this.inputAmount.token, slippageAdjustedAmountIn)
+        : CurrencyAmount.ether(slippageAdjustedAmountIn)
+    }
+  }
+}
+
 // Pricing function for UniSwap v3 trades
 export async function constructTrade(
+  provider: providers.Provider,
   amountToTrade: string, // Not amountPaid because of tradeType
   tokenReceived: Token,
   tokenPaid: Token,
   tradeType = TradeType.EXACT_OUTPUT,
-): Promise<Trade> {
+  recipient: string,
+  slippageTolerance: Percent,
+): Promise<V3Trade> {
   const defaultFeeTier = FeeAmount.MEDIUM
   try {
     // The asset that "amountToTrade" refers to changes on tradetype,
@@ -106,68 +218,36 @@ export async function constructTrade(
     if (!parsedAmountTraded)
       return Promise.reject(`Failed to parse input amount: ${amountToTrade}`)
 
-    // Convert our own token format to UniSwap SDK format
-    const convertedAsset = new UniswapToken(
-      Number(asset.chainId),
-      getAddress(asset.address),
-      Number(asset.decimals),
-    )
-    const convertedCounterAsset = new UniswapToken(
-      Number(counterAsset.chainId),
-      getAddress(counterAsset.address),
-      Number(counterAsset.decimals),
-    )
-
-    const liquidity =
-      tokenReceived.inRangeLiquidity || tokenPaid.inRangeLiquidity || null
-    const sqrtPrice = tokenReceived.sqrtPrice || tokenPaid.sqrtPrice || null
-
     const feeTier =
       getFeeTier(tokenReceived.fee) ||
       getFeeTier(tokenPaid.fee) ||
       defaultFeeTier
 
-    if (liquidity !== null && sqrtPrice !== null) {
-      const liquidityJSBI = JSBI.BigInt(liquidity)
-      const sqrtPriceJSBI = JSBI.BigInt(sqrtPrice)
+    const uniV3Router = SwapRouter__factory.connect(
+      getUniswapRouterAddress(UniswapVersion.v3),
+      provider,
+    )
 
-      // Construct pool based on TheGraph data
-      const pool = new Pool(
-        convertedAsset,
-        convertedCounterAsset,
-        feeTier,
-        sqrtPriceJSBI,
-        liquidityJSBI,
-        TickMath.getTickAtSqrtRatio(sqrtPriceJSBI),
-        [
-          {
-            index: nearestUsableTick(TickMath.MIN_TICK, TICK_SPACINGS[feeTier]),
-            liquidityNet: liquidityJSBI,
-            liquidityGross: liquidityJSBI,
-          },
-          {
-            index: nearestUsableTick(TickMath.MAX_TICK, TICK_SPACINGS[feeTier]),
-            liquidityNet: JSBI.multiply(liquidityJSBI, JSBI.BigInt(-1)),
-            liquidityGross: liquidityJSBI,
-          },
-        ],
-      )
+    const swapOperation = UniswapRouter(uniV3Router).swap(
+      counterAsset.address,
+      asset.address,
+      recipient,
+    )
+    const amountOut = await swapOperation.estimateAmountOut(
+      parsedAmountTraded,
+      feeTier,
+      { value: amountToTrade },
+    )
 
-      // Construct a route based on the parsed liquidity pool
-      const route = new Route(
-        [pool],
-        tradeType === TradeType.EXACT_OUTPUT
-          ? convertedCounterAsset
-          : convertedAsset,
-      )
+    const parsedAmountOut = tryParseAmount(amountOut.toString(), counterAsset)
 
-      // Construct a trade with UniSwap SDK
-      const trade = await Trade.fromRoute(route, parsedAmountTraded, tradeType)
-
-      return trade
-    } else {
-      return Promise.reject('Liquidity and price info incorrect!')
-    }
+    const trade: V3Trade = new V3Trade(
+      parsedAmountTraded,
+      parsedAmountOut,
+      slippageTolerance,
+      tradeType,
+    )
+    return trade
   } catch (error) {
     console.error(error)
     throw error
