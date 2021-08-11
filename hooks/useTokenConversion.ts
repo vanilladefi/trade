@@ -2,7 +2,7 @@ import { formatUnits, parseUnits } from '@ethersproject/units'
 import { addDays } from 'date-fns'
 import { BigNumber, ContractTransaction } from 'ethers'
 import { isAddress } from 'lib/tokens'
-import { snapshot } from 'lib/vanilla'
+import { calculateGasMargin, snapshot } from 'lib/vanilla'
 import { debounce } from 'lodash'
 import { useCallback, useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
@@ -74,11 +74,9 @@ export default function useTokenConversion(): {
           let gasEstimate = BigNumber.from(0)
           const gasPrice = await provider.getGasPrice()
           try {
-            gasEstimate = await vnlToken1.estimateGas.approve(
-              address,
-              balance,
-              { gasPrice },
-            )
+            gasEstimate = await vnlToken1.estimateGas
+              .approve(address, balance, { gasPrice })
+              .then(calculateGasMargin)
           } catch (_) {
             gasEstimate = BigNumber.from(ethersOverrides.gasLimit)
           }
@@ -112,9 +110,11 @@ export default function useTokenConversion(): {
           let gasEstimate = BigNumber.from(0)
           const gasPrice = await provider.getGasPrice()
           try {
-            gasEstimate = await vnlToken2.estimateGas.convertVNL(proof, {
-              gasPrice,
-            })
+            gasEstimate = await vnlToken2.estimateGas
+              .convertVNL(proof, {
+                gasPrice,
+              })
+              .then(calculateGasMargin)
           } catch (_) {
             gasEstimate = BigNumber.from(ethersOverrides.gasLimit)
           }
