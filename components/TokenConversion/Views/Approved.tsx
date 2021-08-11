@@ -71,8 +71,6 @@ const Approved = ({
                   const conversionSuccessful = convert && (await convert())
                   if (conversionSuccessful) {
                     setTokenConversionState(ConversionState.MINTED)
-                  } else {
-                    setTokenConversionState(ConversionState.ERROR)
                   }
                 } catch (e) {
                   setTokenConversionState(ConversionState.ERROR)
