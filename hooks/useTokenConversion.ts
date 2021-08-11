@@ -1,6 +1,6 @@
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { addDays } from 'date-fns'
-import { ContractTransaction } from 'ethers'
+import { BigNumber, ContractTransaction } from 'ethers'
 import { isAddress } from 'lib/tokens'
 import { snapshot } from 'lib/vanilla'
 import { debounce } from 'lodash'
@@ -25,6 +25,7 @@ import { VanillaV1Router02__factory } from 'types/typechain/factories/VanillaV1R
 import { VanillaV1Token01__factory } from 'types/typechain/factories/VanillaV1Token01__factory'
 import { VanillaV1Token02__factory } from 'types/typechain/factories/VanillaV1Token02__factory'
 import {
+  ethersOverrides,
   getVanillaRouterAddress,
   getVnlTokenAddress,
   vnlDecimals,
@@ -70,8 +71,22 @@ export default function useTokenConversion(): {
       )
       if (address && signer && provider) {
         try {
+          let gasEstimate = BigNumber.from(0)
           const gasPrice = await provider.getGasPrice()
-          approval = await vnlToken1.approve(address, balance, { gasPrice })
+          try {
+            gasEstimate = await vnlToken1.estimateGas.approve(
+              address,
+              balance,
+              { gasPrice },
+            )
+          } catch (_) {
+            gasEstimate = BigNumber.from(ethersOverrides.gasLimit)
+          }
+
+          approval = await vnlToken1.approve(address, balance, {
+            gasPrice: gasPrice,
+            gasLimit: gasEstimate,
+          })
           setAllowance(formatUnits(balance, vnlDecimals))
         } catch (e) {
           console.error(e)
@@ -93,8 +108,21 @@ export default function useTokenConversion(): {
             amount: parsedAllowance,
             address: walletAddress,
           })
+
+          let gasEstimate = BigNumber.from(0)
           const gasPrice = await provider.getGasPrice()
-          conversionReceipt = await vnlToken2.convertVNL(proof, { gasPrice })
+          try {
+            gasEstimate = await vnlToken2.estimateGas.convertVNL(proof, {
+              gasPrice,
+            })
+          } catch (_) {
+            gasEstimate = BigNumber.from(ethersOverrides.gasLimit)
+          }
+
+          conversionReceipt = await vnlToken2.convertVNL(proof, {
+            gasPrice: gasPrice,
+            gasLimit: gasEstimate,
+          })
           setAllowance(null)
         }
       } catch (e) {
