@@ -14,7 +14,7 @@ import { tokenConversionState } from 'state/migration'
 import { ConversionState } from 'types/migration'
 
 const ErrorView = (): JSX.Element => {
-  const { eligible, conversionDeadline } = useTokenConversion()
+  const { eligible, conversionDeadline, allowance } = useTokenConversion()
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
 
   const [errorTitle, setErrorTitle] = useState('')
@@ -45,9 +45,13 @@ const ErrorView = (): JSX.Element => {
       setErrorSubtitle(
         'Your transaction did not get executed, please try again and double check that you have enough gas.',
       )
-      setNextConversionState(ConversionState.AVAILABLE)
+      if (allowance === '0') {
+        setNextConversionState(ConversionState.APPROVING)
+      } else {
+        setNextConversionState(ConversionState.APPROVED)
+      }
     }
-  }, [eligible, conversionDeadline])
+  }, [eligible, conversionDeadline, allowance])
 
   return (
     <>
