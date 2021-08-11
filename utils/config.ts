@@ -1,4 +1,5 @@
 import { providers } from 'ethers'
+import { UniswapVersion } from 'lib/graphql'
 import { VanillaVersion } from 'types/general'
 
 export const useWebsocketRpc: boolean =
@@ -54,5 +55,10 @@ export const getVnlTokenAddress = (version: VanillaVersion): string =>
     : version === VanillaVersion.V1_1
     ? process.env.NEXT_PUBLIC_VNL_TOKEN_V1_1_ADDRESS || ''
     : ''
+
+export const getUniswapRouterAddress = (version: UniswapVersion): string =>
+  version === UniswapVersion.v2
+    ? process.env.NEXT_PUBLIC_UNISWAP_V2_ROUTER_ADDRESS
+    : process.env.NEXT_PUBLIC_UNISWAP_V3_ROUTER_ADDRESS
 
 export const vnlDecimals = 12

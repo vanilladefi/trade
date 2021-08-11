@@ -15,7 +15,7 @@ import { tryParseAmount } from 'lib/uniswap/v2/trade'
 import { MerkleTree } from 'merkletreejs'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import { VanillaVersion } from 'types/general'
-import { Operation, UniSwapToken } from 'types/trade'
+import { Operation, UniSwapToken, V3Trade } from 'types/trade'
 import type { VanillaV1Token01 } from 'types/typechain/vanilla_v1.1'
 import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Router02__factory'
 import { blockDeadlineThreshold, getVanillaRouterAddress } from 'utils/config'
@@ -132,7 +132,7 @@ export const getEpoch = async (
 
 export const estimateGas = async (
   version: VanillaVersion,
-  trade: TradeV2 | TradeV3,
+  trade: TradeV2 | TradeV3 | V3Trade,
   signer: Signer,
   provider: providers.Provider,
   operation: Operation,

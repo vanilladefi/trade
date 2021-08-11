@@ -1,3 +1,4 @@
+import { CurrencyAmount, Percent, Price, TradeType } from '@uniswap/sdk-core'
 import type { BreakPointOptions } from 'components/GlobalStyles/Breakpoints'
 import { ethers } from 'ethers'
 import type { Column } from 'react-table'
@@ -138,4 +139,16 @@ export enum Liquidity {
   LOW = 500,
   MEDIUM = 1000,
   HIGH = 2000,
+}
+
+export declare class V3Trade {
+  get executionPrice(): Price
+  minimumAmountOut(slippageTolerance: Percent): CurrencyAmount
+  maximumAmountIn(slippageTolerance: Percent): CurrencyAmount
+  inputAmount: CurrencyAmount
+  outputAmount: CurrencyAmount
+  route: null
+  price: Price
+  tradeType: TradeType
+  worstExecutionPrice: () => Price
 }
