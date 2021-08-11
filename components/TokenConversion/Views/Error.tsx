@@ -40,6 +40,12 @@ const ErrorView = (): JSX.Element => {
       setErrorTitle('Migration no longer available')
       setErrorSubtitle('The deadline for conversion has passed.')
       setNextConversionState(ConversionState.HIDDEN)
+    } else {
+      setErrorTitle('Transaction error')
+      setErrorSubtitle(
+        'Your transaction did not get executed, please try again and double check that you have enough gas.',
+      )
+      setNextConversionState(ConversionState.AVAILABLE)
     }
   }, [eligible, conversionDeadline])
 
