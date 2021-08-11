@@ -73,7 +73,7 @@ const Approved = ({
                     setTokenConversionState(ConversionState.MINTED)
                   }
                 } catch (e) {
-                  setTokenConversionState(ConversionState.ERROR)
+                  console.error(e)
                 }
               }}
             >
