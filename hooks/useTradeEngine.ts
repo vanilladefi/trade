@@ -1,10 +1,10 @@
+import { Percent as V2Percent, Trade as V2Trade } from '@uniswap/sdk'
 import {
   Percent,
   Token as UniswapToken,
   TokenAmount,
   TradeType,
 } from '@uniswap/sdk-core'
-import { Trade as V2Trade } from '@uniswap/v2-sdk'
 import { FeeAmount } from '@uniswap/v3-sdk'
 import { BigNumber, Transaction } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
@@ -413,6 +413,7 @@ const useTradeEngine = (
           const trade =
             version === VanillaVersion.V1_0
               ? await uniV2.constructTrade(
+                  provider,
                   amount,
                   receivedToken,
                   paidToken,
@@ -424,7 +425,6 @@ const useTradeEngine = (
                   receivedToken,
                   paidToken,
                   tradeType,
-                  slippageTolerance,
                 )
           setTrade(trade)
           return trade
@@ -545,11 +545,23 @@ const useTradeEngine = (
 
         setTransactionState(TransactionState.PROCESSING)
 
+        let normalizedTrade, normalizedSlippageTolerance
+        if (version === VanillaVersion.V1_0) {
+          normalizedTrade = trade as V2Trade
+          normalizedSlippageTolerance = new V2Percent(
+            slippageTolerance.numerator,
+            slippageTolerance.denominator,
+          )
+        } else {
+          normalizedTrade = trade as V3Trade
+          normalizedSlippageTolerance = slippageTolerance as Percent
+        }
+
         if (operation === Operation.Buy) {
           hash = await executeBuy({
             amountPaid: trade.inputAmount.raw.toString(),
-            amountReceived: trade
-              .minimumAmountOut(slippageTolerance)
+            amountReceived: normalizedTrade
+              .minimumAmountOut(normalizedSlippageTolerance)
               .raw.toString(),
             tokenPaid: token1,
             tokenReceived: token0,
@@ -559,9 +571,9 @@ const useTradeEngine = (
           })
         } else {
           hash = await executeSell({
-            amountPaid: trade.inputAmount.raw.toString(),
-            amountReceived: trade
-              .minimumAmountOut(slippageTolerance)
+            amountPaid: normalizedTrade.inputAmount.raw.toString(),
+            amountReceived: normalizedTrade
+              .minimumAmountOut(normalizedSlippageTolerance)
               .raw.toString(),
             tokenPaid: token0,
             tokenReceived: token1,

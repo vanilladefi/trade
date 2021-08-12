@@ -161,12 +161,10 @@ class V3Trade {
   constructor(
     inputAmount: TokenAmount,
     outputAmount: TokenAmount,
-    slippageTolerance: Percent,
     tradeType: TradeType,
   ) {
     this.inputAmount = inputAmount
     this.outputAmount = outputAmount
-    this.slippageTolerance = slippageTolerance
     this.tradeType = tradeType
     this.price = new Price(
       inputAmount.token,
@@ -185,12 +183,12 @@ class V3Trade {
     return this.price
   }
 
-  minimumAmountOut() {
+  minimumAmountOut(slippageTolerance: Percent) {
     if (this.tradeType === TradeType.EXACT_OUTPUT) {
       return this.outputAmount
     } else {
       const slippageAdjustedAmountOut = new Fraction(1)
-        .add(this.slippageTolerance)
+        .add(slippageTolerance)
         .invert()
         .multiply(this.outputAmount.raw).quotient
       return this.outputAmount instanceof TokenAmount
@@ -199,12 +197,12 @@ class V3Trade {
     }
   }
 
-  maximumAmountIn() {
+  maximumAmountIn(slippageTolerance: Percent) {
     if (this.tradeType === TradeType.EXACT_INPUT) {
       return this.inputAmount
     } else {
       const slippageAdjustedAmountIn = new Fraction(1)
-        .add(this.slippageTolerance)
+        .add(slippageTolerance)
         .multiply(this.inputAmount.raw).quotient
       return this.inputAmount instanceof TokenAmount
         ? new TokenAmount(this.inputAmount.token, slippageAdjustedAmountIn)
@@ -220,7 +218,6 @@ export async function constructTrade(
   tokenReceived: Token,
   tokenPaid: Token,
   tradeType: TradeType,
-  slippageTolerance: Percent,
 ): Promise<V3Trade> {
   const defaultFeeTier = FeeAmount.MEDIUM
   try {
@@ -270,7 +267,6 @@ export async function constructTrade(
     const trade: V3Trade = new V3Trade(
       tradeType === TradeType.EXACT_INPUT ? parsedAmountTraded : parsedQuote,
       tradeType === TradeType.EXACT_INPUT ? parsedQuote : parsedAmountTraded,
-      slippageTolerance,
       tradeType,
     )
 

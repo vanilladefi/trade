@@ -1,14 +1,15 @@
+import { Trade as V2Trade } from '@uniswap/sdk'
 import {
   Token as UniswapToken,
   TokenAmount,
   TradeType,
 } from '@uniswap/sdk-core'
-import { Trade } from '@uniswap/v2-sdk'
 import { BigNumber } from 'ethers'
 import { formatUnits, getAddress, isAddress } from 'ethers/lib/utils'
 import { UniswapVersion } from 'lib/graphql'
 import { tokenListChainId } from 'lib/tokens'
 import { constructTrade as constructV2Trade } from 'lib/uniswap/v2/trade'
+import { constructTrade as constructV3Trade } from 'lib/uniswap/v3/trade'
 import {
   estimateReward,
   getEpoch,
@@ -28,7 +29,7 @@ import {
 import { selectedCounterAsset } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
-import { Token } from 'types/trade'
+import { Token, V3Trade } from 'types/trade'
 import { useWallet } from 'use-wallet'
 import useETHPrice from './useETHPrice'
 import useVanillaGovernanceToken from './useVanillaGovernanceToken'
@@ -114,14 +115,25 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
                     : 0
 
                 // Get current best trade from Uniswap to calculate available rewards
-                let trade: Trade | null
+                let trade: V2Trade | V3Trade | null
                 try {
-                  trade = await constructV2Trade(
-                    tokenAmount.toSignificant(),
-                    counterAsset,
-                    token,
-                    TradeType.EXACT_INPUT,
-                  )
+                  if (version === VanillaVersion.V1_0) {
+                    trade = await constructV2Trade(
+                      provider,
+                      tokenAmount.toSignificant(),
+                      counterAsset,
+                      token,
+                      TradeType.EXACT_INPUT,
+                    )
+                  } else if (version === VanillaVersion.V1_1) {
+                    trade = await constructV3Trade(
+                      signer,
+                      tokenAmount.toSignificant(),
+                      counterAsset,
+                      token,
+                      TradeType.EXACT_INPUT,
+                    )
+                  }
                 } catch (e) {
                   trade = null
                 }
