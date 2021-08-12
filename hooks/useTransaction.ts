@@ -161,7 +161,6 @@ const conversionHandler = async ({
         conversionFilter,
         receipt.blockNumber,
       )
-      console.log(events, receipt, conversionFilter)
       if (events.length > 0) {
         const { amount } = events[0].args || { amount: '0' }
         amountConverted = amount.toString()

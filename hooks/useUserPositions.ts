@@ -107,8 +107,6 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
                   ? tokenAmount.toSignificant()
                   : undefined
 
-                console.log(parsedOwnedAmount.toString())
-
                 // Parse value of owned token in USD
                 const parsedValue =
                   tokenAmount.greaterThan('0') && token.price
@@ -137,7 +135,6 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
                       TradeType.EXACT_INPUT,
                     )
                   }
-                  console.log(trade)
                 } catch (e) {
                   trade = null
                 }
