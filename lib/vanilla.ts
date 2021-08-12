@@ -16,8 +16,12 @@ import { MerkleTree } from 'merkletreejs'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import { VanillaVersion } from 'types/general'
 import { Operation, UniSwapToken, V3Trade } from 'types/trade'
-import type { VanillaV1Token01 } from 'types/typechain/vanilla_v1.1'
-import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Router02__factory'
+import {
+  VanillaV1Token01,
+  VanillaV1Token02,
+  VanillaV1Router02__factory,
+  VanillaV1MigrationState__factory,
+} from 'types/typechain/vanilla_v1.1'
 import { blockDeadlineThreshold, getVanillaRouterAddress } from 'utils/config'
 
 export interface TokenPriceResponse {
@@ -81,7 +85,7 @@ export const estimateReward = async (
               parsedAmountSold?.raw.toString(),
             )
     } catch (e) {
-      console.error(e)
+      console.error('estimateReward', e)
       reward = null
     }
   }
@@ -209,7 +213,7 @@ export const estimateGas = async (
       }
     }
   } catch (e) {
-    console.error(e)
+    console.error('estimateGas', e)
   }
   return gasEstimate
 }
@@ -256,8 +260,8 @@ export const toKeccak256Leaf = (balance: AddressBalance): string =>
   )
 
 export const snapshot = async (
-  vanilla: VanillaV1Token01,
-  snapshotBlock?: number,
+  token01: VanillaV1Token01,
+  token02: VanillaV1Token02,
 ): Promise<{
   snapshotState: SnapshotState
   getProof: (balance: AddressBalance) => string[]
@@ -265,13 +269,21 @@ export const snapshot = async (
   root: string
   merkleTree: MerkleTree
 }> => {
-  const tokenTransfers = snapshotBlock
-    ? await vanilla.queryFilter(
-        vanilla.filters.Transfer(null, null, null),
+  const snapshotBlock = await token02
+    .migrationState()
+    .then((address) =>
+      VanillaV1MigrationState__factory.connect(
+        address,
+        token02.provider,
+      ).blockNumber(),
+    )
+  const tokenTransfers = snapshotBlock.eq(0)
+    ? await token01.queryFilter(token01.filters.Transfer(null, null, null))
+    : await token01.queryFilter(
+        token01.filters.Transfer(null, null, null),
         0,
-        snapshotBlock,
+        snapshotBlock.toNumber(),
       )
-    : await vanilla.queryFilter(vanilla.filters.Transfer(null, null, null))
   const byBlockIndexOrder = (a: Event, b: Event) =>
     a.blockNumber - b.blockNumber || a.logIndex - b.logIndex
   const transfers = tokenTransfers
@@ -286,7 +298,7 @@ export const snapshot = async (
   })
 
   // fetch the timestamp after event reduction since it's timestamps are not included in the event data
-  const blockAtSnapshot = await vanilla.provider.getBlock(
+  const blockAtSnapshot = await token01.provider.getBlock(
     snapshotState.blockNumber,
   )
   snapshotState.timeStamp = blockAtSnapshot.timestamp
