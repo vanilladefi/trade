@@ -12,7 +12,7 @@ import { getAddress, parseUnits } from 'ethers/lib/utils'
 import { getContract, tokenListChainId } from 'lib/tokens'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import { VanillaVersion } from 'types/general'
-import type { UniSwapToken } from 'types/trade'
+import type { Token as UniswapToken } from 'types/trade'
 import { ethersOverrides, getVanillaRouterAddress } from 'utils/config'
 import { TransactionProps } from '..'
 
@@ -75,8 +75,8 @@ export const sell = async ({
 export async function constructTrade(
   provider: providers.BaseProvider,
   amountToTrade: string, // Not amountPaid because of tradeType
-  tokenReceived: UniSwapToken,
-  tokenPaid: UniSwapToken,
+  tokenReceived: UniswapToken,
+  tokenPaid: UniswapToken,
   tradeType = TradeType.EXACT_OUTPUT,
 ): Promise<Trade> {
   try {
@@ -115,7 +115,7 @@ export async function constructTrade(
 
 export function tryParseAmount(
   value?: string,
-  currency?: UniSwapToken,
+  currency?: UniswapToken,
 ): TokenAmount | undefined {
   if (!value || !currency) {
     return undefined
