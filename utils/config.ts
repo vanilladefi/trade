@@ -35,7 +35,8 @@ export const defaultProvider =
 
 export const blockDeadlineThreshold = 60000 // 600 seconds added to the latest block timestamp (10 minutes)
 
-export const ethersOverrides = { gasLimit: 400000 }
+export const conservativeGasLimit = 800_000
+export const ethersOverrides = { gasLimit: conservativeGasLimit }
 
 export const epoch = Number(process.env.NEXT_PUBLIC_EPOCH) || 0
 
@@ -59,5 +60,10 @@ export const getUniswapRouterAddress = (version: UniswapVersion): string =>
   version === UniswapVersion.v2
     ? process.env.NEXT_PUBLIC_UNISWAP_V2_ROUTER_ADDRESS
     : process.env.NEXT_PUBLIC_UNISWAP_V3_ROUTER_ADDRESS
+
+export const getUniswapQuoterAddress = (version: UniswapVersion): string =>
+  version === UniswapVersion.v2
+    ? process.env.NEXT_PUBLIC_UNISWAP_V2_QUOTER_ADDRESS
+    : process.env.NEXT_PUBLIC_UNISWAP_V3_QUOTER_ADDRESS
 
 export const vnlDecimals = 12
