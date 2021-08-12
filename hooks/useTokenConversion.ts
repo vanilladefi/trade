@@ -92,7 +92,7 @@ export default function useTokenConversion(): {
           })
           setAllowance(formatUnits(balance, vnlDecimals))
         } catch (e) {
-          console.error(e)
+          console.error('Approve VNL1', e)
         }
       }
     }
@@ -106,7 +106,7 @@ export default function useTokenConversion(): {
       try {
         const parsedAllowance = parseUnits(allowance, vnlDecimals)
         if (!parsedAllowance.isZero()) {
-          const { getProof } = await snapshot(vnlToken1, blockNumber)
+          const { getProof } = await snapshot(vnlToken1, vnlToken2)
           const proof = getProof({
             amount: parsedAllowance,
             address: walletAddress,
@@ -131,7 +131,7 @@ export default function useTokenConversion(): {
           setAllowance(null)
         }
       } catch (e) {
-        console.error(e)
+        console.error('Convert VNL', e)
       }
     }
     return conversionReceipt
@@ -184,7 +184,7 @@ export default function useTokenConversion(): {
             if (VNLToken1 && VNLToken2 && !legacyBalance?.isZero()) {
               const { getProof, verify, root, snapshotState } = await snapshot(
                 VNLToken1,
-                blockNumber,
+                VNLToken2,
               )
 
               // Get v1.0 token state snapshot
@@ -244,7 +244,7 @@ export default function useTokenConversion(): {
         }
       } catch (e) {
         nextConversionState = ConversionState.ERROR
-        console.error(e)
+        console.error('connect Tokens', e)
       }
 
       // Set the state
