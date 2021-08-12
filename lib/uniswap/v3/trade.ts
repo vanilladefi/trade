@@ -8,12 +8,12 @@ import {
   TradeType,
 } from '@uniswap/sdk-core'
 import { FeeAmount } from '@uniswap/v3-sdk'
-import { BigNumberish, constants, providers, Transaction } from 'ethers'
-import { getAddress, parseUnits } from 'ethers/lib/utils'
+import { BigNumberish, constants, Signer, Transaction } from 'ethers'
+import { formatUnits, getAddress, parseUnits } from 'ethers/lib/utils'
 import { UniswapVersion } from 'lib/graphql'
 import { isAddress, tokenListChainId } from 'lib/tokens'
 import { VanillaVersion } from 'types/general'
-import type { Token, UniSwapToken } from 'types/trade'
+import { Token, UniSwapToken } from 'types/trade'
 import { SwapRouter__factory } from 'types/typechain/uniswap_v3_periphery'
 import { SwapRouter } from 'types/typechain/uniswap_v3_periphery/SwapRouter'
 import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Router02__factory'
@@ -28,7 +28,7 @@ import { TransactionProps } from '..'
 export const UniswapRouter = (swapRouter: SwapRouter) => ({
   swap(tokenIn: string, tokenOut: string, recipient: string) {
     return {
-      swapParams(amountIn: TokenAmount, fee: number) {
+      swapParamsIn(amountIn: TokenAmount, fee: number) {
         return {
           tokenIn,
           tokenOut,
@@ -37,7 +37,19 @@ export const UniswapRouter = (swapRouter: SwapRouter) => ({
           sqrtPriceLimitX96: 0,
           recipient,
           deadline: constants.MaxUint256,
-          amountIn,
+          amountIn: amountIn.raw.toString(),
+        }
+      },
+      swapParamsOut(amountOut: TokenAmount, fee: number) {
+        return {
+          tokenIn,
+          tokenOut,
+          fee,
+          amountInMaximum: constants.MaxUint256,
+          sqrtPriceLimitX96: 0,
+          recipient,
+          deadline: constants.MaxUint256,
+          amountOut: amountOut.raw.toString(),
         }
       },
       async estimateAmountOut(
@@ -46,11 +58,26 @@ export const UniswapRouter = (swapRouter: SwapRouter) => ({
         overrides: { value?: BigNumberish } = {},
       ) {
         try {
-          return await swapRouter.callStatic.exactInputSingle(
-            this.swapParams(amountIn, fee),
+          const swapParams = this.swapParamsIn(amountIn, fee)
+          const exactOut = await swapRouter.callStatic.exactInputSingle(
+            swapParams,
             overrides,
           )
+          return exactOut
         } catch (e) {
+          console.error(e)
+          return undefined
+        }
+      },
+      async estimateAmountIn(amountOut: TokenAmount, fee: number) {
+        try {
+          const swapParams = this.swapParamsOut(amountOut, fee)
+          const exactIn = await swapRouter.callStatic.exactOutputSingle(
+            swapParams,
+          )
+          return exactIn
+        } catch (e) {
+          console.error(e)
           return undefined
         }
       },
@@ -196,7 +223,7 @@ class V3Trade {
 
 // Pricing function for UniSwap v3 trades
 export async function constructTrade(
-  provider: providers.Provider,
+  signer: Signer,
   amountToTrade: string, // Not amountPaid because of tradeType
   tokenReceived: Token,
   tokenPaid: Token,
@@ -207,14 +234,14 @@ export async function constructTrade(
   const defaultFeeTier = FeeAmount.MEDIUM
   try {
     // The asset that "amountToTrade" refers to changes on tradetype,
-    // so we need to set asset and counterAsset here
+    // so we need to set asset and counterAsset here. Currently asset is always WETH
     const asset =
       tradeType === TradeType.EXACT_OUTPUT ? tokenReceived : tokenPaid
     const counterAsset =
       tradeType === TradeType.EXACT_OUTPUT ? tokenPaid : tokenReceived
 
     // Convert the decimal amount to a UniSwap TokenAmount
-    const parsedAmountTraded = tryParseAmount(amountToTrade, asset)
+    const parsedAmountTraded = tryParseAmount(amountToTrade, tokenPaid)
     if (!parsedAmountTraded)
       return Promise.reject(`Failed to parse input amount: ${amountToTrade}`)
 
@@ -225,28 +252,32 @@ export async function constructTrade(
 
     const uniV3Router = SwapRouter__factory.connect(
       getUniswapRouterAddress(UniswapVersion.v3),
-      provider,
+      signer,
     )
 
     const swapOperation = UniswapRouter(uniV3Router).swap(
-      counterAsset.address,
       asset.address,
+      counterAsset.address,
       recipient,
     )
-    const amountOut = await swapOperation.estimateAmountOut(
-      parsedAmountTraded,
-      feeTier,
-      { value: amountToTrade },
-    )
 
-    const parsedAmountOut = tryParseAmount(amountOut.toString(), counterAsset)
+    const quote =
+      tradeType === TradeType.EXACT_INPUT
+        ? await swapOperation.estimateAmountOut(parsedAmountTraded, feeTier)
+        : await swapOperation.estimateAmountIn(parsedAmountTraded, feeTier)
+
+    const formattedQuote = formatUnits(quote, counterAsset.decimals)
+    const parsedQuote = tryParseAmount(formattedQuote, counterAsset)
+    console.log(quote, parsedAmountTraded.token, parsedQuote.token)
 
     const trade: V3Trade = new V3Trade(
       parsedAmountTraded,
-      parsedAmountOut,
+      parsedQuote,
       slippageTolerance,
       tradeType,
     )
+
+    console.log(trade)
     return trade
   } catch (error) {
     console.error(error)

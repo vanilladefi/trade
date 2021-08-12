@@ -296,7 +296,7 @@ const useTradeEngine = (
   // Estimate gas fees
   useEffect(() => {
     const debouncedGasEstimation = debounce(async () => {
-      if (trade && provider && signer && token0) {
+      if (trade && provider && signer && token0 && !notEnoughFunds()) {
         let gasEstimate = BigNumber.from(ethersOverrides.gasLimit)
         try {
           gasEstimate = await estimateGas(
@@ -335,6 +335,7 @@ const useTradeEngine = (
     signer,
     setEstimatedGasLimit,
     setEstimatedGas,
+    notEnoughFunds,
   ])
 
   // Estimate LP fees
@@ -422,7 +423,7 @@ const useTradeEngine = (
                   tradeType,
                 )
               : await uniV3.constructTrade(
-                  provider,
+                  signer,
                   amount,
                   receivedToken,
                   paidToken,

@@ -6,6 +6,7 @@ import { calculateGasMargin, snapshot } from 'lib/vanilla'
 import { debounce } from 'lodash'
 import { useCallback, useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
+import { currentBlockNumberState } from 'state/meta'
 import {
   conversionAllowance,
   conversionDeadline,
@@ -48,6 +49,7 @@ export default function useTokenConversion(): {
   const { long: walletAddress } = useWalletAddress()
   const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
+  const blockNumber = useRecoilValue(currentBlockNumberState)
 
   const [conversionState, setConversionState] =
     useRecoilState(tokenConversionState)
@@ -104,7 +106,7 @@ export default function useTokenConversion(): {
       try {
         const parsedAllowance = parseUnits(allowance, vnlDecimals)
         if (!parsedAllowance.isZero()) {
-          const { getProof } = await snapshot(vnlToken1)
+          const { getProof } = await snapshot(vnlToken1, blockNumber)
           const proof = getProof({
             amount: parsedAllowance,
             address: walletAddress,
@@ -135,6 +137,7 @@ export default function useTokenConversion(): {
     return conversionReceipt
   }, [
     allowance,
+    blockNumber,
     provider,
     setAllowance,
     signer,
@@ -181,6 +184,7 @@ export default function useTokenConversion(): {
             if (VNLToken1 && VNLToken2 && !legacyBalance?.isZero()) {
               const { getProof, verify, root, snapshotState } = await snapshot(
                 VNLToken1,
+                blockNumber,
               )
 
               // Get v1.0 token state snapshot
@@ -249,6 +253,7 @@ export default function useTokenConversion(): {
 
     getState()
   }, [
+    blockNumber,
     conversionState,
     setAllowance,
     setConversionState,
