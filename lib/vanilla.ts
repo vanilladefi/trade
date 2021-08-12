@@ -1,6 +1,5 @@
+import { Percent as V2Percent, Trade as TradeV2 } from '@uniswap/sdk'
 import { Percent } from '@uniswap/sdk-core'
-import { Trade as TradeV2 } from '@uniswap/v2-sdk'
-import { Trade as TradeV3 } from '@uniswap/v3-sdk'
 import {
   BigNumber,
   constants,
@@ -136,12 +135,12 @@ export const getEpoch = async (
 
 export const estimateGas = async (
   version: VanillaVersion,
-  trade: TradeV2 | TradeV3 | V3Trade,
+  trade: TradeV2 | V3Trade,
   signer: Signer,
   provider: providers.Provider,
   operation: Operation,
   token0: UniSwapToken,
-  slippageTolerance: Percent,
+  slippageTolerance: Percent | V2Percent,
 ): Promise<BigNumber> => {
   const routerV1_0 = new ethers.Contract(
     getVanillaRouterAddress(VanillaVersion.V1_0),
@@ -161,21 +160,30 @@ export const estimateGas = async (
       const gasPrice = await provider.getGasPrice()
 
       if (version === VanillaVersion.V1_0 && routerV1_0) {
+        const normalizedSlippageTolerance = new V2Percent(
+          slippageTolerance.numerator,
+          slippageTolerance.denominator,
+        )
+        const normalizedTrade = trade as TradeV2
         if (operation === Operation.Buy) {
           gasEstimate = await routerV1_0.estimateGas.depositAndBuy(
             token0.address,
-            trade?.minimumAmountOut(slippageTolerance).raw.toString(),
+            normalizedTrade
+              ?.minimumAmountOut(normalizedSlippageTolerance)
+              .raw.toString(),
             blockDeadline,
             {
-              value: trade?.inputAmount.raw.toString(),
+              value: normalizedTrade?.inputAmount.raw.toString(),
               gasPrice: gasPrice,
             },
           )
         } else {
           gasEstimate = await routerV1_0.estimateGas.sellAndWithdraw(
             token0.address,
-            trade?.inputAmount.raw.toString(),
-            trade?.minimumAmountOut(slippageTolerance).raw.toString(),
+            normalizedTrade?.inputAmount.raw.toString(),
+            normalizedTrade
+              ?.minimumAmountOut(normalizedSlippageTolerance)
+              .raw.toString(),
             blockDeadline,
             {
               gasPrice: gasPrice,
@@ -183,25 +191,34 @@ export const estimateGas = async (
           )
         }
       } else if (version === VanillaVersion.V1_1 && routerV1_1) {
+        const normalizedTrade = trade as V3Trade
+        const normalizedSlippageTolerance = slippageTolerance as Percent
         if (operation === Operation.Buy) {
           const buyOrder = {
             token: token0.address,
             useWETH: false,
-            numEth: trade.inputAmount.raw.toString(),
-            numToken: trade.minimumAmountOut(slippageTolerance).raw.toString(),
+            numEth: normalizedTrade.inputAmount.raw.toString(),
+            numToken: normalizedTrade
+              .minimumAmountOut(normalizedSlippageTolerance)
+              .raw.toString(),
             blockTimeDeadline: blockDeadline,
             fee: 3000,
           }
           gasEstimate = await routerV1_1.estimateGas.executePayable(
             [routerV1_1.interface.encodeFunctionData('buy', [buyOrder])],
-            { value: trade.inputAmount.raw.toString(), gasPrice: gasPrice },
+            {
+              value: normalizedTrade.inputAmount.raw.toString(),
+              gasPrice: gasPrice,
+            },
           )
         } else {
           const sellOrder = {
             token: token0.address,
             useWETH: false,
-            numEth: trade.minimumAmountOut(slippageTolerance).raw.toString(),
-            numToken: trade.inputAmount.raw.toString(),
+            numEth: normalizedTrade
+              .minimumAmountOut(normalizedSlippageTolerance)
+              .raw.toString(),
+            numToken: normalizedTrade.inputAmount.raw.toString(),
             blockTimeDeadline: blockDeadline,
             fee: 3000,
           }
