@@ -424,7 +424,6 @@ const useTradeEngine = (
                   receivedToken,
                   paidToken,
                   tradeType,
-                  operation,
                   slippageTolerance,
                 )
           setTrade(trade)
