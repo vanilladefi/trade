@@ -14,7 +14,13 @@ import { tryParseAmount } from 'lib/uniswap/v2/trade'
 import { MerkleTree } from 'merkletreejs'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import { VanillaVersion } from 'types/general'
-import { Operation, UniSwapToken, V3Trade } from 'types/trade'
+import {
+  Operation,
+  RewardResponse,
+  Token,
+  TokenPriceResponse,
+  V3Trade,
+} from 'types/trade'
 import {
   VanillaV1MigrationState__factory,
   VanillaV1Router02__factory,
@@ -23,26 +29,11 @@ import {
 } from 'types/typechain/vanilla_v1.1'
 import { blockDeadlineThreshold, getVanillaRouterAddress } from 'utils/config'
 
-export interface TokenPriceResponse {
-  ethSum: BigNumber
-  latestBlock: BigNumber
-  tokenSum: BigNumber
-  weightedBlockSum: BigNumber
-}
-
-export interface RewardResponse {
-  profitablePrice: BigNumber
-  avgBlock: BigNumber
-  htrs: BigNumber
-  vpc: BigNumber
-  reward: BigNumber
-}
-
 export const estimateReward = async (
   version: VanillaVersion,
   signer: Signer,
-  tokenSold: UniSwapToken,
-  tokenReceived: UniSwapToken,
+  tokenSold: Token,
+  tokenReceived: Token,
   amountSold: string,
   amountReceived: string,
 ): Promise<RewardResponse | null> => {
@@ -58,31 +49,25 @@ export const estimateReward = async (
     parsedAmountSold.greaterThan('0')
   ) {
     const owner = await signer.getAddress()
-    const routerV1_0 = new ethers.Contract(
-      getVanillaRouterAddress(VanillaVersion.V1_0),
-      JSON.stringify(vanillaRouter.abi),
-      signer,
-    )
-    const routerV1_1 = VanillaV1Router02__factory.connect(
-      getVanillaRouterAddress(VanillaVersion.V1_1),
-      signer,
-    )
+    const router =
+      version === VanillaVersion.V1_0
+        ? new ethers.Contract(
+            getVanillaRouterAddress(VanillaVersion.V1_0),
+            JSON.stringify(vanillaRouter.abi),
+            signer,
+          )
+        : VanillaV1Router02__factory.connect(
+            getVanillaRouterAddress(VanillaVersion.V1_1),
+            signer,
+          )
 
     try {
-      reward =
-        version === VanillaVersion.V1_0
-          ? await routerV1_0.estimateReward(
-              owner,
-              tokenSold.address,
-              parsedAmountReceived?.raw.toString(),
-              parsedAmountSold?.raw.toString(),
-            )
-          : await routerV1_1.estimateReward(
-              owner,
-              tokenSold.address,
-              parsedAmountReceived?.raw.toString(),
-              parsedAmountSold?.raw.toString(),
-            )
+      reward = await router.estimateReward(
+        owner,
+        tokenSold.address,
+        parsedAmountReceived?.raw.toString(),
+        parsedAmountSold?.raw.toString(),
+      )
     } catch (e) {
       console.error('estimateReward', e)
       reward = null
@@ -97,11 +82,17 @@ export const getPriceData = async (
   tokenAddress: string,
 ): Promise<TokenPriceResponse | null> => {
   const owner = await signer.getAddress()
-  const router = new ethers.Contract(
-    getVanillaRouterAddress(version),
-    JSON.stringify(vanillaRouter.abi),
-    signer,
-  )
+  const router =
+    version === VanillaVersion.V1_0
+      ? new ethers.Contract(
+          getVanillaRouterAddress(VanillaVersion.V1_0),
+          JSON.stringify(vanillaRouter.abi),
+          signer,
+        )
+      : VanillaV1Router02__factory.connect(
+          getVanillaRouterAddress(VanillaVersion.V1_1),
+          signer,
+        )
   let priceData: TokenPriceResponse | null
 
   try {
@@ -117,12 +108,18 @@ export const getEpoch = async (
   version: VanillaVersion,
   signer: Signer,
 ): Promise<BigNumber | null> => {
-  const router = new ethers.Contract(
-    getVanillaRouterAddress(version),
-    JSON.stringify(vanillaRouter.abi),
-    signer,
-  )
   let epoch: BigNumber | null
+  const router =
+    version === VanillaVersion.V1_0
+      ? new ethers.Contract(
+          getVanillaRouterAddress(VanillaVersion.V1_0),
+          JSON.stringify(vanillaRouter.abi),
+          signer,
+        )
+      : VanillaV1Router02__factory.connect(
+          getVanillaRouterAddress(VanillaVersion.V1_1),
+          signer,
+        )
 
   try {
     epoch = await router.epoch()
@@ -139,7 +136,7 @@ export const estimateGas = async (
   signer: Signer,
   provider: providers.Provider,
   operation: Operation,
-  token0: UniSwapToken,
+  token0: Token,
   slippageTolerance: Percent | V2Percent,
 ): Promise<BigNumber> => {
   const routerV1_0 = new ethers.Contract(
