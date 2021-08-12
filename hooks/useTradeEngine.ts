@@ -295,7 +295,7 @@ const useTradeEngine = (
 
   // Estimate gas fees
   useEffect(() => {
-    const debouncedGasEstimation = debounce(async () => {
+    const gasEstimation = async () => {
       if (trade && provider && signer && token0 && !notEnoughFunds()) {
         let gasEstimate = BigNumber.from(ethersOverrides.gasLimit)
         try {
@@ -323,20 +323,14 @@ const useTradeEngine = (
           setEstimatedGas(formatUnits(gasEstimate.mul(gasPrice)))
         }
       }
-    }, 500)
+    }
+    const debouncedGasEstimation = debounce(gasEstimation, 200, {
+      leading: true,
+      trailing: true,
+    })
     debouncedGasEstimation()
-  }, [
-    operation,
-    provider,
-    token0,
-    slippageTolerance,
-    trade,
-    version,
-    signer,
-    setEstimatedGasLimit,
-    setEstimatedGas,
-    notEnoughFunds,
-  ])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trade])
 
   // Estimate LP fees
   useEffect(() => {
@@ -428,6 +422,7 @@ const useTradeEngine = (
                   receivedToken,
                   paidToken,
                   tradeType,
+                  operation,
                   walletAddress.long,
                   slippageTolerance,
                 )
@@ -443,7 +438,7 @@ const useTradeEngine = (
 
   // Update trade on operation change to get updated pricing
   useEffect(() => {
-    const updateTradeAndToken1 = debounce(async () => {
+    const updateTradeAndToken1 = async () => {
       if (amount0) {
         const trade = await updateTrade(0, amount0)
         if (trade && trade.inputAmount && trade.outputAmount) {
@@ -454,35 +449,48 @@ const useTradeEngine = (
           setAmount1(newToken1Amount)
         }
       }
-    }, 200)
-    updateTradeAndToken1()
+    }
+    const debouncedUpdate = debounce(updateTradeAndToken1, 200, {
+      leading: true,
+      trailing: true,
+    })
+    debouncedUpdate()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [operation, token0, token1])
 
   // Estimate VNL rewards
   useEffect(() => {
-    const estimateRewards = debounce(() => {
-      if (
-        operation === Operation.Sell &&
-        signer &&
-        token0 &&
-        token1 &&
-        amount0 &&
-        amount1
-      ) {
-        estimateReward(version, signer, token0, token1, amount0, amount1).then(
-          (reward) => {
+    const estimateRewards = debounce(
+      () => {
+        if (
+          operation === Operation.Sell &&
+          signer &&
+          token0 &&
+          token1 &&
+          amount0 &&
+          amount1
+        ) {
+          estimateReward(
+            version,
+            signer,
+            token0,
+            token1,
+            amount0,
+            amount1,
+          ).then((reward) => {
             let formattedReward: string | null = null
             if (reward?.reward) {
               formattedReward = formatUnits(reward.reward, vnlDecimals)
             }
             setEstimatedReward(formattedReward)
-          },
-        )
-      } else {
-        setEstimatedReward(null)
-      }
-    }, 500)
+          })
+        } else {
+          setEstimatedReward(null)
+        }
+      },
+      500,
+      { leading: true, trailing: true },
+    )
     estimateRewards()
   }, [
     operation,

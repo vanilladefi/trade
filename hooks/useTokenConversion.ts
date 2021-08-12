@@ -144,109 +144,119 @@ export default function useTokenConversion(): {
   ])
 
   useEffect(() => {
-    const getState = debounce(async () => {
-      let nextConversionState: ConversionState | null = null
-      try {
-        if (signer && conversionState === ConversionState.LOADING) {
-          const checkSummedAddress = isAddress(
-            (await signer?.getAddress()) || '',
-          )
-
-          // If signer is connected, try fetching migration state
-          if (checkSummedAddress) {
-            const vnlRouter = VanillaV1Router02__factory.connect(
-              getVanillaRouterAddress(VanillaVersion.V1_1),
-              signer,
+    const getState = debounce(
+      async () => {
+        let nextConversionState: ConversionState | null = null
+        try {
+          if (signer && conversionState === ConversionState.LOADING) {
+            const checkSummedAddress = isAddress(
+              (await signer?.getAddress()) || '',
             )
-            const legacyAddr = isAddress(
-              getVnlTokenAddress(VanillaVersion.V1_0) || '',
-            )
-            const targetAddr = isAddress(await vnlRouter.vnlContract())
 
-            // Connect to token contracts
-            let VNLToken1: VanillaV1Token01 | undefined
-            let VNLToken2: VanillaV1Token02 | undefined
-            if (legacyAddr && targetAddr) {
-              VNLToken1 = VanillaV1Token01__factory.connect(legacyAddr, signer)
-              VNLToken2 = VanillaV1Token02__factory.connect(targetAddr, signer)
-              setVnlToken1(VNLToken1)
-              setVnlToken2(VNLToken2)
-            } else {
-              nextConversionState = ConversionState.ERROR
-            }
-
-            const legacyBalance = await VNLToken1?.balanceOf(checkSummedAddress)
-
-            // If both tokens are connected correctly and user has legacy balance, continue
-            if (VNLToken1 && VNLToken2 && !legacyBalance?.isZero()) {
-              const { getProof, verify, root, snapshotState } = await snapshot(
-                VNLToken1,
-                VNLToken2,
+            // If signer is connected, try fetching migration state
+            if (checkSummedAddress) {
+              const vnlRouter = VanillaV1Router02__factory.connect(
+                getVanillaRouterAddress(VanillaVersion.V1_1),
+                signer,
               )
+              const legacyAddr = isAddress(
+                getVnlTokenAddress(VanillaVersion.V1_0) || '',
+              )
+              const targetAddr = isAddress(await vnlRouter.vnlContract())
 
-              // Get v1.0 token state snapshot
-              const mySnapshotState = snapshotState.accounts[walletAddress]
-              const myConvertableBalance =
-                mySnapshotState && formatUnits(mySnapshotState, vnlDecimals)
-              if (mySnapshotState.isZero()) {
-                nextConversionState = ConversionState.HIDDEN
+              // Connect to token contracts
+              let VNLToken1: VanillaV1Token01 | undefined
+              let VNLToken2: VanillaV1Token02 | undefined
+              if (legacyAddr && targetAddr) {
+                VNLToken1 = VanillaV1Token01__factory.connect(
+                  legacyAddr,
+                  signer,
+                )
+                VNLToken2 = VanillaV1Token02__factory.connect(
+                  targetAddr,
+                  signer,
+                )
+                setVnlToken1(VNLToken1)
+                setVnlToken2(VNLToken2)
               } else {
-                nextConversionState = ConversionState.AVAILABLE
-                setConvertable(myConvertableBalance)
-              }
-
-              // Get start date for conversion
-              const startDate = snapshotState
-                ? new Date(snapshotState.timeStamp * 1000)
-                : null
-              setStartDate(startDate)
-              if (startDate === new Date(0) || mySnapshotState.isZero()) {
                 nextConversionState = ConversionState.ERROR
               }
 
-              // Calculate conversion deadline
-              const deadline = startDate ? addDays(startDate, 30) : null
-              setDeadline(deadline)
-
-              // Verify proof to check eligibility
-              if (
-                verify(
-                  { amount: mySnapshotState, address: checkSummedAddress },
-                  root,
-                ) &&
-                startDate !== new Date(0) &&
-                !mySnapshotState.isZero()
-              ) {
-                const proof = getProof({
-                  amount: mySnapshotState,
-                  address: checkSummedAddress,
-                })
-                setProof(proof)
-                const eligible = await VNLToken2.checkEligibility(proof)
-                setEligible(eligible.convertible)
-                nextConversionState = ConversionState.AVAILABLE
-              }
-
-              // Check allowance, skip straight to minting if allowance > 0
-              const allowanceResponse = await VNLToken1.allowance(
+              const legacyBalance = await VNLToken1?.balanceOf(
                 checkSummedAddress,
-                VNLToken2.address,
               )
-              setAllowance(formatUnits(allowanceResponse, vnlDecimals))
-              if (!allowanceResponse.isZero()) {
-                nextConversionState = ConversionState.APPROVED
+
+              // If both tokens are connected correctly and user has legacy balance, continue
+              if (VNLToken1 && VNLToken2 && !legacyBalance?.isZero()) {
+                const { getProof, verify, root, snapshotState } =
+                  await snapshot(VNLToken1, VNLToken2)
+
+                // Get v1.0 token state snapshot
+                const mySnapshotState = snapshotState.accounts[walletAddress]
+                const myConvertableBalance =
+                  mySnapshotState && formatUnits(mySnapshotState, vnlDecimals)
+                if (mySnapshotState.isZero()) {
+                  nextConversionState = ConversionState.HIDDEN
+                } else {
+                  nextConversionState = ConversionState.AVAILABLE
+                  setConvertable(myConvertableBalance)
+                }
+
+                // Get start date for conversion
+                const startDate = snapshotState
+                  ? new Date(snapshotState.timeStamp * 1000)
+                  : null
+                setStartDate(startDate)
+                if (startDate === new Date(0) || mySnapshotState.isZero()) {
+                  nextConversionState = ConversionState.ERROR
+                }
+
+                // Calculate conversion deadline
+                const deadline = startDate ? addDays(startDate, 30) : null
+                setDeadline(deadline)
+
+                // Verify proof to check eligibility
+                if (
+                  verify(
+                    { amount: mySnapshotState, address: checkSummedAddress },
+                    root,
+                  ) &&
+                  startDate !== new Date(0) &&
+                  !mySnapshotState.isZero()
+                ) {
+                  const proof = getProof({
+                    amount: mySnapshotState,
+                    address: checkSummedAddress,
+                  })
+                  setProof(proof)
+                  const eligible = await VNLToken2.checkEligibility(proof)
+                  setEligible(eligible.convertible)
+                  nextConversionState = ConversionState.AVAILABLE
+                }
+
+                // Check allowance, skip straight to minting if allowance > 0
+                const allowanceResponse = await VNLToken1.allowance(
+                  checkSummedAddress,
+                  VNLToken2.address,
+                )
+                setAllowance(formatUnits(allowanceResponse, vnlDecimals))
+                if (!allowanceResponse.isZero()) {
+                  nextConversionState = ConversionState.APPROVED
+                }
               }
             }
           }
+        } catch (e) {
+          nextConversionState = ConversionState.ERROR
+          console.error('connect Tokens', e)
         }
-      } catch (e) {
-        nextConversionState = ConversionState.ERROR
-        console.error('connect Tokens', e)
-      }
 
-      // Set the state
-      nextConversionState && setConversionState(nextConversionState)
-    }, 2000)
+        // Set the state
+        nextConversionState && setConversionState(nextConversionState)
+      },
+      500,
+      { leading: true, trailing: true },
+    )
 
     getState()
   }, [

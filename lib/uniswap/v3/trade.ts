@@ -13,7 +13,7 @@ import { formatUnits, getAddress, parseUnits } from 'ethers/lib/utils'
 import { UniswapVersion } from 'lib/graphql'
 import { isAddress, tokenListChainId } from 'lib/tokens'
 import { VanillaVersion } from 'types/general'
-import { Token, UniSwapToken } from 'types/trade'
+import { Operation, Token, UniSwapToken } from 'types/trade'
 import { SwapRouter__factory } from 'types/typechain/uniswap_v3_periphery'
 import { SwapRouter } from 'types/typechain/uniswap_v3_periphery/SwapRouter'
 import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Router02__factory'
@@ -227,21 +227,32 @@ export async function constructTrade(
   amountToTrade: string, // Not amountPaid because of tradeType
   tokenReceived: Token,
   tokenPaid: Token,
-  tradeType = TradeType.EXACT_OUTPUT,
+  tradeType: TradeType,
+  operation: Operation,
   recipient: string,
   slippageTolerance: Percent,
 ): Promise<V3Trade> {
   const defaultFeeTier = FeeAmount.MEDIUM
   try {
-    // The asset that "amountToTrade" refers to changes on tradetype,
-    // so we need to set asset and counterAsset here. Currently asset is always WETH
-    const asset =
-      tradeType === TradeType.EXACT_OUTPUT ? tokenReceived : tokenPaid
-    const counterAsset =
-      tradeType === TradeType.EXACT_OUTPUT ? tokenPaid : tokenReceived
+    const tokenToTrade =
+      tradeType === TradeType.EXACT_OUTPUT
+        ? operation === Operation.Buy
+          ? tokenReceived
+          : tokenPaid
+        : operation === Operation.Buy
+        ? tokenPaid
+        : tokenReceived
+    const quotedToken =
+      tradeType === TradeType.EXACT_OUTPUT
+        ? operation === Operation.Buy
+          ? tokenPaid
+          : tokenReceived
+        : operation === Operation.Buy
+        ? tokenReceived
+        : tokenPaid
 
     // Convert the decimal amount to a UniSwap TokenAmount
-    const parsedAmountTraded = tryParseAmount(amountToTrade, tokenPaid)
+    const parsedAmountTraded = tryParseAmount(amountToTrade, tokenToTrade)
     if (!parsedAmountTraded)
       return Promise.reject(`Failed to parse input amount: ${amountToTrade}`)
 
@@ -256,28 +267,36 @@ export async function constructTrade(
     )
 
     const swapOperation = UniswapRouter(uniV3Router).swap(
-      asset.address,
-      counterAsset.address,
+      tradeType === TradeType.EXACT_INPUT
+        ? tokenToTrade.address
+        : quotedToken.address,
+      tradeType === TradeType.EXACT_INPUT
+        ? quotedToken.address
+        : tokenToTrade.address,
       recipient,
     )
 
     const quote =
       tradeType === TradeType.EXACT_INPUT
-        ? await swapOperation.estimateAmountOut(parsedAmountTraded, feeTier)
+        ? operation === Operation.Buy
+          ? await swapOperation.estimateAmountOut(parsedAmountTraded, feeTier, {
+              value: parsedAmountTraded.raw.toString(),
+            })
+          : await swapOperation.estimateAmountOut(parsedAmountTraded, feeTier, {
+              value: 0,
+            })
         : await swapOperation.estimateAmountIn(parsedAmountTraded, feeTier)
 
-    const formattedQuote = formatUnits(quote, counterAsset.decimals)
-    const parsedQuote = tryParseAmount(formattedQuote, counterAsset)
-    console.log(quote, parsedAmountTraded.token, parsedQuote.token)
+    const formattedQuote = formatUnits(quote, quotedToken.decimals)
+    const parsedQuote = tryParseAmount(formattedQuote, quotedToken)
 
     const trade: V3Trade = new V3Trade(
-      parsedAmountTraded,
-      parsedQuote,
+      tradeType === TradeType.EXACT_INPUT ? parsedAmountTraded : parsedQuote,
+      tradeType === TradeType.EXACT_INPUT ? parsedQuote : parsedAmountTraded,
       slippageTolerance,
       tradeType,
     )
 
-    console.log(trade)
     return trade
   } catch (error) {
     console.error(error)
