@@ -12,7 +12,7 @@ import { BigNumber, Signer, Transaction } from 'ethers'
 import { formatUnits, getAddress, parseUnits } from 'ethers/lib/utils'
 import { isAddress, tokenListChainId } from 'lib/tokens'
 import { VanillaVersion } from 'types/general'
-import { Operation, Token, UniSwapToken } from 'types/trade'
+import { Token, UniSwapToken } from 'types/trade'
 import { Quoter, Quoter__factory } from 'types/typechain/uniswap_v3_periphery'
 import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Router02__factory'
 import {
@@ -163,7 +163,6 @@ class V3Trade {
     outputAmount: TokenAmount,
     slippageTolerance: Percent,
     tradeType: TradeType,
-    operation: Operation,
   ) {
     this.inputAmount = inputAmount
     this.outputAmount = outputAmount
@@ -221,7 +220,6 @@ export async function constructTrade(
   tokenReceived: Token,
   tokenPaid: Token,
   tradeType: TradeType,
-  operation: Operation,
   slippageTolerance: Percent,
 ): Promise<V3Trade> {
   const defaultFeeTier = FeeAmount.MEDIUM
@@ -274,7 +272,6 @@ export async function constructTrade(
       tradeType === TradeType.EXACT_INPUT ? parsedQuote : parsedAmountTraded,
       slippageTolerance,
       tradeType,
-      operation,
     )
 
     return trade
