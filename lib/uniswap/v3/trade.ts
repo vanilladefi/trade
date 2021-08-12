@@ -8,18 +8,16 @@ import {
   TradeType,
 } from '@uniswap/sdk-core'
 import { FeeAmount } from '@uniswap/v3-sdk'
-import { BigNumber, BigNumberish, Signer, Transaction } from 'ethers'
+import { BigNumber, Signer, Transaction } from 'ethers'
 import { formatUnits, getAddress, parseUnits } from 'ethers/lib/utils'
 import { UniswapVersion } from 'lib/graphql'
 import { isAddress, tokenListChainId } from 'lib/tokens'
 import { VanillaVersion } from 'types/general'
 import { Operation, Token, UniSwapToken } from 'types/trade'
-import {
-  QuoterV2,
-  QuoterV2__factory,
-} from 'types/typechain/uniswap_v3_periphery'
+import { Quoter, Quoter__factory } from 'types/typechain/uniswap_v3_periphery'
 import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Router02__factory'
 import {
+  conservativeGasLimit,
   ethersOverrides,
   getUniswapQuoterAddress,
   getVanillaRouterAddress,
@@ -27,7 +25,7 @@ import {
 import { getFeeTier } from 'utils/transactions'
 import { TransactionProps } from '..'
 
-export const UniswapOracle = (oracle: QuoterV2) => ({
+export const UniswapOracle = (oracle: Quoter) => ({
   swap(tokenIn: string, tokenOut: string) {
     return {
       swapParamsIn(amountIn: TokenAmount, fee: number) {
@@ -36,7 +34,7 @@ export const UniswapOracle = (oracle: QuoterV2) => ({
           tokenOut,
           fee: fee,
           sqrtPriceLimitX96: 0,
-          amountIn: amountIn,
+          amountIn: amountIn.raw.toString(),
         }
       },
       swapParamsOut(amountOut: TokenAmount, fee: number) {
@@ -45,14 +43,23 @@ export const UniswapOracle = (oracle: QuoterV2) => ({
           tokenOut,
           fee: fee,
           sqrtPriceLimitX96: 0,
-          amountOut: amountOut,
+          amountOut: amountOut.raw.toString(),
         }
       },
       async estimateAmountOut(amountIn: TokenAmount, fee: number) {
         try {
           const swapParams = this.swapParamsIn(amountIn, fee)
-          console.log(swapParams)
-          return await oracle.callStatic.quoteExactInputSingle(swapParams)
+
+          return await oracle.callStatic.quoteExactInputSingle(
+            swapParams.tokenIn,
+            swapParams.tokenOut,
+            fee,
+            swapParams.amountIn,
+            swapParams.sqrtPriceLimitX96,
+            {
+              gasLimit: conservativeGasLimit,
+            },
+          )
         } catch (e) {
           console.error(e)
           return undefined
@@ -61,8 +68,17 @@ export const UniswapOracle = (oracle: QuoterV2) => ({
       async estimateAmountIn(amountOut: TokenAmount, fee: number) {
         try {
           const swapParams = this.swapParamsOut(amountOut, fee)
-          console.log(swapParams)
-          return await oracle.callStatic.quoteExactOutputSingle(swapParams)
+
+          return await oracle.callStatic.quoteExactOutputSingle(
+            swapParams.tokenIn,
+            swapParams.tokenOut,
+            fee,
+            swapParams.amountOut,
+            swapParams.sqrtPriceLimitX96,
+            {
+              gasLimit: conservativeGasLimit,
+            },
+          )
         } catch (e) {
           console.error(e)
           return undefined
@@ -154,20 +170,12 @@ class V3Trade {
     this.outputAmount = outputAmount
     this.slippageTolerance = slippageTolerance
     this.tradeType = tradeType
-    this.price =
-      operation === Operation.Buy
-        ? new Price(
-            inputAmount.token,
-            outputAmount.token,
-            inputAmount.raw.toString(),
-            outputAmount.raw.toString(),
-          )
-        : new Price(
-            outputAmount.token,
-            inputAmount.token,
-            outputAmount.raw.toString(),
-            inputAmount.raw.toString(),
-          )
+    this.price = new Price(
+      inputAmount.token,
+      outputAmount.token,
+      inputAmount.raw.toString(),
+      outputAmount.raw.toString(),
+    )
     this.route = null
   }
 
@@ -234,7 +242,7 @@ export async function constructTrade(
       getFeeTier(tokenPaid.fee) ||
       defaultFeeTier
 
-    const uniV3Oracle = QuoterV2__factory.connect(
+    const uniV3Oracle = Quoter__factory.connect(
       getUniswapQuoterAddress(UniswapVersion.v3),
       signer,
     )
@@ -242,28 +250,24 @@ export async function constructTrade(
     console.log(await uniV3Oracle.callStatic.WETH9())
 
     const swapOperation = UniswapOracle(uniV3Oracle).swap(
-      tokenPaid.address,
-      tokenReceived.address,
+      isAddress(tokenPaid.address) || tokenPaid.address,
+      isAddress(tokenReceived.address) || tokenReceived.address,
     )
 
-    let quote: BigNumberish = BigNumber.from(0)
+    let quote: BigNumber = BigNumber.from(0)
     if (tradeType === TradeType.EXACT_INPUT) {
-      const response = await swapOperation.estimateAmountOut(
+      const amountOut = await swapOperation.estimateAmountOut(
         parsedAmountTraded,
         feeTier.valueOf(),
       )
-      console.log(response)
-      quote = response?.amountOut || 0
+      quote = amountOut
     } else {
-      const response = await swapOperation.estimateAmountIn(
+      const amountIn = await swapOperation.estimateAmountIn(
         parsedAmountTraded,
         feeTier.valueOf(),
       )
-      console.log(response)
-      quote = response?.amountIn || 0
+      quote = amountIn
     }
-
-    console.log(quote.toString())
 
     const formattedQuote = formatUnits(quote, quotedToken.decimals)
     const parsedQuote = tryParseAmount(formattedQuote, quotedToken)
