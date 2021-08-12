@@ -247,8 +247,6 @@ export async function constructTrade(
       signer,
     )
 
-    console.log(await uniV3Oracle.callStatic.WETH9())
-
     const swapOperation = UniswapOracle(uniV3Oracle).swap(
       isAddress(tokenPaid.address) || tokenPaid.address,
       isAddress(tokenReceived.address) || tokenReceived.address,

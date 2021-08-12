@@ -17,10 +17,10 @@ import vanillaRouter from 'types/abis/vanillaRouter.json'
 import { VanillaVersion } from 'types/general'
 import { Operation, UniSwapToken, V3Trade } from 'types/trade'
 import {
+  VanillaV1MigrationState__factory,
+  VanillaV1Router02__factory,
   VanillaV1Token01,
   VanillaV1Token02,
-  VanillaV1Router02__factory,
-  VanillaV1MigrationState__factory,
 } from 'types/typechain/vanilla_v1.1'
 import { blockDeadlineThreshold, getVanillaRouterAddress } from 'utils/config'
 
