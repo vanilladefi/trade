@@ -45,7 +45,6 @@ import useAllTransactions from './useAllTransactions'
 import useEligibleTokenBalance from './useEligibleTokenBalance'
 import useTokenBalance from './useTokenBalance'
 import useVanillaGovernanceToken from './useVanillaGovernanceToken'
-import useWalletAddress from './useWalletAddress'
 
 export enum TransactionState {
   PREPARE,
@@ -83,7 +82,6 @@ const useTradeEngine = (
   // The Ethers signer and provider
   const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
-  const walletAddress = useWalletAddress()
   const operation = useRecoilValue(selectedOperation)
   const pairState = useRecoilValue(selectedPairState)
   const { addTransaction } = useAllTransactions()
