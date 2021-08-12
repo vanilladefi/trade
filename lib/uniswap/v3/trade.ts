@@ -10,7 +10,6 @@ import {
 import { FeeAmount } from '@uniswap/v3-sdk'
 import { BigNumber, Signer, Transaction } from 'ethers'
 import { formatUnits, getAddress, parseUnits } from 'ethers/lib/utils'
-import { UniswapVersion } from 'lib/graphql'
 import { isAddress, tokenListChainId } from 'lib/tokens'
 import { VanillaVersion } from 'types/general'
 import { Operation, Token, UniSwapToken } from 'types/trade'
@@ -243,7 +242,7 @@ export async function constructTrade(
       defaultFeeTier
 
     const uniV3Oracle = Quoter__factory.connect(
-      getUniswapQuoterAddress(UniswapVersion.v3),
+      getUniswapQuoterAddress(),
       signer,
     )
 
