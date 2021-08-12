@@ -423,7 +423,6 @@ const useTradeEngine = (
                   paidToken,
                   tradeType,
                   operation,
-                  walletAddress.long,
                   slippageTolerance,
                 )
           setTrade(trade)
