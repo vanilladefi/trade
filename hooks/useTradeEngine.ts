@@ -21,6 +21,7 @@ import {
   currentFeeEstimate,
   currentGasEstimate,
   currentGasLimitEstimate,
+  currentGasPrice,
   currentRewardEstimate,
   currentTrade,
   currentTransactionState,
@@ -68,6 +69,7 @@ const useTradeEngine = (
   token1: Token | null
   eligibleBalance0Raw: BigNumber
   balance1Raw: BigNumber
+  gasPrice: BigNumber | null
   estimatedGasLimit: BigNumber | null
   estimatedGas: string | null
   estimatedFees: string | null
@@ -227,6 +229,7 @@ const useTradeEngine = (
   const [estimatedGasLimit, setEstimatedGasLimit] = useRecoilState(
     currentGasLimitEstimate,
   )
+  const [gasPrice, setGasPrice] = useRecoilState(currentGasPrice)
   const [estimatedGas, setEstimatedGas] = useRecoilState(currentGasEstimate)
   const [estimatedFees, setEstimatedFees] = useRecoilState(currentFeeEstimate)
   const [estimatedReward, setEstimatedReward] = useRecoilState(
@@ -294,7 +297,7 @@ const useTradeEngine = (
   // Estimate gas fees
   useEffect(() => {
     const gasEstimation = async () => {
-      if (trade && provider && signer && token0 && !notEnoughFunds()) {
+      if (trade && provider && signer && token0) {
         let gasEstimate = BigNumber.from(ethersOverrides.gasLimit)
         try {
           gasEstimate = await estimateGas(
@@ -318,6 +321,7 @@ const useTradeEngine = (
         }
         const gasPrice = await provider.getGasPrice()
         if (gasPrice) {
+          setGasPrice(gasPrice)
           setEstimatedGas(formatUnits(gasEstimate.mul(gasPrice)))
         }
       }
@@ -326,7 +330,7 @@ const useTradeEngine = (
       leading: true,
       trailing: true,
     })
-    debouncedGasEstimation()
+    !notEnoughFunds() && debouncedGasEstimation()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trade])
 
@@ -601,6 +605,7 @@ const useTradeEngine = (
     token1,
     eligibleBalance0Raw,
     balance1Raw,
+    gasPrice,
     estimatedGasLimit,
     estimatedGas,
     estimatedFees,

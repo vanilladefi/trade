@@ -96,6 +96,11 @@ export const currentGasEstimate = atom<string | null>({
   default: null,
 })
 
+export const currentGasPrice = atom<BigNumber | null>({
+  key: 'currentGasPrice',
+  default: null,
+})
+
 export const currentFeeEstimate = atom<string | null>({
   key: 'currentFeeEstimate',
   default: null,

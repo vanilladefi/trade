@@ -77,7 +77,7 @@ const TokenInput = ({ version, useWethProxy = true }: Props): JSX.Element => {
     const parsedValue = value || undefined
     const debouncedAmountChanged = debounce(
       () => handleAmountChanged(tokenIndex, parsedValue),
-      100,
+      200,
       { leading: true, trailing: true },
     )
     if (tokenIndex === 0) {
