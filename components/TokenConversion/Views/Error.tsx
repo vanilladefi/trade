@@ -43,7 +43,7 @@ const ErrorView = (): JSX.Element => {
     } else {
       setErrorTitle('Transaction error')
       setErrorSubtitle(
-        'Your transaction did not get executed, please try again and double check that you have enough gas.',
+        'Your transaction did not get executed, because something failed. Try again.',
       )
       if (allowance === '0') {
         setNextConversionState(ConversionState.APPROVING)
