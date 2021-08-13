@@ -1,6 +1,7 @@
 import { Token as UniswapToken, TokenAmount } from '@uniswap/sdk-core'
 import { BigNumber } from 'ethers'
 import { getAddress } from 'ethers/lib/utils'
+
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import {
   uniswapV2TokenState,
@@ -17,6 +18,7 @@ export type PositionUpdater = (token: Token, delta: BigNumber) => void
 function usePositionUpdater(version: VanillaVersion): PositionUpdater {
   const setUserTokensV2 = useSetRecoilState(userV2TokensState)
   const setUserTokensV3 = useSetRecoilState(userV3TokensState)
+
   const allV2Tokens = useRecoilValue(uniswapV2TokenState)
   const allV3Tokens = useRecoilValue(uniswapV3TokenState)
 
