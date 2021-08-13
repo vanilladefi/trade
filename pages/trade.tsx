@@ -3,6 +3,7 @@ import { Column, Row, Width } from 'components/grid/Flex'
 import Button from 'components/input/Button'
 import Layout from 'components/Layout'
 import { Spinner } from 'components/Spinner'
+import SyncIndicator from 'components/SyncIndicator'
 import TokenConversion from 'components/TokenConversion'
 import TokenSearch from 'components/TokenSearch'
 import { AvailableTokens, MyPositionsV2, MyPositionsV3 } from 'components/Trade'
@@ -295,9 +296,10 @@ const BodyContent = ({
   setModalOpen,
   activeExchange,
 }: BodyProps): JSX.Element => {
-  useMetaSubscription()
-  useTokenSubscription(UniswapVersion.v2)
-  useTokenSubscription(UniswapVersion.v3)
+  // Initialize subscriptions to needed TheGraph data. Only use these hooks once per page.
+  useMetaSubscription(VanillaVersion.V1_1)
+  useTokenSubscription(VanillaVersion.V1_0)
+  useTokenSubscription(VanillaVersion.V1_1)
 
   const setETHPrice = useSetRecoilState(currentETHPrice)
   const setV2Tokens = useSetRecoilState(uniswapV2TokenState)
@@ -435,8 +437,10 @@ const BodyContent = ({
                   ))}
               </>
             )}
-
-            <h2 style={{ marginBottom: 0 }}>AVAILABLE TOKENS</h2>
+            <div className='tableHeaderWrapper'>
+              <h2 style={{ marginBottom: 0 }}>AVAILABLE TOKENS</h2>
+              <SyncIndicator />
+            </div>
             {/* Pass "initialTokens" so this page is statically rendered with tokens */}
             <AvailableTokens
               initialTokens={initialTokens.v3}
@@ -526,24 +530,26 @@ export default function TradePage({
 export async function getStaticProps(): Promise<
   GetStaticPropsResult<PageProps>
 > {
+  let block24hAgo
+
+  const currentBlockNumberV2 = await getCurrentBlockNumber(UniswapVersion.v2)
+  const currentBlockNumberV3 = await getCurrentBlockNumber(UniswapVersion.v3)
+
   // Fetch Uniswap V2 token info
-  let tokensV2 = getAllTokens()
+  let tokensV2 = getAllTokens(VanillaVersion.V1_0)
   tokensV2 = await addLogoColor(tokensV2)
 
   // Fetch these simultaneously
-  const [blocksPerHourV2, currentBlockNumberV2, ethPriceV2] = await Promise.all(
-    [
-      getAverageBlockCountPerHour(),
-      getCurrentBlockNumber(UniswapVersion.v2),
-      getETHPrice(UniswapVersion.v2),
-    ],
-  )
+  const [blocksPerHourV2, ethPriceV2] = await Promise.all([
+    getAverageBlockCountPerHour(),
+    getETHPrice(UniswapVersion.v2),
+  ])
 
   if (ethPriceV2 === 0 || currentBlockNumberV2 === 0 || blocksPerHourV2 === 0) {
     throw Error('Query failed')
   }
 
-  let block24hAgo = currentBlockNumberV2 - 24 * blocksPerHourV2
+  block24hAgo = currentBlockNumberV2 - 24 * blocksPerHourV2
 
   tokensV2 = await addGraphInfo(UniswapVersion.v2, tokensV2, 0, ethPriceV2)
   tokensV2 = addUSDPrice(tokensV2, ethPriceV2)
@@ -560,17 +566,14 @@ export async function getStaticProps(): Promise<
   }
 
   // Fetch Uniswap V3 token info
-  let tokensV3 = getAllTokens()
+  let tokensV3 = getAllTokens(VanillaVersion.V1_1)
   tokensV3 = await addLogoColor(tokensV3)
 
   // Fetch these simultaneously
-  const [blocksPerHourV3, currentBlockNumberV3, ethPriceV3] = await Promise.all(
-    [
-      getAverageBlockCountPerHour(),
-      getCurrentBlockNumber(UniswapVersion.v3),
-      getETHPrice(UniswapVersion.v3),
-    ],
-  )
+  const [blocksPerHourV3, ethPriceV3] = await Promise.all([
+    getAverageBlockCountPerHour(),
+    getETHPrice(UniswapVersion.v3),
+  ])
 
   if (ethPriceV3 === 0 || currentBlockNumberV3 === 0 || blocksPerHourV3 === 0) {
     throw Error('Query failed')

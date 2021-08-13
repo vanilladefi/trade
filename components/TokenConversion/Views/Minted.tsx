@@ -15,6 +15,7 @@ import { useSetRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
 import { VanillaVersion } from 'types/general'
 import { ConversionState } from 'types/migration'
+import { vnlDecimals } from 'utils/config'
 import { ConversionViewProps } from '..'
 
 const Minted = ({ transactionHash }: ConversionViewProps): JSX.Element => {
@@ -32,9 +33,8 @@ const Minted = ({ transactionHash }: ConversionViewProps): JSX.Element => {
   }, [transactionHash, transaction])
 
   const getAmountConverted = useCallback(() => {
-    console.log(transaction)
     if (transaction?.amountConverted) {
-      return formatUnits(transaction.amountConverted, 12)
+      return formatUnits(transaction.amountConverted, vnlDecimals)
     }
     return '0'
   }, [transaction])

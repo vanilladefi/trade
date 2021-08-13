@@ -9,8 +9,8 @@ export enum Field {
 export interface TransactionProps {
   amountReceived: string
   amountPaid: string
-  tokenPaid?: UniSwapToken
-  tokenReceived?: UniSwapToken
+  tokenPaid: UniSwapToken
+  tokenReceived: UniSwapToken
   signer?: providers.JsonRpcSigner
   blockDeadline: number
   feeTier?: number

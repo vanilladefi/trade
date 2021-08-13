@@ -1,41 +1,38 @@
 import { getAverageBlockCountPerHour } from 'lib/block'
 import { getTheGraphClient, UniswapVersion, v2, v3 } from 'lib/graphql'
-import { addData, addGraphInfo, getAllTokens, weth } from 'lib/tokens'
+import { addData, addGraphInfo, getTokenInfoQueryVariables } from 'lib/tokens'
 import { useEffect } from 'react'
 import { useRecoilCallback, useRecoilValue } from 'recoil'
 import { currentBlockNumberState, currentETHPrice } from 'state/meta'
 import { uniswapV2TokenState, uniswapV3TokenState } from 'state/tokens'
+import { VanillaVersion } from 'types/general'
 import type { TokenInfoQueryResponse } from 'types/trade'
-
-const variables = {
-  weth: weth.address.toLowerCase(),
-  tokenAddresses: getAllTokens().map(({ address }) => address.toLowerCase()),
-}
 
 interface subReturnValue {
   data: { tokens: TokenInfoQueryResponse[] }
 }
 
-export default function useTokenSubscription(
-  version: UniswapVersion = UniswapVersion.v3,
-): void {
+export default function useTokenSubscription(version: VanillaVersion): void {
   const currentBlockNumber = useRecoilValue(currentBlockNumberState)
   const ethPrice = useRecoilValue(currentETHPrice)
+  const uniswapVersion =
+    version === VanillaVersion.V1_0 ? UniswapVersion.v2 : UniswapVersion.v3
 
   const TokenInfoSubAB =
-    version === UniswapVersion.v2 ? v2.TokenInfoSubAB : v3.TokenInfoSubAB
+    version === VanillaVersion.V1_0 ? v2.TokenInfoSubAB : v3.TokenInfoSubAB
   const TokenInfoSubBA =
-    version === UniswapVersion.v2 ? v2.TokenInfoSubBA : v3.TokenInfoSubBA
+    version === VanillaVersion.V1_0 ? v2.TokenInfoSubBA : v3.TokenInfoSubBA
 
   const handleNewData = useRecoilCallback(
     ({ set }) =>
       async ({ data }: subReturnValue) => {
         if (data?.tokens?.length && ethPrice > 0) {
           set(
-            version === UniswapVersion.v2
+            version === VanillaVersion.V1_0
               ? uniswapV2TokenState
               : uniswapV3TokenState,
-            (tokens) => addData(version, tokens, data.tokens, false, ethPrice),
+            (tokens) =>
+              addData(uniswapVersion, tokens, data.tokens, false, ethPrice),
           )
         }
       },
@@ -46,16 +43,16 @@ export default function useTokenSubscription(
     ({ snapshot, set }) =>
       async (blockNumber: number) => {
         const tokens = await snapshot.getPromise(
-          version === UniswapVersion.v2
+          uniswapVersion === UniswapVersion.v2
             ? uniswapV2TokenState
             : uniswapV3TokenState,
         )
         if (blockNumber > 0 && tokens?.length && ethPrice > 0) {
           set(
-            version === UniswapVersion.v2
+            uniswapVersion === UniswapVersion.v2
               ? uniswapV2TokenState
               : uniswapV3TokenState,
-            await addGraphInfo(version, tokens, blockNumber, ethPrice),
+            await addGraphInfo(uniswapVersion, tokens, blockNumber, ethPrice),
           )
         }
       },
@@ -67,7 +64,9 @@ export default function useTokenSubscription(
       next: handleNewData,
     }
 
-    const { ws } = getTheGraphClient(version)
+    const variables = getTokenInfoQueryVariables(version)
+
+    const { ws } = getTheGraphClient(uniswapVersion)
 
     const subAB = ws
       ?.request({
@@ -87,7 +86,7 @@ export default function useTokenSubscription(
       subAB?.unsubscribe()
       subBA?.unsubscribe()
     }
-  }, [TokenInfoSubAB, TokenInfoSubBA, handleNewData, version])
+  }, [TokenInfoSubAB, TokenInfoSubBA, handleNewData, uniswapVersion, version])
 
   // Handle price change fetching
   useEffect(() => {

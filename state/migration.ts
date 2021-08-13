@@ -1,13 +1,11 @@
 import { atom } from 'recoil'
 import { ConversionState } from 'types/migration'
-import {
-  VanillaV1Token01,
-  VanillaV1Token02,
-} from 'types/typechain/vanilla_v1.1'
+import { VanillaV1Token01 } from 'types/typechain/vanilla_v1.1/VanillaV1Token01'
+import { VanillaV1Token02 } from 'types/typechain/vanilla_v1.1/VanillaV1Token02'
 
 export const tokenConversionState = atom<ConversionState>({
   key: 'tokenConversionState',
-  default: ConversionState.HIDDEN,
+  default: ConversionState.LOADING,
 })
 
 export const vanillaToken1 = atom<VanillaV1Token01 | null>({

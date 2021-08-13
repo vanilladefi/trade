@@ -11,8 +11,9 @@ import useVanillaRouter from 'hooks/useVanillaRouter'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import React, { Dispatch, SetStateAction, Suspense, useEffect } from 'react'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { token0Amount, token1Amount } from 'state/trade'
+import { modalCloseEnabledState } from 'state/ui'
 import { VanillaVersion } from 'types/general'
 import { Operation } from 'types/trade'
 import ErrorDisplay from '../../ErrorDisplay'
@@ -22,7 +23,6 @@ import TradeInfoDisplay from '../../TradeInfoDisplay'
 type ContentProps = {
   operation: Operation
   setOperation: Dispatch<SetStateAction<Operation>>
-  setModalCloseEnabled: Dispatch<SetStateAction<boolean>>
 }
 
 const TokenInput = dynamic(() => import('components/Trade/TokenInput'))
@@ -81,7 +81,6 @@ const ButtonAmountDisplay = ({
 const PrepareView = ({
   operation,
   setOperation,
-  setModalCloseEnabled,
 }: ContentProps): JSX.Element => {
   const router = useRouter()
 
@@ -99,6 +98,8 @@ const PrepareView = ({
 
   const amount0 = useRecoilValue(token0Amount)
   const amount1 = useRecoilValue(token1Amount)
+
+  const setModalCloseEnabled = useSetRecoilState(modalCloseEnabledState)
 
   // Vanilla router contract
   const vanillaRouter = useVanillaRouter(VanillaVersion.V1_0)
@@ -187,7 +188,7 @@ const PrepareView = ({
                     operationText={`${
                       operation.charAt(0).toUpperCase() + operation.slice(1)
                     }ing`}
-                    tokenAmount={amount0}
+                    tokenAmount={amount0 || '0.0'}
                     tokenSymbol={token0?.symbol ?? ''}
                   />
                 ) : transactionState === TransactionState.PROCESSING ? (

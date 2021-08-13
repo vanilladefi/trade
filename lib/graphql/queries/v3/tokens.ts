@@ -17,7 +17,7 @@ const TokenABFragment = gql`
       name
       decimals
     }
-    liquidity: totalValueLockedToken1
+    liquidity: totalValueLockedUSD
     price: token0Price
   }
 `
@@ -30,18 +30,34 @@ const TokenBAFragment = gql`
       name
       decimals
     }
-    liquidity: totalValueLockedToken0
+    liquidity: totalValueLockedUSD
     price: token1Price
   }
 `
 
 export const TokenInfoQuery = gql`
-  query tokenInfo($weth: String, $tokenAddresses: [String]) {
-    tokensAB: pools(where: { token0: $weth, token1_in: $tokenAddresses }) {
+  query tokenInfo(
+    $weth: String
+    $tokenAddresses: [String]
+    $poolAddresses: [String]
+  ) {
+    tokensAB: pools(
+      where: {
+        token0: $weth
+        token1_in: $tokenAddresses
+        id_in: $poolAddresses
+      }
+    ) {
       ...TokenCommonFragment
       ...TokenABFragment
     }
-    tokensBA: pools(where: { token1: $weth, token0_in: $tokenAddresses }) {
+    tokensBA: pools(
+      where: {
+        token1: $weth
+        token0_in: $tokenAddresses
+        id_in: $poolAddresses
+      }
+    ) {
       ...TokenCommonFragment
       ...TokenBAFragment
     }
@@ -52,17 +68,30 @@ export const TokenInfoQuery = gql`
 `
 
 export const TokenInfoQueryHistorical = gql`
-  query tokenInfo($blockNumber: Int, $weth: String, $tokenAddresses: [String]) {
+  query tokenInfo(
+    $blockNumber: Int
+    $weth: String
+    $tokenAddresses: [String]
+    $poolAddresses: [String]
+  ) {
     tokensAB: pools(
       block: { number: $blockNumber }
-      where: { token0: $weth, token1_in: $tokenAddresses }
+      where: {
+        token0: $weth
+        token1_in: $tokenAddresses
+        id_in: $poolAddresses
+      }
     ) {
       ...TokenCommonFragment
       ...TokenABFragment
     }
     tokensBA: pools(
       block: { number: $blockNumber }
-      where: { token1: $weth, token0_in: $tokenAddresses }
+      where: {
+        token1: $weth
+        token0_in: $tokenAddresses
+        id_in: $poolAddresses
+      }
     ) {
       ...TokenCommonFragment
       ...TokenBAFragment
@@ -74,12 +103,20 @@ export const TokenInfoQueryHistorical = gql`
 `
 
 export const TokenInfoSubAB = gql`
-  subscription tokenInfoAB($weth: String, $tokenAddresses: [String]) {
+  subscription tokenInfoAB(
+    $weth: String
+    $tokenAddresses: [String]
+    $poolAddresses: [String]
+  ) {
     tokens: pools(
-      where: { token0: $weth, token1_in: $tokenAddresses, feeTier: "3000" }
+      where: {
+        token0: $weth
+        token1_in: $tokenAddresses
+        id_in: $$poolAddresses
+      }
     ) {
       pairId: id
-      liquidity: totalValueLockedToken0
+      liquidity: totalValueLockedUSD
       inRangeLiquidity: liquidity
       feeTier
       sqrtPrice
@@ -95,12 +132,20 @@ export const TokenInfoSubAB = gql`
 `
 
 export const TokenInfoSubBA = gql`
-  subscription tokenInfoBA($weth: String, $tokenAddresses: [String]) {
+  subscription tokenInfoBA(
+    $weth: String
+    $tokenAddresses: [String]
+    $poolAddresses: [String]
+  ) {
     tokens: pools(
-      where: { token1: $weth, token0_in: $tokenAddresses, feeTier: "3000" }
+      where: {
+        token1: $weth
+        token0_in: $tokenAddresses
+        id_in: $$poolAddresses
+      }
     ) {
       pairId: id
-      liquidity: totalValueLockedToken1
+      liquidity: totalValueLockedUSD
       inRangeLiquidity: liquidity
       feeTier
       sqrtPrice
