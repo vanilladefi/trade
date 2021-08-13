@@ -8,7 +8,7 @@ import {
   storedWalletConnectorState,
 } from 'state/wallet'
 import { useWallet, Wallet } from 'use-wallet'
-import { apiKey, chainId, useWebsocketRpc } from 'utils/config'
+import { apiKey, network, useWebsocketRpc } from 'utils/config'
 
 type JsonRpcWallet = Wallet<providers.JsonRpcProvider>
 
@@ -27,10 +27,11 @@ const WalletConnector = (): null => {
   const setProvider = useSetRecoilState(providerState)
 
   const initialLoad = useRecoilCallback(
-    ({ snapshot }) => async () => {
-      const stored = await snapshot.getPromise(storedWalletConnectorState)
-      if (!walletType && status === 'disconnected' && stored) connect(stored)
-    },
+    ({ snapshot }) =>
+      async () => {
+        const stored = await snapshot.getPromise(storedWalletConnectorState)
+        if (!walletType && status === 'disconnected' && stored) connect(stored)
+      },
     [walletType, status, connect],
   )
 
@@ -44,43 +45,32 @@ const WalletConnector = (): null => {
       let ethersSigner: providers.JsonRpcSigner
 
       if (useWebsocketRpc && apiKey) {
-        ethersProvider = new providers.AlchemyWebSocketProvider(
-          providers.getNetwork(chainId),
-          apiKey,
-        )
-        ethersSigner = new providers.Web3Provider(
-          ethereum as providers.ExternalProvider,
-        ).getSigner()
+        ethersProvider = new providers.AlchemyWebSocketProvider(network, apiKey)
       } else if (apiKey) {
-        ethersProvider = new providers.AlchemyProvider(
-          providers.getNetwork(chainId),
-          apiKey,
-        )
-        ethersSigner = new providers.Web3Provider(
-          ethereum as providers.ExternalProvider,
-        ).getSigner()
+        ethersProvider = new providers.AlchemyProvider(network, apiKey)
       } else if (useWebsocketRpc) {
         ethersProvider = new providers.WebSocketProvider(
           'ws://localhost:8545',
-          providers.getNetwork(chainId),
+          network,
         )
-        ethersSigner = new providers.Web3Provider(
-          ethereum as providers.ExternalProvider,
-        ).getSigner()
       } else {
         ethersProvider = new providers.Web3Provider(
           ethereum as providers.ExternalProvider,
-          providers.getNetwork(chainId),
+          network,
         )
-        ethersSigner = ethersProvider.getSigner()
       }
+
+      ethersSigner = new providers.Web3Provider(
+        ethereum as providers.ExternalProvider,
+        network,
+      ).getSigner()
 
       setProvider(ethersProvider)
       setSigner(ethersSigner)
     } else {
       setSigner(null)
     }
-  }, [ethereum, setSigner, setProvider, connector])
+  }, [ethereum, setSigner, setProvider])
 
   useEffect(() => {
     initialLoad()

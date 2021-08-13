@@ -6,10 +6,13 @@ import { SmallTitle } from 'components/typography/Titles'
 import { formatUnits } from 'ethers/lib/utils'
 import useTransaction from 'hooks/useTransaction'
 import React, { Suspense, useCallback } from 'react'
+import { VanillaVersion } from 'types/general'
+import { vnlDecimals } from 'utils/config'
 
 type Props = {
   id: string
   closeModal: () => void
+  version: VanillaVersion
 }
 
 const Loading = (): JSX.Element => (
@@ -31,33 +34,33 @@ const Loading = (): JSX.Element => (
   </Row>
 )
 
-const SuccessView = ({ id, closeModal }: Props): JSX.Element => {
-  const transaction = useTransaction(id)
+const SuccessView = ({ id, closeModal, version }: Props): JSX.Element => {
+  const transaction = useTransaction(version, id)
 
   const amountPaid = useCallback(() => {
     return transaction
       ? parseFloat(
-        formatUnits(
-          transaction.amountPaid || '0',
-          transaction.paid?.decimals,
-        ),
-      )
+          formatUnits(
+            transaction.amountPaid || '0',
+            transaction.paid?.decimals,
+          ),
+        )
       : 0
   }, [transaction])
 
   const amountReceived = useCallback(() => {
     return transaction
       ? parseFloat(
-        formatUnits(
-          transaction.amountReceived || '0',
-          transaction.received?.decimals,
-        ),
-      )
+          formatUnits(
+            transaction.amountReceived || '0',
+            transaction.received?.decimals,
+          ),
+        )
       : 0
   }, [transaction])
 
   const reward = useCallback(() => {
-    return formatUnits(transaction?.reward?.toString() || '0', 12)
+    return formatUnits(transaction?.reward?.toString() || '0', vnlDecimals)
   }, [transaction])
 
   return (

@@ -1,45 +1,58 @@
+import { Trade as V2Trade } from '@uniswap/sdk'
 import {
   Token as UniswapToken,
   TokenAmount,
-  Trade,
   TradeType,
-} from '@uniswap/sdk'
+} from '@uniswap/sdk-core'
+import { FeeAmount } from '@uniswap/v3-sdk'
 import { BigNumber } from 'ethers'
 import { formatUnits, getAddress, isAddress } from 'ethers/lib/utils'
+import { UniswapVersion } from 'lib/graphql'
 import { tokenListChainId } from 'lib/tokens'
-import { constructTrade } from 'lib/uniswap/trade'
-import {
-  estimateReward,
-  getEpoch,
-  getPriceData,
-  RewardResponse,
-  TokenPriceResponse,
-} from 'lib/vanilla'
+import { constructTrade as constructV2Trade } from 'lib/uniswap/v2/trade'
+import { constructTrade as constructV3Trade } from 'lib/uniswap/v3/trade'
+import { estimateReward, getEpoch, getPriceData } from 'lib/vanilla'
 import { useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { currentETHPrice } from 'state/meta'
-import { allTokensStoreState, userTokensState } from 'state/tokens'
+import {
+  uniswapV2TokenState,
+  uniswapV3TokenState,
+  userV2TokensState,
+  userV3TokensState,
+} from 'state/tokens'
 import { selectedCounterAsset } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
-import { Token } from 'types/trade'
+import { VanillaVersion } from 'types/general'
+import {
+  RewardEstimate,
+  RewardResponse,
+  Token,
+  TokenPriceResponse,
+  V3Trade,
+} from 'types/trade'
 import { useWallet } from 'use-wallet'
 import useETHPrice from './useETHPrice'
 import useVanillaGovernanceToken from './useVanillaGovernanceToken'
 import useVanillaRouter from './useVanillaRouter'
 import useWalletAddress from './useWalletAddress'
 
-function useUserPositions(): Token[] | null {
-  useETHPrice()
+function useUserPositions(version: VanillaVersion): Token[] | null {
+  useETHPrice(UniswapVersion.v3)
   const ETHPrice = useRecoilValue(currentETHPrice)
-  const allTokens = useRecoilValue(allTokensStoreState)
+  const allTokens = useRecoilValue(
+    version === VanillaVersion.V1_0 ? uniswapV2TokenState : uniswapV3TokenState,
+  )
   const counterAsset = useRecoilValue(selectedCounterAsset)
-  const [tokens, setTokens] = useRecoilState(userTokensState)
-  const vanillaRouter = useVanillaRouter()
+  const [tokens, setTokens] = useRecoilState(
+    version === VanillaVersion.V1_0 ? userV2TokensState : userV3TokensState,
+  )
+  const vanillaRouter = useVanillaRouter(version)
   const { long: userAddress } = useWalletAddress()
   const provider = useRecoilValue(providerState)
   const signer = useRecoilValue(signerState)
   const wallet = useWallet()
-  const vnl = useVanillaGovernanceToken()
+  const vnl = useVanillaGovernanceToken(version)
   const million = 1000000
 
   useEffect(() => {
@@ -58,12 +71,10 @@ function useUserPositions(): Token[] | null {
           tokensWithBalance = await Promise.all(
             tokens.map(async (token) => {
               // Fetch price data from Vanilla router
-              let tokenSum
+              let tokenSum: BigNumber
               try {
-                const priceResponse: TokenPriceResponse = await vanillaRouter.tokenPriceData(
-                  userAddress,
-                  token.address,
-                )
+                const priceResponse: TokenPriceResponse =
+                  await vanillaRouter.tokenPriceData(userAddress, token.address)
                 tokenSum = priceResponse.tokenSum
               } catch (e) {
                 tokenSum = BigNumber.from('0')
@@ -79,9 +90,9 @@ function useUserPositions(): Token[] | null {
 
                 // Construct helpers for upcoming calculations
                 const parsedUniToken = new UniswapToken(
-                  token.chainId,
+                  Number(token.chainId),
                   getAddress(token.address),
-                  token.decimals,
+                  Number(token.decimals),
                 )
 
                 // Construct token amount from Vanilla router reported amounts
@@ -105,15 +116,25 @@ function useUserPositions(): Token[] | null {
                     : 0
 
                 // Get current best trade from Uniswap to calculate available rewards
-                let trade: Trade | null
+                let trade: V2Trade | V3Trade | null
                 try {
-                  trade = await constructTrade(
-                    tokenAmount.toSignificant(),
-                    counterAsset,
-                    token,
-                    provider,
-                    TradeType.EXACT_INPUT,
-                  )
+                  if (version === VanillaVersion.V1_0) {
+                    trade = await constructV2Trade(
+                      provider,
+                      tokenAmount.toSignificant(),
+                      counterAsset,
+                      token,
+                      TradeType.EXACT_INPUT,
+                    )
+                  } else if (version === VanillaVersion.V1_1) {
+                    trade = await constructV3Trade(
+                      signer,
+                      tokenAmount.toSignificant(),
+                      counterAsset,
+                      token,
+                      TradeType.EXACT_INPUT,
+                    )
+                  }
                 } catch (e) {
                   trade = null
                 }
@@ -131,6 +152,7 @@ function useUserPositions(): Token[] | null {
                   // Get reward estimate from Vanilla router
                   reward = amountOut
                     ? await estimateReward(
+                        version,
                         signer,
                         token,
                         counterAsset,
@@ -143,9 +165,12 @@ function useUserPositions(): Token[] | null {
                   reward = null
                 }
 
-                // Parse VPC
-                const vpcNum = reward?.vpc.toNumber() ?? 0
-                const vpc: string = (vpcNum / million).toString()
+                let vpc: string | undefined
+                if (reward?.vpc) {
+                  // Parse VPC
+                  const vpcNum = reward?.vpc.toNumber() ?? 0
+                  vpc = (vpcNum / million).toString()
+                }
 
                 // Calculate HTRS
                 let priceData,
@@ -153,9 +178,9 @@ function useUserPositions(): Token[] | null {
                   epoch: BigNumber | null = BigNumber.from('0')
                 let htrs: string
                 try {
-                  priceData = await getPriceData(signer, token.address)
+                  priceData = await getPriceData(version, signer, token.address)
                   blockNumber = await provider.getBlockNumber()
-                  epoch = await getEpoch(signer)
+                  epoch = await getEpoch(version, signer)
                   const avgBlock =
                     priceData?.weightedBlockSum.div(priceData?.tokenSum) ??
                     BigNumber.from('0')
@@ -177,8 +202,36 @@ function useUserPositions(): Token[] | null {
                 }
 
                 // Parse the minimum profitable price from the reward estimate
-                const profitablePrice =
-                  reward && parseFloat(formatUnits(reward?.profitablePrice))
+                let profitablePrice: number | undefined
+                let usedEstimate: keyof RewardEstimate
+                if (
+                  version === VanillaVersion.V1_0 &&
+                  reward?.profitablePrice
+                ) {
+                  profitablePrice = parseFloat(
+                    formatUnits(reward.profitablePrice),
+                  )
+                } else if (
+                  version === VanillaVersion.V1_1 &&
+                  reward?.estimate
+                ) {
+                  switch (Number(token.fee)) {
+                    case FeeAmount.LOW:
+                      usedEstimate = 'low'
+                      break
+                    case FeeAmount.MEDIUM:
+                      usedEstimate = 'medium'
+                      break
+                    case FeeAmount.HIGH:
+                      usedEstimate = 'high'
+                      break
+                    default:
+                      usedEstimate = 'medium'
+                  }
+                  profitablePrice = parseFloat(
+                    formatUnits(reward?.estimate[usedEstimate].profitablePrice),
+                  )
+                }
 
                 // Calculate profit percentage
                 const profitPercentage =
@@ -187,14 +240,25 @@ function useUserPositions(): Token[] | null {
                     : 0
 
                 // Parse the available VNL reward
-                const parsedVnl = reward
-                  ? parseFloat(
-                      new TokenAmount(
-                        vnlToken,
-                        reward.reward.toString(),
-                      ).toSignificant(),
-                    )
-                  : 0
+                let parsedVnl = 0
+                if (version === VanillaVersion.V1_0 && reward?.reward) {
+                  parsedVnl = parseFloat(
+                    new TokenAmount(
+                      vnlToken,
+                      reward.reward.toString(),
+                    ).toSignificant(),
+                  )
+                } else if (
+                  version === VanillaVersion.V1_1 &&
+                  reward?.estimate
+                ) {
+                  parsedVnl = parseFloat(
+                    new TokenAmount(
+                      vnlToken,
+                      reward.estimate[usedEstimate].reward.toString(),
+                    ).toSignificant(),
+                  )
+                }
 
                 return {
                   ...token,
@@ -212,6 +276,7 @@ function useUserPositions(): Token[] | null {
             }),
           )
         } catch (e) {
+          console.error(e)
           tokensWithBalance = []
         }
       } /* else if (wallet.status === 'connected' && !isAddress(vnl.address)) {
@@ -229,10 +294,12 @@ function useUserPositions(): Token[] | null {
   }, [
     userAddress,
     counterAsset,
-    ETHPrice,
     wallet.status,
     setTokens,
     vnl.address,
+    provider,
+    signer,
+    version,
   ])
 
   return tokens

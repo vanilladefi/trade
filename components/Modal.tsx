@@ -2,6 +2,8 @@ import classNames from 'classnames'
 import useKeyboardInputListener from 'hooks/useKeyboardInputListener'
 import Image from 'next/image'
 import React, { ReactNode, useEffect, useState } from 'react'
+import { useRecoilValue } from 'recoil'
+import { modalCloseEnabledState } from 'state/ui'
 
 type Callback = () => void
 type Props = {
@@ -16,11 +18,15 @@ const Modal = ({
   onRequestClose,
 }: Props): JSX.Element => {
   const [isOpen, setOpen] = useState(false)
+  const modalCloseEnabled = useRecoilValue(modalCloseEnabledState)
+
   const curtainClasses = classNames('curtain', { closed: !isOpen })
 
   const close = () => {
-    setOpen(false)
-    setTimeout(() => onRequestClose && onRequestClose(), 200)
+    if (modalCloseEnabled) {
+      setOpen(false)
+      setTimeout(() => onRequestClose && onRequestClose(), 200)
+    }
   }
 
   useKeyboardInputListener(['Escape', 'Esc'], close)

@@ -1,30 +1,44 @@
-import { MetaSubscription, thegraphClientSub } from 'lib/graphql'
+import {
+  getTheGraphClient,
+  MetaSubscription,
+  UniswapVersion,
+} from 'lib/graphql'
 import { useEffect } from 'react'
-import { useRecoilState } from 'recoil'
+import { useSetRecoilState } from 'recoil'
 import { currentBlockNumberState } from 'state/meta'
+import { VanillaVersion } from 'types/general'
 import type { MetaQueryResponse } from 'types/trade'
 
 interface subReturnValue {
   data: MetaQueryResponse
 }
 
-export default function useMetaSubscription(): void {
-  const [currentBlockNumber, setCurrentBlockNumber] = useRecoilState(
-    currentBlockNumberState,
-  )
+export default function useMetaSubscription(version: VanillaVersion): void {
+  const setCurrentBlockNumber = useSetRecoilState(currentBlockNumberState)
 
   useEffect(() => {
-    const subMeta = thegraphClientSub
-      .request({ query: MetaSubscription })
-      .subscribe({
-        next: ({ data }: subReturnValue) =>
-          data?._meta.block.number > currentBlockNumber &&
-          setCurrentBlockNumber(data?._meta.block.number),
-      })
+    let usedUniswapVersion: UniswapVersion
+    switch (version) {
+      case VanillaVersion.V1_0:
+        usedUniswapVersion = UniswapVersion.v2
+        break
+      case VanillaVersion.V1_1:
+        usedUniswapVersion = UniswapVersion.v3
+        break
+      default:
+        usedUniswapVersion = UniswapVersion.v3
+    }
+
+    const { ws } = getTheGraphClient(usedUniswapVersion)
+    const subMeta = ws?.request({ query: MetaSubscription }).subscribe({
+      next: ({ data }: subReturnValue) => {
+        data?._meta.block.number &&
+          setCurrentBlockNumber(data?._meta.block.number)
+      },
+    })
 
     return () => {
-      subMeta.unsubscribe()
+      subMeta?.unsubscribe()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setCurrentBlockNumber])
+  }, [setCurrentBlockNumber, version])
 }
