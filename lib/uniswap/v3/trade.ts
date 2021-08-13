@@ -1,27 +1,91 @@
 import {
+  CurrencyAmount,
+  Fraction,
+  Percent,
+  Price,
   Token as UniswapToken,
   TokenAmount,
   TradeType,
 } from '@uniswap/sdk-core'
-import {
-  FeeAmount,
-  nearestUsableTick,
-  Pool,
-  Route,
-  TickMath,
-  TICK_SPACINGS,
-  Trade,
-} from '@uniswap/v3-sdk'
-import { ethers, Transaction } from 'ethers'
-import { getAddress, parseUnits } from 'ethers/lib/utils'
-import JSBI from 'jsbi'
+import { FeeAmount } from '@uniswap/v3-sdk'
+import { BigNumber, Signer, Transaction } from 'ethers'
+import { formatUnits, getAddress, parseUnits } from 'ethers/lib/utils'
 import { isAddress, tokenListChainId } from 'lib/tokens'
 import { VanillaVersion } from 'types/general'
-import type { Token, UniSwapToken } from 'types/trade'
-import { VanillaV1Router02__factory } from 'types/typechain/factories/VanillaV1Router02__factory'
-import { ethersOverrides, getVanillaRouterAddress } from 'utils/config'
+import { Token, UniSwapToken } from 'types/trade'
+import { Quoter, Quoter__factory } from 'types/typechain/uniswap_v3_periphery'
+import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Router02__factory'
+import {
+  conservativeGasLimit,
+  ethersOverrides,
+  getUniswapQuoterAddress,
+  getVanillaRouterAddress,
+} from 'utils/config'
 import { getFeeTier } from 'utils/transactions'
 import { TransactionProps } from '..'
+
+export const UniswapOracle = (oracle: Quoter) => ({
+  swap(tokenIn: string, tokenOut: string) {
+    return {
+      swapParamsIn(amountIn: TokenAmount, fee: number) {
+        return {
+          tokenIn,
+          tokenOut,
+          fee: fee,
+          sqrtPriceLimitX96: 0,
+          amountIn: amountIn.raw.toString(),
+        }
+      },
+      swapParamsOut(amountOut: TokenAmount, fee: number) {
+        return {
+          tokenIn,
+          tokenOut,
+          fee: fee,
+          sqrtPriceLimitX96: 0,
+          amountOut: amountOut.raw.toString(),
+        }
+      },
+      async estimateAmountOut(amountIn: TokenAmount, fee: number) {
+        try {
+          const swapParams = this.swapParamsIn(amountIn, fee)
+
+          return await oracle.callStatic.quoteExactInputSingle(
+            swapParams.tokenIn,
+            swapParams.tokenOut,
+            fee,
+            swapParams.amountIn,
+            swapParams.sqrtPriceLimitX96,
+            {
+              gasLimit: conservativeGasLimit,
+            },
+          )
+        } catch (e) {
+          console.error(e)
+          return undefined
+        }
+      },
+      async estimateAmountIn(amountOut: TokenAmount, fee: number) {
+        try {
+          const swapParams = this.swapParamsOut(amountOut, fee)
+
+          return await oracle.callStatic.quoteExactOutputSingle(
+            swapParams.tokenIn,
+            swapParams.tokenOut,
+            fee,
+            swapParams.amountOut,
+            swapParams.sqrtPriceLimitX96,
+            {
+              gasLimit: conservativeGasLimit,
+            },
+          )
+        } catch (e) {
+          console.error(e)
+          return undefined
+        }
+      },
+    }
+  },
+})
 
 export const buy = async ({
   amountPaid,
@@ -38,7 +102,7 @@ export const buy = async ({
     const usedGasLimit = gasLimit ? gasLimit : ethersOverrides.gasLimit
     const orderData = {
       token: tokenReceived.address,
-      wethOwner: vnl1_1Addr,
+      useWETH: false,
       numEth: amountPaid,
       numToken: amountReceived,
       blockTimeDeadline: blockDeadline,
@@ -69,7 +133,7 @@ export const sell = async ({
     const usedGasLimit = gasLimit ? gasLimit : ethersOverrides.gasLimit
     const orderData = {
       token: tokenPaid.address,
-      wethOwner: ethers.constants.AddressZero,
+      useWETH: false,
       numEth: amountReceived,
       numToken: amountPaid,
       blockTimeDeadline: blockDeadline,
@@ -85,89 +149,128 @@ export const sell = async ({
   }
 }
 
+class V3Trade {
+  public inputAmount: TokenAmount
+  public outputAmount: TokenAmount
+  public tradeType: TradeType
+  public slippageTolerance: Percent
+  public price: Price
+
+  public route = null
+
+  constructor(
+    inputAmount: TokenAmount,
+    outputAmount: TokenAmount,
+    tradeType: TradeType,
+  ) {
+    this.inputAmount = inputAmount
+    this.outputAmount = outputAmount
+    this.tradeType = tradeType
+    this.price = new Price(
+      inputAmount.token,
+      outputAmount.token,
+      inputAmount.raw.toString(),
+      outputAmount.raw.toString(),
+    )
+    this.route = null
+  }
+
+  worstExecutionPrice() {
+    return this.price
+  }
+
+  get executionPrice() {
+    return this.price
+  }
+
+  minimumAmountOut(slippageTolerance: Percent) {
+    if (this.tradeType === TradeType.EXACT_OUTPUT) {
+      return this.outputAmount
+    } else {
+      const slippageAdjustedAmountOut = new Fraction(1)
+        .add(slippageTolerance)
+        .invert()
+        .multiply(this.outputAmount.raw).quotient
+      return this.outputAmount instanceof TokenAmount
+        ? new TokenAmount(this.outputAmount.token, slippageAdjustedAmountOut)
+        : CurrencyAmount.ether(slippageAdjustedAmountOut)
+    }
+  }
+
+  maximumAmountIn(slippageTolerance: Percent) {
+    if (this.tradeType === TradeType.EXACT_INPUT) {
+      return this.inputAmount
+    } else {
+      const slippageAdjustedAmountIn = new Fraction(1)
+        .add(slippageTolerance)
+        .multiply(this.inputAmount.raw).quotient
+      return this.inputAmount instanceof TokenAmount
+        ? new TokenAmount(this.inputAmount.token, slippageAdjustedAmountIn)
+        : CurrencyAmount.ether(slippageAdjustedAmountIn)
+    }
+  }
+}
+
 // Pricing function for UniSwap v3 trades
 export async function constructTrade(
+  signer: Signer,
   amountToTrade: string, // Not amountPaid because of tradeType
   tokenReceived: Token,
   tokenPaid: Token,
-  tradeType = TradeType.EXACT_OUTPUT,
-): Promise<Trade> {
+  tradeType: TradeType,
+): Promise<V3Trade> {
   const defaultFeeTier = FeeAmount.MEDIUM
   try {
-    // The asset that "amountToTrade" refers to changes on tradetype,
-    // so we need to set asset and counterAsset here
-    const asset =
+    const tokenToTrade =
       tradeType === TradeType.EXACT_OUTPUT ? tokenReceived : tokenPaid
-    const counterAsset =
+    const quotedToken =
       tradeType === TradeType.EXACT_OUTPUT ? tokenPaid : tokenReceived
 
     // Convert the decimal amount to a UniSwap TokenAmount
-    const parsedAmountTraded = tryParseAmount(amountToTrade, asset)
+    const parsedAmountTraded = tryParseAmount(amountToTrade, tokenToTrade)
     if (!parsedAmountTraded)
       return Promise.reject(`Failed to parse input amount: ${amountToTrade}`)
-
-    // Convert our own token format to UniSwap SDK format
-    const convertedAsset = new UniswapToken(
-      Number(asset.chainId),
-      getAddress(asset.address),
-      Number(asset.decimals),
-    )
-    const convertedCounterAsset = new UniswapToken(
-      Number(counterAsset.chainId),
-      getAddress(counterAsset.address),
-      Number(counterAsset.decimals),
-    )
-
-    const liquidity =
-      tokenReceived.inRangeLiquidity || tokenPaid.inRangeLiquidity || null
-    const sqrtPrice = tokenReceived.sqrtPrice || tokenPaid.sqrtPrice || null
 
     const feeTier =
       getFeeTier(tokenReceived.fee) ||
       getFeeTier(tokenPaid.fee) ||
       defaultFeeTier
 
-    if (liquidity !== null && sqrtPrice !== null) {
-      const liquidityJSBI = JSBI.BigInt(liquidity)
-      const sqrtPriceJSBI = JSBI.BigInt(sqrtPrice)
+    const uniV3Oracle = Quoter__factory.connect(
+      getUniswapQuoterAddress(),
+      signer,
+    )
 
-      // Construct pool based on TheGraph data
-      const pool = new Pool(
-        convertedAsset,
-        convertedCounterAsset,
-        feeTier,
-        sqrtPriceJSBI,
-        liquidityJSBI,
-        TickMath.getTickAtSqrtRatio(sqrtPriceJSBI),
-        [
-          {
-            index: nearestUsableTick(TickMath.MIN_TICK, TICK_SPACINGS[feeTier]),
-            liquidityNet: liquidityJSBI,
-            liquidityGross: liquidityJSBI,
-          },
-          {
-            index: nearestUsableTick(TickMath.MAX_TICK, TICK_SPACINGS[feeTier]),
-            liquidityNet: JSBI.multiply(liquidityJSBI, JSBI.BigInt(-1)),
-            liquidityGross: liquidityJSBI,
-          },
-        ],
+    const swapOperation = UniswapOracle(uniV3Oracle).swap(
+      isAddress(tokenPaid.address) || tokenPaid.address,
+      isAddress(tokenReceived.address) || tokenReceived.address,
+    )
+
+    let quote: BigNumber = BigNumber.from(0)
+    if (tradeType === TradeType.EXACT_INPUT) {
+      const amountOut = await swapOperation.estimateAmountOut(
+        parsedAmountTraded,
+        feeTier.valueOf(),
       )
-
-      // Construct a route based on the parsed liquidity pool
-      const route = new Route(
-        [pool],
-        tradeType === TradeType.EXACT_OUTPUT
-          ? convertedCounterAsset
-          : convertedAsset,
-      )
-
-      // Construct a trade with UniSwap SDK
-      const trade = await Trade.fromRoute(route, parsedAmountTraded, tradeType)
-
-      return trade
+      quote = amountOut
     } else {
-      return Promise.reject('Liquidity and price info incorrect!')
+      const amountIn = await swapOperation.estimateAmountIn(
+        parsedAmountTraded,
+        feeTier.valueOf(),
+      )
+      quote = amountIn
     }
+
+    const formattedQuote = formatUnits(quote, quotedToken.decimals)
+    const parsedQuote = tryParseAmount(formattedQuote, quotedToken)
+
+    const trade: V3Trade = new V3Trade(
+      tradeType === TradeType.EXACT_INPUT ? parsedAmountTraded : parsedQuote,
+      tradeType === TradeType.EXACT_INPUT ? parsedQuote : parsedAmountTraded,
+      tradeType,
+    )
+
+    return trade
   } catch (error) {
     console.error(error)
     throw error

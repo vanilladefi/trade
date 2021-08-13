@@ -1,46 +1,6 @@
 [
   {
     "chainId": 1,
-    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "name": "USD Coin",
-    "symbol": "USDC",
-    "decimals": 6,
-    "logoURI": "https://etherscan.io/token/images/centre-usdc_28.png",
-    "pool": "0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8",
-    "fee": 3000
-  },
-  {
-    "chainId": 1,
-    "address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
-    "name": "Tether USD",
-    "symbol": "USDT",
-    "decimals": 6,
-    "logoURI": "https://etherscan.io/token/images/tether_32.png",
-    "pool": "0x4e68ccd3e89f51c3074ca5072bbac773960dfa36",
-    "fee": 3000
-  },
-  {
-    "chainId": 1,
-    "address": "0x6b175474e89094c44da98b954eedeac495271d0f",
-    "name": "Dai Stablecoin",
-    "symbol": "DAI",
-    "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/MCDDai_32.png",
-    "pool": "0xc2e9f25be6257c210d7adf0d4cd6e3e881ba25f8",
-    "fee": 3000
-  },
-  {
-    "chainId": 1,
-    "address": "0x5f98805a4e8be255a32880fdec7f6728c6568ba0",
-    "name": "Liquity USD",
-    "symbol": "LUSD",
-    "decimals": 18,
-    "logoURI": "https://etherscan.io/token/images/liquitylusd_32.png",
-    "pool": "0x9663f2ca0454accad3e094448ea6f77443880454",
-    "fee": 3000
-  },
-  {
-    "chainId": 1,
     "address": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
     "name": "Wrapped BTC",
     "symbol": "BTC",
@@ -116,8 +76,8 @@
     "symbol": "TRIBE",
     "decimals": 18,
     "logoURI": "https://etherscan.io/token/images/tribe_32.png",
-    "pool": "0xe2c5d82523e0e767b83d78e2bfc6fcd74d1432ef",
-    "fee": 10000
+    "pool": "0xf87bb87fd9ea1c260ddf77b9c707ad9437ff8364",
+    "fee": 3000
   },
   {
     "chainId": 1,
@@ -156,8 +116,8 @@
     "symbol": "AUDIO",
     "decimals": 18,
     "logoURI": "https://etherscan.io/token/images/audius_32.png",
-    "pool": "0xd2e0add90e86079b9961fa232178049503e06401",
-    "fee": 10000
+    "pool": "0x8ecc2244e67d0bb6a1850b1db825e25354cf881a",
+    "fee": 3000
   },
   {
     "chainId": 1,
@@ -206,8 +166,8 @@
     "symbol": "QUICK",
     "decimals": 18,
     "logoURI": "https://etherscan.io/token/images/quickswap_32.png",
-    "pool": "0x3840d56cfe2c80ec2d6555dcda986a0982b0d2db",
-    "fee": 3000
+    "pool": "0xaf1291730f716e13791d3bd837c7c31111a01778",
+    "fee": 10000
   },
   {
     "chainId": 1,
@@ -266,8 +226,8 @@
     "symbol": "OCEAN",
     "decimals": 18,
     "logoURI": "https://etherscan.io/token/images/oceantoken_28.png",
-    "pool": "0xa75ede894aa5e767674dd8043109b90ad4637b6f",
-    "fee": 10000
+    "pool": "0x283e2e83b7f3e297c4b7c02114ab0196b001a109",
+    "fee": 3000
   },
   {
     "chainId": 1,

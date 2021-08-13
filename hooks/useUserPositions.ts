@@ -1,21 +1,17 @@
+import { Trade as V2Trade } from '@uniswap/sdk'
 import {
   Token as UniswapToken,
   TokenAmount,
   TradeType,
 } from '@uniswap/sdk-core'
-import { Trade } from '@uniswap/v2-sdk'
+import { FeeAmount } from '@uniswap/v3-sdk'
 import { BigNumber } from 'ethers'
 import { formatUnits, getAddress, isAddress } from 'ethers/lib/utils'
 import { UniswapVersion } from 'lib/graphql'
 import { tokenListChainId } from 'lib/tokens'
 import { constructTrade as constructV2Trade } from 'lib/uniswap/v2/trade'
-import {
-  estimateReward,
-  getEpoch,
-  getPriceData,
-  RewardResponse,
-  TokenPriceResponse,
-} from 'lib/vanilla'
+import { constructTrade as constructV3Trade } from 'lib/uniswap/v3/trade'
+import { estimateReward, getEpoch, getPriceData } from 'lib/vanilla'
 import { useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { currentETHPrice } from 'state/meta'
@@ -28,7 +24,13 @@ import {
 import { selectedCounterAsset } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
-import { Token } from 'types/trade'
+import {
+  RewardEstimate,
+  RewardResponse,
+  Token,
+  TokenPriceResponse,
+  V3Trade,
+} from 'types/trade'
 import { useWallet } from 'use-wallet'
 import useETHPrice from './useETHPrice'
 import useVanillaGovernanceToken from './useVanillaGovernanceToken'
@@ -69,7 +71,7 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
           tokensWithBalance = await Promise.all(
             tokens.map(async (token) => {
               // Fetch price data from Vanilla router
-              let tokenSum
+              let tokenSum: BigNumber
               try {
                 const priceResponse: TokenPriceResponse =
                   await vanillaRouter.tokenPriceData(userAddress, token.address)
@@ -114,14 +116,25 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
                     : 0
 
                 // Get current best trade from Uniswap to calculate available rewards
-                let trade: Trade | null
+                let trade: V2Trade | V3Trade | null
                 try {
-                  trade = await constructV2Trade(
-                    tokenAmount.toSignificant(),
-                    counterAsset,
-                    token,
-                    TradeType.EXACT_INPUT,
-                  )
+                  if (version === VanillaVersion.V1_0) {
+                    trade = await constructV2Trade(
+                      provider,
+                      tokenAmount.toSignificant(),
+                      counterAsset,
+                      token,
+                      TradeType.EXACT_INPUT,
+                    )
+                  } else if (version === VanillaVersion.V1_1) {
+                    trade = await constructV3Trade(
+                      signer,
+                      tokenAmount.toSignificant(),
+                      counterAsset,
+                      token,
+                      TradeType.EXACT_INPUT,
+                    )
+                  }
                 } catch (e) {
                   trade = null
                 }
@@ -152,9 +165,12 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
                   reward = null
                 }
 
-                // Parse VPC
-                const vpcNum = reward?.vpc.toNumber() ?? 0
-                const vpc: string = (vpcNum / million).toString()
+                let vpc: string | undefined
+                if (reward?.vpc) {
+                  // Parse VPC
+                  const vpcNum = reward?.vpc.toNumber() ?? 0
+                  vpc = (vpcNum / million).toString()
+                }
 
                 // Calculate HTRS
                 let priceData,
@@ -186,8 +202,36 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
                 }
 
                 // Parse the minimum profitable price from the reward estimate
-                const profitablePrice =
-                  reward && parseFloat(formatUnits(reward?.profitablePrice))
+                let profitablePrice: number | undefined
+                let usedEstimate: keyof RewardEstimate
+                if (
+                  version === VanillaVersion.V1_0 &&
+                  reward?.profitablePrice
+                ) {
+                  profitablePrice = parseFloat(
+                    formatUnits(reward.profitablePrice),
+                  )
+                } else if (
+                  version === VanillaVersion.V1_1 &&
+                  reward?.estimate
+                ) {
+                  switch (Number(token.fee)) {
+                    case FeeAmount.LOW:
+                      usedEstimate = 'low'
+                      break
+                    case FeeAmount.MEDIUM:
+                      usedEstimate = 'medium'
+                      break
+                    case FeeAmount.HIGH:
+                      usedEstimate = 'high'
+                      break
+                    default:
+                      usedEstimate = 'medium'
+                  }
+                  profitablePrice = parseFloat(
+                    formatUnits(reward?.estimate[usedEstimate].profitablePrice),
+                  )
+                }
 
                 // Calculate profit percentage
                 const profitPercentage =
@@ -196,14 +240,25 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
                     : 0
 
                 // Parse the available VNL reward
-                const parsedVnl = reward
-                  ? parseFloat(
-                      new TokenAmount(
-                        vnlToken,
-                        reward.reward.toString(),
-                      ).toSignificant(),
-                    )
-                  : 0
+                let parsedVnl = 0
+                if (version === VanillaVersion.V1_0 && reward?.reward) {
+                  parsedVnl = parseFloat(
+                    new TokenAmount(
+                      vnlToken,
+                      reward.reward.toString(),
+                    ).toSignificant(),
+                  )
+                } else if (
+                  version === VanillaVersion.V1_1 &&
+                  reward?.estimate
+                ) {
+                  parsedVnl = parseFloat(
+                    new TokenAmount(
+                      vnlToken,
+                      reward.estimate[usedEstimate].reward.toString(),
+                    ).toSignificant(),
+                  )
+                }
 
                 return {
                   ...token,
@@ -221,6 +276,7 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
             }),
           )
         } catch (e) {
+          console.error(e)
           tokensWithBalance = []
         }
       } /* else if (wallet.status === 'connected' && !isAddress(vnl.address)) {
@@ -238,10 +294,12 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
   }, [
     userAddress,
     counterAsset,
-    ETHPrice,
     wallet.status,
     setTokens,
     vnl.address,
+    provider,
+    signer,
+    version,
   ])
 
   return tokens
