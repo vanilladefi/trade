@@ -1,9 +1,11 @@
+import { CurrencyAmount, Percent, Price, TradeType } from '@uniswap/sdk-core'
 import type { BreakPointOptions } from 'components/GlobalStyles/Breakpoints'
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import type { Column } from 'react-table'
 
 export interface PairInfo {
   pairId: string | null
+  feeTier?: string | number | null
 }
 
 export enum Operation {
@@ -20,9 +22,9 @@ export interface UniSwapToken {
   [index: string]: string | number | null | undefined
   name?: string
   address: string
-  symbol?: string
-  decimals: number
-  chainId: number
+  symbol: string
+  decimals: string
+  chainId: string
   logoURI?: string
 }
 
@@ -42,31 +44,37 @@ export interface Token extends UniSwapToken {
   eligible?: Eligibility
   vpc?: string | null
   htrs?: string | null
-  reserve?: string | number | null
+  reserveETH?: string | null
+  reserveToken?: string | null
+  inRangeLiquidity?: string | null
+  sqrtPrice?: string | null
+  pool?: string | null
+  fee?: string | number | null
 }
 
 export interface TokenInfoQueryResponse {
-  pairId: string
   token: {
     id: string
   }
   price: string
-  reserve: string
-  reserveUSD: string
+  pairId?: string
+  id?: string
+  reserveETH?: string
+  reserveToken?: string
+  reserveUSD?: string
+  liquidity?: string
+  inRangeLiquidity?: string | null
+  sqrtPrice?: string | null
+  totalValueLockedETH?: string | null
 }
 
+/**
+ * Currently token1 is always ETH(WETH)
+ */
 export interface PairByIdQueryResponse {
   id: string
-  token0: {
-    id: string
-    symbol: string
-    decimals: string
-  }
-  token1: {
-    id: string
-    symbol: string
-    decimals: string
-  }
+  token0: Token
+  token1: Token
 }
 
 export interface MetaQueryResponse {
@@ -88,6 +96,7 @@ export enum Action {
   PURCHASE = 'purchase',
   SALE = 'sale',
   APPROVAL = 'approval',
+  CONVERSION = 'conversion',
 }
 
 export interface TransactionDetails {
@@ -97,12 +106,15 @@ export interface TransactionDetails {
   receipt?: ethers.providers.TransactionReceipt
   from: string
   blockNumber?: number
-  paid?: UniSwapToken
-  received?: UniSwapToken
+  paid?: Token
+  received?: Token
+  amountConverted?: string
+  amountApproved?: string
   amountPaid?: string
   amountReceived?: string
   addedTime?: number
   reward?: string
+  pairId?: string
 }
 
 export type HandleBuyClick = (pairInfo: PairInfo) => void
@@ -127,4 +139,47 @@ export enum Liquidity {
   LOW = 500,
   MEDIUM = 1000,
   HIGH = 2000,
+}
+
+export declare class V3Trade {
+  get executionPrice(): Price
+  minimumAmountOut(slippageTolerance: Percent): CurrencyAmount
+  maximumAmountIn(slippageTolerance: Percent): CurrencyAmount
+  inputAmount: CurrencyAmount
+  outputAmount: CurrencyAmount
+  route: null
+  price: Price
+  tradeType: TradeType
+  worstExecutionPrice: () => Price
+}
+
+export interface TokenPriceResponse {
+  ethSum: BigNumber
+  latestBlock: BigNumber
+  tokenSum: BigNumber
+  weightedBlockSum: BigNumber
+}
+
+export interface TradeResult {
+  price: BigNumber
+  twapPeriodInSeconds: BigNumber
+  profitablePrice: BigNumber
+  maxProfitablePrice: BigNumber
+  rewardableProfit: BigNumber
+  reward: BigNumber
+}
+
+export interface RewardEstimate {
+  low: TradeResult
+  medium: TradeResult
+  high: TradeResult
+}
+
+export interface RewardResponse {
+  avgBlock: BigNumber
+  htrs: BigNumber
+  profitablePrice?: BigNumber
+  vpc?: BigNumber
+  reward?: BigNumber
+  estimate?: RewardEstimate
 }

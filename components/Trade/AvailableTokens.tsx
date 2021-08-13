@@ -3,23 +3,28 @@ import Modal from 'components/Modal'
 import { Columns, Table } from 'components/Table'
 import { TokenLogo } from 'components/Table/Cells'
 import useTokenSearch from 'hooks/useTokenSearch'
+import { UniswapVersion } from 'lib/graphql'
 import { ReactNode, useMemo, useState } from 'react'
 import type { CellProps } from 'react-table'
 import { useRecoilValue } from 'recoil'
-import { allTokensStoreState } from 'state/tokens'
+import { uniswapV2TokenState, uniswapV3TokenState } from 'state/tokens'
 import { HandleBuyClick, Liquidity, ListColumn, Token } from 'types/trade'
 import { hiddenTokens } from 'utils/config'
 
 interface Props {
   onBuyClick: HandleBuyClick
   initialTokens?: Token[]
+  exchange: UniswapVersion
 }
 
 export default function AvailableTokens({
   onBuyClick,
   initialTokens = [],
+  exchange,
 }: Props): JSX.Element {
-  const tokens = useRecoilValue(allTokensStoreState)
+  const tokens = useRecoilValue(
+    exchange === UniswapVersion.v2 ? uniswapV2TokenState : uniswapV3TokenState,
+  )
 
   const [liquidityModalContent, setLiquidityModalContent] = useState<
     JSX.Element | false

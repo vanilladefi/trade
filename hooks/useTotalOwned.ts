@@ -1,14 +1,23 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useRecoilValue } from 'recoil'
-import { userTokensState } from 'state/tokens'
+import { userV2TokensState, userV3TokensState } from 'state/tokens'
 
 function useTotalOwned(): { USD: number; ETH: number } {
-  const userTokens = useRecoilValue(userTokensState)
+  const userV2Tokens = useRecoilValue(userV2TokensState)
+  const userV3Tokens = useRecoilValue(userV3TokensState)
+
+  const getUserTokens = useCallback(() => {
+    const v2Tokens = userV2Tokens || []
+    const v3Tokens = userV3Tokens || []
+    return [...v2Tokens, ...v3Tokens]
+  }, [userV2Tokens, userV3Tokens])
 
   return useMemo(() => {
     const values =
-      userTokens &&
-      userTokens.filter((token) => !!token.value).map((token) => token.value)
+      getUserTokens() &&
+      getUserTokens()
+        .filter((token) => !!token.value)
+        .map((token) => token.value)
 
     // Total value of tokens in USD
     const tokenSum =
@@ -19,8 +28,8 @@ function useTotalOwned(): { USD: number; ETH: number } {
       )
 
     const tokenValuesInEth =
-      userTokens &&
-      userTokens.map((token) => {
+      getUserTokens() &&
+      getUserTokens().map((token) => {
         if (!!token.owned && token.price) {
           return parseFloat(token.owned) * token.price
         } else {
@@ -43,7 +52,7 @@ function useTotalOwned(): { USD: number; ETH: number } {
     } else {
       return { USD: 0, ETH: 0 }
     }
-  }, [userTokens])
+  }, [getUserTokens])
 }
 
 export default useTotalOwned

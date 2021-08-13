@@ -61,20 +61,7 @@ const SoMeLinks = (): JSX.Element => (
   <ul>
     <li>
       <a
-        href='https://www.vanillacalc.com/'
-        target='_blank'
-        rel='noopener noreferrer'
-      >
-        <Icon
-          src={IconUrls.ARROW_UP_RIGHT}
-          injectedStyles='filter: invert(1);'
-        />
-        <b>Vanilla Calculator</b>
-      </a>
-    </li>
-    <li>
-      <a
-        href='https://etherscan.io/token/0x1017b147b05942ead495e2ad6d606ef3c94b8fd0'
+        href='https://etherscan.io/token/0xbf900809f4C73e5a3476eb183d8b06a27e61F8E5'
         target='_blank'
         rel='noopener noreferrer'
       >
@@ -87,7 +74,7 @@ const SoMeLinks = (): JSX.Element => (
     </li>
     <li>
       <a
-        href='https://etherscan.io/address/0xe13e9010e818d48df1a0415021d9526ef845e2cd'
+        href='https://etherscan.io/address/0x72C8B3aA6eD2fF68022691ecD21AEb1517CfAEa6'
         target='_blank'
         rel='noopener noreferrer'
       >

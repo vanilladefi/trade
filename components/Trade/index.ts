@@ -1,2 +1,3 @@
 export { default as AvailableTokens } from './AvailableTokens'
-export { default as MyPositions } from './MyPositions'
+export { default as MyPositionsV2 } from './Positions/v2/MyPositions'
+export { default as MyPositionsV3 } from './Positions/v3/MyPositions'

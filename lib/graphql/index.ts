@@ -1,20 +1,58 @@
 import { GraphQLClient } from 'graphql-request'
 import { SubscriptionClient } from 'graphql-subscriptions-client'
 
-const THEGRAPH_ENDPOINT = 'api.thegraph.com/subgraphs/name/uniswap/uniswap-v2'
+export enum UniswapVersion {
+  v2 = 'v2',
+  v3 = 'v3',
+}
+
+const THEGRAPH_ENDPOINTS = {
+  v2: {
+    http: new GraphQLClient(
+      'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2',
+    ),
+    ws: new SubscriptionClient(
+      'wss://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2',
+      {
+        reconnect: true,
+        lazy: false,
+        connectionCallback: (error) => {
+          error && console.error(error)
+        },
+      },
+    ),
+  },
+  v3: {
+    http: new GraphQLClient(
+      'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
+    ),
+    ws: new SubscriptionClient(
+      'wss://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
+      {
+        reconnect: true,
+        lazy: false,
+        connectionCallback: (error) => {
+          error && console.error(error)
+        },
+      },
+    ),
+  },
+}
 
 export * from './queries/meta'
-export * from './queries/tokens'
+export * as v2 from './queries/v2/tokens'
+export * as v3 from './queries/v3/tokens'
 
-export const thegraphClient = new GraphQLClient(`https://${THEGRAPH_ENDPOINT}`)
-
-export const thegraphClientSub = new SubscriptionClient(
-  `wss://${THEGRAPH_ENDPOINT}`,
-  {
-    reconnect: true,
-    lazy: true, // only connect when there is a query
-    connectionCallback: (error) => {
-      error && console.error(error)
-    },
-  },
-)
+export const getTheGraphClient = (
+  version: UniswapVersion,
+): { http: GraphQLClient | null; ws: SubscriptionClient | null } => {
+  return !!THEGRAPH_ENDPOINTS[version]
+    ? {
+        http: THEGRAPH_ENDPOINTS[version].http,
+        ws: THEGRAPH_ENDPOINTS[version].ws,
+      }
+    : {
+        http: null,
+        ws: null,
+      }
+}

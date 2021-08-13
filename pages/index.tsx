@@ -19,88 +19,92 @@ import Wrapper from '../components/Wrapper'
 const ShillKitList = dynamic(import('../components/ShillKitList'))
 
 const HeaderContent = (
-  <div className='heroContainer'>
-    <Column className='landingHero'>
-      <Row>
-        <Column width={Width.TWELVE}>
-          <InViewWrapper delay={0}>
-            <Title>
-              The most profitable <br />
-              way to DeFi
-            </Title>
-          </InViewWrapper>
-          <InViewWrapper delay={0.15}>
-            <HugeMonospace>
-              Trade, lend and participate in #ProfitMining
-            </HugeMonospace>
-          </InViewWrapper>
-          <InViewWrapper delay={0.3}>
-            <Link href='/trade'>
-              <Button>Start trading</Button>
-            </Link>
-          </InViewWrapper>
-        </Column>
-      </Row>
-    </Column>
-    <SVGFlower
-      color={['#2C1929']}
-      iterations={5}
-      stems={12}
-      seed={Math.random() * 166}
-      className='heroFlower'
-      flowerSize={400}
-      hasProfitCurve
-      profitCurveHeight={500}
-    />
-    <style jsx>{`
-      .heroFlower {
-        position: absolute;
-        right: -300px;
-        transform: scale(0.7);
-        bottom: -120px;
-        z-index: -1;
-      }
-      .heroContainer {
-        position: relative;
-      }
-      .landingHero {
-        --titlesize: 3rem;
-        --titlemargin: 4vh 0 1.4rem 0;
-        --buttonmargin: 0.5rem 0 10vh 0;
-        padding-bottom: 0vh;
-        max-width: 38rem;
-        width: 90%;
-      }
-      @media (min-width: ${BreakPoint.sm}px) {
+  <Wrapper>
+    <div className='heroContainer'>
+      <Column className='landingHero'>
+        <Row>
+          <Column width={Width.TWELVE}>
+            <InViewWrapper delay={0}>
+              <Title>
+                The most profitable <br />
+                way to DeFi
+              </Title>
+            </InViewWrapper>
+            <InViewWrapper delay={0.15}>
+              <HugeMonospace>
+                Trade, lend and participate in #ProfitMining
+              </HugeMonospace>
+            </InViewWrapper>
+            <InViewWrapper delay={0.3}>
+              <Link href='/trade'>
+                <Button>Start trading</Button>
+              </Link>
+            </InViewWrapper>
+          </Column>
+        </Row>
+      </Column>
+      <SVGFlower
+        color={['#2C1929']}
+        iterations={5}
+        stems={12}
+        seed={Math.random() * 166}
+        className='heroFlower'
+        flowerSize={400}
+        hasProfitCurve
+        profitCurveHeight={500}
+      />
+      <style jsx>{`
         .heroFlower {
-          right: -100px;
-          bottom: -70px;
-          transform: scale(1);
+          position: absolute;
+          right: -300px;
+          transform: scale(0.7);
+          bottom: -120px;
+          z-index: -1;
+        }
+        .heroContainer {
+          position: relative;
+          width: 100%;
+          padding: var(--headerpadding);
         }
         .landingHero {
-          --titlesize: 4rem;
-          --titlemargin: 6vh 0 1.4rem;
+          --titlesize: 3rem;
+          --titlemargin: 4vh 0 1.4rem 0;
           --buttonmargin: 0.5rem 0 10vh 0;
-          --titlecolor: var(--dark);
-          max-width: 34rem;
+          padding-bottom: 0vh;
+          max-width: 38rem;
+          width: 90%;
         }
-      }
+        @media (min-width: ${BreakPoint.sm}px) {
+          .heroFlower {
+            right: -100px;
+            bottom: -70px;
+            transform: scale(1);
+          }
+          .landingHero {
+            --titlesize: 4rem;
+            --titlemargin: 6vh 0 1.4rem;
+            --buttonmargin: 0.5rem 0 10vh 0;
+            --titlecolor: var(--dark);
+            max-width: 34rem;
+          }
+        }
 
-      @media (min-width: ${BreakPoint.md}px) {
-        .heroFlower {
-          right: -80px;
-          bottom: -20px;
+        @media (min-width: ${BreakPoint.md}px) {
+          .heroFlower {
+            right: -80px;
+            bottom: -20px;
+          }
         }
-      }
 
-      @media (min-width: ${BreakPoint.lg}px) {
-        .heroFlower {
-          right: 0;
-          bottom: -20px;
+        @media (min-width: ${BreakPoint.lg}px) {
+          .heroFlower {
+            right: 0;
+            bottom: -20px;
+          }
         }
-      }
-    `}</style>
-  </div>
+      `}</style>
+    </div>
+  </Wrapper>
 )
 
 const milestones = [

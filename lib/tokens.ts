@@ -1,19 +1,16 @@
 import uniswapTokens from '@uniswap/default-token-list'
-import additionalTokens from 'data/tokens.json'
+import v1_0Tokens from 'data/tokens_v1_0.json'
+import v1_1Tokens from 'data/tokens_v1_1.json'
 import { BigNumber, constants, Contract, providers, Signer } from 'ethers'
 import { getAddress } from 'ethers/lib/utils'
 import { ETHPriceQueryResponse } from 'hooks/useETHPrice'
-import {
-  ETHPrice,
-  thegraphClient,
-  TokenInfoQuery,
-  TokenInfoQueryHistorical,
-} from 'lib/graphql'
+import { getTheGraphClient, UniswapVersion, v2, v3 } from 'lib/graphql'
 import { ipfsToHttp } from 'lib/ipfs'
 import Vibrant from 'node-vibrant'
 import VanillaRouter from 'types/abis/vanillaRouter.json'
+import { TokenQueryVariables, VanillaVersion } from 'types/general'
 import { Eligibility, Token, TokenInfoQueryResponse } from 'types/trade'
-import { chainId, defaultProvider, vanillaRouterAddress } from 'utils/config'
+import { chainId, defaultProvider, getVanillaRouterAddress } from 'utils/config'
 
 export { chainId }
 
@@ -22,9 +19,9 @@ export const tokenListChainId = chainId === 1337 ? 1 : chainId
 
 // WETH stuff
 const defaultWeth = {
-  chainId: 1,
+  chainId: String(1),
   address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-  decimals: 18,
+  decimals: String(18),
   symbol: 'WETH',
   name: 'Wrapped Ether',
   logoURI: ipfsToHttp(
@@ -38,18 +35,90 @@ const defaultWeth = {
   priceChange: null,
 }
 export const weth: Token =
-  getAllTokens()?.find(
+  getAllTokens(VanillaVersion.V1_0)?.find(
     (token) =>
-      token.chainId === tokenListChainId && token.symbol === defaultWeth.symbol,
+      token.chainId === String(tokenListChainId) &&
+      token.symbol === defaultWeth.symbol,
   ) || defaultWeth
 
-export function getAllTokens(): Token[] {
-  // Get tokens from Uniswap default-list
+export const getTokenInfoQueryVariables = (
+  version: VanillaVersion,
+  blockNumber?: number,
+): TokenQueryVariables => {
+  const allTokens = getAllTokens(version)
+
+  const poolAddresses: string[] = allTokens
+    .filter((token) => token && token.pool)
+    .flatMap((token) => token.pool || '')
+
+  let variables: TokenQueryVariables = {
+    weth: weth.address.toLowerCase(),
+    tokenAddresses: allTokens.map(({ address }) => address.toLowerCase()),
+  }
+
+  if (blockNumber !== undefined) {
+    variables = {
+      blockNumber: blockNumber,
+      ...variables,
+    }
+  }
+
+  if (version === VanillaVersion.V1_1 && poolAddresses.length > 0) {
+    variables = {
+      poolAddresses: poolAddresses,
+      ...variables,
+    }
+  }
+  return variables
+}
+
+export function getAllTokens(version: VanillaVersion): Token[] {
+  // Convert TokenList format to our own format
+  const defaultTokens: Token[] = uniswapTokens?.tokens
+    .map((t) => JSON.parse(JSON.stringify(t))) // Needed for casting to Token[] format
+    .map((t) => ({
+      ...t,
+      chainId: String(t.chainId),
+      decimals: String(t.decimals),
+    }))
+
+  let additionalTokens
+  switch (version) {
+    case VanillaVersion.V1_0:
+      additionalTokens = v1_0Tokens
+      break
+    case VanillaVersion.V1_1:
+      additionalTokens = v1_1Tokens
+      break
+    default:
+      additionalTokens = v1_1Tokens
+  }
+
+  const vanillaTokens: Token[] = additionalTokens
+    .map((t) => JSON.parse(JSON.stringify(t))) // Needed for casting to Token[] format
+    .map((t) => ({
+      ...t,
+      chainId: String(t.chainId),
+      decimals: String(t.decimals),
+    }))
+
+  let allTokens
+  switch (version) {
+    case VanillaVersion.V1_0:
+      allTokens = [...defaultTokens, ...vanillaTokens]
+      break
+    case VanillaVersion.V1_1:
+      allTokens = [...vanillaTokens]
+      break
+    default:
+      allTokens = [...vanillaTokens]
+  }
+
   // include only tokens with specified 'chainId' and exclude WETH
-  return [...uniswapTokens?.tokens, ...additionalTokens]
+  return allTokens
     .filter(
       (token) =>
-        token.chainId === tokenListChainId &&
+        token.chainId === String(tokenListChainId) &&
         token.symbol !== defaultWeth.symbol,
     )
     .map((t) => ({
@@ -62,12 +131,6 @@ export function getAllTokens(): Token[] {
       liquidity: null,
       priceChange: null,
     }))
-}
-
-export function getLogoUri(address: string): string | undefined {
-  return getAllTokens().find(
-    (t) => t.address.toLowerCase() === address.toLowerCase(),
-  )?.logoURI
 }
 
 /**
@@ -111,9 +174,16 @@ export function addUSDPrice(tokens: Token[], ethPrice: number | null): Token[] {
 /**
  * Add profit mining eligibility from Vanilla
  */
-export async function addVnlEligibility(tokens: Token[]): Promise<Token[]> {
+export async function addVnlEligibility(
+  tokens: Token[],
+  version: VanillaVersion,
+): Promise<Token[]> {
   const router = defaultProvider
-    ? new Contract(vanillaRouterAddress, VanillaRouter.abi, defaultProvider)
+    ? new Contract(
+        getVanillaRouterAddress(version),
+        VanillaRouter.abi,
+        defaultProvider,
+      )
     : null
   return Promise.all(
     tokens.map(async (t) => {
@@ -138,10 +208,11 @@ function calcPriceChange(newPrice: number, oldPrice: number): number {
 }
 
 export function addData(
+  version: UniswapVersion,
   tokens: Token[],
   data: TokenInfoQueryResponse[],
   historical = false,
-  ethPrice?: number,
+  ethPrice: number,
 ): Token[] {
   return tokens.map((t) => {
     const d = data.find(
@@ -156,30 +227,52 @@ export function addData(
       ethPrice && !historical
         ? parseFloat(d.price) * ethPrice
         : (t.price && ethPrice && t.price * ethPrice) || t.priceUSD || 0
-    const liquidity = !historical ? parseFloat(d.reserveUSD) : t.liquidity
     const priceHistorical = historical ? parseFloat(d.price) : t.priceHistorical
     const priceChange = priceHistorical
       ? calcPriceChange(price, priceHistorical)
       : t.priceChange || 0
-    const reserve = parseFloat(d.reserve) || t.reserve
 
-    return {
-      ...t,
-      pairId: d.pairId ?? t.pairId,
-      price,
-      priceUSD,
-      priceHistorical,
-      priceChange,
-      liquidity,
-      reserve,
+    if (version === UniswapVersion.v2) {
+      const liquidity = !historical
+        ? parseFloat(d.reserveUSD || '0')
+        : t.liquidity
+      const reserveETH = d.reserveETH || t.reserveETH
+      const reserveToken = d.reserveToken || t.reserveToken
+      return {
+        ...t,
+        pairId: d.pairId ?? t.pairId,
+        price,
+        priceUSD,
+        priceHistorical,
+        priceChange,
+        liquidity,
+        reserveETH,
+        reserveToken,
+      }
+    } else {
+      const liquidity = !historical
+        ? parseFloat(d.liquidity || '0')
+        : t.liquidity
+      return {
+        ...t,
+        pairId: d.pairId ?? t.pairId,
+        price,
+        priceUSD,
+        priceHistorical,
+        priceChange,
+        liquidity,
+        sqrtPrice: d.sqrtPrice ?? t.sqrtPrice,
+        inRangeLiquidity: d.inRangeLiquidity ?? t.inRangeLiquidity,
+      }
     }
   })
 }
 
 export async function addGraphInfo(
+  version: UniswapVersion,
   tokens: Token[],
   blockNumber = 0,
-  ethPrice?: number,
+  ethPrice: number,
 ): Promise<Token[]> {
   if (!weth) {
     throw new Error(
@@ -189,25 +282,44 @@ export async function addGraphInfo(
 
   const historical = blockNumber > 0
 
-  const query = !historical ? TokenInfoQuery : TokenInfoQueryHistorical
+  const query =
+    version === UniswapVersion.v2
+      ? !historical
+        ? v2.TokenInfoQuery
+        : v2.TokenInfoQueryHistorical
+      : !historical
+      ? v3.TokenInfoQuery
+      : v3.TokenInfoQueryHistorical
 
-  const variables = {
-    blockNumber,
-    weth: weth.address.toLowerCase(),
-    tokenAddresses: tokens.map(({ address }) => address.toLowerCase()),
-  }
+  const variables = historical
+    ? getTokenInfoQueryVariables(
+        version === UniswapVersion.v2
+          ? VanillaVersion.V1_0
+          : VanillaVersion.V1_1,
+        blockNumber,
+      )
+    : getTokenInfoQueryVariables(
+        version === UniswapVersion.v2
+          ? VanillaVersion.V1_0
+          : VanillaVersion.V1_1,
+      )
 
   try {
-    // Retrieve more info from The Graph's API
-    const response = await thegraphClient.request(query, variables)
+    const { http } = getTheGraphClient(version)
+    if (http) {
+      // Retrieve more info from The Graph's API
+      const response = await http.request(query, variables)
 
-    const data = [
-      // Merge response arrays
-      ...response?.tokensAB,
-      ...response?.tokensBA,
-    ]
+      const data = [
+        // Merge response arrays
+        ...response?.tokensAB,
+        ...response?.tokensBA,
+      ]
 
-    return addData(tokens, data, historical, ethPrice)
+      return addData(version, tokens, data, historical, ethPrice)
+    } else {
+      return tokens
+    }
   } catch (e) {
     console.error(e)
     return tokens
@@ -222,19 +334,28 @@ export async function getBalance(
   return balance
 }
 
-export async function getETHPrice(): Promise<number> {
+export async function getETHPrice(version: UniswapVersion): Promise<number> {
   let parsedPrice: number
   try {
-    const { bundle }: ETHPriceQueryResponse = await thegraphClient.request(
-      ETHPrice,
+    const { http } = getTheGraphClient(version)
+    const query = version === UniswapVersion.v2 ? v2.ETHPrice : v3.ETHPrice
+
+    const response: ETHPriceQueryResponse | undefined = await http?.request(
+      query,
     )
-    parsedPrice = parseFloat(bundle?.ethPrice)
-    if (parsedPrice === NaN) {
-      throw Error(
-        'Could not parse ETH/USD price from response, falling back to 0!',
-      )
+
+    if (response?.bundle) {
+      parsedPrice = parseFloat(response.bundle.ethPrice)
+      if (parsedPrice === NaN) {
+        throw Error(
+          'Could not parse ETH/USD price from response, falling back to ETH/USD 0!',
+        )
+      }
+    } else {
+      throw Error('TheGraph did not respond, falling back to ETH/USD 0!')
     }
   } catch (e) {
+    console.error(e)
     parsedPrice = 0
   }
   return parsedPrice

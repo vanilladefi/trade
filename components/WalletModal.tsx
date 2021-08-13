@@ -1,8 +1,9 @@
+import { ethers } from 'ethers'
 import React from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
-import { userTokensState } from 'state/tokens'
+import { userV2TokensState, userV3TokensState } from 'state/tokens'
 import { walletModalOpenState } from 'state/wallet'
-import { Connectors, useWallet } from 'use-wallet'
+import { Connectors, useWallet, Wallet } from 'use-wallet'
 import { ModalGradient } from './backgrounds/gradient'
 import { Alignment, Column, Justification, Row, Width } from './grid/Flex'
 import Button, { ButtonColor, ButtonSize } from './input/Button'
@@ -71,6 +72,18 @@ const ProviderOptions = (): JSX.Element => {
                 <WalletIcon walletType={'walletconnect'} />
               </Row>
             </Button>
+            {/* <Button
+              color={ButtonColor.WHITE}
+              onClick={() => connectWallet('ledger')}
+            >
+              <Row
+                justifyContent={Justification.SPACE_BETWEEN}
+                alignItems={Alignment.CENTER}
+              >
+                Ledger
+                <WalletIcon walletType={'ledger'} />
+              </Row>
+            </Button> */}
           </div>
         </Column>
       </div>
@@ -132,13 +145,15 @@ const ProviderOptions = (): JSX.Element => {
 }
 
 const WalletView = (): JSX.Element => {
-  const wallet = useWallet()
+  const wallet = useWallet<Wallet<ethers.Signer>>()
   const { account, connector } = wallet
-  const setTokens = useSetRecoilState(userTokensState)
+  const setV2Tokens = useSetRecoilState(userV2TokensState)
+  const setV3Tokens = useSetRecoilState(userV3TokensState)
 
   const resetWallet = (): void => {
     // Reset user owned tokens status
-    setTokens([])
+    setV2Tokens([])
+    setV3Tokens([])
     wallet.reset()
   }
 
@@ -308,9 +323,8 @@ const WalletView = (): JSX.Element => {
 const WalletModal = (): JSX.Element => {
   const { status } = useWallet()
 
-  const [walletModalOpen, setWalletModalOpen] = useRecoilState(
-    walletModalOpenState,
-  )
+  const [walletModalOpen, setWalletModalOpen] =
+    useRecoilState(walletModalOpenState)
 
   return (
     <Modal

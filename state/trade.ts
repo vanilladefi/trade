@@ -1,8 +1,12 @@
-import { Percent } from '@uniswap/sdk'
-import { PairByIdQuery, thegraphClient } from 'lib/graphql'
-import { getLogoUri, tokenListChainId, weth } from 'lib/tokens'
+import { Trade as V2Trade } from '@uniswap/sdk'
+import { Percent } from '@uniswap/sdk-core'
+import { BigNumber } from 'ethers'
+import { TransactionState } from 'hooks/useTradeEngine'
+import { UniswapVersion } from 'lib/graphql'
+import { weth } from 'lib/tokens'
 import { atom, selector } from 'recoil'
-import { Operation, PairByIdQueryResponse, UniSwapToken } from 'types/trade'
+import { Operation, PairByIdQueryResponse, Token, V3Trade } from 'types/trade'
+import { uniswapV2TokenState, uniswapV3TokenState } from './tokens'
 
 export const selectedPairIdState = atom<string | null>({
   key: 'selectedPairId',
@@ -14,7 +18,12 @@ export const selectedOperation = atom<Operation>({
   default: Operation.Buy,
 })
 
-export const selectedCounterAsset = atom<UniSwapToken>({
+export const selectedExchange = atom<UniswapVersion>({
+  key: 'selectedExchange',
+  default: UniswapVersion.v3,
+})
+
+export const selectedCounterAsset = atom<Token>({
   key: 'selectedCounterAsset',
   default: weth,
 })
@@ -29,27 +38,20 @@ export const selectedPairState = selector<PairByIdQueryResponse | null>({
   get: async ({ get }) => {
     let pair: PairByIdQueryResponse | null = null
     try {
+      const exchange = get(selectedExchange)
+      const tokens = get(
+        exchange === UniswapVersion.v3
+          ? uniswapV3TokenState
+          : uniswapV2TokenState,
+      )
       const pairId = get(selectedPairIdState)
       const counterAsset = get(selectedCounterAsset)
       if (pairId !== null) {
-        const response = await thegraphClient.request(PairByIdQuery, {
-          pairId: pairId,
-        })
-
-        if (response?.pairs?.[0]) {
-          const id = response.pairs[0].id
-          let token0, token1
-          if (
-            response.pairs[0].token0?.id.toLowerCase() ===
-            counterAsset.address.toLowerCase()
-          ) {
-            token0 = response.pairs[0].token1
-            token1 = response.pairs[0].token0
-          } else {
-            token0 = response.pairs[0].token0
-            token1 = response.pairs[0].token1
-          }
-
+        const tokenMatch = tokens.find((token) => token.pairId === pairId)
+        if (tokenMatch) {
+          const id = pairId
+          const token0 = tokenMatch
+          const token1 = counterAsset
           pair =
             {
               id: id,
@@ -68,36 +70,69 @@ export const selectedPairState = selector<PairByIdQueryResponse | null>({
   },
 })
 
-export const token0Selector = selector<UniSwapToken | null>({
+export const currentTrade = atom<V2Trade | V3Trade | null>({
+  key: 'currentTradeSelector',
+  default: null,
+  dangerouslyAllowMutability: true,
+})
+
+export const token0Amount = atom<string | null | undefined>({
+  key: 'token0AmountSelector',
+  default: undefined,
+})
+
+export const token1Amount = atom<string | null | undefined>({
+  key: 'token1AmountSelector',
+  default: undefined,
+})
+
+export const currentGasLimitEstimate = atom<BigNumber | null>({
+  key: 'currentGasLimitEstimate',
+  default: null,
+})
+
+export const currentGasEstimate = atom<string | null>({
+  key: 'currentGasEstimate',
+  default: null,
+})
+
+export const currentGasPrice = atom<BigNumber | null>({
+  key: 'currentGasPrice',
+  default: null,
+})
+
+export const currentFeeEstimate = atom<string | null>({
+  key: 'currentFeeEstimate',
+  default: null,
+})
+
+export const currentRewardEstimate = atom<string | null>({
+  key: 'currentRewardEstimate',
+  default: null,
+})
+
+export const currentTransactionState = atom<TransactionState>({
+  key: 'currentTransactionState',
+  default: TransactionState.PREPARE,
+})
+
+export const currentErrorState = atom<string | null>({
+  key: 'currentErrorState',
+  default: null,
+})
+
+export const token0Selector = selector<Token | null>({
   key: 'token0Selector',
   get: ({ get }) => {
     const pairResponse = get(selectedPairState)
-    return pairResponse
-      ? {
-          symbol: pairResponse.token0.symbol,
-          address: pairResponse.token0.id,
-          decimals: parseInt(pairResponse.token0.decimals),
-          pairId: pairResponse.id,
-          chainId: tokenListChainId,
-          logoURI: getLogoUri(pairResponse.token0.id),
-        }
-      : null
+    return pairResponse?.token0 ?? null
   },
 })
 
-export const token1Selector = selector<UniSwapToken | null>({
+export const token1Selector = selector<Token | null>({
   key: 'token1Selector',
   get: ({ get }) => {
     const pairResponse = get(selectedPairState)
-    return pairResponse
-      ? {
-          symbol: pairResponse.token1.symbol,
-          address: pairResponse.token1.id,
-          decimals: parseInt(pairResponse.token1.decimals),
-          pairId: pairResponse.id,
-          chainId: tokenListChainId,
-          logoURI: getLogoUri(pairResponse.token1.id),
-        }
-      : null
+    return pairResponse?.token1 ?? null
   },
 })
