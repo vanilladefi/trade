@@ -12,11 +12,17 @@ import { cellProps, rowProps } from 'components/Table/Table'
 import { formatDistance } from 'date-fns'
 import { parseUnits } from 'ethers/lib/utils'
 import useTokenSearch from 'hooks/useTokenSearch'
-import React, { MouseEvent, useCallback, useMemo } from 'react'
+import React, {
+  MouseEvent,
+  ReactNode,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react'
 import type { CellProps, Row } from 'react-table'
 import { useRecoilValue } from 'recoil'
 import { userV2TokensState } from 'state/tokens'
-import type { HandleSellClick, ListColumn, Token } from 'types/trade'
+import { HandleSellClick, Liquidity, ListColumn, Token } from 'types/trade'
 import { epoch } from 'utils/config'
 
 interface Props {
