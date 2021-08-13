@@ -1,21 +1,12 @@
 import { getAverageBlockCountPerHour } from 'lib/block'
 import { getTheGraphClient, UniswapVersion, v2, v3 } from 'lib/graphql'
-import { addData, addGraphInfo, getAllTokens, weth } from 'lib/tokens'
+import { addData, addGraphInfo, getTokenInfoQueryVariables } from 'lib/tokens'
 import { useEffect } from 'react'
 import { useRecoilCallback, useRecoilValue } from 'recoil'
 import { currentBlockNumberState, currentETHPrice } from 'state/meta'
 import { uniswapV2TokenState, uniswapV3TokenState } from 'state/tokens'
 import { VanillaVersion } from 'types/general'
 import type { TokenInfoQueryResponse } from 'types/trade'
-
-const getVariables = (version: VanillaVersion) => {
-  return {
-    weth: weth.address.toLowerCase(),
-    tokenAddresses: getAllTokens(version).map(({ address }) =>
-      address.toLowerCase(),
-    ),
-  }
-}
 
 interface subReturnValue {
   data: { tokens: TokenInfoQueryResponse[] }
@@ -73,7 +64,7 @@ export default function useTokenSubscription(version: VanillaVersion): void {
       next: handleNewData,
     }
 
-    const variables = getVariables(version)
+    const variables = getTokenInfoQueryVariables(version)
 
     const { ws } = getTheGraphClient(uniswapVersion)
 

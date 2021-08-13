@@ -1,4 +1,5 @@
 import { providers } from 'ethers'
+import { UniswapVersion } from 'lib/graphql'
 import { VanillaVersion } from 'types/general'
 
 export const useWebsocketRpc: boolean =
@@ -34,7 +35,8 @@ export const defaultProvider =
 
 export const blockDeadlineThreshold = 60000 // 600 seconds added to the latest block timestamp (10 minutes)
 
-export const ethersOverrides = { gasLimit: 400000 }
+export const conservativeGasLimit = 800_000
+export const ethersOverrides = { gasLimit: conservativeGasLimit }
 
 export const epoch = Number(process.env.NEXT_PUBLIC_EPOCH) || 0
 
@@ -53,3 +55,13 @@ export const getVnlTokenAddress = (version: VanillaVersion): string =>
     : version === VanillaVersion.V1_1
     ? process.env.NEXT_PUBLIC_VNL_TOKEN_V1_1_ADDRESS || ''
     : ''
+
+export const getUniswapRouterAddress = (version: UniswapVersion): string =>
+  version === UniswapVersion.v2
+    ? process.env.NEXT_PUBLIC_UNISWAP_V2_ROUTER_ADDRESS
+    : process.env.NEXT_PUBLIC_UNISWAP_V3_ROUTER_ADDRESS
+
+export const getUniswapQuoterAddress = (): string =>
+  process.env.NEXT_PUBLIC_UNISWAP_V3_QUOTER_ADDRESS
+
+export const vnlDecimals = 12

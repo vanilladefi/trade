@@ -1,11 +1,11 @@
+import { Percent as V2Percent, Trade as V2Trade } from '@uniswap/sdk'
 import {
   Percent,
   Token as UniswapToken,
   TokenAmount,
   TradeType,
 } from '@uniswap/sdk-core'
-import { Trade as V2Trade } from '@uniswap/v2-sdk'
-import { FeeAmount, Trade as V3Trade } from '@uniswap/v3-sdk'
+import { FeeAmount } from '@uniswap/v3-sdk'
 import { BigNumber, Transaction } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { TransactionProps } from 'lib/uniswap'
@@ -21,10 +21,12 @@ import {
   currentFeeEstimate,
   currentGasEstimate,
   currentGasLimitEstimate,
+  currentGasPrice,
   currentRewardEstimate,
   currentTrade,
   currentTransactionState,
   selectedOperation,
+  selectedPairState,
   selectedSlippageTolerance,
   token0Amount,
   token0Selector,
@@ -33,8 +35,13 @@ import {
 } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
-import { Action, Operation, Token } from 'types/trade'
-import { blockDeadlineThreshold, ethersOverrides } from 'utils/config'
+import { Action, Operation, Token, V3Trade } from 'types/trade'
+import {
+  blockDeadlineThreshold,
+  ethersOverrides,
+  vnlDecimals,
+} from 'utils/config'
+import { getFeeTier, padUniswapTokenToToken } from 'utils/transactions'
 import useAllTransactions from './useAllTransactions'
 import useEligibleTokenBalance from './useEligibleTokenBalance'
 import useTokenBalance from './useTokenBalance'
@@ -62,6 +69,7 @@ const useTradeEngine = (
   token1: Token | null
   eligibleBalance0Raw: BigNumber
   balance1Raw: BigNumber
+  gasPrice: BigNumber | null
   estimatedGasLimit: BigNumber | null
   estimatedGas: string | null
   estimatedFees: string | null
@@ -77,6 +85,7 @@ const useTradeEngine = (
   const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
   const operation = useRecoilValue(selectedOperation)
+  const pairState = useRecoilValue(selectedPairState)
   const { addTransaction } = useAllTransactions()
 
   const executeBuy = async ({
@@ -107,18 +116,19 @@ const useTradeEngine = (
           tokenReceived: tokenReceived,
           signer: signer,
           blockDeadline: blockDeadline,
-          feeTier: 3000,
+          feeTier: getFeeTier(pairState?.token0.fee),
           gasLimit: gasLimit,
         })
       }
+
       transaction?.hash &&
         transaction?.from &&
         addTransaction({
           action: Action.PURCHASE,
           hash: transaction.hash,
           from: transaction.from,
-          received: tokenReceived,
-          paid: tokenPaid,
+          received: padUniswapTokenToToken(tokenReceived),
+          paid: padUniswapTokenToToken(tokenPaid),
           amountPaid: amountPaid,
           amountReceived: amountReceived,
           addedTime: Date.now(),
@@ -155,7 +165,7 @@ const useTradeEngine = (
           tokenReceived: tokenReceived,
           signer: signer,
           blockDeadline: blockDeadline,
-          feeTier: 3000,
+          feeTier: getFeeTier(pairState?.token0.fee),
           gasLimit: gasLimit,
         })
       }
@@ -165,8 +175,8 @@ const useTradeEngine = (
           action: Action.SALE,
           hash: transaction.hash,
           from: transaction.from,
-          received: tokenReceived,
-          paid: tokenPaid,
+          received: padUniswapTokenToToken(tokenReceived),
+          paid: padUniswapTokenToToken(tokenPaid),
           amountPaid: amountPaid,
           amountReceived: amountReceived,
           addedTime: Date.now(),
@@ -182,7 +192,7 @@ const useTradeEngine = (
   const ethUsdPrice = useRecoilValue(currentETHPrice)
 
   // Liquidity provider fee percentage. By default we use the medium pool with 0.3% LP fees
-  const lpFeePercentage = new Percent(FeeAmount.MEDIUM, 1_000_000)
+  const defaultFeePercentage = new Percent(FeeAmount.MEDIUM, 1_000_000)
 
   // Selected slippage tolerance
   const slippageTolerance = useRecoilValue(selectedSlippageTolerance)
@@ -219,6 +229,7 @@ const useTradeEngine = (
   const [estimatedGasLimit, setEstimatedGasLimit] = useRecoilState(
     currentGasLimitEstimate,
   )
+  const [gasPrice, setGasPrice] = useRecoilState(currentGasPrice)
   const [estimatedGas, setEstimatedGas] = useRecoilState(currentGasEstimate)
   const [estimatedFees, setEstimatedFees] = useRecoilState(currentFeeEstimate)
   const [estimatedReward, setEstimatedReward] = useRecoilState(
@@ -285,7 +296,7 @@ const useTradeEngine = (
 
   // Estimate gas fees
   useEffect(() => {
-    const debouncedGasEstimation = debounce(async () => {
+    const gasEstimation = async () => {
       if (trade && provider && signer && token0) {
         let gasEstimate = BigNumber.from(ethersOverrides.gasLimit)
         try {
@@ -308,24 +319,20 @@ const useTradeEngine = (
             'Could not estimate gas limit, falling back to ethersOverride of 400000',
           )
         }
-        const gasPrice = await signer.getGasPrice()
+        const gasPrice = await provider.getGasPrice()
         if (gasPrice) {
+          setGasPrice(gasPrice)
           setEstimatedGas(formatUnits(gasEstimate.mul(gasPrice)))
         }
       }
-    }, 500)
-    debouncedGasEstimation()
-  }, [
-    operation,
-    provider,
-    token0,
-    slippageTolerance,
-    trade,
-    version,
-    signer,
-    setEstimatedGasLimit,
-    setEstimatedGas,
-  ])
+    }
+    const debouncedGasEstimation = debounce(gasEstimation, 200, {
+      leading: true,
+      trailing: true,
+    })
+    !notEnoughFunds() && debouncedGasEstimation()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trade])
 
   // Estimate LP fees
   useEffect(() => {
@@ -336,9 +343,22 @@ const useTradeEngine = (
           operation === Operation.Buy
             ? parseUnits(amount1, token1?.decimals)
             : parseUnits(amount0, token0?.decimals)
-        const feeAmount = amountParsed
-          .mul(lpFeePercentage.numerator.toString())
-          .div(lpFeePercentage.denominator.toString())
+
+        let feeAmount: BigNumber = BigNumber.from('0')
+        if (version === VanillaVersion.V1_0) {
+          feeAmount = amountParsed
+            .mul(defaultFeePercentage.numerator.toString())
+            .div(defaultFeePercentage.denominator.toString())
+        } else {
+          const feeTier = getFeeTier(pairState?.token0.fee)
+          if (feeTier) {
+            const feePercent = new Percent(feeTier, 1_000_000)
+            feeAmount = amountParsed
+              .mul(feePercent.numerator.toString())
+              .div(feePercent.denominator.toString())
+          }
+        }
+
         const feeTokenAmount = new TokenAmount(
           new UniswapToken(
             Number(token.chainId),
@@ -347,20 +367,23 @@ const useTradeEngine = (
           ),
           feeAmount.toString(),
         )
+
         setEstimatedFees(feeTokenAmount.toSignificant())
       }
     } catch (e) {
       console.error(e)
     }
   }, [
-    lpFeePercentage.denominator,
-    lpFeePercentage.numerator,
+    defaultFeePercentage.denominator,
+    defaultFeePercentage.numerator,
     token0,
     token1,
     operation,
     amount1,
     amount0,
     setEstimatedFees,
+    version,
+    pairState?.token0.fee,
   ])
 
   const updateTrade = async (
@@ -390,12 +413,14 @@ const useTradeEngine = (
           const trade =
             version === VanillaVersion.V1_0
               ? await uniV2.constructTrade(
+                  provider,
                   amount,
                   receivedToken,
                   paidToken,
                   tradeType,
                 )
               : await uniV3.constructTrade(
+                  signer,
                   amount,
                   receivedToken,
                   paidToken,
@@ -413,7 +438,7 @@ const useTradeEngine = (
 
   // Update trade on operation change to get updated pricing
   useEffect(() => {
-    const updateTradeAndToken1 = debounce(async () => {
+    const updateTradeAndToken1 = async () => {
       if (amount0) {
         const trade = await updateTrade(0, amount0)
         if (trade && trade.inputAmount && trade.outputAmount) {
@@ -424,35 +449,48 @@ const useTradeEngine = (
           setAmount1(newToken1Amount)
         }
       }
-    }, 200)
-    updateTradeAndToken1()
+    }
+    const debouncedUpdate = debounce(updateTradeAndToken1, 200, {
+      leading: true,
+      trailing: true,
+    })
+    debouncedUpdate()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [operation, token0, token1])
 
   // Estimate VNL rewards
   useEffect(() => {
-    const estimateRewards = debounce(() => {
-      if (
-        operation === Operation.Sell &&
-        signer &&
-        token0 &&
-        token1 &&
-        amount0 &&
-        amount1
-      ) {
-        estimateReward(version, signer, token0, token1, amount0, amount1).then(
-          (reward) => {
+    const estimateRewards = debounce(
+      () => {
+        if (
+          operation === Operation.Sell &&
+          signer &&
+          token0 &&
+          token1 &&
+          amount0 &&
+          amount1
+        ) {
+          estimateReward(
+            version,
+            signer,
+            token0,
+            token1,
+            amount0,
+            amount1,
+          ).then((reward) => {
             let formattedReward: string | null = null
             if (reward?.reward) {
-              formattedReward = formatUnits(reward.reward, 12)
+              formattedReward = formatUnits(reward.reward, vnlDecimals)
             }
             setEstimatedReward(formattedReward)
-          },
-        )
-      } else {
-        setEstimatedReward(null)
-      }
-    }, 500)
+          })
+        } else {
+          setEstimatedReward(null)
+        }
+      },
+      500,
+      { leading: true, trailing: true },
+    )
     estimateRewards()
   }, [
     operation,
@@ -507,11 +545,23 @@ const useTradeEngine = (
 
         setTransactionState(TransactionState.PROCESSING)
 
+        let normalizedTrade, normalizedSlippageTolerance
+        if (version === VanillaVersion.V1_0) {
+          normalizedTrade = trade as V2Trade
+          normalizedSlippageTolerance = new V2Percent(
+            slippageTolerance.numerator,
+            slippageTolerance.denominator,
+          )
+        } else {
+          normalizedTrade = trade as V3Trade
+          normalizedSlippageTolerance = slippageTolerance as Percent
+        }
+
         if (operation === Operation.Buy) {
           hash = await executeBuy({
             amountPaid: trade.inputAmount.raw.toString(),
-            amountReceived: trade
-              .minimumAmountOut(slippageTolerance)
+            amountReceived: normalizedTrade
+              .minimumAmountOut(normalizedSlippageTolerance)
               .raw.toString(),
             tokenPaid: token1,
             tokenReceived: token0,
@@ -521,9 +571,9 @@ const useTradeEngine = (
           })
         } else {
           hash = await executeSell({
-            amountPaid: trade.inputAmount.raw.toString(),
-            amountReceived: trade
-              .minimumAmountOut(slippageTolerance)
+            amountPaid: normalizedTrade.inputAmount.raw.toString(),
+            amountReceived: normalizedTrade
+              .minimumAmountOut(normalizedSlippageTolerance)
               .raw.toString(),
             tokenPaid: token0,
             tokenReceived: token1,
@@ -566,6 +616,7 @@ const useTradeEngine = (
     token1,
     eligibleBalance0Raw,
     balance1Raw,
+    gasPrice,
     estimatedGasLimit,
     estimatedGas,
     estimatedFees,

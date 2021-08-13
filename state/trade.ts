@@ -1,12 +1,11 @@
+import { Trade as V2Trade } from '@uniswap/sdk'
 import { Percent } from '@uniswap/sdk-core'
-import { Trade as V2Trade } from '@uniswap/v2-sdk'
-import { Trade as V3Trade } from '@uniswap/v3-sdk'
 import { BigNumber } from 'ethers'
 import { TransactionState } from 'hooks/useTradeEngine'
 import { UniswapVersion } from 'lib/graphql'
 import { weth } from 'lib/tokens'
 import { atom, selector } from 'recoil'
-import { Operation, PairByIdQueryResponse, Token } from 'types/trade'
+import { Operation, PairByIdQueryResponse, Token, V3Trade } from 'types/trade'
 import { uniswapV2TokenState, uniswapV3TokenState } from './tokens'
 
 export const selectedPairIdState = atom<string | null>({
@@ -94,6 +93,11 @@ export const currentGasLimitEstimate = atom<BigNumber | null>({
 
 export const currentGasEstimate = atom<string | null>({
   key: 'currentGasEstimate',
+  default: null,
+})
+
+export const currentGasPrice = atom<BigNumber | null>({
+  key: 'currentGasPrice',
   default: null,
 })
 

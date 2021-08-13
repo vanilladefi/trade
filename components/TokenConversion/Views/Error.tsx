@@ -14,36 +14,44 @@ import { tokenConversionState } from 'state/migration'
 import { ConversionState } from 'types/migration'
 
 const ErrorView = (): JSX.Element => {
-  const { eligible, conversionDeadline } = useTokenConversion()
+  const { eligible, conversionDeadline, allowance } = useTokenConversion()
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
 
   const [errorTitle, setErrorTitle] = useState('')
   const [errorSubtitle, setErrorSubtitle] = useState('')
   const [nextConversionState, setNextConversionState] = useState(
-    ConversionState.HIDDEN,
+    ConversionState.AVAILABLE,
   )
 
   useEffect(() => {
-    if (
-      !eligible &&
-      conversionDeadline &&
-      conversionDeadline.getFullYear() > 1970
-    ) {
+    if (!eligible && conversionDeadline) {
       setErrorTitle('Tokens not found in the latest snapshot')
       setErrorSubtitle(
         'Your tokens were not in the most recent token state snapshot. Please try again after a week.',
       )
+      setNextConversionState(ConversionState.HIDDEN)
     } else if (!conversionDeadline) {
       setErrorTitle('Migration not started yet')
       setErrorSubtitle(
         'Deployment still pending, sorry! Please check back soon.',
       )
-      setNextConversionState(ConversionState.AVAILABLE)
-    } else if (conversionDeadline >= new Date(Date.now())) {
+      setNextConversionState(ConversionState.HIDDEN)
+    } else if (eligible && conversionDeadline <= new Date(Date.now())) {
       setErrorTitle('Migration no longer available')
       setErrorSubtitle('The deadline for conversion has passed.')
+      setNextConversionState(ConversionState.HIDDEN)
+    } else {
+      setErrorTitle('Transaction error')
+      setErrorSubtitle(
+        'Your transaction did not get executed, because something failed. Try again.',
+      )
+      if (allowance === '0') {
+        setNextConversionState(ConversionState.APPROVING)
+      } else {
+        setNextConversionState(ConversionState.APPROVED)
+      }
     }
-  }, [eligible, conversionDeadline])
+  }, [eligible, conversionDeadline, allowance])
 
   return (
     <>

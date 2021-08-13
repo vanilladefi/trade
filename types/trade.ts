@@ -1,9 +1,11 @@
+import { CurrencyAmount, Percent, Price, TradeType } from '@uniswap/sdk-core'
 import type { BreakPointOptions } from 'components/GlobalStyles/Breakpoints'
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import type { Column } from 'react-table'
 
 export interface PairInfo {
   pairId: string | null
+  feeTier?: string | number | null
 }
 
 export enum Operation {
@@ -46,6 +48,8 @@ export interface Token extends UniSwapToken {
   reserveToken?: string | null
   inRangeLiquidity?: string | null
   sqrtPrice?: string | null
+  pool?: string | null
+  fee?: string | number | null
 }
 
 export interface TokenInfoQueryResponse {
@@ -61,6 +65,7 @@ export interface TokenInfoQueryResponse {
   liquidity?: string
   inRangeLiquidity?: string | null
   sqrtPrice?: string | null
+  totalValueLockedETH?: string | null
 }
 
 /**
@@ -101,14 +106,15 @@ export interface TransactionDetails {
   receipt?: ethers.providers.TransactionReceipt
   from: string
   blockNumber?: number
-  paid?: UniSwapToken
-  received?: UniSwapToken
+  paid?: Token
+  received?: Token
   amountConverted?: string
   amountApproved?: string
   amountPaid?: string
   amountReceived?: string
   addedTime?: number
   reward?: string
+  pairId?: string
 }
 
 export type HandleBuyClick = (pairInfo: PairInfo) => void
@@ -128,3 +134,46 @@ export type ListColumn<T extends Record<string, unknown>> = Column<T> &
   LeftOrRightAlignable &
   ResponsivelyHidable &
   ColorBasedOnValue
+
+export declare class V3Trade {
+  get executionPrice(): Price
+  minimumAmountOut(slippageTolerance: Percent): CurrencyAmount
+  maximumAmountIn(slippageTolerance: Percent): CurrencyAmount
+  inputAmount: CurrencyAmount
+  outputAmount: CurrencyAmount
+  route: null
+  price: Price
+  tradeType: TradeType
+  worstExecutionPrice: () => Price
+}
+
+export interface TokenPriceResponse {
+  ethSum: BigNumber
+  latestBlock: BigNumber
+  tokenSum: BigNumber
+  weightedBlockSum: BigNumber
+}
+
+export interface TradeResult {
+  price: BigNumber
+  twapPeriodInSeconds: BigNumber
+  profitablePrice: BigNumber
+  maxProfitablePrice: BigNumber
+  rewardableProfit: BigNumber
+  reward: BigNumber
+}
+
+export interface RewardEstimate {
+  low: TradeResult
+  medium: TradeResult
+  high: TradeResult
+}
+
+export interface RewardResponse {
+  avgBlock: BigNumber
+  htrs: BigNumber
+  profitablePrice?: BigNumber
+  vpc?: BigNumber
+  reward?: BigNumber
+  estimate?: RewardEstimate
+}
