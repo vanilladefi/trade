@@ -3,6 +3,7 @@ import { Column, Row, Width } from 'components/grid/Flex'
 import Button from 'components/input/Button'
 import Layout from 'components/Layout'
 import { Spinner } from 'components/Spinner'
+import SyncIndicator from 'components/SyncIndicator'
 import TokenConversion from 'components/TokenConversion'
 import TokenSearch from 'components/TokenSearch'
 import { AvailableTokens, MyPositionsV2, MyPositionsV3 } from 'components/Trade'
@@ -295,7 +296,8 @@ const BodyContent = ({
   setModalOpen,
   activeExchange,
 }: BodyProps): JSX.Element => {
-  useMetaSubscription()
+  // Initialize subscriptions to needed TheGraph data. Only use these hooks once per page.
+  useMetaSubscription(VanillaVersion.V1_1)
   useTokenSubscription(VanillaVersion.V1_0)
   useTokenSubscription(VanillaVersion.V1_1)
 
@@ -435,8 +437,10 @@ const BodyContent = ({
                   ))}
               </>
             )}
-
-            <h2 style={{ marginBottom: 0 }}>AVAILABLE TOKENS</h2>
+            <div className='tableHeaderWrapper'>
+              <h2 style={{ marginBottom: 0 }}>AVAILABLE TOKENS</h2>
+              <SyncIndicator />
+            </div>
             {/* Pass "initialTokens" so this page is statically rendered with tokens */}
             <AvailableTokens
               initialTokens={initialTokens.v3}

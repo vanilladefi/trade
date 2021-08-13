@@ -29,6 +29,7 @@ function usePositionUpdater(version: VanillaVersion): PositionUpdater {
         | ((currVal: Token[] | null) => Token[] | null)
         | null,
     ) => void
+    
     let allTokens: Token[]
 
     switch (version) {
