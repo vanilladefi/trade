@@ -6,8 +6,8 @@ import { providerState } from 'state/wallet'
 import VanillaV1Router01 from 'types/abis/VanillaV1Router01.json'
 import { VanillaVersion } from 'types/general'
 import { Action, TransactionDetails } from 'types/trade'
-import { VanillaV1Router02__factory } from 'types/typechain/factories/VanillaV1Router02__factory'
-import { VanillaV1Token02__factory } from 'types/typechain/factories/VanillaV1Token02__factory'
+import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Router02__factory'
+import { VanillaV1Token02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Token02__factory'
 import { getVanillaRouterAddress, getVnlTokenAddress } from 'utils/config'
 import useAllTransactions from './useAllTransactions'
 import usePositionUpdater, { PositionUpdater } from './usePositionUpdater'
@@ -161,7 +161,6 @@ const conversionHandler = async ({
         conversionFilter,
         receipt.blockNumber,
       )
-      console.log(events, receipt, conversionFilter)
       if (events.length > 0) {
         const { amount } = events[0].args || { amount: '0' }
         amountConverted = amount.toString()

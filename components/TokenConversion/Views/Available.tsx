@@ -7,16 +7,14 @@ import {
 } from 'components/grid/Flex'
 import Button from 'components/input/Button'
 import { differenceInDays, format } from 'date-fns'
+import useTokenConversion from 'hooks/useTokenConversion'
 import React, { useCallback } from 'react'
 import { useSetRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
 import { ConversionState } from 'types/migration'
-import { ConversionViewProps } from '..'
 
-const Available = ({
-  conversionDeadline,
-  convertableBalance,
-}: ConversionViewProps): JSX.Element => {
+const Available = (): JSX.Element => {
+  const { conversionDeadline, convertableBalance } = useTokenConversion()
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
   const calculateDaysToDeadline = useCallback(() => {
     let daysToDeadline = 0

@@ -7,6 +7,7 @@ import { formatUnits } from 'ethers/lib/utils'
 import useTransaction from 'hooks/useTransaction'
 import React, { Suspense, useCallback } from 'react'
 import { VanillaVersion } from 'types/general'
+import { vnlDecimals } from 'utils/config'
 
 type Props = {
   id: string
@@ -59,7 +60,7 @@ const SuccessView = ({ id, closeModal, version }: Props): JSX.Element => {
   }, [transaction])
 
   const reward = useCallback(() => {
-    return formatUnits(transaction?.reward?.toString() || '0', 12)
+    return formatUnits(transaction?.reward?.toString() || '0', vnlDecimals)
   }, [transaction])
 
   return (

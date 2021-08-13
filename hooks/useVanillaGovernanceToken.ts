@@ -1,7 +1,5 @@
 import { Token, TokenAmount } from '@uniswap/sdk-core'
-import ERC20 from '@uniswap/v2-periphery/build/ERC20.json'
 import { BigNumber, constants } from 'ethers'
-import { Interface, Result } from 'ethers/lib/utils'
 import { getTheGraphClient, UniswapVersion, v2 } from 'lib/graphql'
 import { isAddress, tokenListChainId, weth } from 'lib/tokens'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -9,7 +7,7 @@ import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
 import VanillaV1Token02 from 'types/abis/VanillaV1Token02.json'
 import { VanillaVersion } from 'types/general'
-import { getVnlTokenAddress } from 'utils/config'
+import { getVnlTokenAddress, vnlDecimals } from 'utils/config'
 import { useContract, useTokenContract } from './useContract'
 import useTokenBalance from './useTokenBalance'
 import useWalletAddress from './useWalletAddress'
@@ -18,11 +16,12 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
   address: string
   decimals: number
   balance: string
+  balanceRaw: BigNumber
+  getTokenAmount: () => TokenAmount | undefined
   price: string
   userMintedTotal: string
 } {
   const provider = useRecoilValue(providerState)
-  const decimals = 12
 
   const addresses = useMemo(
     () => [
@@ -44,7 +43,22 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
 
   const contract1 = useTokenContract(addresses[0])
   const contract2 = useContract(addresses[1], VanillaV1Token02.abi)
-  const { formatted: vnlBalance } = useTokenBalance(versionAddress, decimals)
+  const { formatted: vnlBalance, raw: vnlBalanceRaw } = useTokenBalance(
+    versionAddress,
+    vnlDecimals,
+  )
+
+  const getTokenAmount = useCallback(() => {
+    if (versionAddress && isAddress(versionAddress)) {
+      const token = new Token(
+        tokenListChainId,
+        versionAddress || '',
+        vnlDecimals,
+      )
+      const tokenAmount = new TokenAmount(token, vnlBalanceRaw.toString())
+      return tokenAmount
+    }
+  }, [versionAddress, vnlBalanceRaw])
 
   const userMintedTotal = useCallback(() => {
     if (versionAddress) {
@@ -53,7 +67,7 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
           ? mints.reduce((accumulator, current) => accumulator.add(current))
           : BigNumber.from('0')
       if (bigSum) {
-        const token = new Token(tokenListChainId, versionAddress, decimals)
+        const token = new Token(tokenListChainId, versionAddress, vnlDecimals)
         const tokenAmount = new TokenAmount(token, bigSum.toString())
         return tokenAmount.toSignificant()
       }
@@ -65,26 +79,23 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
   useEffect(() => {
     const getMints = async () => {
       if (contract1 && contract2 && provider && isAddress(userAddress)) {
-        const ercInterface = new Interface(ERC20.abi)
-        const events =
+        const [contract, eventFilter] =
           version === VanillaVersion.V1_0
-            ? contract1?.filters.Transfer(constants.AddressZero, userAddress)
-            : contract2?.filters.Transfer(constants.AddressZero, userAddress)
+            ? [
+                contract1,
+                contract1.filters.Transfer(constants.AddressZero, userAddress),
+              ]
+            : [
+                contract2,
+                contract2.filters.Transfer(constants.AddressZero, userAddress),
+              ]
         try {
           const blockNumber = await provider.getBlockNumber()
-          const logs = await provider.getLogs({
-            fromBlock: 0,
-            toBlock: blockNumber,
-            topics: events.topics,
-          })
-          const mintEvents: BigNumber[] = logs.map((log) => {
-            const { value }: Result = ercInterface.decodeEventLog(
-              'Transfer',
-              log.data,
-            )
-            return value
-          })
-          setMints(mintEvents)
+          const mintedValues = await contract
+            .connect(provider)
+            .queryFilter(eventFilter, 0, blockNumber)
+            .then((events) => events.map((event) => event.args?.value))
+          setMints(mintedValues)
         } catch (e) {
           console.error(e)
           setMints([BigNumber.from('0')])
@@ -124,8 +135,10 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
 
   return {
     address: versionAddress || '',
-    decimals: 12,
+    decimals: vnlDecimals,
     balance: vnlBalance !== '' ? vnlBalance : '0',
+    balanceRaw: vnlBalanceRaw,
+    getTokenAmount: getTokenAmount,
     price: vnlEthPrice,
     userMintedTotal: userMintedTotal() || '0',
   }

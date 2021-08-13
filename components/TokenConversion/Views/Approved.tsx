@@ -8,7 +8,6 @@ import {
 import Button from 'components/input/Button'
 import { Spinner } from 'components/Spinner'
 import Spacer from 'components/typography/Spacer'
-import { BigNumber } from 'ethers'
 import useTokenConversion from 'hooks/useTokenConversion'
 import useTransaction from 'hooks/useTransaction'
 import React, { useEffect, useState } from 'react'
@@ -22,17 +21,16 @@ const Approved = ({
   transactionHash,
   convert,
 }: ConversionViewProps): JSX.Element => {
-  const { allowance, getAllowance } = useTokenConversion()
+  const { allowance } = useTokenConversion()
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
   const [waiting, setWaiting] = useState<boolean>(true)
   const transaction = useTransaction(VanillaVersion.V1_1, transactionHash || '')
 
   useEffect(() => {
     const checkTransactionState = async () => {
-      const allowanceResponse = await getAllowance()
       if (
         (transactionHash && transaction?.receipt) ||
-        !BigNumber.from(allowanceResponse).isZero()
+        (allowance && allowance !== '0')
       ) {
         setWaiting(false)
       }
@@ -41,7 +39,7 @@ const Approved = ({
     return () => {
       setWaiting(true)
     }
-  }, [transactionHash, transaction, allowance, getAllowance])
+  }, [transactionHash, transaction, allowance])
 
   return (
     <Row alignItems={Alignment.STRETCH}>
@@ -73,11 +71,9 @@ const Approved = ({
                   const conversionSuccessful = convert && (await convert())
                   if (conversionSuccessful) {
                     setTokenConversionState(ConversionState.MINTED)
-                  } else {
-                    setTokenConversionState(ConversionState.ERROR)
                   }
                 } catch (e) {
-                  setTokenConversionState(ConversionState.ERROR)
+                  console.error(e)
                 }
               }}
             >
