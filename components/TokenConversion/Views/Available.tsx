@@ -27,12 +27,10 @@ const Available = (): JSX.Element => {
     <Row alignItems={Alignment.STRETCH}>
       <Column grow={true}>
         <h2>
-          {calculateDaysToDeadline()} days left to convert your tokens (
-          {conversionDeadline && format(conversionDeadline, 'dd.MM.yyyy')})
+          At least {calculateDaysToDeadline()} days left to convert your tokens ({conversionDeadline && format(conversionDeadline, 'dd.MM.yyyy')})
         </h2>
         <span>
-          You could still convert your {convertableBalance} VNL 1.0 to version
-          1.1.{' '}
+          You can convert {convertableBalance} VNL 1.0 to VNL 1.1.{' '}
           <a
             href='https://medium.com/vanilladefi/vanilla-v1-1-announcement-migration-instructions-d92239db5b'
             target='_blank'
