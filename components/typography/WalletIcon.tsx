@@ -16,6 +16,9 @@ const matchWalletTypeToIcon = (walletType: keyof Connectors): string => {
     case 'walletconnect': {
       return '/images/wallets/walletConnectIcon.svg'
     }
+    case 'ledger': {
+      return '/images/wallets/ledger.svg'
+    }
     default: {
       return ''
     }

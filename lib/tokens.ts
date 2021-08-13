@@ -8,7 +8,7 @@ import { getTheGraphClient, UniswapVersion, v2, v3 } from 'lib/graphql'
 import { ipfsToHttp } from 'lib/ipfs'
 import Vibrant from 'node-vibrant'
 import VanillaRouter from 'types/abis/vanillaRouter.json'
-import { VanillaVersion } from 'types/general'
+import { TokenQueryVariables, VanillaVersion } from 'types/general'
 import { Eligibility, Token, TokenInfoQueryResponse } from 'types/trade'
 import { chainId, defaultProvider, getVanillaRouterAddress } from 'utils/config'
 
@@ -40,6 +40,37 @@ export const weth: Token =
       token.chainId === String(tokenListChainId) &&
       token.symbol === defaultWeth.symbol,
   ) || defaultWeth
+
+export const getTokenInfoQueryVariables = (
+  version: VanillaVersion,
+  blockNumber?: number,
+): TokenQueryVariables => {
+  const allTokens = getAllTokens(version)
+
+  const poolAddresses: string[] = allTokens
+    .filter((token) => token && token.pool)
+    .flatMap((token) => token.pool || '')
+
+  let variables: TokenQueryVariables = {
+    weth: weth.address.toLowerCase(),
+    tokenAddresses: allTokens.map(({ address }) => address.toLowerCase()),
+  }
+
+  if (blockNumber !== undefined) {
+    variables = {
+      blockNumber: blockNumber,
+      ...variables,
+    }
+  }
+
+  if (version === VanillaVersion.V1_1 && poolAddresses.length > 0) {
+    variables = {
+      poolAddresses: poolAddresses,
+      ...variables,
+    }
+  }
+  return variables
+}
 
 export function getAllTokens(version: VanillaVersion): Token[] {
   // Convert TokenList format to our own format
@@ -220,7 +251,7 @@ export function addData(
       }
     } else {
       const liquidity = !historical
-        ? parseFloat(d.liquidity || '0') * ethPrice
+        ? parseFloat(d.liquidity || '0')
         : t.liquidity
       return {
         ...t,
@@ -260,11 +291,18 @@ export async function addGraphInfo(
       ? v3.TokenInfoQuery
       : v3.TokenInfoQueryHistorical
 
-  const variables = {
-    blockNumber,
-    weth: weth.address.toLowerCase(),
-    tokenAddresses: tokens.map(({ address }) => address.toLowerCase()),
-  }
+  const variables = historical
+    ? getTokenInfoQueryVariables(
+        version === UniswapVersion.v2
+          ? VanillaVersion.V1_0
+          : VanillaVersion.V1_1,
+        blockNumber,
+      )
+    : getTokenInfoQueryVariables(
+        version === UniswapVersion.v2
+          ? VanillaVersion.V1_0
+          : VanillaVersion.V1_1,
+      )
 
   try {
     const { http } = getTheGraphClient(version)

@@ -1,11 +1,10 @@
-import { parseUnits } from 'ethers/lib/utils'
 import useAllTransactions from 'hooks/useAllTransactions'
 import useTokenConversion from 'hooks/useTokenConversion'
 import useWalletAddress from 'hooks/useWalletAddress'
 import { isAddress } from 'lib/tokens'
-import React, { useCallback, useEffect, useState } from 'react'
-import { useRecoilState, useRecoilValue } from 'recoil'
-import { tokenConversionState, vanillaToken2 } from 'state/migration'
+import React, { useCallback, useState } from 'react'
+import { useRecoilValue } from 'recoil'
+import { tokenConversionState } from 'state/migration'
 import { VanillaVersion } from 'types/general'
 import { ConversionState } from 'types/migration'
 import { Action, TransactionDetails } from 'types/trade'
@@ -27,23 +26,13 @@ export type ConversionViewProps = {
 }
 
 const TokenConversion = (): JSX.Element => {
-  const {
-    approve,
-    convert,
-    getAllowance,
-    eligible,
-    conversionDeadline,
-    convertableBalance,
-  } = useTokenConversion()
+  const { approve, convert } = useTokenConversion()
   const { long: userAddress } = useWalletAddress()
 
   const vnlV1Address = isAddress(getVnlTokenAddress(VanillaVersion.V1_0))
   const vnlV2Address = isAddress(getVnlTokenAddress(VanillaVersion.V1_1))
 
-  const vnlToken2 = useRecoilValue(vanillaToken2)
-
-  const [conversionState, setConversionState] =
-    useRecoilState(tokenConversionState)
+  const conversionState = useRecoilValue(tokenConversionState)
   const { addTransaction } = useAllTransactions()
   const [transactionHash, setTransactionHash] = useState<string | null>(null)
 
@@ -90,48 +79,12 @@ const TokenConversion = (): JSX.Element => {
     return conversionSuccessful
   }, [addTransaction, convert, userAddress])
 
-  useEffect(() => {
-    const checkDeploymentAndAllowance = async () => {
-      try {
-        const allowance = await getAllowance()
-        const parsedConvertableBalance = parseUnits(
-          convertableBalance || '0',
-          12,
-        )
-        if (!allowance.isZero() && eligible) {
-          setConversionState(ConversionState.APPROVED)
-        } else if (!parsedConvertableBalance.isZero() && eligible) {
-          setConversionState(ConversionState.AVAILABLE)
-        } else if (vnlToken2 === null) {
-          setConversionState(ConversionState.ERROR)
-        }
-      } catch (e) {
-        console.error(e)
-      }
-    }
-    if (conversionState === ConversionState.HIDDEN) {
-      checkDeploymentAndAllowance()
-    }
-  }, [
-    conversionState,
-    convertableBalance,
-    eligible,
-    getAllowance,
-    setConversionState,
-    vnlToken2,
-  ])
-
   const getView = useCallback(
     (conversionState: ConversionState): JSX.Element => {
       let view: JSX.Element
       switch (conversionState) {
         case ConversionState.AVAILABLE:
-          view = (
-            <Available
-              conversionDeadline={conversionDeadline}
-              convertableBalance={convertableBalance}
-            />
-          )
+          view = <Available />
           break
         case ConversionState.READY:
           view = <Ready />
@@ -158,20 +111,18 @@ const TokenConversion = (): JSX.Element => {
       }
       return view
     },
-    [
-      approveCallback,
-      conversionDeadline,
-      convertableBalance,
-      runConversion,
-      transactionHash,
-    ],
+    [approveCallback, runConversion, transactionHash],
   )
 
   return (
     <>
       <section
         className={
-          conversionState === ConversionState.HIDDEN ? 'hidden' : undefined
+          [ConversionState.HIDDEN, ConversionState.LOADING].includes(
+            conversionState,
+          )
+            ? 'hidden'
+            : undefined
         }
       >
         <Wrapper>
