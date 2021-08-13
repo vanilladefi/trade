@@ -32,7 +32,7 @@ const Available = (): JSX.Element => {
         </h2>
         <span>
           You could still convert your {convertableBalance} VNL 1.0 to version
-          1.1. Read more
+          1.1.<a href="https://medium.com/vanilladefi/vanilla-v1-1-announcement-migration-instructions-d92239db5b">Read more.</a>
         </span>
       </Column>
       <Column
