@@ -1,5 +1,5 @@
+import { Trade as V2Trade } from '@uniswap/sdk'
 import { Percent } from '@uniswap/sdk-core'
-import { Trade as V2Trade } from '@uniswap/v2-sdk'
 import { BigNumber } from 'ethers'
 import { TransactionState } from 'hooks/useTradeEngine'
 import { UniswapVersion } from 'lib/graphql'
@@ -93,6 +93,11 @@ export const currentGasLimitEstimate = atom<BigNumber | null>({
 
 export const currentGasEstimate = atom<string | null>({
   key: 'currentGasEstimate',
+  default: null,
+})
+
+export const currentGasPrice = atom<BigNumber | null>({
+  key: 'currentGasPrice',
   default: null,
 })
 

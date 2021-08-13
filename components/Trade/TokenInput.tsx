@@ -5,6 +5,7 @@ import { formatUnits } from 'ethers/lib/utils'
 import useEligibleTokenBalance from 'hooks/useEligibleTokenBalance'
 import useTokenBalance from 'hooks/useTokenBalance'
 import useTradeEngine from 'hooks/useTradeEngine'
+import { debounce } from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import {
@@ -74,6 +75,11 @@ const TokenInput = ({ version, useWethProxy = true }: Props): JSX.Element => {
 
   const handleAmountChange = (tokenIndex: 0 | 1, value: string) => {
     const parsedValue = value || undefined
+    const debouncedAmountChanged = debounce(
+      () => handleAmountChanged(tokenIndex, parsedValue),
+      200,
+      { leading: true, trailing: true },
+    )
     if (tokenIndex === 0) {
       setAmount0(parsedValue)
       if (
@@ -82,7 +88,7 @@ const TokenInput = ({ version, useWethProxy = true }: Props): JSX.Element => {
         parsedValue !== amount0
       ) {
         setAmount1(null)
-        handleAmountChanged(tokenIndex, parsedValue)
+        debouncedAmountChanged()
       } else {
         setAmount1(undefined)
       }
@@ -94,7 +100,7 @@ const TokenInput = ({ version, useWethProxy = true }: Props): JSX.Element => {
         parsedValue !== amount1
       ) {
         setAmount0(null)
-        handleAmountChanged(tokenIndex, parsedValue)
+        debouncedAmountChanged()
       } else {
         setAmount0(undefined)
       }

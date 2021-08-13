@@ -8,61 +8,80 @@ import {
   TradeType,
 } from '@uniswap/sdk-core'
 import { FeeAmount } from '@uniswap/v3-sdk'
-import { BigNumberish, constants, providers, Transaction } from 'ethers'
-import { getAddress, parseUnits } from 'ethers/lib/utils'
-import { UniswapVersion } from 'lib/graphql'
+import { BigNumber, Signer, Transaction } from 'ethers'
+import { formatUnits, getAddress, parseUnits } from 'ethers/lib/utils'
 import { isAddress, tokenListChainId } from 'lib/tokens'
 import { VanillaVersion } from 'types/general'
-import type { Token, UniSwapToken } from 'types/trade'
-import { SwapRouter__factory } from 'types/typechain/uniswap_v3_periphery'
-import { SwapRouter } from 'types/typechain/uniswap_v3_periphery/SwapRouter'
+import { Token, UniSwapToken } from 'types/trade'
+import { Quoter, Quoter__factory } from 'types/typechain/uniswap_v3_periphery'
 import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Router02__factory'
 import {
+  conservativeGasLimit,
   ethersOverrides,
-  getUniswapRouterAddress,
+  getUniswapQuoterAddress,
   getVanillaRouterAddress,
 } from 'utils/config'
 import { getFeeTier } from 'utils/transactions'
 import { TransactionProps } from '..'
 
-export const UniswapRouter = (swapRouter: SwapRouter) => ({
-  swap(tokenIn: string, tokenOut: string, recipient: string) {
+export const UniswapOracle = (oracle: Quoter) => ({
+  swap(tokenIn: string, tokenOut: string) {
     return {
-      swapParams(amountIn: TokenAmount, fee: number) {
+      swapParamsIn(amountIn: TokenAmount, fee: number) {
         return {
           tokenIn,
           tokenOut,
-          fee,
-          amountOutMinimum: 1,
+          fee: fee,
           sqrtPriceLimitX96: 0,
-          recipient,
-          deadline: constants.MaxUint256,
-          amountIn,
+          amountIn: amountIn.raw.toString(),
         }
       },
-      async estimateAmountOut(
-        amountIn: TokenAmount,
-        fee: number,
-        overrides: { value?: BigNumberish } = {},
-      ) {
+      swapParamsOut(amountOut: TokenAmount, fee: number) {
+        return {
+          tokenIn,
+          tokenOut,
+          fee: fee,
+          sqrtPriceLimitX96: 0,
+          amountOut: amountOut.raw.toString(),
+        }
+      },
+      async estimateAmountOut(amountIn: TokenAmount, fee: number) {
         try {
-          return await swapRouter.callStatic.exactInputSingle(
-            this.swapParams(amountIn, fee),
-            overrides,
+          const swapParams = this.swapParamsIn(amountIn, fee)
+
+          return await oracle.callStatic.quoteExactInputSingle(
+            swapParams.tokenIn,
+            swapParams.tokenOut,
+            fee,
+            swapParams.amountIn,
+            swapParams.sqrtPriceLimitX96,
+            {
+              gasLimit: conservativeGasLimit,
+            },
           )
         } catch (e) {
+          console.error(e)
           return undefined
         }
       },
-      with(
-        amountIn: TokenAmount,
-        fee: number,
-        overrides: { value?: BigNumberish } = {},
-      ) {
-        return swapRouter.exactInputSingle(
-          this.swapParams(amountIn, fee),
-          overrides,
-        )
+      async estimateAmountIn(amountOut: TokenAmount, fee: number) {
+        try {
+          const swapParams = this.swapParamsOut(amountOut, fee)
+
+          return await oracle.callStatic.quoteExactOutputSingle(
+            swapParams.tokenIn,
+            swapParams.tokenOut,
+            fee,
+            swapParams.amountOut,
+            swapParams.sqrtPriceLimitX96,
+            {
+              gasLimit: conservativeGasLimit,
+            },
+          )
+        } catch (e) {
+          console.error(e)
+          return undefined
+        }
       },
     }
   },
@@ -142,18 +161,16 @@ class V3Trade {
   constructor(
     inputAmount: TokenAmount,
     outputAmount: TokenAmount,
-    slippageTolerance: Percent,
     tradeType: TradeType,
   ) {
     this.inputAmount = inputAmount
     this.outputAmount = outputAmount
-    this.slippageTolerance = slippageTolerance
     this.tradeType = tradeType
     this.price = new Price(
-      this.inputAmount.token,
-      this.outputAmount.token,
-      this.inputAmount.raw.toString(),
-      this.outputAmount.raw.toString(),
+      inputAmount.token,
+      outputAmount.token,
+      inputAmount.raw.toString(),
+      outputAmount.raw.toString(),
     )
     this.route = null
   }
@@ -166,12 +183,12 @@ class V3Trade {
     return this.price
   }
 
-  minimumAmountOut() {
+  minimumAmountOut(slippageTolerance: Percent) {
     if (this.tradeType === TradeType.EXACT_OUTPUT) {
       return this.outputAmount
     } else {
       const slippageAdjustedAmountOut = new Fraction(1)
-        .add(this.slippageTolerance)
+        .add(slippageTolerance)
         .invert()
         .multiply(this.outputAmount.raw).quotient
       return this.outputAmount instanceof TokenAmount
@@ -180,12 +197,12 @@ class V3Trade {
     }
   }
 
-  maximumAmountIn() {
+  maximumAmountIn(slippageTolerance: Percent) {
     if (this.tradeType === TradeType.EXACT_INPUT) {
       return this.inputAmount
     } else {
       const slippageAdjustedAmountIn = new Fraction(1)
-        .add(this.slippageTolerance)
+        .add(slippageTolerance)
         .multiply(this.inputAmount.raw).quotient
       return this.inputAmount instanceof TokenAmount
         ? new TokenAmount(this.inputAmount.token, slippageAdjustedAmountIn)
@@ -196,25 +213,21 @@ class V3Trade {
 
 // Pricing function for UniSwap v3 trades
 export async function constructTrade(
-  provider: providers.Provider,
+  signer: Signer,
   amountToTrade: string, // Not amountPaid because of tradeType
   tokenReceived: Token,
   tokenPaid: Token,
-  tradeType = TradeType.EXACT_OUTPUT,
-  recipient: string,
-  slippageTolerance: Percent,
+  tradeType: TradeType,
 ): Promise<V3Trade> {
   const defaultFeeTier = FeeAmount.MEDIUM
   try {
-    // The asset that "amountToTrade" refers to changes on tradetype,
-    // so we need to set asset and counterAsset here
-    const asset =
+    const tokenToTrade =
       tradeType === TradeType.EXACT_OUTPUT ? tokenReceived : tokenPaid
-    const counterAsset =
+    const quotedToken =
       tradeType === TradeType.EXACT_OUTPUT ? tokenPaid : tokenReceived
 
     // Convert the decimal amount to a UniSwap TokenAmount
-    const parsedAmountTraded = tryParseAmount(amountToTrade, asset)
+    const parsedAmountTraded = tryParseAmount(amountToTrade, tokenToTrade)
     if (!parsedAmountTraded)
       return Promise.reject(`Failed to parse input amount: ${amountToTrade}`)
 
@@ -223,30 +236,40 @@ export async function constructTrade(
       getFeeTier(tokenPaid.fee) ||
       defaultFeeTier
 
-    const uniV3Router = SwapRouter__factory.connect(
-      getUniswapRouterAddress(UniswapVersion.v3),
-      provider,
+    const uniV3Oracle = Quoter__factory.connect(
+      getUniswapQuoterAddress(),
+      signer,
     )
 
-    const swapOperation = UniswapRouter(uniV3Router).swap(
-      counterAsset.address,
-      asset.address,
-      recipient,
-    )
-    const amountOut = await swapOperation.estimateAmountOut(
-      parsedAmountTraded,
-      feeTier,
-      { value: amountToTrade },
+    const swapOperation = UniswapOracle(uniV3Oracle).swap(
+      isAddress(tokenPaid.address) || tokenPaid.address,
+      isAddress(tokenReceived.address) || tokenReceived.address,
     )
 
-    const parsedAmountOut = tryParseAmount(amountOut.toString(), counterAsset)
+    let quote: BigNumber = BigNumber.from(0)
+    if (tradeType === TradeType.EXACT_INPUT) {
+      const amountOut = await swapOperation.estimateAmountOut(
+        parsedAmountTraded,
+        feeTier.valueOf(),
+      )
+      quote = amountOut
+    } else {
+      const amountIn = await swapOperation.estimateAmountIn(
+        parsedAmountTraded,
+        feeTier.valueOf(),
+      )
+      quote = amountIn
+    }
+
+    const formattedQuote = formatUnits(quote, quotedToken.decimals)
+    const parsedQuote = tryParseAmount(formattedQuote, quotedToken)
 
     const trade: V3Trade = new V3Trade(
-      parsedAmountTraded,
-      parsedAmountOut,
-      slippageTolerance,
+      tradeType === TradeType.EXACT_INPUT ? parsedAmountTraded : parsedQuote,
+      tradeType === TradeType.EXACT_INPUT ? parsedQuote : parsedAmountTraded,
       tradeType,
     )
+
     return trade
   } catch (error) {
     console.error(error)
