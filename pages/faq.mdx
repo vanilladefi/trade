@@ -7,11 +7,17 @@ import Katex from 'components/typography/Katex'
 
 <StaticPage SEOTitle='FAQ' pageTitle='Frequently Asked Questions'>
 
+## *How do I migrate my VNL from v1.0 to v1.1?
+
+Go to the Trade page and connect your wallet. If you have VNL v1.0 tokens you should see a banner at the top of the page. Click on "Convert Now" to start the migration process.
+
+More detailed instructions can be found [here](https://medium.com/vanilladefi/vanilla-v1-1-announcement-migration-instructions-d92239db5b).
+
 ## What is Vanilla?
 
-Vanilla is a single decentralized interface for all of DeFi that rewards you for making a profit trading and lending tokens. When you trade and lend through Vanilla's unified DeFi interface, you participate in #ProfitMining whereby you mine VNL governance tokens for each fraction of an ether you make in profit.
+Vanilla is a meritocracy of the best investors. Investors who make profitable trades through Vanilla Trade receive VNL governance tokens and thus increase their influence over the network.
 
-Vanilla is launching with support for trading on [Uniswap](https://uniswap.org/) as the first way to make profit. Lending the tokens you've bought on [Aave](https://aave.com/) or [Compound](https://compound.finance/) to further increase your profits is coming soon after.
+We hypothesize that a dynamic meritocracy will consistently outperform any other governance system.
 
 <Link href='/trade'>
   <Button>Start #ProfitMining</Button>
@@ -21,31 +27,11 @@ Vanilla is launching with support for trading on [Uniswap](https://uniswap.org/)
 
 Profit mining is a novel token distribution mechanism, where you "mine" VNL tokens by making a profit calculated in ETH. The more profit you make and the longer you've held your positions before selling, the more VNL you mine. Mining difficulty also increases over time, making early mining more lucrative.
 
-While you can trade almost anything through Vanilla, only tokens with enough liquidity are eligible for profit mining to protect against price manipulation attacks. Liquidity is calculated from WETH reserves on Uniswap and the more liquidity there is, the higher the rewards are. Profit mining also takes into account how long you hold your position. The longer you hold, the more VNL you mine.
-
 You can see which tokens are eligible for profit mining on the Trade page.
-
-## Why would I use Vanilla?
-
-Vanilla provides a single decentralized interface for all of DeFi. By conducting your DeFi activities through Vanilla, you participate in #ProfitMining, which increases your returns.
-
-Furthermore, the tokenomics are designed to direct capital to the most profitable opportunities, benefiting everyone who uses Vanilla. Users who consistently generate profit will mine the most governance token VNL. They can then influence governance and tweak the rewards for doing certain activities or for using certain DeFi services. Assuming they act selfishly and try to maximize their own returns, they will raise the rewards for activities they think will be the most profitable, providing a positive signal to all other users. This creates a virtuous cycle, which directs more and more capital to the most profitable opportunities. In memespeak, Vanilla is a machine for leaking alpha.
-
-The Vanilla tokenomics are also designed to protect users. Governance can add support for #ProfitMining on new services once they have been thoroughly researched and audited. Governance can also remove support for services, which are considered insecure. Again, this happens, because governance token holders are acting selfishly and protecting themselves, which then extends to all users of Vanilla.
-
-As more and more traditional assets are tokenized and made available in DeFi, we believe Vanilla can become the primary way by which capital is allocated not just across crypto-assets, but all assets. We envision Vanilla being a single interface for finance in general, directing hundreds of billions of dollars in value to the most profitable investments.
-
-## Can developers build on Vanilla?
-
-Yes, absolutely. Vanilla provides a single decentralized interface for DeFi developers. Developers no longer need to integrate multiple DeFi protocols, but instead can integrate just one. For example a developer could create an index token on top of Vanilla, which balances a portfolio of assets automatically using on-chain data and lends those assets on [Aave](https://aave.com/) or [Compound](https://compound.finance/) for additional passive returns. The indexing system would only have to interact with Vanilla smart contracts and of course participates in #ProfitMining too.
 
 ## How do I trade tokens using Vanilla?
 
 Simply go to the trade page, choose a token and execute the purchase with ETH using [Metamask](https://metamask.io/) or [WalletConnect](https://walletconnect.org/). The Vanilla contracts will execute the purchase on [Uniswap](https://uniswap.org/) and the tokens will be stored in the Vanilla smart contract. You can sell the tokens at any time to claim profit mining rewards and once sold, the ETH, including any profit you've made, will be returned to your wallet along with the VNL tokens you've mined.
-
-## How do I lend tokens using Vanilla?
-
-Lending is coming soon and is very simple in how it works. When you've purchased a token using Vanilla, if [Aave](https://aave.com/) or [Compound](https://compound.finance/) has a market for lending the token, you can choose to lend it. The Vanilla contracts will send your tokens to that market, where they will accrue interest until you decide to end the lending or sell the tokens.
 
 ## Can I move tokens I've purchased through Vanilla?
 
@@ -57,13 +43,11 @@ Yes. VNL is the native asset of the Vanilla ecosystem. VNL is created by profit 
 
 ## Was there an ICO or premine?
 
-No. We think pre-mines very easily lead to unhealthy incentives and often result in governance being controlled by the creators or a small group of early investors. Additionally, we like the idea of core development teams having to use the product they are developing, hopefully creating a healthy feedback loop for innovation.
+No. The entire initial supply of VNL was created via profit mining by the community. Later the community collectively decided to fund the VanillaDAO alongside the Vanilla v1.1 launch by minting an amount equal to 15% of total supply to the Vanilla Treasury.
 
-This is why the only way to create VNL is by profit mining and this applies to the creators of Vanilla just as much as it applies to everyone else. In the future there will likely be a governance controlled treasury, which receives tokens based on usage to allocate to development, marketing and other functions, but the token holders will have to agree to all expenditures.
+## Who created Vanilla?
 
-## Who created Vanilla and how will they make money?
-
-Vanilla was developed by [Equilibrium](https://equilibrium.co/) and the smart contracts were deployed by an anonymous community member to the Ethereum blockchain. Equilibrium is hoping to make money by profit mining from the very beginning, which we expect will allow us to accumulate enough VNL to give us a reasonable return if Vanilla is successful and of course once the governance-controlled treasury is online we will apply for development grants.
+Vanilla was developed by [Equilibrium](https://equilibrium.co/) and the initial smart contracts were deployed by an anonymous community member to the Ethereum blockchain.
 
 ## Is Vanilla secure?
 
@@ -71,32 +55,15 @@ The Vanilla system has been security audited extensively by [Peckshield](https:/
 
 ## Is Vanilla decentralized?
 
-Yes. All of Vanilla's profit mining logic and algorithms are built into its smart contracts, which are non-upgradable, meaning no-one can change how they function and no-one can stop anyone else from using the system.
+Yes. Most of Vanilla's contract logic is non-upgradable and thus can't be changed by anyone. The only exception to this is the dynamic safelist which is controlled by the VanillaDAO.
+
+## What is the VanillaDAO?
+
+The VanillaDAO is a community controlled 4-out-of-7 ethereum multi-sig wallet, which hosts the VanillaDAO treasury and is used for deploying some parts of the Vanilla protocol. Equilibrium controls 3 of the 7 signers and the remaining 4 signers are the largest VNL holders from the community who volunteered.
 
 ## Can I profit-mine with any ERC-20?
 
-No. Vanilla defines a _safe-list_ of tokens, which are the only ERC-20s that are eligible for profit mining rewards. While trading non-safe-listed tokens is possible, profitable trading with them will not generate VNL.
-
-To know which tokens are eligible for profit mining rewards, check out the _"Profit Mining"_ column in the [Trade page](/trade) - the eligible ones are marked "Yes".
-
-## Why is the safe-list needed?
-
-For security reasons. Safe-listing protects the VNL distribution against customized ERC-20s that have been created for malicious purposes.
-
-Profit mining is based on profit which is calculated from the purchasing and selling prices. If prices can be easily manipulated, then profits and subsequently VNL distribution can be easily manipulated. When using Uniswap, prices can be manipulated in many ways.
-
-## Why is token X on the safe-list and not token Y?
-
-As contracts are non-upgradeable and have no owners, the safe-list had to be immutable and therefore selected before the deployment. Instead of hand-picking ERC-20s to the safe-list, the Vanilla team decided to use a selection criteria which should be more fair and verifiable. The criteria we picked was as follows - a token got safe-listed if it had:
-
-- over 500 WETH liquidity in Uniswap, **and**
-- **either** over 500 WETH liquidity in Sushiswap,
-- **or** over 250 WETH cumulative, weight-normalized liquidity in all public Balancer bpools with over 10 holders,
-- in a fixed block close to code freeze and mainnet launch (finally, that block was **12110000**)
-
-For the safe-list criteria to be effective, the selected tokens needed to be less prone to price manipulation. This is the reason why the selection criteria emphasizes sufficient liquidity (manipulation gets more expensive) in more than one market (manipulation gets harder when ownership and liquidity are more decentralized).
-
-Obviously, even though this selection criteria is verifiable and deterministic, it's still an arbitrary criteria and a lot of rightfully safe and honest ERC-20s were excluded. When governance goes live, this problem will be resolved as the governance will be able to change the safe-list.
+No. Vanilla incorporates a dynamic _safe-list_ of tokens, which is controlled by the VanillaDAO and defines the ERC-20 tokens that are eligible for profit mining rewards. The safelist allows the community to ensure that only legitimate tokens with enough liquidity can be traded through Vanilla Trade.
 
 ## How are profit mining rewards calculated for trading?
 
@@ -212,12 +179,6 @@ A trader can increase VNL rewards by:
 - Opening trades early as possible -> Higher Holding/Trading Ratio (Squared) $H_i$
 - Holding the trades longer -> Higher Holding/Trading Ratio (Squared) $H_i$
 
-## How will governance work in Vanilla?
-
-Once the governance structures are in place, VNL holders will be able to determine the direction of Vanilla by voting on a variety of things such as changes to the profit mining algorithm, new trading and lending venues, treasury grant allocations and other ecosystem efforts.
-
-Governance is planned to be implemented in Q3 2021 at which time we expect a reasonable amount of VNL token to have been mined and distributed around the ecosystem for voting to be feasible.
 <Katex />
 </StaticPage>
-
 

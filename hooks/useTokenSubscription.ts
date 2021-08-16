@@ -1,46 +1,61 @@
 import { getAverageBlockCountPerHour } from 'lib/block'
-import { thegraphClientSub, TokenInfoSubAB, TokenInfoSubBA } from 'lib/graphql'
-import { addData, addGraphInfo, getAllTokens, weth } from 'lib/tokens'
+import { getTheGraphClient, UniswapVersion, v2, v3 } from 'lib/graphql'
+import { addData, addGraphInfo, getTokenInfoQueryVariables } from 'lib/tokens'
 import { useEffect } from 'react'
 import { useRecoilCallback, useRecoilValue } from 'recoil'
 import { currentBlockNumberState, currentETHPrice } from 'state/meta'
-import { allTokensStoreState } from 'state/tokens'
+import { uniswapV2TokenState, uniswapV3TokenState } from 'state/tokens'
+import { VanillaVersion } from 'types/general'
 import type { TokenInfoQueryResponse } from 'types/trade'
-
-const variables = {
-  weth: weth.address.toLowerCase(),
-  tokenAddresses: getAllTokens().map(({ address }) => address.toLowerCase()),
-}
 
 interface subReturnValue {
   data: { tokens: TokenInfoQueryResponse[] }
 }
 
-export default function useTokenSubscription(): void {
+export default function useTokenSubscription(version: VanillaVersion): void {
   const currentBlockNumber = useRecoilValue(currentBlockNumberState)
   const ethPrice = useRecoilValue(currentETHPrice)
+  const uniswapVersion =
+    version === VanillaVersion.V1_0 ? UniswapVersion.v2 : UniswapVersion.v3
+
+  const TokenInfoSubAB =
+    version === VanillaVersion.V1_0 ? v2.TokenInfoSubAB : v3.TokenInfoSubAB
+  const TokenInfoSubBA =
+    version === VanillaVersion.V1_0 ? v2.TokenInfoSubBA : v3.TokenInfoSubBA
 
   const handleNewData = useRecoilCallback(
-    ({ set }) => async ({ data }: subReturnValue) => {
-      if (data?.tokens?.length && ethPrice > 0) {
-        set(allTokensStoreState, (tokens) =>
-          addData(tokens, data.tokens, false, ethPrice),
-        )
-      }
-    },
+    ({ set }) =>
+      async ({ data }: subReturnValue) => {
+        if (data?.tokens?.length && ethPrice > 0) {
+          set(
+            version === VanillaVersion.V1_0
+              ? uniswapV2TokenState
+              : uniswapV3TokenState,
+            (tokens) =>
+              addData(uniswapVersion, tokens, data.tokens, false, ethPrice),
+          )
+        }
+      },
     [],
   )
 
   const addHistoricalData = useRecoilCallback(
-    ({ snapshot, set }) => async (blockNumber: number) => {
-      const tokens = await snapshot.getPromise(allTokensStoreState)
-      if (blockNumber > 0 && tokens?.length && ethPrice > 0) {
-        set(
-          allTokensStoreState,
-          await addGraphInfo(tokens, blockNumber, ethPrice),
+    ({ snapshot, set }) =>
+      async (blockNumber: number) => {
+        const tokens = await snapshot.getPromise(
+          uniswapVersion === UniswapVersion.v2
+            ? uniswapV2TokenState
+            : uniswapV3TokenState,
         )
-      }
-    },
+        if (blockNumber > 0 && tokens?.length && ethPrice > 0) {
+          set(
+            uniswapVersion === UniswapVersion.v2
+              ? uniswapV2TokenState
+              : uniswapV3TokenState,
+            await addGraphInfo(uniswapVersion, tokens, blockNumber, ethPrice),
+          )
+        }
+      },
     [],
   )
 
@@ -49,25 +64,29 @@ export default function useTokenSubscription(): void {
       next: handleNewData,
     }
 
-    const subAB = thegraphClientSub
-      .request({
+    const variables = getTokenInfoQueryVariables(version)
+
+    const { ws } = getTheGraphClient(uniswapVersion)
+
+    const subAB = ws
+      ?.request({
         query: TokenInfoSubAB,
         variables,
       })
       .subscribe(subOptions)
 
-    const subBA = thegraphClientSub
-      .request({
+    const subBA = ws
+      ?.request({
         query: TokenInfoSubBA,
         variables,
       })
       .subscribe(subOptions)
 
     return () => {
-      subAB.unsubscribe()
-      subBA.unsubscribe()
+      subAB?.unsubscribe()
+      subBA?.unsubscribe()
     }
-  }, [handleNewData])
+  }, [TokenInfoSubAB, TokenInfoSubBA, handleNewData, uniswapVersion, version])
 
   // Handle price change fetching
   useEffect(() => {

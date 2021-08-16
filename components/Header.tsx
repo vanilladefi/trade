@@ -1,8 +1,9 @@
 import Link from 'next/link'
+import React from 'react'
 import { Logo } from './Brand'
+import { BreakPoint } from './GlobalStyles/Breakpoints'
 import { DesktopNavigation, MobileNavigation } from './Navigation'
 import Wrapper from './Wrapper'
-import { BreakPoint } from './GlobalStyles/Breakpoints'
 
 type RenderFunction = () => React.ReactNode
 
@@ -20,24 +21,26 @@ const Header = ({
     <>
       <header>
         {background}
-        <Wrapper>
-          <div className='headerPadding'>
-            <div className='navBar'>
-              <Link href='/'>
-                <a className='logo'>
-                  <Logo />
-                </a>
-              </Link>
-              <div className='mobileNav'>
-                <MobileNavigation />
-              </div>
-              <div className='desktopNav'>
-                <DesktopNavigation />
+        <div className='headerPadding'>
+          <Wrapper>
+            <div className='innerPadding'>
+              <div className='navBar'>
+                <Link href='/'>
+                  <a className='logo'>
+                    <Logo />
+                  </a>
+                </Link>
+                <div className='mobileNav'>
+                  <MobileNavigation />
+                </div>
+                <div className='desktopNav'>
+                  <DesktopNavigation />
+                </div>
               </div>
             </div>
-            {children || (renderChildren && renderChildren())}
-          </div>
-        </Wrapper>
+          </Wrapper>
+          {children || (renderChildren && renderChildren())}
+        </div>
       </header>
       <style jsx>{`
         div.navBar {
@@ -47,8 +50,14 @@ const Header = ({
           align-items: center;
           height: 44px;
         }
-        div.headerPadding {
+        div.innerPadding {
           padding: var(--headerpadding);
+        }
+        div.headerPadding {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
         }
         header {
           display: flex;

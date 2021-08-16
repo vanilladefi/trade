@@ -4,46 +4,47 @@ import Icon from 'components/typography/Icon'
 import { formatUnits } from 'ethers/lib/utils'
 import useEligibleTokenBalance from 'hooks/useEligibleTokenBalance'
 import useTokenBalance from 'hooks/useTokenBalance'
+import useTradeEngine from 'hooks/useTradeEngine'
+import { debounce } from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
-import { token0Selector, token1Selector } from 'state/trade'
+import {
+  selectedOperation,
+  token0Amount,
+  token0Selector,
+  token1Amount,
+  token1Selector,
+} from 'state/trade'
+import { VanillaVersion } from 'types/general'
 import { Operation } from 'types/trade'
 import { useWallet } from 'use-wallet'
 
 type Props = {
-  operation: Operation
-  onAmountChange: (
-    tokenIndex: 0 | 1,
-    value: string,
-  ) => Promise<void | undefined>
-  token0Amount: string | null
-  token1Amount: string | null
+  version: VanillaVersion
   useWethProxy?: boolean
 }
 
 const ethLogoURI =
   'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png'
 
-const TokenInput = ({
-  operation,
-  onAmountChange,
-  token0Amount,
-  token1Amount,
-  useWethProxy = true,
-}: Props): JSX.Element => {
+const TokenInput = ({ version, useWethProxy = true }: Props): JSX.Element => {
   const wallet = useWallet()
+
+  const { handleAmountChanged } = useTradeEngine(version)
 
   const token0 = useRecoilValue(token0Selector)
   const token1 = useRecoilValue(token1Selector)
+  const token0AmountPretty = useRecoilValue(token0Amount)
+  const token1AmountPretty = useRecoilValue(token1Amount)
+
+  const operation = useRecoilValue(selectedOperation)
 
   const [amount0, setAmount0] = useState<string | null | undefined>()
   const [amount1, setAmount1] = useState<string | null | undefined>()
   const [focused, setFocused] = useState<number | undefined>(undefined)
 
-  const {
-    formatted: eligibleBalance0,
-    raw: eligibleBalance0Raw,
-  } = useEligibleTokenBalance(token0?.address)
+  const { formatted: eligibleBalance0, raw: eligibleBalance0Raw } =
+    useEligibleTokenBalance(version, token0?.address)
   const { formatted: balance1, raw: balance1Raw } = useTokenBalance(
     token1?.address,
     token1?.decimals,
@@ -59,21 +60,26 @@ const TokenInput = ({
     : balance1 && token1 && formatUnits(balance1Raw, token1.decimals)
 
   useEffect(() => {
-    token0Amount &&
-      token0Amount !== '0' &&
-      token0Amount !== '' &&
-      setAmount0(token0Amount)
-  }, [focused, token0Amount])
+    token0AmountPretty &&
+      token0AmountPretty !== '0' &&
+      token0AmountPretty !== '' &&
+      setAmount0(token0AmountPretty)
+  }, [focused, token0AmountPretty])
 
   useEffect(() => {
-    token1Amount &&
-      token1Amount !== '0' &&
-      token1Amount !== '' &&
-      setAmount1(token1Amount)
-  }, [focused, token1Amount])
+    token1AmountPretty &&
+      token1AmountPretty !== '0' &&
+      token1AmountPretty !== '' &&
+      setAmount1(token1AmountPretty)
+  }, [focused, token1AmountPretty])
 
   const handleAmountChange = (tokenIndex: 0 | 1, value: string) => {
     const parsedValue = value || undefined
+    const debouncedAmountChanged = debounce(
+      () => handleAmountChanged(tokenIndex, parsedValue),
+      200,
+      { leading: true, trailing: true },
+    )
     if (tokenIndex === 0) {
       setAmount0(parsedValue)
       if (
@@ -82,7 +88,7 @@ const TokenInput = ({
         parsedValue !== amount0
       ) {
         setAmount1(null)
-        onAmountChange(tokenIndex, parsedValue)
+        debouncedAmountChanged()
       } else {
         setAmount1(undefined)
       }
@@ -94,7 +100,7 @@ const TokenInput = ({
         parsedValue !== amount1
       ) {
         setAmount0(null)
-        onAmountChange(tokenIndex, parsedValue)
+        debouncedAmountChanged()
       } else {
         setAmount0(undefined)
       }

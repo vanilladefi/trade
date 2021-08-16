@@ -47,9 +47,8 @@ interface Props<D extends Record<string, unknown>> {
   ) => JSX.Element
 }
 
-type CustomColumnInstance<
-  D extends Record<string, unknown>
-> = ColumnInstance<D> & LeftOrRightAlignable & ColorBasedOnValue
+type CustomColumnInstance<D extends Record<string, unknown>> =
+  ColumnInstance<D> & LeftOrRightAlignable & ColorBasedOnValue
 
 const pageSizes = [20, 50, 100]
 

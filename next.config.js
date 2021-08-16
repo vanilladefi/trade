@@ -24,7 +24,12 @@ module.exports = withMDX({
     localeDetection: false,
   },
   images: {
-    domains: ['raw.githubusercontent.com', 'ipfs.io', 'assets.coingecko.com'],
+    domains: [
+      'raw.githubusercontent.com',
+      'ipfs.io',
+      'assets.coingecko.com',
+      'etherscan.io',
+    ],
   },
   async headers() {
     return [

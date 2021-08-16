@@ -38,7 +38,8 @@ export function TokenLogo({
     : Liquidity.LOW
 
   const warningSrc: false | string =
-    liquidityWarning && row?.original?.reserve
+    (liquidityWarning && row?.original?.reserve) ||
+    row?.original?.symbol === 'AMPL'
       ? liquidity === Liquidity.LOW
         ? alertSrc
         : liquidity === Liquidity.MEDIUM
@@ -58,12 +59,16 @@ export function TokenLogo({
 
   const clickHandler = useCallback(
     (e: MouseEvent): void => {
-      if (liquidityWarning && openLiquidityModal) {
+      if (
+        liquidityWarning &&
+        openLiquidityModal &&
+        row?.original?.symbol !== 'AMPL'
+      ) {
         e.stopPropagation()
         openLiquidityModal(liquidity)
       }
     },
-    [liquidity, liquidityWarning, openLiquidityModal],
+    [liquidity, liquidityWarning, openLiquidityModal, row.original.symbol],
   )
 
   return (
@@ -127,13 +132,17 @@ export function ValueETH(props: CellProps<Token>): React.ReactNode {
 }
 
 export function ValueUSD({ value }: CellProps<Token>): React.ReactNode {
-  return (value ?? 0).toLocaleString('en-US', {
+  let localeString = (value ?? 0).toLocaleString('en-US', {
     style: 'currency',
     currency: 'USD',
     notation: 'compact',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })
+  if (value < 0.01) {
+    localeString = '<$0.01'
+  }
+  return localeString
 }
 
 export function ValueUSDHighlighted({
