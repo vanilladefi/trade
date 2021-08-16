@@ -47,7 +47,7 @@
     "lerp": "^1.0.3",
     "lodash.debounce": "^4.0.8",
     "merkletreejs": "^0.2.18",
-    "next": "^10.2.3",
+    "next": "^11.1.0",
     "node-vibrant": "3.1.6",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
