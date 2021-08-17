@@ -1,8 +1,8 @@
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { addDays } from 'date-fns'
-import { BigNumber, ContractTransaction } from 'ethers'
+import { ContractTransaction } from 'ethers'
 import { isAddress } from 'lib/tokens'
-import { calculateGasMargin, snapshot } from 'lib/vanilla'
+import { snapshot } from 'lib/vanilla'
 import { debounce } from 'lodash'
 import { useCallback, useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
@@ -28,7 +28,6 @@ import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factori
 import { VanillaV1Token01__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Token01__factory'
 import { VanillaV1Token02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Token02__factory'
 import {
-  ethersOverrides,
   getVanillaRouterAddress,
   getVnlTokenAddress,
   vnlDecimals,
@@ -74,20 +73,7 @@ export default function useTokenConversion(): {
       )
       if (address && signer && provider) {
         try {
-          let gasEstimate = BigNumber.from(0)
-          const gasPrice = await provider.getGasPrice()
-          try {
-            gasEstimate = await vnlToken1.estimateGas
-              .approve(address, balance, { gasPrice })
-              .then(calculateGasMargin)
-          } catch (_) {
-            gasEstimate = BigNumber.from(ethersOverrides.gasLimit)
-          }
-
-          approval = await vnlToken1.approve(address, balance, {
-            gasPrice: gasPrice,
-            gasLimit: gasEstimate,
-          })
+          approval = await vnlToken1.approve(address, balance)
           setAllowance(formatUnits(balance, vnlDecimals))
         } catch (e) {
           console.error('Approve VNL1', e)
@@ -106,27 +92,13 @@ export default function useTokenConversion(): {
         const legacyBalance = await vnlToken1.balanceOf(walletAddress)
         if (parsedAllowance.gte(legacyBalance)) {
           const { getProof } = await snapshot(vnlToken1, vnlToken2)
+
           const proof = getProof({
             amount: legacyBalance,
             address: walletAddress,
           })
 
-          let gasEstimate = BigNumber.from(0)
-          const gasPrice = await provider.getGasPrice()
-          try {
-            gasEstimate = await vnlToken2.estimateGas
-              .convertVNL(proof, {
-                gasPrice,
-              })
-              .then(calculateGasMargin)
-          } catch (_) {
-            gasEstimate = BigNumber.from(ethersOverrides.gasLimit)
-          }
-
-          conversionReceipt = await vnlToken2.convertVNL(proof, {
-            gasPrice: gasPrice,
-            gasLimit: gasEstimate,
-          })
+          conversionReceipt = await vnlToken2.convertVNL(proof)
           setAllowance(null)
         }
       } catch (e) {
