@@ -1,8 +1,8 @@
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { addDays } from 'date-fns'
-import { BigNumber, ContractTransaction } from 'ethers'
+import { ContractTransaction } from 'ethers'
 import { isAddress } from 'lib/tokens'
-import { calculateGasMargin, snapshot } from 'lib/vanilla'
+import { snapshot } from 'lib/vanilla'
 import { debounce } from 'lodash'
 import { useCallback, useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
@@ -28,7 +28,6 @@ import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factori
 import { VanillaV1Token01__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Token01__factory'
 import { VanillaV1Token02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Token02__factory'
 import {
-  ethersOverrides,
   getVanillaRouterAddress,
   getVnlTokenAddress,
   vnlDecimals,
@@ -74,20 +73,7 @@ export default function useTokenConversion(): {
       )
       if (address && signer && provider) {
         try {
-          let gasEstimate = BigNumber.from(0)
-          const gasPrice = await provider.getGasPrice()
-          try {
-            gasEstimate = await vnlToken1.estimateGas
-              .approve(address, balance, { gasPrice })
-              .then(calculateGasMargin)
-          } catch (_) {
-            gasEstimate = BigNumber.from(ethersOverrides.gasLimit)
-          }
-
-          approval = await vnlToken1.approve(address, balance, {
-            gasPrice: gasPrice,
-            gasLimit: gasEstimate,
-          })
+          approval = await vnlToken1.approve(address, balance)
           setAllowance(formatUnits(balance, vnlDecimals))
         } catch (e) {
           console.error('Approve VNL1', e)
@@ -103,29 +89,16 @@ export default function useTokenConversion(): {
     if (vnlToken1 && vnlToken2 && allowance && signer && provider) {
       try {
         const parsedAllowance = parseUnits(allowance, vnlDecimals)
-        if (!parsedAllowance.isZero()) {
+        const legacyBalance = await vnlToken1.balanceOf(walletAddress)
+        if (parsedAllowance.gte(legacyBalance)) {
           const { getProof } = await snapshot(vnlToken1, vnlToken2)
+
           const proof = getProof({
-            amount: parsedAllowance,
+            amount: legacyBalance,
             address: walletAddress,
           })
 
-          let gasEstimate = BigNumber.from(0)
-          const gasPrice = await provider.getGasPrice()
-          try {
-            gasEstimate = await vnlToken2.estimateGas
-              .convertVNL(proof, {
-                gasPrice,
-              })
-              .then(calculateGasMargin)
-          } catch (_) {
-            gasEstimate = BigNumber.from(ethersOverrides.gasLimit)
-          }
-
-          conversionReceipt = await vnlToken2.convertVNL(proof, {
-            gasPrice: gasPrice,
-            gasLimit: gasEstimate,
-          })
+          conversionReceipt = await vnlToken2.convertVNL(proof)
           setAllowance(null)
         }
       } catch (e) {
@@ -148,101 +121,94 @@ export default function useTokenConversion(): {
       async () => {
         let nextConversionState: ConversionState | null = null
         try {
-          if (signer && conversionState === ConversionState.LOADING) {
-            const checkSummedAddress = isAddress(
-              (await signer?.getAddress()) || '',
-            )
-
+          if (
+            signer &&
+            conversionState === ConversionState.LOADING &&
+            walletAddress !== ''
+          ) {
             // If signer is connected, try fetching migration state
-            if (checkSummedAddress) {
-              const vnlRouter = VanillaV1Router02__factory.connect(
-                getVanillaRouterAddress(VanillaVersion.V1_1),
-                signer,
-              )
-              const legacyAddr = isAddress(
-                getVnlTokenAddress(VanillaVersion.V1_0) || '',
-              )
-              const targetAddr = isAddress(await vnlRouter.vnlContract())
 
-              // Connect to token contracts
-              let VNLToken1: VanillaV1Token01 | undefined
-              let VNLToken2: VanillaV1Token02 | undefined
-              if (legacyAddr && targetAddr) {
-                VNLToken1 = VanillaV1Token01__factory.connect(
-                  legacyAddr,
-                  signer,
-                )
-                VNLToken2 = VanillaV1Token02__factory.connect(
-                  targetAddr,
-                  signer,
-                )
-                setVnlToken1(VNLToken1)
-                setVnlToken2(VNLToken2)
+            const vnlRouter = VanillaV1Router02__factory.connect(
+              getVanillaRouterAddress(VanillaVersion.V1_1),
+              signer,
+            )
+            const legacyAddr = isAddress(
+              getVnlTokenAddress(VanillaVersion.V1_0) || '',
+            )
+            const targetAddr = isAddress(await vnlRouter.vnlContract())
+
+            // Connect to token contracts
+            let VNLToken1: VanillaV1Token01 | undefined
+            let VNLToken2: VanillaV1Token02 | undefined
+            if (legacyAddr && targetAddr) {
+              VNLToken1 = VanillaV1Token01__factory.connect(legacyAddr, signer)
+              VNLToken2 = VanillaV1Token02__factory.connect(targetAddr, signer)
+              setVnlToken1(VNLToken1)
+              setVnlToken2(VNLToken2)
+            } else {
+              nextConversionState = ConversionState.ERROR
+            }
+
+            const legacyBalance = await VNLToken1?.balanceOf(walletAddress)
+
+            // If both tokens are connected correctly and user has legacy balance, continue
+            if (VNLToken1 && VNLToken2 && !legacyBalance?.isZero()) {
+              const { getProof, verify, root, snapshotState } = await snapshot(
+                VNLToken1,
+                VNLToken2,
+              )
+
+              // Get v1.0 token state snapshot
+              const mySnapshotState = snapshotState.accounts[walletAddress]
+              const myConvertableBalance =
+                mySnapshotState && formatUnits(mySnapshotState, vnlDecimals)
+              if (mySnapshotState.isZero()) {
+                nextConversionState = ConversionState.HIDDEN
               } else {
+                nextConversionState = ConversionState.AVAILABLE
+                setConvertable(myConvertableBalance)
+              }
+
+              // Get start date for conversion
+              const startDate = snapshotState
+                ? new Date(snapshotState.timeStamp * 1000)
+                : null
+              setStartDate(startDate)
+              if (startDate === new Date(0) || mySnapshotState.isZero()) {
                 nextConversionState = ConversionState.ERROR
               }
 
-              const legacyBalance = await VNLToken1?.balanceOf(
-                checkSummedAddress,
+              // Calculate conversion deadline
+              const deadline = startDate ? addDays(startDate, 30) : null
+              setDeadline(deadline)
+
+              // Verify proof to check eligibility
+              if (
+                verify(
+                  { amount: mySnapshotState, address: walletAddress },
+                  root,
+                ) &&
+                startDate !== new Date(0) &&
+                !mySnapshotState.isZero()
+              ) {
+                const proof = getProof({
+                  amount: mySnapshotState,
+                  address: walletAddress,
+                })
+                setProof(proof)
+                const eligible = await VNLToken2.checkEligibility(proof)
+                setEligible(eligible.convertible)
+                nextConversionState = ConversionState.AVAILABLE
+              }
+
+              // Check allowance, skip straight to minting if allowance > 0
+              const allowanceResponse = await VNLToken1.allowance(
+                walletAddress,
+                VNLToken2.address,
               )
-
-              // If both tokens are connected correctly and user has legacy balance, continue
-              if (VNLToken1 && VNLToken2 && !legacyBalance?.isZero()) {
-                const { getProof, verify, root, snapshotState } =
-                  await snapshot(VNLToken1, VNLToken2)
-
-                // Get v1.0 token state snapshot
-                const mySnapshotState = snapshotState.accounts[walletAddress]
-                const myConvertableBalance =
-                  mySnapshotState && formatUnits(mySnapshotState, vnlDecimals)
-                if (mySnapshotState.isZero()) {
-                  nextConversionState = ConversionState.HIDDEN
-                } else {
-                  nextConversionState = ConversionState.AVAILABLE
-                  setConvertable(myConvertableBalance)
-                }
-
-                // Get start date for conversion
-                const startDate = snapshotState
-                  ? new Date(snapshotState.timeStamp * 1000)
-                  : null
-                setStartDate(startDate)
-                if (startDate === new Date(0) || mySnapshotState.isZero()) {
-                  nextConversionState = ConversionState.ERROR
-                }
-
-                // Calculate conversion deadline
-                const deadline = startDate ? addDays(startDate, 30) : null
-                setDeadline(deadline)
-
-                // Verify proof to check eligibility
-                if (
-                  verify(
-                    { amount: mySnapshotState, address: checkSummedAddress },
-                    root,
-                  ) &&
-                  startDate !== new Date(0) &&
-                  !mySnapshotState.isZero()
-                ) {
-                  const proof = getProof({
-                    amount: mySnapshotState,
-                    address: checkSummedAddress,
-                  })
-                  setProof(proof)
-                  const eligible = await VNLToken2.checkEligibility(proof)
-                  setEligible(eligible.convertible)
-                  nextConversionState = ConversionState.AVAILABLE
-                }
-
-                // Check allowance, skip straight to minting if allowance > 0
-                const allowanceResponse = await VNLToken1.allowance(
-                  checkSummedAddress,
-                  VNLToken2.address,
-                )
-                setAllowance(formatUnits(allowanceResponse, vnlDecimals))
-                if (!allowanceResponse.isZero()) {
-                  nextConversionState = ConversionState.APPROVED
-                }
+              setAllowance(formatUnits(allowanceResponse, vnlDecimals))
+              if (allowanceResponse.gte(legacyBalance)) {
+                nextConversionState = ConversionState.APPROVED
               }
             }
           }

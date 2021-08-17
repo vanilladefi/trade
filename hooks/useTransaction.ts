@@ -1,5 +1,4 @@
 import { BigNumber, Contract, ethers } from 'ethers'
-import { parseUnits } from 'ethers/lib/utils'
 import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
@@ -77,7 +76,7 @@ const purchaseHandler = async ({
   updateTransaction(newTransactionDetails.hash, newTransactionDetails)
 
   if (updatePosition && newDetails.received) {
-    const delta = parseUnits(amountReceived, newDetails.received.decimals)
+    const delta = BigNumber.from(amountReceived)
     updatePosition(newDetails.received, delta)
   }
 }
@@ -136,9 +135,7 @@ const saleHandler = async ({
   updateTransaction(newTransactionDetails.hash, newTransactionDetails)
 
   if (updatePosition && newDetails.paid) {
-    const delta = BigNumber.from('0').sub(
-      parseUnits(amountPaid, newDetails.paid.decimals),
-    )
+    const delta = BigNumber.from('0').sub(BigNumber.from(amountPaid))
     updatePosition(newDetails.paid, delta)
   }
 }

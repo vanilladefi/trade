@@ -14,16 +14,18 @@ import { hiddenTokens } from 'utils/config'
 interface Props {
   onBuyClick: HandleBuyClick
   initialTokens?: Token[]
-  exchange: UniswapVersion
+  uniswapVersion: UniswapVersion
 }
 
 export default function AvailableTokens({
   onBuyClick,
   initialTokens = [],
-  exchange,
+  uniswapVersion,
 }: Props): JSX.Element {
   const tokens = useRecoilValue(
-    exchange === UniswapVersion.v2 ? uniswapV2TokenState : uniswapV3TokenState,
+    uniswapVersion === UniswapVersion.v2
+      ? uniswapV2TokenState
+      : uniswapV3TokenState,
   )
 
   const [liquidityModalContent, setLiquidityModalContent] = useState<
@@ -36,6 +38,7 @@ export default function AvailableTokens({
     type ContentProps = {
       children?: ReactNode
     }
+
     const ContentWrapper = ({ children }: ContentProps) => (
       <div>
         {children}
@@ -55,32 +58,35 @@ export default function AvailableTokens({
     )
     const setLiquidityModalOpen = (liquidity: Liquidity): void => {
       let content: JSX.Element | false = false
-      if (liquidity === Liquidity.MEDIUM) {
-        content = (
-          <ContentWrapper>
-            <p>
-              This token has
-              <strong style={{ color: 'orange' }}> low liquidity</strong>, and
-              pricing might be wrong. Buy with caution
-            </p>
-          </ContentWrapper>
-        )
-      } else if (liquidity === Liquidity.LOW) {
-        content = (
-          <ContentWrapper>
-            <p>
-              This token currently has{' '}
-              <strong style={{ color: 'red' }}> very low liquidity</strong> and
-              will not result in any $VNL mined through profit mining, and
-              selling might be difficult
-            </p>
-          </ContentWrapper>
-        )
+      if (uniswapVersion === UniswapVersion.v2) {
+        if (liquidity === Liquidity.MEDIUM) {
+          content = (
+            <ContentWrapper>
+              <p>
+                This token has
+                <strong style={{ color: 'orange' }}> low liquidity</strong>, and
+                pricing might be wrong. Buy with caution
+              </p>
+            </ContentWrapper>
+          )
+        } else if (liquidity === Liquidity.LOW) {
+          content = (
+            <ContentWrapper>
+              <p>
+                This token currently has{' '}
+                <strong style={{ color: 'red' }}> very low liquidity</strong>{' '}
+                and will not result in any $VNL mined through profit mining, and
+                selling might be difficult
+              </p>
+            </ContentWrapper>
+          )
+        }
       }
       setLiquidityModalContent(content)
     }
+
     return getColumns(onBuyClick, setLiquidityModalOpen)
-  }, [onBuyClick])
+  }, [onBuyClick, uniswapVersion])
 
   const initialSortBy = useMemo(() => [{ id: 'liquidity', desc: true }], [])
 
