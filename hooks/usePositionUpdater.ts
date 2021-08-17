@@ -29,6 +29,7 @@ function usePositionUpdater(version: VanillaVersion): PositionUpdater {
     ) => void
     let allTokens: Token[]
 
+    // Version switch so correct position gets updated
     switch (version) {
       case VanillaVersion.V1_0:
         stateUpdater = setUserTokensV2
@@ -46,9 +47,11 @@ function usePositionUpdater(version: VanillaVersion): PositionUpdater {
     stateUpdater((current) => {
       if (current?.length && token && delta) {
         let newTokens = [...current]
+        // Check first if user has an open position of the coin in question
         const userHasAPosition = newTokens.find(
           (currentPosition) => currentPosition.address === token.address,
         )
+        // If the user has a position, add the changed amount to the open position
         if (userHasAPosition) {
           newTokens = newTokens
             .map((currentPosition) => {
@@ -79,6 +82,7 @@ function usePositionUpdater(version: VanillaVersion): PositionUpdater {
             })
             .filter((token) => token.owned)
           return newTokens
+          // If the user doesn't have an open position already in the coin in question, open up a new one. This should only fire on buys, not sales.
         } else {
           const tokenFromAllTokens =
             allTokens.find(
