@@ -445,7 +445,7 @@ const BodyContent = ({
             <AvailableTokens
               initialTokens={initialTokens.v3}
               onBuyClick={handleV3BuyClick}
-              exchange={UniswapVersion.v3}
+              uniswapVersion={UniswapVersion.v3}
             />
           </Column>
         </Row>
