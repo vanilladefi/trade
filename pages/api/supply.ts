@@ -14,6 +14,6 @@ export default async (
     getVnlTokenAddress(VanillaVersion.V1_1),
     provider,
   )
-  const totalSupply = await vnl.totalSupply()
+  const totalSupply = (await vnl.totalSupply()).toString()
   res.status(200).json(totalSupply)
 }
