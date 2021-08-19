@@ -1,9 +1,10 @@
 import { ethers } from 'ethers'
+import { formatUnits } from 'ethers/lib/utils'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { VanillaVersion } from 'types/general'
 import { ERC20 } from 'types/typechain/vanilla_v1.1/ERC20'
 import { ERC20__factory } from 'types/typechain/vanilla_v1.1/factories/ERC20__factory'
-import { getVnlTokenAddress } from 'utils/config'
+import { getVnlTokenAddress, vnlDecimals } from 'utils/config'
 
 export default async (
   _req: NextApiRequest,
@@ -14,6 +15,7 @@ export default async (
     getVnlTokenAddress(VanillaVersion.V1_1),
     provider,
   )
-  const totalSupply = (await vnl.totalSupply()).toString()
-  res.status(200).json(totalSupply)
+  const totalSupply = await vnl.totalSupply()
+  const formattedSupply = formatUnits(totalSupply, vnlDecimals)
+  res.status(200).json(formattedSupply)
 }
