@@ -85,6 +85,19 @@ const SoMeLinks = (): JSX.Element => (
         Vanilla Router on Etherscan
       </a>
     </li>
+    <li>
+      <a
+        href='https://etherscan.io/address/0xa135f339B5acd1f4eCB1C6eEd69a31482f878545'
+        target='_blank'
+        rel='noopener noreferrer'
+      >
+        <Icon
+          src={IconUrls.ARROW_UP_RIGHT}
+          injectedStyles='filter: invert(1);'
+        />
+        VanillaDAO on Etherscan
+      </a>
+    </li>
     <br />
     <br />
     <li>
