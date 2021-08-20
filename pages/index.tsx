@@ -25,14 +25,11 @@ const HeaderContent = (
         <Row>
           <Column width={Width.TWELVE}>
             <InViewWrapper delay={0}>
-              <Title>
-                The most profitable <br />
-                way to DeFi
-              </Title>
+              <Title>A decentralised meritocracy for investors</Title>
             </InViewWrapper>
             <InViewWrapper delay={0.15}>
               <HugeMonospace>
-                Trade, lend and participate in #ProfitMining
+                Make profitable trades to earn the governance token VNL
               </HugeMonospace>
             </InViewWrapper>
             <InViewWrapper delay={0.3}>
