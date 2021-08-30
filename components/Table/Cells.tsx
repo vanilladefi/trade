@@ -7,8 +7,9 @@ const warnSrc = '/images/icons/liq-warning-orange.svg'
 const alertSrc = '/images/icons/liq-warning-red.svg'
 
 type TokenLogoProps = CellProps<Token> & {
-  liquidityWarning: boolean
-  openLiquidityModal: (liquidity: Liquidity) => void
+  liquidityWarning?: boolean
+  openLiquidityModal?: (liquidity: Liquidity) => void
+  openCardinalityModal?: () => void
 }
 
 export function TokenLogo({
@@ -16,6 +17,7 @@ export function TokenLogo({
   row,
   liquidityWarning,
   openLiquidityModal,
+  openCardinalityModal,
 }: TokenLogoProps): JSX.Element {
   const imgSrc = row.original.logoURI || null
   const Logo = imgSrc ? (
@@ -29,6 +31,7 @@ export function TokenLogo({
     />
   ) : null
 
+  // Uniswap v2 liquidity warnings
   const liquidity = row?.original?.reserve
     ? row?.original?.reserve < Liquidity.LOW
       ? Liquidity.LOW
@@ -36,7 +39,6 @@ export function TokenLogo({
       ? Liquidity.MEDIUM
       : Liquidity.HIGH
     : Liquidity.LOW
-
   const warningSrc: false | string =
     (liquidityWarning && row?.original?.reserve) ||
     row?.original?.symbol === 'AMPL'
@@ -57,6 +59,20 @@ export function TokenLogo({
     />
   ) : null
 
+  // Uniswap v3 oracle observing cardinality
+  const observationCardinality = row?.original?.observationCardinality
+  const CardinalityWarning =
+    observationCardinality && observationCardinality === 1 ? (
+      <Image
+        src={alertSrc}
+        height='20px'
+        width='20px'
+        layout='fixed'
+        alt='liquidityWarning'
+        aria-hidden='false'
+      />
+    ) : null
+
   const clickHandler = useCallback(
     (e: MouseEvent): void => {
       if (
@@ -66,9 +82,23 @@ export function TokenLogo({
       ) {
         e.stopPropagation()
         openLiquidityModal(liquidity)
+      } else if (
+        observationCardinality &&
+        observationCardinality === 1 &&
+        openCardinalityModal
+      ) {
+        e.stopPropagation()
+        openCardinalityModal()
       }
     },
-    [liquidity, liquidityWarning, openLiquidityModal, row.original.symbol],
+    [
+      liquidity,
+      liquidityWarning,
+      observationCardinality,
+      openCardinalityModal,
+      openLiquidityModal,
+      row?.original?.symbol,
+    ],
   )
 
   return (
@@ -80,6 +110,14 @@ export function TokenLogo({
         <div className='inner-logo-wrapper'>{Logo}</div>
         {liquidityWarning && (
           <div className='warning-wrapper'>{LiquidityWarning}</div>
+        )}
+        {observationCardinality && observationCardinality === 1 && (
+          <div
+            className='warning-wrapper'
+            title="Price oracle's observation cardinality 1. Click for more info."
+          >
+            {CardinalityWarning}
+          </div>
         )}
       </div>
       <div className='value-wrapper'>{String(value)}</div>
