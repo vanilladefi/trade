@@ -28,7 +28,7 @@ export default function AvailableTokens({
       : uniswapV3TokenState,
   )
 
-  const [liquidityModalContent, setLiquidityModalContent] = useState<
+  const [alertModalContent, setAlertModalContent] = useState<
     JSX.Element | false
   >(false)
 
@@ -82,10 +82,47 @@ export default function AvailableTokens({
           )
         }
       }
-      setLiquidityModalContent(content)
+      setAlertModalContent(content)
+    }
+    const setCardinalityModalOpen = (): void => {
+      const content: JSX.Element = (
+        <ContentWrapper>
+          <p>
+            This token currently has{' '}
+            <strong style={{ color: 'red' }}>
+              {' '}
+              <a
+                href='https://docs.uniswap.org/protocol/reference/core/libraries/Oracle'
+                target='_blank'
+                rel='noreferrer noopener'
+              >
+                observation cardinality
+              </a>{' '}
+              of 1
+            </strong>{' '}
+            for the price oracle of its liquidity pool, and will not result in
+            any $VNL mined through profit mining. This can change at any moment,
+            and once the{' '}
+            <a
+              href='https://docs.uniswap.org/protocol/reference/core/libraries/Oracle'
+              target='_blank'
+              rel='noreferrer noopener'
+            >
+              observation cardinality
+            </a>{' '}
+            is increased, the problem is solved. This is to protect users and
+            $VNL from price manipulation.
+          </p>
+        </ContentWrapper>
+      )
+      setAlertModalContent(content)
     }
 
-    return getColumns(onBuyClick, setLiquidityModalOpen)
+    return getColumns(
+      onBuyClick,
+      setLiquidityModalOpen,
+      setCardinalityModalOpen,
+    )
   }, [onBuyClick, uniswapVersion])
 
   const initialSortBy = useMemo(() => [{ id: 'liquidity', desc: true }], [])
@@ -98,10 +135,10 @@ export default function AvailableTokens({
   return (
     <>
       <Modal
-        open={!!liquidityModalContent}
-        onRequestClose={() => setLiquidityModalContent(false)}
+        open={!!alertModalContent}
+        onRequestClose={() => setAlertModalContent(false)}
       >
-        {liquidityModalContent}
+        {alertModalContent}
       </Modal>
       <Table
         data={filterMinableTokens(tokens?.length ? tokens : initialTokens)}
@@ -118,6 +155,7 @@ export default function AvailableTokens({
 function getColumns(
   onBuyClick: HandleBuyClick,
   openLiquidityModal: (liquidity: Liquidity) => void,
+  openCardinalityModal?: () => void,
 ): ListColumn<Token>[] {
   return [
     {
@@ -130,6 +168,7 @@ function getColumns(
         <TokenLogo
           {...props}
           openLiquidityModal={openLiquidityModal}
+          openCardinalityModal={openCardinalityModal}
           liquidityWarning
         />
       ),
@@ -144,6 +183,7 @@ function getColumns(
         <TokenLogo
           {...props}
           openLiquidityModal={openLiquidityModal}
+          openCardinalityModal={openCardinalityModal}
           liquidityWarning
         />
       ),
