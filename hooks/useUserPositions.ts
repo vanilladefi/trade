@@ -22,7 +22,7 @@ import {
   userV3TokensState,
 } from 'state/tokens'
 import { selectedCounterAsset } from 'state/trade'
-import { providerState, signerState } from 'state/wallet'
+import { providerState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
 import {
   RewardEstimate,
@@ -50,23 +50,15 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
   const vanillaRouter = useVanillaRouter(version)
   const { long: userAddress } = useWalletAddress()
   const provider = useRecoilValue(providerState)
-  const signer = useRecoilValue(signerState)
   const wallet = useWallet()
   const vnl = useVanillaGovernanceToken(version)
-  const million = 1000000
 
   useEffect(() => {
     const filterUserTokens = async (
       tokens: Token[],
     ): Promise<Token[] | null> => {
       let tokensWithBalance: Token[] | null = null
-      if (
-        vanillaRouter &&
-        userAddress &&
-        provider &&
-        signer &&
-        isAddress(vnl.address)
-      ) {
+      if (vanillaRouter && userAddress && provider && isAddress(vnl.address)) {
         try {
           tokensWithBalance = await Promise.all(
             tokens.map(async (token) => {
@@ -128,7 +120,7 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
                     )
                   } else if (version === VanillaVersion.V1_1) {
                     trade = await constructV3Trade(
-                      signer,
+                      provider,
                       tokenAmount.toSignificant(),
                       counterAsset,
                       token,
@@ -153,7 +145,8 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
                   reward = amountOut
                     ? await estimateReward(
                         version,
-                        signer,
+                        userAddress,
+                        provider,
                         token,
                         counterAsset,
                         tokenAmount.toSignificant(),
@@ -178,9 +171,14 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
                   epoch: BigNumber | null = BigNumber.from('0')
                 let htrs: string
                 try {
-                  priceData = await getPriceData(version, signer, token.address)
+                  priceData = await getPriceData(
+                    version,
+                    userAddress,
+                    provider,
+                    token.address,
+                  )
                   blockNumber = await provider.getBlockNumber()
-                  epoch = await getEpoch(version, signer)
+                  epoch = await getEpoch(version, provider)
                   const avgBlock =
                     priceData?.weightedBlockSum.div(priceData?.tokenSum) ??
                     BigNumber.from('0')
@@ -279,10 +277,8 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
           console.error(e)
           tokensWithBalance = []
         }
-      } /* else if (wallet.status === 'connected' && !isAddress(vnl.address)) {
-        // This means that Vanilla hasn't been deployed to the used chain
-        tokensWithBalance = []
-      } */
+      }
+
       return (
         tokensWithBalance && tokensWithBalance.filter((token) => token.owned)
       )
@@ -298,7 +294,6 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
     setTokens,
     vnl.address,
     provider,
-    signer,
     version,
   ])
 

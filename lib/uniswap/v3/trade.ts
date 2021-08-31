@@ -8,7 +8,7 @@ import {
   TradeType,
 } from '@uniswap/sdk-core'
 import { FeeAmount } from '@uniswap/v3-sdk'
-import { BigNumber, Signer, Transaction } from 'ethers'
+import { BigNumber, providers, Signer, Transaction } from 'ethers'
 import { formatUnits, getAddress, parseUnits } from 'ethers/lib/utils'
 import { isAddress, tokenListChainId } from 'lib/tokens'
 import { VanillaVersion } from 'types/general'
@@ -213,7 +213,7 @@ class V3Trade {
 
 // Pricing function for UniSwap v3 trades
 export async function constructTrade(
-  signer: Signer,
+  signerOrProvider: Signer | providers.Provider,
   amountToTrade: string, // Not amountPaid because of tradeType
   tokenReceived: Token,
   tokenPaid: Token,
@@ -238,7 +238,7 @@ export async function constructTrade(
 
     const uniV3Oracle = Quoter__factory.connect(
       getUniswapQuoterAddress(),
-      signer,
+      signerOrProvider,
     )
 
     const swapOperation = UniswapOracle(uniV3Oracle).swap(
