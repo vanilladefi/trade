@@ -1,7 +1,7 @@
 import { AnimatePresence, motion, useCycle } from 'framer-motion'
+import MenuToggle from './MenuToggle'
 import NavLink from './NavLink'
 import SmallWalletInfo from './SmallWalletInfo'
-import MenuToggle from './MenuToggle'
 
 function NavLinks() {
   return (
@@ -9,6 +9,7 @@ function NavLinks() {
       <NavLink href='/'>Home</NavLink>
       <NavLink href='/trade'>Trade</NavLink>
       <NavLink href='/faq'>FAQ</NavLink>
+      <NavLink href='https://community.vanilladefi.com'>Community</NavLink>
     </>
   )
 }
