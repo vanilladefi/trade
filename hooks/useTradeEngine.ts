@@ -7,7 +7,7 @@ import {
 } from '@uniswap/sdk-core'
 import { FeeAmount } from '@uniswap/v3-sdk'
 import { BigNumber, Transaction } from 'ethers'
-import { formatUnits, parseUnits } from 'ethers/lib/utils'
+import { formatUnits, isAddress, parseUnits } from 'ethers/lib/utils'
 import { TransactionProps } from 'lib/uniswap'
 import * as uniV2 from 'lib/uniswap/v2/trade'
 import * as uniV3 from 'lib/uniswap/v3/trade'
@@ -46,6 +46,7 @@ import useAllTransactions from './useAllTransactions'
 import useEligibleTokenBalance from './useEligibleTokenBalance'
 import useTokenBalance from './useTokenBalance'
 import useVanillaGovernanceToken from './useVanillaGovernanceToken'
+import useWalletAddress from './useWalletAddress'
 
 export enum TransactionState {
   PREPARE,
@@ -81,7 +82,7 @@ const useTradeEngine = (
   error: string | null
   setError: Dispatch<SetStateAction<string | null>>
 } => {
-  // The Ethers signer and provider
+  const { long: walletAddress } = useWalletAddress()
   const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
   const operation = useRecoilValue(selectedOperation)
@@ -468,10 +469,12 @@ const useTradeEngine = (
           token0 &&
           token1 &&
           amount0 &&
-          amount1
+          amount1 &&
+          isAddress(walletAddress)
         ) {
           estimateReward(
             version,
+            walletAddress,
             signer,
             token0,
             token1,
@@ -502,6 +505,7 @@ const useTradeEngine = (
     amount0,
     amount1,
     setEstimatedReward,
+    walletAddress,
   ])
 
   const handleAmountChanged = async (tokenIndex: 0 | 1, value: string) => {
