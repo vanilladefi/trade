@@ -50,6 +50,7 @@ export interface Token extends UniSwapToken {
   sqrtPrice?: string | null
   pool?: string | null
   fee?: string | number | null
+  observationCardinality?: number | null
 }
 
 export interface TokenInfoQueryResponse {
