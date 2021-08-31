@@ -121,4 +121,25 @@ const Modal = ({
   )
 }
 
+export type ContentProps = {
+  children?: ReactNode
+}
+export const ContentWrapper = ({ children }: ContentProps): JSX.Element => (
+  <div>
+    {children}
+    <style jsx>{`
+      div {
+        padding: 1rem 1.8rem;
+        max-width: 500px;
+        flex-shrink: 1;
+        display: flex;
+        flex-wrap: wrap;
+        font-family: var(--bodyfont);
+        font-size: var(--bodysize);
+        font-weight: var(--bodyweight);
+      }
+    `}</style>
+  </div>
+)
+
 export default Modal

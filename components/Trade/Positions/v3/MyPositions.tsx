@@ -5,20 +5,14 @@ import Button, {
   ButtonSize,
   Rounding,
 } from 'components/input/Button'
-import Modal from 'components/Modal'
+import Modal, { ContentWrapper } from 'components/Modal'
 import { Spinner } from 'components/Spinner'
 import { Columns, Table } from 'components/Table'
 import { TokenLogo } from 'components/Table/Cells'
 import { cellProps, rowProps } from 'components/Table/Table'
 import { formatDistance } from 'date-fns'
 import useTokenSearch from 'hooks/useTokenSearch'
-import React, {
-  MouseEvent,
-  ReactNode,
-  useCallback,
-  useMemo,
-  useState,
-} from 'react'
+import React, { MouseEvent, useCallback, useMemo, useState } from 'react'
 import type { CellProps, Row } from 'react-table'
 import { useRecoilValue } from 'recoil'
 import { userV3TokensState } from 'state/tokens'
@@ -29,6 +23,7 @@ import type {
   Token,
 } from 'types/trade'
 import { epoch } from 'utils/config'
+import { CardinalityContent } from '../Content'
 
 interface Props {
   onBuyClick: HandleBuyClick
@@ -218,59 +213,16 @@ export default function MyPositions({
   const [cardinalityModalContent, setCardinalityModalContent] = useState<
     JSX.Element | false
   >(false)
-  type ContentProps = {
-    children?: ReactNode
-  }
-  const ContentWrapper = ({ children }: ContentProps) => (
-    <div>
-      {children}
-      <style jsx>{`
-        div {
-          padding: 1rem 1.8rem;
-          max-width: 500px;
-          flex-shrink: 1;
-          display: flex;
-          flex-wrap: wrap;
-          font-family: var(--bodyfont);
-          font-size: var(--bodysize);
-          font-weight: var(--bodyweight);
-        }
-      `}</style>
-    </div>
-  )
+
   const setCardinalityModalOpen = (): void => {
     const content: JSX.Element = (
       <ContentWrapper>
-        <p>
-          This token currently has{' '}
-          <strong style={{ color: 'red' }}>
-            {' '}
-            <a
-              href='https://docs.uniswap.org/protocol/reference/core/libraries/Oracle'
-              target='_blank'
-              rel='noreferrer noopener'
-            >
-              observation cardinality
-            </a>{' '}
-            of 1
-          </strong>{' '}
-          for the price oracle of its liquidity pool, and will not result in any
-          $VNL mined through profit mining. This can change at any moment, and
-          once the{' '}
-          <a
-            href='https://docs.uniswap.org/protocol/reference/core/libraries/Oracle'
-            target='_blank'
-            rel='noreferrer noopener'
-          >
-            observation cardinality
-          </a>{' '}
-          is increased, the problem is solved. This is to protect users and $VNL
-          from price manipulation.
-        </p>
+        <CardinalityContent />
       </ContentWrapper>
     )
     setCardinalityModalContent(content)
   }
+
   const getColumns = useCallback(
     ({
       onBuyClick,

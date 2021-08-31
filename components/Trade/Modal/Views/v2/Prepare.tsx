@@ -25,7 +25,7 @@ type ContentProps = {
   setOperation: Dispatch<SetStateAction<Operation>>
 }
 
-const TokenInput = dynamic(() => import('components/Trade/TokenInput'))
+const TokenInput = dynamic(() => import('components/Trade/Modal/TokenInput'))
 
 enum TransactionState {
   PREPARE,
