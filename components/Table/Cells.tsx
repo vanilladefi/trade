@@ -82,7 +82,8 @@ export function TokenLogo({
       ) {
         e.stopPropagation()
         openLiquidityModal(liquidity)
-      } else if (
+      }
+      if (
         observationCardinality &&
         observationCardinality === 1 &&
         openCardinalityModal
@@ -103,7 +104,11 @@ export function TokenLogo({
 
   return (
     <div
-      className={`container${warningSrc ? ' liquidityWarning' : ''}`}
+      className={`container${
+        warningSrc || (observationCardinality && observationCardinality === 1)
+          ? ' warning'
+          : ''
+      }`}
       onClick={clickHandler}
     >
       <div className='logo-wrapper'>
@@ -128,7 +133,7 @@ export function TokenLogo({
           align-items: center;
           position: relative;
         }
-        div.container.liquidityWarning {
+        div.container.warning {
           cursor: pointer;
         }
         div.logo-wrapper {
