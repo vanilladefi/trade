@@ -384,11 +384,12 @@ export function calculateGasMargin(value: BigNumber): BigNumber {
 export async function getUserPositions(
   version: VanillaVersion,
   address: string,
+  tokens?: Token[],
 ): Promise<Token[]> {
   const checkSummedAddress = isAddress(address)
   const vanillaRouter = getVanillaRouter(version, defaultProvider)
   const million = 1000000
-  const tokens = getAllTokens(version)
+  const allTokens = tokens || getAllTokens(version)
   const ETHPrice = await getETHPrice(
     version === VanillaVersion.V1_0 ? UniswapVersion.v2 : UniswapVersion.v3,
   )
@@ -396,7 +397,7 @@ export async function getUserPositions(
   if (checkSummedAddress && vanillaRouter) {
     try {
       positions = await Promise.all(
-        tokens.map(async (token) => {
+        allTokens.map(async (token) => {
           // Fetch price data from Vanilla router
           let tokenSum: BigNumber
           try {
