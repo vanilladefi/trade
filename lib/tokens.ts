@@ -10,6 +10,7 @@ import Vibrant from 'node-vibrant'
 import VanillaRouter from 'types/abis/vanillaRouter.json'
 import { TokenQueryVariables, VanillaVersion } from 'types/general'
 import { Eligibility, Token, TokenInfoQueryResponse } from 'types/trade'
+import { UniswapV3Pool__factory } from 'types/typechain/uniswap_v3_core'
 import { chainId, defaultProvider, getVanillaRouterAddress } from 'utils/config'
 
 export { chainId }
@@ -188,7 +189,7 @@ export async function addVnlEligibility(
   return Promise.all(
     tokens.map(async (t) => {
       try {
-        if (router && router.isTokenRewarded) {
+        if (router?.isTokenRewarded) {
           const eligibility = await router.isTokenRewarded(t.address)
           t.eligible = eligibility
             ? Eligibility.Eligible
@@ -196,6 +197,29 @@ export async function addVnlEligibility(
         }
       } catch (e) {
         t.eligible = Eligibility.NotEligible
+      }
+      return t
+    }),
+  )
+}
+
+/**
+ * Add oracle observation cardinality (Only Uniswap v3+)
+ */
+export async function addObservationCardinality(
+  tokens: Token[],
+): Promise<Token[]> {
+  return Promise.all(
+    tokens.map(async (t) => {
+      try {
+        const pool = UniswapV3Pool__factory.connect(t.pool, defaultProvider)
+        const slot0 = await pool.slot0()
+        slot0.observationCardinality
+        if (slot0?.observationCardinality) {
+          t.observationCardinality = slot0.observationCardinality
+        }
+      } catch (e) {
+        t.observationCardinality = 0
       }
       return t
     }),

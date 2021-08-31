@@ -20,6 +20,7 @@ import { UniswapVersion } from 'lib/graphql'
 import {
   addGraphInfo,
   addLogoColor,
+  addObservationCardinality,
   addUSDPrice,
   addVnlEligibility,
   getAllTokens,
@@ -585,6 +586,7 @@ export async function getStaticProps(): Promise<
     token.eligible = Eligibility.Eligible
     return token
   })
+  tokensV3 = await addObservationCardinality(tokensV3)
 
   block24hAgo = currentBlockNumberV3 - 24 * blocksPerHourV3
 

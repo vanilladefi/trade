@@ -5,12 +5,14 @@ import Button, {
   ButtonSize,
   Rounding,
 } from 'components/input/Button'
+import Modal, { ContentWrapper } from 'components/Modal'
 import { Spinner } from 'components/Spinner'
 import { Columns, Table } from 'components/Table'
+import { TokenLogo } from 'components/Table/Cells'
 import { cellProps, rowProps } from 'components/Table/Table'
 import { formatDistance } from 'date-fns'
 import useTokenSearch from 'hooks/useTokenSearch'
-import React, { MouseEvent, useCallback, useMemo } from 'react'
+import React, { MouseEvent, useCallback, useMemo, useState } from 'react'
 import type { CellProps, Row } from 'react-table'
 import { useRecoilValue } from 'recoil'
 import { userV3TokensState } from 'state/tokens'
@@ -21,6 +23,7 @@ import type {
   Token,
 } from 'types/trade'
 import { epoch } from 'utils/config'
+import { CardinalityContent } from '../Content'
 
 interface Props {
   onBuyClick: HandleBuyClick
@@ -207,6 +210,18 @@ export default function MyPositions({
 }: Props): JSX.Element {
   const userPositions = useRecoilValue(userV3TokensState)
   const [query, clearQuery] = useTokenSearch()
+  const [cardinalityModalContent, setCardinalityModalContent] = useState<
+    JSX.Element | false
+  >(false)
+
+  const setCardinalityModalOpen = (): void => {
+    const content: JSX.Element = (
+      <ContentWrapper>
+        <CardinalityContent />
+      </ContentWrapper>
+    )
+    setCardinalityModalContent(content)
+  }
 
   const getColumns = useCallback(
     ({
@@ -217,8 +232,32 @@ export default function MyPositions({
       onSellClick: HandleSellClick
     }): ListColumn<Token>[] => {
       return [
-        Columns.LogoTicker,
-        Columns.LogoName,
+        {
+          id: 'logoTicker',
+          Header: 'Token',
+          accessor: 'symbol',
+          sortType: 'basic',
+          hideAbove: 'md',
+          Cell: (props: CellProps<Token>) => (
+            <TokenLogo
+              {...props}
+              openCardinalityModal={() => setCardinalityModalOpen()}
+            />
+          ),
+        },
+        {
+          id: 'logoName',
+          Header: 'Token',
+          accessor: 'name',
+          hideBelow: 'md',
+          width: 3,
+          Cell: (props: CellProps<Token>) => (
+            <TokenLogo
+              {...props}
+              openCardinalityModal={() => setCardinalityModalOpen()}
+            />
+          ),
+        },
         Columns.Ticker,
         Columns.MarketValue,
         Columns.OwnedAmount,
@@ -281,16 +320,24 @@ export default function MyPositions({
   const initialSortBy = useMemo(() => [{ id: 'value', desc: true }], [])
 
   return userPositions ? (
-    <Table
-      data={userPositions}
-      columns={columns}
-      initialSortBy={initialSortBy}
-      query={query}
-      clearQuery={clearQuery}
-      rowRenderer={RowRenderer}
-      colorize
-      pagination
-    />
+    <>
+      <Modal
+        open={!!cardinalityModalContent}
+        onRequestClose={() => setCardinalityModalContent(false)}
+      >
+        {cardinalityModalContent}
+      </Modal>
+      <Table
+        data={userPositions}
+        columns={columns}
+        initialSortBy={initialSortBy}
+        query={query}
+        clearQuery={clearQuery}
+        rowRenderer={RowRenderer}
+        colorize
+        pagination
+      />
+    </>
   ) : (
     <div className='spinnerWrapper'>
       <Spinner />

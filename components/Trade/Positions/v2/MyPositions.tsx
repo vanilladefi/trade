@@ -4,7 +4,7 @@ import Button, {
   ButtonSize,
   Rounding,
 } from 'components/input/Button'
-import Modal from 'components/Modal'
+import Modal, { ContentWrapper } from 'components/Modal'
 import { Spinner } from 'components/Spinner'
 import { Columns, Table } from 'components/Table'
 import { TokenLogo } from 'components/Table/Cells'
@@ -12,18 +12,13 @@ import { cellProps, rowProps } from 'components/Table/Table'
 import { formatDistance } from 'date-fns'
 import { parseUnits } from 'ethers/lib/utils'
 import useTokenSearch from 'hooks/useTokenSearch'
-import React, {
-  MouseEvent,
-  ReactNode,
-  useCallback,
-  useMemo,
-  useState,
-} from 'react'
+import React, { MouseEvent, useCallback, useMemo, useState } from 'react'
 import type { CellProps, Row } from 'react-table'
 import { useRecoilValue } from 'recoil'
 import { userV2TokensState } from 'state/tokens'
 import { HandleSellClick, Liquidity, ListColumn, Token } from 'types/trade'
 import { epoch } from 'utils/config'
+import { LowLiquidityContent, VeryLowLiquidityContent } from '../Content'
 
 interface Props {
   onSellClick: HandleSellClick
@@ -275,47 +270,18 @@ export default function MyPositions({ onSellClick }: Props): JSX.Element {
     }: {
       onSellClick: HandleSellClick
     }): ListColumn<Token>[] => {
-      type ContentProps = {
-        children?: ReactNode
-      }
-      const ContentWrapper = ({ children }: ContentProps) => (
-        <div>
-          {children}
-          <style jsx>{`
-            div {
-              padding: 1rem 1.8rem;
-              max-width: 500px;
-              flex-shrink: 1;
-              display: flex;
-              flex-wrap: wrap;
-              font-family: var(--bodyfont);
-              font-size: var(--bodysize);
-              font-weight: var(--bodyweight);
-            }
-          `}</style>
-        </div>
-      )
       const setLiquidityModalOpen = (liquidity: Liquidity): void => {
         let content: JSX.Element | false = false
         if (liquidity === Liquidity.MEDIUM) {
           content = (
             <ContentWrapper>
-              <p>
-                This token has
-                <strong style={{ color: 'orange' }}> low liquidity</strong>, and
-                pricing might be wrong. Buy with caution
-              </p>
+              <LowLiquidityContent />
             </ContentWrapper>
           )
         } else if (liquidity === Liquidity.LOW) {
           content = (
             <ContentWrapper>
-              <p>
-                This token currently has{' '}
-                <strong style={{ color: 'red' }}> very low liquidity</strong>{' '}
-                and will not result in any $VNL mined through profit mining, and
-                selling might be difficult
-              </p>
+              <VeryLowLiquidityContent />
             </ContentWrapper>
           )
         }

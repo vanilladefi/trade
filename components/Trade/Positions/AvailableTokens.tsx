@@ -1,15 +1,20 @@
 import Button, { ButtonColor, ButtonSize } from 'components/input/Button'
-import Modal from 'components/Modal'
+import Modal, { ContentWrapper } from 'components/Modal'
 import { Columns, Table } from 'components/Table'
 import { TokenLogo } from 'components/Table/Cells'
 import useTokenSearch from 'hooks/useTokenSearch'
 import { UniswapVersion } from 'lib/graphql'
-import { ReactNode, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { CellProps } from 'react-table'
 import { useRecoilValue } from 'recoil'
 import { uniswapV2TokenState, uniswapV3TokenState } from 'state/tokens'
 import { HandleBuyClick, Liquidity, ListColumn, Token } from 'types/trade'
 import { hiddenTokens } from 'utils/config'
+import {
+  CardinalityContent,
+  LowLiquidityContent,
+  VeryLowLiquidityContent,
+} from './Content'
 
 interface Props {
   onBuyClick: HandleBuyClick
@@ -28,64 +33,46 @@ export default function AvailableTokens({
       : uniswapV3TokenState,
   )
 
-  const [liquidityModalContent, setLiquidityModalContent] = useState<
+  const [alertModalContent, setAlertModalContent] = useState<
     JSX.Element | false
   >(false)
 
   const [query, clearQuery] = useTokenSearch()
 
   const columns = useMemo(() => {
-    type ContentProps = {
-      children?: ReactNode
-    }
-
-    const ContentWrapper = ({ children }: ContentProps) => (
-      <div>
-        {children}
-        <style jsx>{`
-          div {
-            padding: 1rem 1.8rem;
-            max-width: 500px;
-            flex-shrink: 1;
-            display: flex;
-            flex-wrap: wrap;
-            font-family: var(--bodyfont);
-            font-size: var(--bodysize);
-            font-weight: var(--bodyweight);
-          }
-        `}</style>
-      </div>
-    )
     const setLiquidityModalOpen = (liquidity: Liquidity): void => {
       let content: JSX.Element | false = false
       if (uniswapVersion === UniswapVersion.v2) {
         if (liquidity === Liquidity.MEDIUM) {
           content = (
             <ContentWrapper>
-              <p>
-                This token has
-                <strong style={{ color: 'orange' }}> low liquidity</strong>, and
-                pricing might be wrong. Buy with caution
-              </p>
+              <LowLiquidityContent />
             </ContentWrapper>
           )
         } else if (liquidity === Liquidity.LOW) {
           content = (
             <ContentWrapper>
-              <p>
-                This token currently has{' '}
-                <strong style={{ color: 'red' }}> very low liquidity</strong>{' '}
-                and will not result in any $VNL mined through profit mining, and
-                selling might be difficult
-              </p>
+              <VeryLowLiquidityContent />
             </ContentWrapper>
           )
         }
       }
-      setLiquidityModalContent(content)
+      setAlertModalContent(content)
+    }
+    const setCardinalityModalOpen = (): void => {
+      const content: JSX.Element = (
+        <ContentWrapper>
+          <CardinalityContent />
+        </ContentWrapper>
+      )
+      setAlertModalContent(content)
     }
 
-    return getColumns(onBuyClick, setLiquidityModalOpen)
+    return getColumns(
+      onBuyClick,
+      setLiquidityModalOpen,
+      setCardinalityModalOpen,
+    )
   }, [onBuyClick, uniswapVersion])
 
   const initialSortBy = useMemo(() => [{ id: 'liquidity', desc: true }], [])
@@ -98,10 +85,10 @@ export default function AvailableTokens({
   return (
     <>
       <Modal
-        open={!!liquidityModalContent}
-        onRequestClose={() => setLiquidityModalContent(false)}
+        open={!!alertModalContent}
+        onRequestClose={() => setAlertModalContent(false)}
       >
-        {liquidityModalContent}
+        {alertModalContent}
       </Modal>
       <Table
         data={filterMinableTokens(tokens?.length ? tokens : initialTokens)}
@@ -118,6 +105,7 @@ export default function AvailableTokens({
 function getColumns(
   onBuyClick: HandleBuyClick,
   openLiquidityModal: (liquidity: Liquidity) => void,
+  openCardinalityModal?: () => void,
 ): ListColumn<Token>[] {
   return [
     {
@@ -130,6 +118,7 @@ function getColumns(
         <TokenLogo
           {...props}
           openLiquidityModal={openLiquidityModal}
+          openCardinalityModal={openCardinalityModal}
           liquidityWarning
         />
       ),
@@ -144,6 +133,7 @@ function getColumns(
         <TokenLogo
           {...props}
           openLiquidityModal={openLiquidityModal}
+          openCardinalityModal={openCardinalityModal}
           liquidityWarning
         />
       ),
