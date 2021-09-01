@@ -13,13 +13,14 @@ import { selectedCounterAsset } from 'state/trade'
 import { providerState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
 import { Token } from 'types/trade'
-import { useWallet } from 'use-wallet'
 import useETHPrice from './useETHPrice'
 import useVanillaGovernanceToken from './useVanillaGovernanceToken'
 import useVanillaRouter from './useVanillaRouter'
-import useWalletAddress from './useWalletAddress'
 
-function useUserPositions(version: VanillaVersion): Token[] | null {
+function useUserPositions(
+  version: VanillaVersion,
+  userAddress: string,
+): Token[] | null {
   useETHPrice(UniswapVersion.v3)
   const allTokens = useRecoilValue(
     version === VanillaVersion.V1_0 ? uniswapV2TokenState : uniswapV3TokenState,
@@ -29,9 +30,7 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
     version === VanillaVersion.V1_0 ? userV2TokensState : userV3TokensState,
   )
   const vanillaRouter = useVanillaRouter(version)
-  const { long: userAddress } = useWalletAddress()
   const provider = useRecoilValue(providerState)
-  const wallet = useWallet()
   const vnl = useVanillaGovernanceToken(version)
 
   useEffect(() => {
@@ -63,15 +62,7 @@ function useUserPositions(version: VanillaVersion): Token[] | null {
       setTokens(tokensWithBalance)
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    userAddress,
-    counterAsset,
-    wallet.status,
-    setTokens,
-    vnl.address,
-    provider,
-    version,
-  ])
+  }, [userAddress, counterAsset, setTokens, vnl.address, provider, version])
 
   return tokens
 }

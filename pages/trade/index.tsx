@@ -26,7 +26,7 @@ import {
   getAllTokens,
   getETHPrice,
 } from 'lib/tokens'
-import type { GetStaticPropsResult } from 'next'
+import type { GetStaticProps, GetStaticPropsResult } from 'next'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -55,6 +55,7 @@ import {
 import { useWallet } from 'use-wallet'
 
 type PageProps = {
+  userAddress?: string | false
   uniswapV2Tokens: Token[]
   uniswapV3Tokens: Token[]
   ethPrice: number
@@ -62,6 +63,7 @@ type PageProps = {
 }
 
 type BodyProps = {
+  userAddress?: string | false
   initialTokens: { v2: Token[]; v3: Token[] }
   ethPrice: number
   currentBlockNumber: number
@@ -69,9 +71,7 @@ type BodyProps = {
   activeExchange: UniswapVersion
 }
 
-const TradeModal = dynamic(() => import('components/Trade/Modal'), {
-  ssr: false,
-})
+const TradeModal = dynamic(() => import('components/Trade/Modal'))
 
 const HeaderContent = (): JSX.Element => {
   const wallet = useWallet()
@@ -302,6 +302,8 @@ const BodyContent = ({
   useTokenSubscription(VanillaVersion.V1_0)
   useTokenSubscription(VanillaVersion.V1_1)
 
+  const { account } = useWallet()
+
   const setETHPrice = useSetRecoilState(currentETHPrice)
   const setV2Tokens = useSetRecoilState(uniswapV2TokenState)
   const setV3Tokens = useSetRecoilState(uniswapV3TokenState)
@@ -311,10 +313,8 @@ const BodyContent = ({
   const setOperation = useSetRecoilState(selectedOperation)
   const setExchange = useSetRecoilState(selectedExchange)
 
-  const userPositionsV3 = useUserPositions(VanillaVersion.V1_1)
-  const userPositionsV2 = useUserPositions(VanillaVersion.V1_0)
-
-  const { account } = useWallet()
+  const userPositionsV3 = useUserPositions(VanillaVersion.V1_1, account)
+  const userPositionsV2 = useUserPositions(VanillaVersion.V1_0, account)
 
   useEffect(() => {
     setExchange(activeExchange)
@@ -518,7 +518,10 @@ export default function TradePage({
         }}
       />
       <BodyContent
-        initialTokens={{ v2: uniswapV2Tokens, v3: uniswapV3Tokens }}
+        initialTokens={{
+          v2: uniswapV2Tokens,
+          v3: uniswapV3Tokens,
+        }}
         ethPrice={ethPrice}
         setModalOpen={toggleModalOpen}
         currentBlockNumber={currentBlockNumber}
@@ -528,9 +531,9 @@ export default function TradePage({
   )
 }
 
-export async function getStaticProps(): Promise<
+export const getStaticProps: GetStaticProps = async (): Promise<
   GetStaticPropsResult<PageProps>
-> {
+> => {
   let block24hAgo
 
   const currentBlockNumberV2 = await getCurrentBlockNumber(UniswapVersion.v2)
