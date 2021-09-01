@@ -28,7 +28,8 @@ import {
   isAddress,
 } from 'lib/tokens'
 import { getUserPositions } from 'lib/vanilla'
-import type { GetStaticProps, GetStaticPropsResult } from 'next'
+import { getUsers } from 'lib/vanilla/users'
+import type { GetStaticPaths, GetStaticProps, GetStaticPropsResult } from 'next'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -311,7 +312,6 @@ const BodyContent = ({
   const setETHPrice = useSetRecoilState(currentETHPrice)
   const setV2Tokens = useSetRecoilState(uniswapV2TokenState)
   const setV3Tokens = useSetRecoilState(uniswapV3TokenState)
-  const setUserV3Tokens = useSetRecoilState(userV3TokensState)
   const setCurrentBlockNumber = useSetRecoilState(currentBlockNumberState)
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
@@ -331,7 +331,6 @@ const BodyContent = ({
     setExchange(activeExchange)
     setV2Tokens(initialTokens.v2)
     setV3Tokens(initialTokens.v3)
-    setUserV3Tokens(initialTokens.userPositionsV3)
     setETHPrice(ethPrice)
     setCurrentBlockNumber(currentBlockNumber)
   }, [
@@ -344,7 +343,6 @@ const BodyContent = ({
     setV3Tokens,
     setExchange,
     activeExchange,
-    setUserV3Tokens,
   ])
 
   const profitablePositions = useCallback(() => {
@@ -435,6 +433,7 @@ const BodyContent = ({
                   </h2>
                 </div>
                 <MyPositionsV3
+                  initialTokens={initialTokens.userPositionsV3}
                   onBuyClick={handleV3BuyClick}
                   onSellClick={handleV3SellClick}
                 />
@@ -647,5 +646,13 @@ export const getStaticProps: GetStaticProps = async ({
       currentBlockNumber: currentBlockNumberV3 || currentBlockNumberV2,
     },
     revalidate: 60,
+  }
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const users = await getUsers()
+  return {
+    paths: users.map((user) => `/trade/${user}`),
+    fallback: true,
   }
 }
