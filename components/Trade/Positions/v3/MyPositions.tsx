@@ -205,6 +205,7 @@ const RowRenderer = (
 }
 
 export default function MyPositions({
+  initialTokens,
   onBuyClick,
   onSellClick,
 }: Props): JSX.Element {
@@ -328,7 +329,7 @@ export default function MyPositions({
         {cardinalityModalContent}
       </Modal>
       <Table
-        data={userPositions}
+        data={userPositions.length === 0 ? initialTokens : userPositions}
         columns={columns}
         initialSortBy={initialSortBy}
         query={query}
