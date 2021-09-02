@@ -75,9 +75,13 @@ type BodyProps = {
   activeExchange: UniswapVersion
 }
 
+type HeaderContentProps = {
+  initialTokens: Token[]
+}
+
 const TradeModal = dynamic(() => import('components/Trade/Modal'))
 
-const HeaderContent = (): JSX.Element => {
+const HeaderContent = ({ initialTokens }: HeaderContentProps): JSX.Element => {
   const wallet = useWallet()
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const { USD: totalOwnedUSD, ETH: totalOwnedETH } = useTotalOwned()
@@ -87,9 +91,9 @@ const HeaderContent = (): JSX.Element => {
 
   const getUserTokens = useCallback(() => {
     const v2Tokens = userV2Tokens || []
-    const v3Tokens = userV3Tokens || []
+    const v3Tokens = userV3Tokens || initialTokens || []
     return [...v2Tokens, ...v3Tokens]
-  }, [userV2Tokens, userV3Tokens])
+  }, [initialTokens, userV2Tokens, userV3Tokens])
 
   const { price } = useVanillaGovernanceToken(VanillaVersion.V1_0)
   const ethPrice = useRecoilValue(currentETHPrice)
@@ -522,7 +526,7 @@ export default function TradePage({
       title='Start trading'
       description='Make trades, see your profits blossom and mine VNL.'
       shareImg='/social/social-share-trade.png'
-      heroRenderer={HeaderContent}
+      hero={<HeaderContent initialTokens={userPositionsV3} />}
     >
       <TradeModal
         open={modalOpen}
