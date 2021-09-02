@@ -398,11 +398,10 @@ export async function getUserPositions(
     positions = await Promise.all(
       allTokens.map(async (token) => {
         // Fetch price data from Vanilla router
-        let tokenSum: BigNumber
+        let tokenSum: BigNumber = BigNumber.from(0)
         const priceResponse: TokenPriceResponse =
-          await vanillaRouter.tokenPriceData(address, token.address)
+          await vanillaRouter.tokenPriceData(checkSummedAddress, token.address)
         tokenSum = priceResponse.tokenSum
-        tokenSum = BigNumber.from('0')
 
         if (!tokenSum.isZero()) {
           // VNL governance token
@@ -477,7 +476,7 @@ export async function getUserPositions(
               )
             : null
 
-          let vpc: string | undefined
+          let vpc: string | null = null
           if (reward?.vpc) {
             // Parse VPC
             const vpcNum = reward?.vpc.toNumber() ?? 0
