@@ -2,7 +2,6 @@ import { TopGradient } from 'components/backgrounds/gradient'
 import { Column, Row, Width } from 'components/grid/Flex'
 import Button from 'components/input/Button'
 import Layout from 'components/Layout'
-import { Spinner } from 'components/Spinner'
 import SyncIndicator from 'components/SyncIndicator'
 import TokenConversion from 'components/TokenConversion'
 import TokenSearch from 'components/TokenSearch'
@@ -92,7 +91,7 @@ const HeaderContent = ({ initialTokens }: HeaderContentProps): JSX.Element => {
   const getUserTokens = useCallback(() => {
     const v2Tokens = userV2Tokens || []
     const v3Tokens =
-      userV3Tokens.length > 0 ? userV3Tokens : initialTokens || []
+      userV3Tokens?.length > 0 ? userV3Tokens : initialTokens || []
     return [...v2Tokens, ...v3Tokens]
   }, [initialTokens, userV2Tokens, userV3Tokens])
 
@@ -134,14 +133,7 @@ const HeaderContent = ({ initialTokens }: HeaderContentProps): JSX.Element => {
       <TokenConversion />
       <Wrapper>
         <Row className='subpageHeader'>
-          {wallet.status === 'connected' && !getUserTokens() && (
-            <Column width={Width.TWELVE}>
-              <div className='spinnerWrapper'>
-                <Spinner />
-              </div>
-            </Column>
-          )}
-          {getUserTokens() && getUserTokens().length === 0 ? (
+          {getUserTokens()?.length === 0 ? (
             <Column width={Width.EIGHT}>
               <Title>Start Trading</Title>
               <HugeMonospace>
@@ -355,9 +347,10 @@ const BodyContent = ({
     return (
       userPositionsV3?.filter((token) => token.profit && token.profit > 0)
         .length ||
-      initialTokens.userPositionsV3?.filter(
+      initialTokens?.userPositionsV3?.filter(
         (token) => token.profit && token.profit > 0,
-      ).length
+      ).length ||
+      0
     )
   }, [initialTokens.userPositionsV3, userPositionsV3])
 
@@ -436,8 +429,8 @@ const BodyContent = ({
                 MY POSITIONS
                 <small>{`${profitablePositions()} of ${
                   userPositionsV3
-                    ? userPositionsV3.length
-                    : initialTokens.userPositionsV3.length
+                    ? userPositionsV3?.length
+                    : initialTokens?.userPositionsV3?.length || 0
                 } profitable`}</small>
               </h2>
             </div>
