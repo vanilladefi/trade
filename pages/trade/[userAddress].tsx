@@ -346,9 +346,14 @@ const BodyContent = ({
   ])
 
   const profitablePositions = useCallback(() => {
-    return userPositionsV3?.filter((token) => token.profit && token.profit > 0)
-      .length
-  }, [userPositionsV3])
+    return (
+      userPositionsV3?.filter((token) => token.profit && token.profit > 0)
+        .length ||
+      initialTokens.userPositionsV3?.filter(
+        (token) => token.profit && token.profit > 0,
+      ).length
+    )
+  }, [initialTokens.userPositionsV3, userPositionsV3])
 
   const handleV2SellClick: HandleSellClick = useCallback(
     (pairInfo) => {
@@ -420,36 +425,31 @@ const BodyContent = ({
       <Wrapper>
         <Row>
           <Column width={Width.TWELVE}>
-            {account && (
-              <>
-                <div className='tableHeaderWrapper'>
-                  <h2 style={{ marginBottom: 0 }}>
-                    MY POSITIONS
-                    {userPositionsV3 && userPositionsV3.length > 0 && (
-                      <small>{`${profitablePositions()} of ${
-                        userPositionsV3 ? userPositionsV3.length : 0
-                      } profitable`}</small>
-                    )}
-                  </h2>
-                </div>
-                <MyPositionsV3
-                  initialTokens={initialTokens.userPositionsV3}
-                  onBuyClick={handleV3BuyClick}
-                  onSellClick={handleV3SellClick}
-                />
-                {userPositionsV2 === null ||
-                  (userPositionsV2?.length > 0 && (
-                    <>
-                      <div className='tableHeaderWrapper'>
-                        <h2 style={{ marginBottom: 0 }}>
-                          MY VANILLA 1.0 POSITIONS
-                        </h2>
-                      </div>
-                      <MyPositionsV2 onSellClick={handleV2SellClick} />
-                    </>
-                  ))}
-              </>
-            )}
+            <div className='tableHeaderWrapper'>
+              <h2 style={{ marginBottom: 0 }}>
+                MY POSITIONS
+                <small>{`${profitablePositions()} of ${
+                  userPositionsV3 ? userPositionsV3.length : 0
+                } profitable`}</small>
+              </h2>
+            </div>
+            <MyPositionsV3
+              initialTokens={initialTokens.userPositionsV3}
+              onBuyClick={handleV3BuyClick}
+              onSellClick={handleV3SellClick}
+            />
+            {userPositionsV2 === null ||
+              (userPositionsV2?.length > 0 && (
+                <>
+                  <div className='tableHeaderWrapper'>
+                    <h2 style={{ marginBottom: 0 }}>
+                      MY VANILLA 1.0 POSITIONS
+                    </h2>
+                  </div>
+                  <MyPositionsV2 onSellClick={handleV2SellClick} />
+                </>
+              ))}
+
             <div className='tableHeaderWrapper'>
               <h2 style={{ marginBottom: 0 }}>AVAILABLE TOKENS</h2>
               <SyncIndicator />
