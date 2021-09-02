@@ -35,7 +35,7 @@ function useUserPositions(
     const filterUserTokens = async (
       tokens: Token[],
     ): Promise<Token[] | null> => {
-      let tokensWithBalance: Token[] | null = null
+      let tokensWithBalance = []
       if (vanillaRouter && isAddress(userAddress) && isAddress(vnl.address)) {
         try {
           tokensWithBalance = await getUserPositions(
@@ -45,7 +45,6 @@ function useUserPositions(
           )
         } catch (e) {
           console.error(e)
-          tokensWithBalance = []
         }
       }
 
