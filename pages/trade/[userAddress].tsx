@@ -91,7 +91,8 @@ const HeaderContent = ({ initialTokens }: HeaderContentProps): JSX.Element => {
 
   const getUserTokens = useCallback(() => {
     const v2Tokens = userV2Tokens || []
-    const v3Tokens = userV3Tokens || initialTokens || []
+    const v3Tokens =
+      userV3Tokens.length > 0 ? userV3Tokens : initialTokens || []
     return [...v2Tokens, ...v3Tokens]
   }, [initialTokens, userV2Tokens, userV3Tokens])
 
@@ -140,8 +141,7 @@ const HeaderContent = ({ initialTokens }: HeaderContentProps): JSX.Element => {
               </div>
             </Column>
           )}
-          {(wallet.status === 'disconnected' ||
-            (getUserTokens() && getUserTokens().length === 0)) && (
+          {getUserTokens() && getUserTokens().length === 0 ? (
             <Column width={Width.EIGHT}>
               <Title>Start Trading</Title>
               <HugeMonospace>
@@ -157,13 +157,12 @@ const HeaderContent = ({ initialTokens }: HeaderContentProps): JSX.Element => {
                     Connect wallet
                   </Button>
                 )}
-                <Link href='/faq'>
+                <Link href='/faq' passHref>
                   <Button>Learn more</Button>
                 </Link>
               </div>
             </Column>
-          )}
-          {getUserTokens() && getUserTokens().length > 0 && (
+          ) : (
             <Column width={Width.TWELVE}>
               <Title>My trading</Title>
               <div className='stats-grid'>
@@ -316,6 +315,7 @@ const BodyContent = ({
   const setETHPrice = useSetRecoilState(currentETHPrice)
   const setV2Tokens = useSetRecoilState(uniswapV2TokenState)
   const setV3Tokens = useSetRecoilState(uniswapV3TokenState)
+  const setV3UserTokens = useSetRecoilState(userV3TokensState)
   const setCurrentBlockNumber = useSetRecoilState(currentBlockNumberState)
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
@@ -335,6 +335,7 @@ const BodyContent = ({
     setExchange(activeExchange)
     setV2Tokens(initialTokens.v2)
     setV3Tokens(initialTokens.v3)
+    setV3UserTokens(initialTokens.userPositionsV3)
     setETHPrice(ethPrice)
     setCurrentBlockNumber(currentBlockNumber)
   }, [
@@ -347,6 +348,7 @@ const BodyContent = ({
     setV3Tokens,
     setExchange,
     activeExchange,
+    setV3UserTokens,
   ])
 
   const profitablePositions = useCallback(() => {
@@ -433,7 +435,9 @@ const BodyContent = ({
               <h2 style={{ marginBottom: 0 }}>
                 MY POSITIONS
                 <small>{`${profitablePositions()} of ${
-                  userPositionsV3 ? userPositionsV3.length : 0
+                  userPositionsV3
+                    ? userPositionsV3.length
+                    : initialTokens.userPositionsV3.length
                 } profitable`}</small>
               </h2>
             </div>
@@ -458,7 +462,6 @@ const BodyContent = ({
               <h2 style={{ marginBottom: 0 }}>AVAILABLE TOKENS</h2>
               <SyncIndicator />
             </div>
-            {/* Pass "initialTokens" so this page is statically rendered with tokens */}
             <AvailableTokens
               initialTokens={initialTokens.v3}
               onBuyClick={handleV3BuyClick}
