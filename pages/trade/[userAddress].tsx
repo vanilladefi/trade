@@ -615,15 +615,6 @@ export const getStaticProps: GetStaticProps = async ({
   })
   tokensV3 = await addObservationCardinality(tokensV3)
 
-  let userPositionsV3: Token[] = []
-  if (userAddress) {
-    userPositionsV3 = await getUserPositions(
-      VanillaVersion.V1_1,
-      userAddress,
-      tokensV3,
-    )
-  }
-
   block24hAgo = currentBlockNumberV3 - 24 * blocksPerHourV3
 
   // Add historical data (price change)
@@ -635,6 +626,13 @@ export const getStaticProps: GetStaticProps = async ({
       ethPriceV3,
     )
   }
+
+  const userPositionsV3 = await getUserPositions(
+    VanillaVersion.V1_1,
+    userAddress || '',
+  )
+
+  console.log(userPositionsV3, userAddress, tokensV3)
 
   return {
     props: {

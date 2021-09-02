@@ -8,6 +8,10 @@ export default async (
 ): Promise<void> => {
   const { userAddress } = req.query
   const address = typeof userAddress === 'string' ? userAddress : userAddress[0]
-  const positions = await getUserPositions(VanillaVersion.V1_1, address)
-  res.status(200).json(positions)
+  try {
+    const positions = await getUserPositions(VanillaVersion.V1_1, address)
+    res.status(200).json(positions)
+  } catch (error) {
+    res.status(500).json(error)
+  }
 }

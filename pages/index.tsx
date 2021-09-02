@@ -33,7 +33,7 @@ const HeaderContent = (
               </HugeMonospace>
             </InViewWrapper>
             <InViewWrapper delay={0.3}>
-              <Link href='/trade'>
+              <Link href='/trade' passHref={true}>
                 <Button>Start trading</Button>
               </Link>
             </InViewWrapper>

@@ -329,7 +329,7 @@ export default function MyPositions({
         {cardinalityModalContent}
       </Modal>
       <Table
-        data={userPositions.length === 0 ? initialTokens : userPositions}
+        data={initialTokens}
         columns={columns}
         initialSortBy={initialSortBy}
         query={query}
