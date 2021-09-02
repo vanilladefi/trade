@@ -630,9 +630,8 @@ export const getStaticProps: GetStaticProps = async ({
   const userPositionsV3 = await getUserPositions(
     VanillaVersion.V1_1,
     userAddress || '',
+    tokensV3,
   )
-
-  console.log(userPositionsV3, userAddress, tokensV3)
 
   return {
     props: {

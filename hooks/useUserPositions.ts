@@ -10,7 +10,6 @@ import {
   userV3TokensState,
 } from 'state/tokens'
 import { selectedCounterAsset } from 'state/trade'
-import { providerState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
 import { Token } from 'types/trade'
 import useETHPrice from './useETHPrice'
@@ -30,7 +29,6 @@ function useUserPositions(
     version === VanillaVersion.V1_0 ? userV2TokensState : userV3TokensState,
   )
   const vanillaRouter = useVanillaRouter(version)
-  const provider = useRecoilValue(providerState)
   const vnl = useVanillaGovernanceToken(version)
 
   useEffect(() => {
@@ -38,12 +36,7 @@ function useUserPositions(
       tokens: Token[],
     ): Promise<Token[] | null> => {
       let tokensWithBalance: Token[] | null = null
-      if (
-        vanillaRouter &&
-        isAddress(userAddress) &&
-        provider &&
-        isAddress(vnl.address)
-      ) {
+      if (vanillaRouter && isAddress(userAddress) && isAddress(vnl.address)) {
         try {
           tokensWithBalance = await getUserPositions(
             version,
@@ -58,11 +51,9 @@ function useUserPositions(
 
       return tokensWithBalance
     }
-    filterUserTokens(allTokens).then((tokensWithBalance) => {
-      setTokens(tokensWithBalance)
-    })
+    filterUserTokens(allTokens).then(setTokens)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userAddress, counterAsset, setTokens, vnl.address, provider, version])
+  }, [userAddress, counterAsset, setTokens, vnl.address, version])
 
   return tokens
 }
