@@ -12,6 +12,7 @@ import { TokenLogo } from 'components/Table/Cells'
 import { cellProps, rowProps } from 'components/Table/Table'
 import { formatDistance } from 'date-fns'
 import useTokenSearch from 'hooks/useTokenSearch'
+import { PrerenderProps } from 'pages/trade'
 import React, { MouseEvent, useCallback, useMemo, useState } from 'react'
 import type { CellProps, Row } from 'react-table'
 import { useRecoilValue } from 'recoil'
@@ -25,10 +26,9 @@ import type {
 import { epoch } from 'utils/config'
 import { CardinalityContent } from '../Content'
 
-interface Props {
+type Props = PrerenderProps & {
   onBuyClick: HandleBuyClick
   onSellClick: HandleSellClick
-  initialTokens?: Token[]
 }
 
 // No hooks can be used inside the RowRenderer because of Next.js error "less hooks rendered than previous render"
@@ -329,7 +329,11 @@ export default function MyPositions({
         {cardinalityModalContent}
       </Modal>
       <Table
-        data={initialTokens}
+        data={
+          userPositions?.length > 0
+            ? userPositions
+            : initialTokens?.userPositionsV3 || []
+        }
         columns={columns}
         initialSortBy={initialSortBy}
         query={query}
