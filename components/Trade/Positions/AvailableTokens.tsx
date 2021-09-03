@@ -4,6 +4,7 @@ import { Columns, Table } from 'components/Table'
 import { TokenLogo } from 'components/Table/Cells'
 import useTokenSearch from 'hooks/useTokenSearch'
 import { UniswapVersion } from 'lib/graphql'
+import { PrerenderProps } from 'pages/trade'
 import { useMemo, useState } from 'react'
 import type { CellProps } from 'react-table'
 import { useRecoilValue } from 'recoil'
@@ -16,15 +17,14 @@ import {
   VeryLowLiquidityContent,
 } from './Content'
 
-interface Props {
+type Props = PrerenderProps & {
   onBuyClick: HandleBuyClick
-  initialTokens?: Token[]
   uniswapVersion: UniswapVersion
 }
 
 export default function AvailableTokens({
   onBuyClick,
-  initialTokens = [],
+  initialTokens,
   uniswapVersion,
 }: Props): JSX.Element {
   const tokens = useRecoilValue(
@@ -32,6 +32,10 @@ export default function AvailableTokens({
       ? uniswapV2TokenState
       : uniswapV3TokenState,
   )
+  const usedInitialTokens =
+    uniswapVersion === UniswapVersion.v2
+      ? initialTokens?.userPositionsV2
+      : initialTokens?.userPositionsV3 || []
 
   const [alertModalContent, setAlertModalContent] = useState<
     JSX.Element | false
@@ -91,7 +95,9 @@ export default function AvailableTokens({
         {alertModalContent}
       </Modal>
       <Table
-        data={filterMinableTokens(tokens?.length ? tokens : initialTokens)}
+        data={filterMinableTokens(
+          tokens?.length > 0 ? tokens : usedInitialTokens,
+        )}
         columns={columns}
         initialSortBy={initialSortBy}
         query={query}

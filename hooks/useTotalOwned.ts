@@ -1,16 +1,31 @@
+import { PrerenderProps } from 'pages/trade'
 import { useCallback, useMemo } from 'react'
 import { useRecoilValue } from 'recoil'
 import { userV2TokensState, userV3TokensState } from 'state/tokens'
 
-function useTotalOwned(): { USD: number; ETH: number } {
+function useTotalOwned(props?: PrerenderProps): {
+  USD: number
+  ETH: number
+} {
   const userV2Tokens = useRecoilValue(userV2TokensState)
   const userV3Tokens = useRecoilValue(userV3TokensState)
 
   const getUserTokens = useCallback(() => {
-    const v2Tokens = userV2Tokens || []
-    const v3Tokens = userV3Tokens || []
+    const v2Tokens =
+      userV2Tokens?.length > 0
+        ? userV2Tokens
+        : props?.initialTokens?.userPositionsV2 || []
+    const v3Tokens =
+      userV3Tokens?.length > 0
+        ? userV3Tokens
+        : props?.initialTokens?.userPositionsV3 || []
     return [...v2Tokens, ...v3Tokens]
-  }, [userV2Tokens, userV3Tokens])
+  }, [
+    props?.initialTokens?.userPositionsV2,
+    props?.initialTokens?.userPositionsV3,
+    userV2Tokens,
+    userV3Tokens,
+  ])
 
   return useMemo(() => {
     const values =

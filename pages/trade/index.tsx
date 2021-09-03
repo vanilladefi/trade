@@ -1,8 +1,8 @@
 import { TopGradient } from 'components/backgrounds/gradient'
+import Fonts from 'components/GlobalStyles/Fonts'
 import { Column, Row, Width } from 'components/grid/Flex'
 import Button from 'components/input/Button'
 import Layout from 'components/Layout'
-import { Spinner } from 'components/Spinner'
 import SyncIndicator from 'components/SyncIndicator'
 import TokenConversion from 'components/TokenConversion'
 import TokenSearch from 'components/TokenSearch'
@@ -54,26 +54,26 @@ import {
 } from 'types/trade'
 import { useWallet } from 'use-wallet'
 
-type PageProps = {
+export type PrerenderProps = {
   userAddress?: string | false
-  uniswapV2Tokens: Token[]
-  uniswapV3Tokens: Token[]
-  ethPrice: number
-  currentBlockNumber: number
+  initialTokens?: {
+    v2?: Token[]
+    v3?: Token[]
+    userPositionsV3?: Token[]
+    userPositionsV2?: Token[]
+  }
+  ethPrice?: number
+  currentBlockNumber?: number
 }
 
-type BodyProps = {
-  userAddress?: string | false
-  initialTokens: { v2: Token[]; v3: Token[] }
-  ethPrice: number
-  currentBlockNumber: number
+export type BodyProps = PrerenderProps & {
   setModalOpen: (exchange: UniswapVersion) => void
   activeExchange: UniswapVersion
 }
 
 const TradeModal = dynamic(() => import('components/Trade/Modal'))
 
-const HeaderContent = (): JSX.Element => {
+const HeaderContent = ({ initialTokens }: PrerenderProps): JSX.Element => {
   const wallet = useWallet()
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const { USD: totalOwnedUSD, ETH: totalOwnedETH } = useTotalOwned()
@@ -82,10 +82,16 @@ const HeaderContent = (): JSX.Element => {
   const userV3Tokens = useRecoilValue(userV3TokensState)
 
   const getUserTokens = useCallback(() => {
-    const v2Tokens = userV2Tokens || []
-    const v3Tokens = userV3Tokens || []
+    const v2Tokens =
+      userV2Tokens?.length > 0
+        ? userV2Tokens
+        : initialTokens?.userPositionsV2 || []
+    const v3Tokens =
+      userV3Tokens?.length > 0
+        ? userV3Tokens
+        : initialTokens?.userPositionsV3 || []
     return [...v2Tokens, ...v3Tokens]
-  }, [userV2Tokens, userV3Tokens])
+  }, [initialTokens, userV2Tokens, userV3Tokens])
 
   const { price } = useVanillaGovernanceToken(VanillaVersion.V1_0)
   const ethPrice = useRecoilValue(currentETHPrice)
@@ -121,19 +127,12 @@ const HeaderContent = (): JSX.Element => {
 
   return (
     <>
+      <Fonts />
       <TopGradient />
       <TokenConversion />
       <Wrapper>
         <Row className='subpageHeader'>
-          {wallet.status === 'connected' && !getUserTokens() && (
-            <Column width={Width.TWELVE}>
-              <div className='spinnerWrapper'>
-                <Spinner />
-              </div>
-            </Column>
-          )}
-          {(wallet.status === 'disconnected' ||
-            (getUserTokens() && getUserTokens().length === 0)) && (
+          {getUserTokens()?.length === 0 ? (
             <Column width={Width.EIGHT}>
               <Title>Start Trading</Title>
               <HugeMonospace>
@@ -149,13 +148,12 @@ const HeaderContent = (): JSX.Element => {
                     Connect wallet
                   </Button>
                 )}
-                <Link href='/faq'>
+                <Link href='/faq' passHref>
                   <Button>Learn more</Button>
                 </Link>
               </div>
             </Column>
-          )}
-          {getUserTokens() && getUserTokens().length > 0 && (
+          ) : (
             <Column width={Width.TWELVE}>
               <Title>My trading</Title>
               <div className='stats-grid'>
@@ -291,6 +289,7 @@ const HeaderContent = (): JSX.Element => {
 }
 
 const BodyContent = ({
+  userAddress,
   initialTokens,
   ethPrice,
   currentBlockNumber,
@@ -307,19 +306,27 @@ const BodyContent = ({
   const setETHPrice = useSetRecoilState(currentETHPrice)
   const setV2Tokens = useSetRecoilState(uniswapV2TokenState)
   const setV3Tokens = useSetRecoilState(uniswapV3TokenState)
+  const setV3UserTokens = useSetRecoilState(userV3TokensState)
   const setCurrentBlockNumber = useSetRecoilState(currentBlockNumberState)
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const setOperation = useSetRecoilState(selectedOperation)
   const setExchange = useSetRecoilState(selectedExchange)
 
-  const userPositionsV3 = useUserPositions(VanillaVersion.V1_1, account)
-  const userPositionsV2 = useUserPositions(VanillaVersion.V1_0, account)
+  const userPositionsV3 = useUserPositions(
+    VanillaVersion.V1_1,
+    userAddress || account,
+  )
+  const userPositionsV2 = useUserPositions(
+    VanillaVersion.V1_0,
+    userAddress || account,
+  )
 
   useEffect(() => {
     setExchange(activeExchange)
-    setV2Tokens(initialTokens.v2)
-    setV3Tokens(initialTokens.v3)
+    setV2Tokens(initialTokens?.v2 || [])
+    setV3Tokens(initialTokens?.v3 || [])
+    setV3UserTokens(initialTokens?.userPositionsV3 || [])
     setETHPrice(ethPrice)
     setCurrentBlockNumber(currentBlockNumber)
   }, [
@@ -332,12 +339,19 @@ const BodyContent = ({
     setV3Tokens,
     setExchange,
     activeExchange,
+    setV3UserTokens,
   ])
 
   const profitablePositions = useCallback(() => {
-    return userPositionsV3?.filter((token) => token.profit && token.profit > 0)
-      .length
-  }, [userPositionsV3])
+    return (
+      userPositionsV3?.filter((token) => token.profit && token.profit > 0)
+        .length ||
+      initialTokens?.userPositionsV3?.filter(
+        (token) => token.profit && token.profit > 0,
+      ).length ||
+      0
+    )
+  }, [initialTokens?.userPositionsV3, userPositionsV3])
 
   const handleV2SellClick: HandleSellClick = useCallback(
     (pairInfo) => {
@@ -409,42 +423,36 @@ const BodyContent = ({
       <Wrapper>
         <Row>
           <Column width={Width.TWELVE}>
-            {account && (
+            <div className='tableHeaderWrapper'>
+              <h2 style={{ marginBottom: 0 }}>
+                MY POSITIONS
+                <small>{`${profitablePositions()} of ${
+                  userPositionsV3
+                    ? userPositionsV3?.length
+                    : initialTokens?.userPositionsV3?.length || 0
+                } profitable`}</small>
+              </h2>
+            </div>
+            <MyPositionsV3
+              initialTokens={initialTokens}
+              onBuyClick={handleV3BuyClick}
+              onSellClick={handleV3SellClick}
+            />
+            {userPositionsV2?.length > 0 && (
               <>
                 <div className='tableHeaderWrapper'>
-                  <h2 style={{ marginBottom: 0 }}>
-                    MY POSITIONS
-                    {userPositionsV3 && userPositionsV3.length > 0 && (
-                      <small>{`${profitablePositions()} of ${
-                        userPositionsV3 ? userPositionsV3.length : 0
-                      } profitable`}</small>
-                    )}
-                  </h2>
+                  <h2 style={{ marginBottom: 0 }}>MY VANILLA 1.0 POSITIONS</h2>
                 </div>
-                <MyPositionsV3
-                  onBuyClick={handleV3BuyClick}
-                  onSellClick={handleV3SellClick}
-                />
-                {userPositionsV2 === null ||
-                  (userPositionsV2?.length > 0 && (
-                    <>
-                      <div className='tableHeaderWrapper'>
-                        <h2 style={{ marginBottom: 0 }}>
-                          MY VANILLA 1.0 POSITIONS
-                        </h2>
-                      </div>
-                      <MyPositionsV2 onSellClick={handleV2SellClick} />
-                    </>
-                  ))}
+                <MyPositionsV2 onSellClick={handleV2SellClick} />
               </>
             )}
+
             <div className='tableHeaderWrapper'>
               <h2 style={{ marginBottom: 0 }}>AVAILABLE TOKENS</h2>
               <SyncIndicator />
             </div>
-            {/* Pass "initialTokens" so this page is statically rendered with tokens */}
             <AvailableTokens
-              initialTokens={initialTokens.v3}
+              initialTokens={initialTokens}
               onBuyClick={handleV3BuyClick}
               uniswapVersion={UniswapVersion.v3}
             />
@@ -482,11 +490,10 @@ const BodyContent = ({
 }
 
 export default function TradePage({
-  uniswapV2Tokens,
-  uniswapV3Tokens,
+  initialTokens,
   ethPrice,
   currentBlockNumber,
-}: PageProps): JSX.Element {
+}: PrerenderProps): JSX.Element {
   // NOTE: uniswapV2Tokens & uniswapV3Tokens here will be stale after a while
   // uniswapV2Tokens & uniswapV3Tokens here is only used to populate the state on first render (static)
   // Updates to uniswapV2Tokens & uniswapV3Tokens happen in recoil
@@ -508,7 +515,7 @@ export default function TradePage({
       title='Start trading'
       description='Make trades, see your profits blossom and mine VNL.'
       shareImg='/social/social-share-trade.png'
-      heroRenderer={HeaderContent}
+      hero={<HeaderContent />}
     >
       <TradeModal
         open={modalOpen}
@@ -518,10 +525,7 @@ export default function TradePage({
         }}
       />
       <BodyContent
-        initialTokens={{
-          v2: uniswapV2Tokens,
-          v3: uniswapV3Tokens,
-        }}
+        initialTokens={initialTokens}
         ethPrice={ethPrice}
         setModalOpen={toggleModalOpen}
         currentBlockNumber={currentBlockNumber}
@@ -532,7 +536,7 @@ export default function TradePage({
 }
 
 export const getStaticProps: GetStaticProps = async (): Promise<
-  GetStaticPropsResult<PageProps>
+  GetStaticPropsResult<PrerenderProps>
 > => {
   let block24hAgo
 
@@ -605,8 +609,7 @@ export const getStaticProps: GetStaticProps = async (): Promise<
 
   return {
     props: {
-      uniswapV2Tokens: tokensV2,
-      uniswapV3Tokens: tokensV3,
+      initialTokens: { v2: tokensV2, v3: tokensV3 },
       ethPrice: ethPriceV3 || ethPriceV2 || 0,
       currentBlockNumber: currentBlockNumberV3 || currentBlockNumberV2,
     },
