@@ -9,14 +9,21 @@ import { Column, Row, Width } from '../components/grid/Flex'
 import { GridItem, GridTemplate } from '../components/grid/Grid'
 import Button from '../components/input/Button'
 import Layout from '../components/Layout'
-import SVGFlower from '../components/SVGFlower'
-import Timeline from '../components/Timeline'
-import HugeMonospace from '../components/typography/HugeMonospace'
-import { Highlight } from '../components/typography/Text'
-import { MediumTitle, Title } from '../components/typography/Titles'
 import Wrapper from '../components/Wrapper'
 
-const ShillKitList = dynamic(import('../components/ShillKitList'))
+const SVGFlower = dynamic(import('components/SVGFlower'))
+const Timeline = dynamic(import('components/Timeline'))
+const HugeMonospace = dynamic(import('components/typography/HugeMonospace'))
+const Highlight = dynamic(() =>
+  import('components/typography/Text').then((mod) => mod.Highlight),
+)
+const MediumTitle = dynamic(() =>
+  import('components/typography/Titles').then((mod) => mod.MediumTitle),
+)
+const Title = dynamic(() =>
+  import('components/typography/Titles').then((mod) => mod.Title),
+)
+const ShillKitList = dynamic(import('components/ShillKitList'))
 
 const HeaderContent = (
   <Wrapper>
@@ -33,7 +40,7 @@ const HeaderContent = (
               </HugeMonospace>
             </InViewWrapper>
             <InViewWrapper delay={0.3}>
-              <Link href='/trade' passHref={true}>
+              <Link href='/trade' passHref>
                 <Button>Start trading</Button>
               </Link>
             </InViewWrapper>
@@ -156,7 +163,7 @@ const IndexPage = (): JSX.Element => (
                   difficulty increases over time.
                 </p>
                 <br />
-                <Link href='/faq'>
+                <Link href='/faq' passHref>
                   <Button>Learn more</Button>
                 </Link>
               </Column>
@@ -468,7 +475,7 @@ const IndexPage = (): JSX.Element => (
               </Highlight>
             </InViewWrapper>
             <InViewWrapper delay={0.3}>
-              <Link href='/faq'>
+              <Link href='/faq' passHref>
                 <Button>Learn more</Button>
               </Link>
             </InViewWrapper>
@@ -595,7 +602,7 @@ const IndexPage = (): JSX.Element => (
               </a>
             </GridItem>
             <GridItem>
-              <Link href='/bug-bounty'>
+              <Link href='/bug-bounty' passHref>
                 <a
                   style={{
                     minWidth: '200px',

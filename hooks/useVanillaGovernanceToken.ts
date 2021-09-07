@@ -39,7 +39,7 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
   const [versionAddress, setVersionAddress] = useState<string | null>(null)
   const [vnlEthPrice, setVnlEthPrice] = useState('0')
   const { long: userAddress } = useWalletAddress()
-  const [mints, setMints] = useState<Array<BigNumber>>()
+  const [mints, setMints] = useState<Array<BigNumber>>([BigNumber.from('0')])
 
   const contract1 = useTokenContract(addresses[0])
   const contract2 = useContract(addresses[1], VanillaV1Token02.abi)
@@ -62,15 +62,14 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
 
   const userMintedTotal = useCallback(() => {
     if (versionAddress) {
-      const bigSum: BigNumber | undefined =
-        mints && mints.length
-          ? mints.reduce((accumulator, current) => accumulator.add(current))
-          : BigNumber.from('0')
-      if (bigSum) {
-        const token = new Token(tokenListChainId, versionAddress, vnlDecimals)
-        const tokenAmount = new TokenAmount(token, bigSum.toString())
-        return tokenAmount.toSignificant()
-      }
+      const bigSum: BigNumber = mints.reduce(
+        (accumulator, current) => accumulator.add(current),
+        BigNumber.from('0'),
+      )
+
+      const token = new Token(tokenListChainId, versionAddress, vnlDecimals)
+      const tokenAmount = new TokenAmount(token, bigSum.toString())
+      return tokenAmount.toSignificant()
     } else {
       return '0'
     }

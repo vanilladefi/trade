@@ -99,32 +99,24 @@ const HeaderContent = ({ initialTokens }: PrerenderProps): JSX.Element => {
   }, [initialTokens, userV2Tokens, userV3Tokens])
 
   const totalUnrealizedVnl = useCallback(() => {
-    const vnlAmounts = getUserTokens()
-      ? getUserTokens().map((token) => token.vnl)
-      : null
-    return vnlAmounts
-      ? vnlAmounts.reduce((accumulator, current) => {
-          if (
-            accumulator !== undefined &&
-            current !== undefined &&
-            accumulator !== null &&
-            current !== null
-          ) {
-            return accumulator + current
-          } else {
-            return 0
-          }
-        })
-      : 0
+    return getUserTokens()
+      .map((token) => token.vnl)
+      .reduce((accumulator, current) => {
+        if (
+          accumulator !== undefined &&
+          current !== undefined &&
+          accumulator !== null &&
+          current !== null
+        ) {
+          return accumulator + current
+        } else {
+          return 0
+        }
+      }, 0)
   }, [getUserTokens])
 
   const unrealizedVnlInUsd = useCallback(() => {
-    const unrealizedVnl = totalUnrealizedVnl()
-    if (unrealizedVnl) {
-      return unrealizedVnl * parseFloat(price) * ethPrice
-    } else {
-      return 0
-    }
+    return totalUnrealizedVnl() * parseFloat(price) * ethPrice
   }, [ethPrice, price, totalUnrealizedVnl])
 
   return (
@@ -134,7 +126,7 @@ const HeaderContent = ({ initialTokens }: PrerenderProps): JSX.Element => {
       <TokenConversion />
       <Wrapper>
         <Row className='subpageHeader'>
-          {getUserTokens()?.length === 0 ? (
+          {getUserTokens().length === 0 ? (
             <Column width={Width.EIGHT}>
               <Title>Start Trading</Title>
               <HugeMonospace>
