@@ -1,6 +1,6 @@
 import { Column, Row, Width } from 'components/grid/Flex'
 import Modal from 'components/Modal'
-import { Spinner } from 'components/Spinner'
+import { Dots } from 'components/Spinner'
 import { UniswapVersion } from 'lib/graphql'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
@@ -13,7 +13,7 @@ const Loading = (): JSX.Element => (
   <Row>
     <Column width={Width.TWELVE}>
       <div>
-        <Spinner />
+        <Dots />
       </div>
       <style jsx>{`
         div {

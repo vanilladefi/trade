@@ -75,11 +75,16 @@ const TradeModal = dynamic(() => import('components/Trade/Modal'))
 
 const HeaderContent = ({ initialTokens }: PrerenderProps): JSX.Element => {
   const wallet = useWallet()
+
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
-  const { USD: totalOwnedUSD, ETH: totalOwnedETH } = useTotalOwned()
+  const { USD: totalOwnedUSD, ETH: totalOwnedETH } = useTotalOwned({
+    initialTokens: initialTokens,
+  })
+  const { price } = useVanillaGovernanceToken(VanillaVersion.V1_0)
 
   const userV2Tokens = useRecoilValue(userV2TokensState)
   const userV3Tokens = useRecoilValue(userV3TokensState)
+  const ethPrice = useRecoilValue(currentETHPrice)
 
   const getUserTokens = useCallback(() => {
     const v2Tokens =
@@ -92,9 +97,6 @@ const HeaderContent = ({ initialTokens }: PrerenderProps): JSX.Element => {
         : initialTokens?.userPositionsV3 || []
     return [...v2Tokens, ...v3Tokens]
   }, [initialTokens, userV2Tokens, userV3Tokens])
-
-  const { price } = useVanillaGovernanceToken(VanillaVersion.V1_0)
-  const ethPrice = useRecoilValue(currentETHPrice)
 
   const totalUnrealizedVnl = useCallback(() => {
     const vnlAmounts = getUserTokens()
@@ -306,6 +308,7 @@ const BodyContent = ({
   const setETHPrice = useSetRecoilState(currentETHPrice)
   const setV2Tokens = useSetRecoilState(uniswapV2TokenState)
   const setV3Tokens = useSetRecoilState(uniswapV3TokenState)
+  const setV2UserTokens = useSetRecoilState(userV2TokensState)
   const setV3UserTokens = useSetRecoilState(userV3TokensState)
   const setCurrentBlockNumber = useSetRecoilState(currentBlockNumberState)
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
@@ -326,6 +329,7 @@ const BodyContent = ({
     setExchange(activeExchange)
     setV2Tokens(initialTokens?.v2 || [])
     setV3Tokens(initialTokens?.v3 || [])
+    setV2UserTokens(initialTokens?.userPositionsV2 || [])
     setV3UserTokens(initialTokens?.userPositionsV3 || [])
     setETHPrice(ethPrice)
     setCurrentBlockNumber(currentBlockNumber)
@@ -340,6 +344,7 @@ const BodyContent = ({
     setExchange,
     activeExchange,
     setV3UserTokens,
+    setV2UserTokens,
   ])
 
   const profitablePositions = useCallback(() => {
@@ -489,11 +494,7 @@ const BodyContent = ({
   )
 }
 
-export default function TradePage({
-  initialTokens,
-  ethPrice,
-  currentBlockNumber,
-}: PrerenderProps): JSX.Element {
+export default function TradePage(props: PrerenderProps): JSX.Element {
   // NOTE: uniswapV2Tokens & uniswapV3Tokens here will be stale after a while
   // uniswapV2Tokens & uniswapV3Tokens here is only used to populate the state on first render (static)
   // Updates to uniswapV2Tokens & uniswapV3Tokens happen in recoil
@@ -515,7 +516,7 @@ export default function TradePage({
       title='Start trading'
       description='Make trades, see your profits blossom and mine VNL.'
       shareImg='/social/social-share-trade.png'
-      hero={<HeaderContent />}
+      hero={<HeaderContent {...props} />}
     >
       <TradeModal
         open={modalOpen}
@@ -525,11 +526,9 @@ export default function TradePage({
         }}
       />
       <BodyContent
-        initialTokens={initialTokens}
-        ethPrice={ethPrice}
         setModalOpen={toggleModalOpen}
-        currentBlockNumber={currentBlockNumber}
         activeExchange={activeExchange}
+        {...props}
       />
     </Layout>
   )

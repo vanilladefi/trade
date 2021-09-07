@@ -6,7 +6,7 @@ import {
   Width,
 } from 'components/grid/Flex'
 import Button from 'components/input/Button'
-import { Spinner } from 'components/Spinner'
+import { Dots } from 'components/Spinner'
 import Spacer from 'components/typography/Spacer'
 import { formatUnits } from 'ethers/lib/utils'
 import useTransaction from 'hooks/useTransaction'
@@ -44,7 +44,7 @@ const Minted = ({ transactionHash }: ConversionViewProps): JSX.Element => {
       {waiting ? (
         <Column grow={true} width={Width.TWELVE}>
           <Row alignItems={Alignment.CENTER}>
-            <Spinner />
+            <Dots />
             <Spacer />
             <h2>WAITING FOR TRANSACTION</h2>
           </Row>

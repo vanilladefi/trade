@@ -5,7 +5,7 @@ import Button, {
   ButtonState,
   Rounding,
 } from 'components/input/Button'
-import { Spinner } from 'components/Spinner'
+import { Dots } from 'components/Spinner'
 import useTradeEngine from 'hooks/useTradeEngine'
 import useVanillaRouter from 'hooks/useVanillaRouter'
 import dynamic from 'next/dynamic'
@@ -178,7 +178,7 @@ const PrepareView = ({
                 grow
               >
                 {amount1 === null ? (
-                  <Spinner />
+                  <Dots />
                 ) : notEnoughLiquidity() ? (
                   'Not enough liquidity'
                 ) : notEnoughFunds() ? (
