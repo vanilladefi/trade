@@ -1,14 +1,20 @@
+import dynamic from 'next/dynamic'
 import Head from 'next/head'
 import React, { ReactNode } from 'react'
 import { RecoilRoot } from 'recoil'
 import { UseWalletProvider } from 'use-wallet'
 import { chainId, rpcUrl } from 'utils/config'
-import Footer from './Footer'
 import GlobalStyles from './GlobalStyles'
-import Header from './Header'
-import { MobileWalletFloater } from './SmallWalletInfo'
-import { WalletConnector } from './WalletConnector'
-import WalletModal from './WalletModal'
+
+const Footer = dynamic(import('components/Footer'))
+const Header = dynamic(import('components/Header'))
+const WalletModal = dynamic(import('components/WalletModal'))
+const WalletConnector = dynamic(() =>
+  import('components/WalletConnector').then((mod) => mod.WalletConnector),
+)
+const MobileWalletFloater = dynamic(() =>
+  import('components/SmallWalletInfo').then((mod) => mod.MobileWalletFloater),
+)
 
 type RenderFunction = () => ReactNode
 

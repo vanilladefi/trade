@@ -31,6 +31,9 @@ module.exports = withMDX({
       'etherscan.io',
     ],
   },
+  experimental: {
+    staticPageGenerationTimeout: 120,
+  },
   async headers() {
     return [
       {

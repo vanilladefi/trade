@@ -23,36 +23,30 @@ function useTotalOwned(props?: PrerenderProps): {
   }, [props, userV2Tokens, userV3Tokens])
 
   return useMemo(() => {
-    const values =
-      getUserTokens() &&
-      getUserTokens()
-        .filter((token) => !!token.value)
-        .map((token) => token.value)
+    const userTokens = getUserTokens()
+
+    const values = userTokens
+      .filter((token) => !!token.value)
+      .map((token) => token.value)
 
     // Total value of tokens in USD
-    const tokenSum =
-      values &&
-      values.length > 0 &&
-      values.reduce((accumulator, current) =>
+    const tokenSum = values.reduce(
+      (accumulator, current) =>
         accumulator && current ? accumulator + current : accumulator,
-      )
+      0,
+    )
 
-    const tokenValuesInEth =
-      getUserTokens() &&
-      getUserTokens().map((token) => {
-        if (!!token.owned && token.price) {
-          return parseFloat(token.owned) * token.price
-        } else {
-          return 0
-        }
-      })
-    const totalTokenValueInEth =
-      (tokenValuesInEth &&
-        tokenValuesInEth.length > 0 &&
-        tokenValuesInEth.reduce(
-          (accumulator, current) => accumulator + current,
-        )) ||
-      0
+    const tokenValuesInEth = userTokens.map((token) => {
+      if (!!token.owned && token.price) {
+        return parseFloat(token.owned) * token.price
+      } else {
+        return 0
+      }
+    })
+    const totalTokenValueInEth = tokenValuesInEth.reduce(
+      (accumulator, current) => accumulator + current,
+      0,
+    )
 
     if (tokenSum) {
       return {
