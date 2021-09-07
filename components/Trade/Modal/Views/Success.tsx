@@ -1,6 +1,6 @@
 import { Column, Row, Width } from 'components/grid/Flex'
 import Button, { ButtonSize } from 'components/input/Button'
-import { Spinner } from 'components/Spinner'
+import { Dots } from 'components/Spinner'
 import TradeFlower from 'components/TradeFlower'
 import { SmallTitle } from 'components/typography/Titles'
 import { formatUnits } from 'ethers/lib/utils'
@@ -19,7 +19,7 @@ const Loading = (): JSX.Element => (
   <Row>
     <Column width={Width.TWELVE}>
       <div>
-        <Spinner />
+        <Dots />
       </div>
       <style jsx>{`
         div {

@@ -1,5 +1,5 @@
 import { Column, Width } from 'components/grid/Flex'
-import { Spinner } from 'components/Spinner'
+import { Dots } from 'components/Spinner'
 import Icon from 'components/typography/Icon'
 import { formatUnits } from 'ethers/lib/utils'
 import useEligibleTokenBalance from 'hooks/useEligibleTokenBalance'
@@ -139,7 +139,7 @@ const TokenInput = ({ version, useWethProxy = true }: Props): JSX.Element => {
                   />
                 ) : (
                   <div className='spinner'>
-                    <Spinner />
+                    <Dots />
                   </div>
                 )}
                 {operation === Operation.Sell && (
@@ -205,7 +205,7 @@ const TokenInput = ({ version, useWethProxy = true }: Props): JSX.Element => {
                   />
                 ) : (
                   <div className='spinner'>
-                    <Spinner />
+                    <Dots />
                   </div>
                 )}
                 {operation === Operation.Buy && (

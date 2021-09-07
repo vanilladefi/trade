@@ -143,6 +143,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const users = await getUsers()
   return {
     paths: users.map((user) => `/trade/${user}`),
-    fallback: true,
+    fallback: 'blocking',
   }
 }

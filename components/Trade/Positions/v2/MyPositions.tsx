@@ -5,7 +5,7 @@ import Button, {
   Rounding,
 } from 'components/input/Button'
 import Modal, { ContentWrapper } from 'components/Modal'
-import { Spinner } from 'components/Spinner'
+import { Dots } from 'components/Spinner'
 import { Columns, Table } from 'components/Table'
 import { TokenLogo } from 'components/Table/Cells'
 import { cellProps, rowProps } from 'components/Table/Table'
@@ -381,7 +381,7 @@ export default function MyPositions({ onSellClick }: Props): JSX.Element {
     </>
   ) : (
     <div className='spinnerWrapper'>
-      <Spinner />
+      <Dots />
       <style jsx>{`
         .spinnerWrapper {
           display: flex;

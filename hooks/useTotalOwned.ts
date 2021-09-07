@@ -20,12 +20,7 @@ function useTotalOwned(props?: PrerenderProps): {
         ? userV3Tokens
         : props?.initialTokens?.userPositionsV3 || []
     return [...v2Tokens, ...v3Tokens]
-  }, [
-    props?.initialTokens?.userPositionsV2,
-    props?.initialTokens?.userPositionsV3,
-    userV2Tokens,
-    userV3Tokens,
-  ])
+  }, [props, userV2Tokens, userV3Tokens])
 
   return useMemo(() => {
     const values =
