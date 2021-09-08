@@ -1,7 +1,7 @@
-import { PrerenderProps } from 'pages/trade'
 import { useCallback, useMemo } from 'react'
 import { useRecoilValue } from 'recoil'
 import { userV2TokensState, userV3TokensState } from 'state/tokens'
+import { PrerenderProps } from 'types/content'
 
 function useTotalOwned(props?: PrerenderProps): {
   USD: number
