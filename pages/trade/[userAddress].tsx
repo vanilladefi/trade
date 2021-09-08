@@ -65,7 +65,7 @@ export const getStaticProps: GetStaticProps = async ({
     )
   }
 
-  let userPositionsV2: Token[] | undefined
+  let userPositionsV2: Token[] | null
   try {
     userPositionsV2 = await getUserPositions(
       VanillaVersion.V1_0,
@@ -74,7 +74,7 @@ export const getStaticProps: GetStaticProps = async ({
     )
   } catch (e) {
     console.error(e)
-    userPositionsV2 = undefined
+    userPositionsV2 = null
   }
 
   // Fetch Uniswap V3 token info
@@ -111,7 +111,7 @@ export const getStaticProps: GetStaticProps = async ({
     )
   }
 
-  let userPositionsV3: Token[] | undefined
+  let userPositionsV3: Token[] | null
   try {
     userPositionsV3 = await getUserPositions(
       VanillaVersion.V1_1,
@@ -120,7 +120,7 @@ export const getStaticProps: GetStaticProps = async ({
     )
   } catch (e) {
     console.error(e)
-    userPositionsV3 = undefined
+    userPositionsV3 = null
   }
 
   return {
