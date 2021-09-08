@@ -18,7 +18,7 @@ const MobileWalletFloater = dynamic(() =>
 
 type RenderFunction = () => ReactNode
 
-type Props = {
+export type LayoutProps = {
   children?: ReactNode
   hero?: ReactNode
   heroRenderer?: RenderFunction
@@ -36,7 +36,7 @@ const Layout = ({
   title = 'Start #ProfitMining',
   description = 'Vanilla Rewards You For Making a Profit In DeFi',
   shareImg = '/social/social-share-general.png',
-}: Props): JSX.Element => {
+}: LayoutProps): JSX.Element => {
   // Use useEffect side effect to gain access to windowURL for full URL
   // We could do this by defining base url in process specific .env -files as well
   // But then branch preview url's wouldn't probably work correctly?

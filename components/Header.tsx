@@ -1,3 +1,4 @@
+import useWalletAddress from 'hooks/useWalletAddress'
 import Link from 'next/link'
 import React from 'react'
 import { Logo } from './Brand'
@@ -17,6 +18,7 @@ const Header = ({
   background,
   renderChildren,
 }: React.PropsWithChildren<Props>): JSX.Element => {
+  const { long } = useWalletAddress()
   return (
     <>
       <header>
@@ -31,10 +33,10 @@ const Header = ({
                   </a>
                 </Link>
                 <div className='mobileNav'>
-                  <MobileNavigation />
+                  <MobileNavigation userAddress={long} />
                 </div>
                 <div className='desktopNav'>
-                  <DesktopNavigation />
+                  <DesktopNavigation userAddress={long} />
                 </div>
               </div>
             </div>
