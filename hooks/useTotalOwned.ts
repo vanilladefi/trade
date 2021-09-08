@@ -52,8 +52,6 @@ function useTotalOwned(props?: PrerenderProps): {
       0,
     )
 
-    console.log(values, tokenSum)
-
     if (tokenSum) {
       return {
         USD: tokenSum,

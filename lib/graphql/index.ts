@@ -1,10 +1,6 @@
 import { GraphQLClient } from 'graphql-request'
 import { SubscriptionClient } from 'graphql-subscriptions-client'
-
-export enum UniswapVersion {
-  v2 = 'v2',
-  v3 = 'v3',
-}
+import { UniswapVersion } from 'types/general'
 
 const THEGRAPH_ENDPOINTS = {
   v2: {

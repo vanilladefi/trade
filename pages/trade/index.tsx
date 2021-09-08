@@ -16,7 +16,6 @@ import useTotalOwned from 'hooks/useTotalOwned'
 import useUserPositions from 'hooks/useUserPositions'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import { getAverageBlockCountPerHour, getCurrentBlockNumber } from 'lib/block'
-import { UniswapVersion } from 'lib/graphql'
 import {
   addGraphInfo,
   addLogoColor,
@@ -44,32 +43,15 @@ import {
   selectedPairIdState,
 } from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
-import { VanillaVersion } from 'types/general'
+import { BodyProps, PrerenderProps } from 'types/content'
+import { UniswapVersion, VanillaVersion } from 'types/general'
 import {
   Eligibility,
   HandleBuyClick,
   HandleSellClick,
   Operation,
-  Token,
 } from 'types/trade'
 import { useWallet } from 'use-wallet'
-
-export type PrerenderProps = {
-  userAddress?: string | false
-  initialTokens?: {
-    v2?: Token[]
-    v3?: Token[]
-    userPositionsV3: Token[] | null
-    userPositionsV2: Token[] | null
-  }
-  ethPrice?: number
-  currentBlockNumber?: number
-}
-
-export type BodyProps = PrerenderProps & {
-  setModalOpen: (exchange: UniswapVersion) => void
-  activeExchange: UniswapVersion
-}
 
 const TradeModal = dynamic(() => import('components/Trade/Modal'))
 

@@ -1,5 +1,4 @@
 import { isAddress } from 'ethers/lib/utils'
-import { UniswapVersion } from 'lib/graphql'
 import { getUserPositions } from 'lib/vanilla'
 import { useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
@@ -10,7 +9,7 @@ import {
   userV3TokensState,
 } from 'state/tokens'
 import { selectedCounterAsset } from 'state/trade'
-import { VanillaVersion } from 'types/general'
+import { UniswapVersion, VanillaVersion } from 'types/general'
 import { Token } from 'types/trade'
 import useETHPrice from './useETHPrice'
 import useVanillaGovernanceToken from './useVanillaGovernanceToken'

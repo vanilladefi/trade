@@ -15,7 +15,7 @@ import {
 } from 'lib/uniswap/v2/trade'
 import { constructTrade as constructV3Trade } from 'lib/uniswap/v3/trade'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
-import { VanillaVersion } from 'types/general'
+import { UniswapVersion, VanillaVersion } from 'types/general'
 import {
   Operation,
   RewardEstimate,
@@ -32,7 +32,6 @@ import {
   getVnlTokenAddress,
   vnlDecimals,
 } from 'utils/config'
-import { UniswapVersion } from './graphql'
 import {
   getAllTokens,
   getETHPrice,
