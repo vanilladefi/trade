@@ -8,7 +8,9 @@ function NavLinks(props: PrerenderProps) {
   return (
     <>
       <NavLink href='/'>Home</NavLink>
-      <NavLink href={`/trade${props.userAddress ? props.userAddress : ''}`}>
+      <NavLink
+        href={`/trade${props.userAddress ? '/' + props.userAddress : ''}`}
+      >
         Trade
       </NavLink>
       <NavLink href='/faq'>FAQ</NavLink>
