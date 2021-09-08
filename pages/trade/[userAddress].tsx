@@ -135,7 +135,7 @@ export const getStaticProps: GetStaticProps = async ({
       ethPrice: ethPriceV3 || ethPriceV2 || 0,
       currentBlockNumber: currentBlockNumberV3 || currentBlockNumberV2,
     },
-    revalidate: 60,
+    revalidate: 300,
   }
 }
 
@@ -143,6 +143,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const users = await getUsers()
   return {
     paths: users.map((user) => `/trade/${user}`),
-    fallback: 'blocking',
+    fallback: true,
   }
 }
