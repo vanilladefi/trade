@@ -12,11 +12,11 @@ import { TokenLogo } from 'components/Table/Cells'
 import { cellProps, rowProps } from 'components/Table/Table'
 import { formatDistance } from 'date-fns'
 import useTokenSearch from 'hooks/useTokenSearch'
-import { PrerenderProps } from 'pages/trade'
 import React, { MouseEvent, useCallback, useMemo, useState } from 'react'
 import type { CellProps, Row } from 'react-table'
 import { useRecoilValue } from 'recoil'
 import { userV3TokensState } from 'state/tokens'
+import { PrerenderProps } from 'types/content'
 import type {
   HandleBuyClick,
   HandleSellClick,
