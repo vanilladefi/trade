@@ -424,7 +424,7 @@ const BodyContent = ({
               <h2 style={{ marginBottom: 0 }}>
                 MY POSITIONS
                 <small>{`${profitablePositions()} of ${
-                  userPositionsV3
+                  userPositionsV3?.length > 0
                     ? userPositionsV3?.length
                     : initialTokens?.userPositionsV3?.length || 0
                 } profitable`}</small>
