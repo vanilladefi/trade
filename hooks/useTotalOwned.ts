@@ -20,7 +20,12 @@ function useTotalOwned(props?: PrerenderProps): {
         ? userV3Tokens
         : props?.initialTokens?.userPositionsV3 || []
     return [...v2Tokens, ...v3Tokens]
-  }, [props, userV2Tokens, userV3Tokens])
+  }, [
+    props?.initialTokens?.userPositionsV2,
+    props?.initialTokens?.userPositionsV3,
+    userV2Tokens,
+    userV3Tokens,
+  ])
 
   return useMemo(() => {
     const userTokens = getUserTokens()
@@ -31,8 +36,7 @@ function useTotalOwned(props?: PrerenderProps): {
 
     // Total value of tokens in USD
     const tokenSum = values.reduce(
-      (accumulator, current) =>
-        accumulator && current ? accumulator + current : accumulator,
+      (accumulator, current) => accumulator + current,
       0,
     )
 
@@ -47,6 +51,8 @@ function useTotalOwned(props?: PrerenderProps): {
       (accumulator, current) => accumulator + current,
       0,
     )
+
+    console.log(values, tokenSum)
 
     if (tokenSum) {
       return {
