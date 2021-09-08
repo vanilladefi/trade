@@ -59,8 +59,8 @@ export type PrerenderProps = {
   initialTokens?: {
     v2?: Token[]
     v3?: Token[]
-    userPositionsV3?: Token[]
-    userPositionsV2?: Token[]
+    userPositionsV3: Token[] | null
+    userPositionsV2: Token[] | null
   }
   ethPrice?: number
   currentBlockNumber?: number
@@ -600,7 +600,12 @@ export const getStaticProps: GetStaticProps = async (): Promise<
 
   return {
     props: {
-      initialTokens: { v2: tokensV2, v3: tokensV3 },
+      initialTokens: {
+        v2: tokensV2,
+        v3: tokensV3,
+        userPositionsV2: null,
+        userPositionsV3: null,
+      },
       ethPrice: ethPriceV3 || ethPriceV2 || 0,
       currentBlockNumber: currentBlockNumberV3 || currentBlockNumberV2,
     },
