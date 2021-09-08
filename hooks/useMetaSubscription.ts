@@ -1,12 +1,8 @@
-import {
-  getTheGraphClient,
-  MetaSubscription,
-  UniswapVersion,
-} from 'lib/graphql'
+import { getTheGraphClient, MetaSubscription } from 'lib/graphql'
 import { useEffect } from 'react'
 import { useSetRecoilState } from 'recoil'
 import { currentBlockNumberState } from 'state/meta'
-import { VanillaVersion } from 'types/general'
+import { UniswapVersion, VanillaVersion } from 'types/general'
 import type { MetaQueryResponse } from 'types/trade'
 
 interface subReturnValue {

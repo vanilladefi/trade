@@ -1,13 +1,12 @@
 import { Column, Row, Width } from 'components/grid/Flex'
 import Modal from 'components/Modal'
 import { Dots } from 'components/Spinner'
-import { UniswapVersion } from 'lib/graphql'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import React, { Suspense, useCallback } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { selectedOperation, selectedPairIdState } from 'state/trade'
-import { VanillaVersion } from 'types/general'
+import { UniswapVersion, VanillaVersion } from 'types/general'
 
 const Loading = (): JSX.Element => (
   <Row>

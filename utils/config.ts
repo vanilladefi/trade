@@ -1,6 +1,5 @@
 import { providers } from 'ethers'
-import { UniswapVersion } from 'lib/graphql'
-import { VanillaVersion } from 'types/general'
+import { UniswapVersion, VanillaVersion } from 'types/general'
 
 export const useWebsocketRpc: boolean =
   process.env.NEXT_PUBLIC_USE_WEBSOCKETS === 'true'

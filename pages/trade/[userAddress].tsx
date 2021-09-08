@@ -1,5 +1,4 @@
 import { getAverageBlockCountPerHour, getCurrentBlockNumber } from 'lib/block'
-import { UniswapVersion } from 'lib/graphql'
 import {
   addGraphInfo,
   addLogoColor,
@@ -13,9 +12,10 @@ import {
 import { getUserPositions } from 'lib/vanilla'
 import { getUsers } from 'lib/vanilla/users'
 import type { GetStaticPaths, GetStaticProps, GetStaticPropsResult } from 'next'
-import { VanillaVersion } from 'types/general'
+import { PrerenderProps } from 'types/content'
+import { UniswapVersion, VanillaVersion } from 'types/general'
 import { Eligibility, Token } from 'types/trade'
-import TradePage, { PrerenderProps } from '.'
+import TradePage from '.'
 
 export default TradePage
 
