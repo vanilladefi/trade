@@ -1,5 +1,4 @@
 import { TopGradient } from 'components/backgrounds/gradient'
-import Fonts from 'components/GlobalStyles/Fonts'
 import { Column, Row, Width } from 'components/grid/Flex'
 import Button from 'components/input/Button'
 import Layout from 'components/Layout'
@@ -23,7 +22,7 @@ import {
   addUSDPrice,
   addVnlEligibility,
   getAllTokens,
-  getETHPrice,
+  getETHPrice
 } from 'lib/tokens'
 import type { GetStaticProps, GetStaticPropsResult } from 'next'
 import dynamic from 'next/dynamic'
@@ -35,12 +34,12 @@ import {
   uniswapV2TokenState,
   uniswapV3TokenState,
   userV2TokensState,
-  userV3TokensState,
+  userV3TokensState
 } from 'state/tokens'
 import {
   selectedExchange,
   selectedOperation,
-  selectedPairIdState,
+  selectedPairIdState
 } from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
 import { BodyProps, PrerenderProps } from 'types/content'
@@ -49,7 +48,7 @@ import {
   Eligibility,
   HandleBuyClick,
   HandleSellClick,
-  Operation,
+  Operation
 } from 'types/trade'
 import { useWallet } from 'use-wallet'
 
@@ -103,7 +102,6 @@ const HeaderContent = ({ initialTokens }: PrerenderProps): JSX.Element => {
 
   return (
     <>
-      <Fonts />
       <TopGradient />
       <TokenConversion />
       <Wrapper>

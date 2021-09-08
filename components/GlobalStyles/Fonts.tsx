@@ -4,7 +4,7 @@ const Fonts = (): JSX.Element => (
   <style jsx global>{`
     @font-face {
       font-family: 'Darker Grotesque';
-      src: url('fonts/Darker_Grotesque/DarkerGrotesque-Bold.ttf')
+      src: url('/fonts/Darker_Grotesque/DarkerGrotesque-Bold.ttf')
         format('truetype');
       font-weight: 700;
       font-style: normal;
@@ -12,28 +12,30 @@ const Fonts = (): JSX.Element => (
     }
     @font-face {
       font-family: 'Fira Code';
-      src: url('fonts/Fira_Code/static/FiraCode-Regular.ttf') format('truetype');
+      src: url('/fonts/Fira_Code/static/FiraCode-Regular.ttf')
+        format('truetype');
       font-weight: 400;
       font-style: monospace;
       font-display: swap;
     }
     @font-face {
       font-family: 'Inter';
-      src: url('fonts/Inter/static/Inter-Regular-slnt=0.ttf') format('truetype');
+      src: url('/fonts/Inter/static/Inter-Regular-slnt=0.ttf')
+        format('truetype');
       font-weight: 400;
       font-style: normal;
       font-display: swap;
     }
     @font-face {
       font-family: 'Inter';
-      src: url('fonts/Inter/static/Inter-Medium-slnt=0.ttf') format('truetype');
+      src: url('/fonts/Inter/static/Inter-Medium-slnt=0.ttf') format('truetype');
       font-weight: 500;
       font-style: normal;
       font-display: swap;
     }
     @font-face {
       font-family: 'Inter';
-      src: url('fonts/Inter/static/Inter-SemiBold-slnt=0.ttf')
+      src: url('/fonts/Inter/static/Inter-SemiBold-slnt=0.ttf')
         format('truetype');
       font-weight: 600;
       font-style: normal;
