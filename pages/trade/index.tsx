@@ -14,6 +14,7 @@ import useTokenSubscription from 'hooks/useTokenSubscription'
 import useTotalOwned from 'hooks/useTotalOwned'
 import useUserPositions from 'hooks/useUserPositions'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
+import useWalletAddress from 'hooks/useWalletAddress'
 import { getAverageBlockCountPerHour, getCurrentBlockNumber } from 'lib/block'
 import {
   addGraphInfo,
@@ -22,7 +23,7 @@ import {
   addUSDPrice,
   addVnlEligibility,
   getAllTokens,
-  getETHPrice
+  getETHPrice,
 } from 'lib/tokens'
 import type { GetStaticProps, GetStaticPropsResult } from 'next'
 import dynamic from 'next/dynamic'
@@ -34,12 +35,12 @@ import {
   uniswapV2TokenState,
   uniswapV3TokenState,
   userV2TokensState,
-  userV3TokensState
+  userV3TokensState,
 } from 'state/tokens'
 import {
   selectedExchange,
   selectedOperation,
-  selectedPairIdState
+  selectedPairIdState,
 } from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
 import { BodyProps, PrerenderProps } from 'types/content'
@@ -48,11 +49,13 @@ import {
   Eligibility,
   HandleBuyClick,
   HandleSellClick,
-  Operation
+  Operation,
 } from 'types/trade'
 import { useWallet } from 'use-wallet'
 
-const TradeModal = dynamic(() => import('components/Trade/Modal'))
+const TradeModal = dynamic(() => import('components/Trade/Modal'), {
+  ssr: false,
+})
 
 const HeaderContent = ({ initialTokens }: PrerenderProps): JSX.Element => {
   const wallet = useWallet()
@@ -275,7 +278,7 @@ const BodyContent = ({
   useTokenSubscription(VanillaVersion.V1_0)
   useTokenSubscription(VanillaVersion.V1_1)
 
-  const { account } = useWallet()
+  const { long: account } = useWalletAddress()
 
   const setETHPrice = useSetRecoilState(currentETHPrice)
   const setV2Tokens = useSetRecoilState(uniswapV2TokenState)

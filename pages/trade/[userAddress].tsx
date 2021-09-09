@@ -141,8 +141,13 @@ export const getStaticProps: GetStaticProps = async ({
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const users = await getUsers()
+  const usersWithPositions = users.filter(async (user) => {
+    const positionsV1_0 = await getUserPositions(VanillaVersion.V1_0, user)
+    const positionsV1_1 = await getUserPositions(VanillaVersion.V1_1, user)
+    return positionsV1_0.length + positionsV1_1.length > 0
+  })
   return {
-    paths: users.map((user) => `/trade/${user}`),
+    paths: usersWithPositions.map((user) => `/trade/${user}`),
     fallback: true,
   }
 }

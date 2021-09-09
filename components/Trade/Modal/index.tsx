@@ -56,7 +56,6 @@ const TradeModal = ({
   const onClose = () => {
     setSelectedPairId(null)
     onRequestClose()
-    router.push('/trade', undefined, { shallow: true }) // Shallow to disable fetching getInitialProps() again
   }
 
   return (

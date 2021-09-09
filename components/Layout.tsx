@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic'
 import Head from 'next/head'
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import { RecoilRoot } from 'recoil'
 import { UseWalletProvider } from 'use-wallet'
 import { chainId, rpcUrl } from 'utils/config'
@@ -9,9 +9,7 @@ import GlobalStyles from './GlobalStyles'
 const Footer = dynamic(import('components/Footer'))
 const Header = dynamic(import('components/Header'))
 const WalletModal = dynamic(import('components/WalletModal'))
-const WalletConnector = dynamic(() =>
-  import('components/WalletConnector').then((mod) => mod.WalletConnector),
-)
+
 const MobileWalletFloater = dynamic(() =>
   import('components/SmallWalletInfo').then((mod) => mod.MobileWalletFloater),
 )
@@ -40,8 +38,9 @@ const Layout = ({
   // Use useEffect side effect to gain access to windowURL for full URL
   // We could do this by defining base url in process specific .env -files as well
   // But then branch preview url's wouldn't probably work correctly?
-  const [origin, setOrigin] = React.useState('')
-  React.useEffect(() => {
+  const [origin, setOrigin] = useState('')
+
+  useEffect(() => {
     background: setOrigin(window.location.origin)
   }, [])
 
@@ -55,8 +54,6 @@ const Layout = ({
           },
         }}
       >
-        <WalletConnector />
-
         {/* HTML <head> */}
         <Head>
           <title>{title} - Vanilla</title>
