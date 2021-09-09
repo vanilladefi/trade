@@ -87,4 +87,4 @@ const WalletConnector = (): null => {
   return null
 }
 
-export { WalletConnector }
+export default WalletConnector

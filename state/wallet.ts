@@ -34,3 +34,9 @@ export const providerState = atom<providers.JsonRpcProvider>({
   default: defaultProvider,
   dangerouslyAllowMutability: true, // If it works without, that'd be awesome. Here for now.
 })
+
+export const walletAddressState = atom<string | null>({
+  key: 'walletAddress',
+  default: null,
+  effects_UNSTABLE: [persistAtom],
+})

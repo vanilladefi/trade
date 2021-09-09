@@ -1,23 +1,30 @@
 import { isAddress } from 'lib/tokens'
-import { useMemo } from 'react'
-import { useWallet } from 'use-wallet'
+import { useEffect, useMemo } from 'react'
+import { useRecoilState, useRecoilValue } from 'recoil'
+import { signerState, walletAddressState } from 'state/wallet'
 
 function useWalletAddress(): { short: string; long: string } {
-  const { account } = useWallet()
-  return useMemo(() => {
-    const checkSummedAddress = isAddress(account)
-    let [long, short] = ['', '']
-    if (checkSummedAddress) {
-      long = checkSummedAddress || ''
-      short = checkSummedAddress
-        ? `${checkSummedAddress.substring(
-            0,
-            6,
-          )}...${checkSummedAddress.substring(checkSummedAddress.length - 4)}`
-        : ''
+  const signer = useRecoilValue(signerState)
+  const [walletAddress, setWalletAddress] = useRecoilState(walletAddressState)
+  useEffect(() => {
+    const getWalletAddress = async () => {
+      if (signer) {
+        const checkSummedAddress = isAddress(await signer.getAddress())
+        if (checkSummedAddress) {
+          setWalletAddress(checkSummedAddress)
+        }
+      }
     }
-    return { long, short }
-  }, [account])
+    getWalletAddress()
+  }, [setWalletAddress, signer])
+  return useMemo(() => {
+    const short = walletAddress
+      ? `${walletAddress.substring(0, 6)}...${walletAddress.substring(
+          walletAddress.length - 4,
+        )}`
+      : ''
+    return { short: short, long: walletAddress }
+  }, [walletAddress])
 }
 
 export default useWalletAddress
