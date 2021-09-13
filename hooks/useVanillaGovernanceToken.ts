@@ -1,16 +1,23 @@
 import { Token, TokenAmount } from '@uniswap/sdk-core'
-import { BigNumber, constants } from 'ethers'
+import { BigNumber, constants, Contract, providers, Signer } from 'ethers'
 import { getTheGraphClient, v2 } from 'lib/graphql'
 import { isAddress, tokenListChainId, weth } from 'lib/tokens'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
-import VanillaV1Token02 from 'types/abis/VanillaV1Token02.json'
 import { UniswapVersion, VanillaVersion } from 'types/general'
+import { ERC20__factory } from 'types/typechain/vanilla_v1.1/factories/ERC20__factory'
 import { getVnlTokenAddress, vnlDecimals } from 'utils/config'
-import { useContract, useTokenContract } from './useContract'
 import useTokenBalance from './useTokenBalance'
 import useWalletAddress from './useWalletAddress'
+
+export function getVanillaTokenContract(
+  version: VanillaVersion,
+  signerOrProvider: Signer | providers.Provider,
+): Contract {
+  const usedAddress = getVnlTokenAddress(version)
+  return ERC20__factory.connect(usedAddress, signerOrProvider)
+}
 
 function useVanillaGovernanceToken(version: VanillaVersion): {
   address: string
@@ -41,8 +48,8 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
   const { long: walletAddress } = useWalletAddress()
   const [mints, setMints] = useState<Array<BigNumber>>([BigNumber.from('0')])
 
-  const contract1 = useTokenContract(addresses[0])
-  const contract2 = useContract(addresses[1], VanillaV1Token02.abi)
+  const contract1 = getVanillaTokenContract(VanillaVersion.V1_0, provider)
+  const contract2 = getVanillaTokenContract(VanillaVersion.V1_1, provider)
   const { formatted: vnlBalance, raw: vnlBalanceRaw } = useTokenBalance(
     versionAddress,
     vnlDecimals,
