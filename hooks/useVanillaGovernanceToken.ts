@@ -1,23 +1,15 @@
 import { Token, TokenAmount } from '@uniswap/sdk-core'
-import { BigNumber, constants, Contract, providers, Signer } from 'ethers'
+import { BigNumber, constants } from 'ethers'
 import { getTheGraphClient, v2 } from 'lib/graphql'
 import { isAddress, tokenListChainId, weth } from 'lib/tokens'
+import { getVanillaTokenContract } from 'lib/vanilla/contracts'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
 import { UniswapVersion, VanillaVersion } from 'types/general'
-import { ERC20__factory } from 'types/typechain/vanilla_v1.1/factories/ERC20__factory'
 import { getVnlTokenAddress, vnlDecimals } from 'utils/config'
 import useTokenBalance from './useTokenBalance'
 import useWalletAddress from './useWalletAddress'
-
-export function getVanillaTokenContract(
-  version: VanillaVersion,
-  signerOrProvider: Signer | providers.Provider,
-): Contract {
-  const usedAddress = getVnlTokenAddress(version)
-  return ERC20__factory.connect(usedAddress, signerOrProvider)
-}
 
 function useVanillaGovernanceToken(version: VanillaVersion): {
   address: string
