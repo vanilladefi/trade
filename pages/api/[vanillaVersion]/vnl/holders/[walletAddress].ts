@@ -1,4 +1,4 @@
-import { getVanillaTokenContract } from 'hooks/useVanillaGovernanceToken'
+import { getVanillaTokenContract } from 'lib/vanilla/contracts'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import {
   parseVanillaVersionFromQuery,

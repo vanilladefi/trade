@@ -1,5 +1,5 @@
 import { formatUnits } from 'ethers/lib/utils'
-import { getVanillaTokenContract } from 'hooks/useVanillaGovernanceToken'
+import { getVanillaTokenContract } from 'lib/vanilla/contracts'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { parseVanillaVersionFromQuery } from 'utils/api'
 import { defaultProvider, vnlDecimals } from 'utils/config'
