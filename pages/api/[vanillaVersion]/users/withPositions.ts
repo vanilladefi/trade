@@ -1,7 +1,7 @@
 import { getUserPositions } from 'lib/vanilla'
 import { getUsers } from 'lib/vanilla/users'
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { parseVanillaVersionFromRequest } from 'utils/api'
+import { parseVanillaVersionFromQuery } from 'utils/api'
 
 export default async (
   req: NextApiRequest,
@@ -10,7 +10,7 @@ export default async (
   try {
     const usersWithPositions = {}
     const users = await getUsers()
-    const vanillaVersion = parseVanillaVersionFromRequest(req)
+    const vanillaVersion = parseVanillaVersionFromQuery(req.query)
     users.forEach(async (user) => {
       const positions = await getUserPositions(vanillaVersion, user)
       if (positions.length > 0) {

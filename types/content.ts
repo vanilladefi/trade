@@ -2,7 +2,9 @@ import { UniswapVersion } from 'types/general'
 import { Token } from 'types/trade'
 
 export type PrerenderProps = {
-  userAddress?: string | false
+  walletAddress?: string | false
+  vnlBalance?: string | null
+  ethBalance?: string | null
   initialTokens?: {
     v2?: Token[]
     v3?: Token[]

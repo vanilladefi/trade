@@ -33,10 +33,10 @@ const Header = ({
                   </a>
                 </Link>
                 <div className='mobileNav'>
-                  <MobileNavigation userAddress={long} />
+                  <MobileNavigation walletAddress={long} />
                 </div>
                 <div className='desktopNav'>
-                  <DesktopNavigation userAddress={long} />
+                  <DesktopNavigation walletAddress={long} />
                 </div>
               </div>
             </div>

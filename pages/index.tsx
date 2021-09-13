@@ -1,15 +1,23 @@
+import { isAddress } from '@ethersproject/address'
+import BoxSection, { Color } from 'components/BoxSection'
+import { BreakPoint } from 'components/GlobalStyles/Breakpoints'
+import { Column, Row, Width } from 'components/grid/Flex'
+import { GridItem, GridTemplate } from 'components/grid/Grid'
+import Button from 'components/input/Button'
 import InViewWrapper from 'components/InViewWrapper'
+import Layout from 'components/Layout'
+import Wrapper from 'components/Wrapper'
+import useWalletAddress from 'hooks/useWalletAddress'
+import { getBasicWalletDetails } from 'lib/vanilla/users'
+import { GetStaticProps, GetStaticPropsResult } from 'next'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { useEffect } from 'react'
 import { InView } from 'react-intersection-observer'
-import BoxSection, { Color } from '../components/BoxSection'
-import { BreakPoint } from '../components/GlobalStyles/Breakpoints'
-import { Column, Row, Width } from '../components/grid/Flex'
-import { GridItem, GridTemplate } from '../components/grid/Grid'
-import Button from '../components/input/Button'
-import Layout from '../components/Layout'
-import Wrapper from '../components/Wrapper'
+import { PrerenderProps } from 'types/content'
+import { parseWalletAddressFromQuery } from 'utils/api'
 
 const SVGFlower = dynamic(import('components/SVGFlower'))
 const Timeline = dynamic(import('components/Timeline'))
@@ -118,12 +126,25 @@ const milestones = [
   { name: 'TBD', time: 'Q1' },
 ]
 
-const IndexPage = (): JSX.Element => (
+const UserSniffer = (prerenderProps: PrerenderProps): null => {
+  const walletAddress = useWalletAddress(prerenderProps)
+  const router = useRouter()
+  useEffect(() => {
+    const nextPath = `/${walletAddress.long}`
+    if (isAddress(walletAddress.long) && router.asPath !== nextPath) {
+      router.push(nextPath)
+    }
+  }, [walletAddress?.long, router])
+  return null
+}
+
+export const IndexPage = (prerenderProps: PrerenderProps): JSX.Element => (
   <Layout
     title='Start #ProfitMining'
     description='Vanilla Rewards You For Making a Profit In DeFi'
     hero={HeaderContent}
   >
+    <UserSniffer {...prerenderProps} />
     <Wrapper>
       <div className='miningWrapper'>
         <BoxSection color={Color.DARK}>
@@ -639,3 +660,22 @@ const IndexPage = (): JSX.Element => (
 )
 
 export default IndexPage
+
+export const getStaticProps: GetStaticProps = async ({
+  params,
+}): Promise<GetStaticPropsResult<PrerenderProps>> => {
+  const walletAddress = parseWalletAddressFromQuery(params)
+
+  const { vnlBalance, ethBalance } = await getBasicWalletDetails(
+    walletAddress || '',
+  )
+
+  return {
+    props: {
+      walletAddress: walletAddress,
+      vnlBalance: vnlBalance,
+      ethBalance: ethBalance,
+    },
+    revalidate: 300,
+  }
+}

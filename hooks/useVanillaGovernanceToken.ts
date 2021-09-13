@@ -38,7 +38,7 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
   )
   const [versionAddress, setVersionAddress] = useState<string | null>(null)
   const [vnlEthPrice, setVnlEthPrice] = useState('0')
-  const { long: userAddress } = useWalletAddress()
+  const { long: walletAddress } = useWalletAddress()
   const [mints, setMints] = useState<Array<BigNumber>>([BigNumber.from('0')])
 
   const contract1 = useTokenContract(addresses[0])
@@ -77,16 +77,22 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
 
   useEffect(() => {
     const getMints = async () => {
-      if (contract1 && contract2 && provider && isAddress(userAddress)) {
+      if (contract1 && contract2 && provider && isAddress(walletAddress)) {
         const [contract, eventFilter] =
           version === VanillaVersion.V1_0
             ? [
                 contract1,
-                contract1.filters.Transfer(constants.AddressZero, userAddress),
+                contract1.filters.Transfer(
+                  constants.AddressZero,
+                  walletAddress,
+                ),
               ]
             : [
                 contract2,
-                contract2.filters.Transfer(constants.AddressZero, userAddress),
+                contract2.filters.Transfer(
+                  constants.AddressZero,
+                  walletAddress,
+                ),
               ]
         try {
           const blockNumber = await provider.getBlockNumber()
@@ -102,7 +108,7 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
       }
     }
     getMints()
-  }, [contract1, contract2, provider, userAddress, version])
+  }, [contract1, contract2, provider, walletAddress, version])
 
   useEffect(() => {
     if (versionAddress && uniswapVersion) {

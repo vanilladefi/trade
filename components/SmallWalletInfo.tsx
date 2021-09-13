@@ -5,6 +5,7 @@ import { useCallback, useMemo } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
 import { walletModalOpenState } from 'state/wallet'
+import { PrerenderProps } from 'types/content'
 import { VanillaVersion } from 'types/general'
 import { ConversionState } from 'types/migration'
 import { useWallet } from 'use-wallet'
@@ -25,11 +26,14 @@ import WalletConnectButton from './WalletConnectButton'
 
 interface SmallWalletInfoProps {
   grow?: boolean
+  prerenderProps?: PrerenderProps
 }
 
-const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
-  const wallet = useWallet()
-  const { status, balance } = wallet
+const SmallWalletInfo = ({
+  grow,
+  prerenderProps,
+}: SmallWalletInfoProps): JSX.Element => {
+  const { status, balance, connector } = useWallet()
   const [walletModalOpen, setWalletModalOpen] =
     useRecoilState(walletModalOpenState)
   const { balance: legacyBalance } = useVanillaGovernanceToken(
@@ -60,11 +64,11 @@ const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
     )
   }, [balance])
 
-  const walletAddress = useWalletAddress()
+  const walletAddress = useWalletAddress(prerenderProps)
 
-  if (status !== 'connected') return <WalletConnectButton />
-
-  return (
+  return status !== 'connected' && !walletAddress ? (
+    <WalletConnectButton />
+  ) : (
     <ButtonGroup grow={grow}>
       <Button
         onClick={() => {
@@ -106,7 +110,7 @@ const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
         >
           {walletBalance} ETH
           <Spacer />
-          <WalletIcon walletType={wallet.connector} />
+          <WalletIcon walletType={connector} />
         </Row>
       </Button>
     </ButtonGroup>

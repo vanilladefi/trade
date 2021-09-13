@@ -1,8 +1,12 @@
+import { formatUnits } from '@ethersproject/units'
+import { ADDRESS_ZERO } from '@uniswap/v3-sdk'
 import { ethers } from 'ethers'
 import { getVanillaRouter } from 'hooks/useVanillaRouter'
-import { isAddress } from 'lib/tokens'
+import { getBalance, isAddress } from 'lib/tokens'
+import { PrerenderProps } from 'types/content'
 import { VanillaVersion } from 'types/general'
-import { defaultProvider } from 'utils/config'
+import { ERC20__factory } from 'types/typechain/vanilla_v1.1/factories/ERC20__factory'
+import { defaultProvider, getVnlTokenAddress, vnlDecimals } from 'utils/config'
 
 export const getUsers = async (): Promise<string[]> => {
   const users: string[] = []
@@ -18,9 +22,9 @@ export const getUsers = async (): Promise<string[]> => {
     epoch.toNumber(),
   )
   events.forEach((event) => {
-    const userAddress = isAddress(event.args.buyer)
-    if (userAddress && !users.includes(userAddress)) {
-      users.push(userAddress)
+    const walletAddress = isAddress(event.args.buyer)
+    if (walletAddress && !users.includes(walletAddress)) {
+      users.push(walletAddress)
     }
   })
 
@@ -32,11 +36,52 @@ export const getUsers = async (): Promise<string[]> => {
     epoch.toNumber(),
   )
   legacyEvents.forEach((event) => {
-    const userAddress = isAddress(event.args.buyer)
-    if (userAddress && !users.includes(userAddress)) {
-      users.push(userAddress)
+    const walletAddress = isAddress(event.args.buyer)
+    if (walletAddress && !users.includes(walletAddress)) {
+      users.push(walletAddress)
     }
   })
 
   return users
+}
+
+export const getBasicWalletDetails = async (
+  walletAddress: string,
+): Promise<PrerenderProps> => {
+  let [vnlBalance, ethBalance]: string[] = ['0', '0']
+  if (isAddress(walletAddress)) {
+    vnlBalance = formatUnits(
+      await ERC20__factory.connect(
+        getVnlTokenAddress(VanillaVersion.V1_1),
+        defaultProvider,
+      ).balanceOf(walletAddress),
+      vnlDecimals,
+    )
+    ethBalance = formatUnits(await getBalance(walletAddress, defaultProvider))
+  }
+  return { vnlBalance, ethBalance }
+}
+
+export const getVnlHolders = async (): Promise<string[]> => {
+  const vnlToken = ERC20__factory.connect(
+    getVnlTokenAddress(VanillaVersion.V1_1),
+    defaultProvider,
+  )
+  const vnlRouter = getVanillaRouter(VanillaVersion.V1_1, defaultProvider)
+  const epoch = await vnlRouter.epoch()
+
+  const transferFilter: ethers.EventFilter = vnlToken.filters.Transfer()
+  const events: ethers.Event[] = await vnlToken.queryFilter(
+    transferFilter,
+    epoch.toNumber(),
+  )
+
+  const vnlHolders = new Set<string>()
+
+  events.forEach((event) => {
+    event.args.from !== ADDRESS_ZERO && vnlHolders.add(event.args.from)
+    event.args.to !== ADDRESS_ZERO && vnlHolders.add(event.args.to)
+  })
+
+  return Array.from(vnlHolders)
 }

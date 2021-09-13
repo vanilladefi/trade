@@ -1,12 +1,12 @@
-import { NextApiRequest } from 'next'
+import { isAddress } from 'lib/tokens'
+import { ParsedUrlQuery } from 'querystring'
 import { VanillaVersion } from 'types/general'
 
-export const parseVanillaVersionFromRequest = (
-  req: NextApiRequest,
+export const parseVanillaVersionFromQuery = (
+  params: ParsedUrlQuery,
 ): VanillaVersion => {
-  const { vanillaVersion } = req.query
   let response: VanillaVersion
-  switch (vanillaVersion) {
+  switch (params.vanillaVersion) {
     case 'v1.0': {
       response = VanillaVersion.V1_0
       break
@@ -20,4 +20,18 @@ export const parseVanillaVersionFromRequest = (
     }
   }
   return response
+}
+
+export const parseWalletAddressFromQuery = (
+  params: ParsedUrlQuery,
+): string | false => {
+  const walletAddress =
+    typeof params?.walletAddress === 'string'
+      ? isAddress(params?.walletAddress)
+        ? isAddress(params?.walletAddress)
+        : false
+      : isAddress(params?.walletAddress[0])
+      ? isAddress(params?.walletAddress[0])
+      : false
+  return walletAddress
 }

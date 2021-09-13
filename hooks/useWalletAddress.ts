@@ -2,10 +2,15 @@ import { isAddress } from 'lib/tokens'
 import { useEffect, useMemo } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { signerState, walletAddressState } from 'state/wallet'
+import { PrerenderProps } from 'types/content'
 
-function useWalletAddress(): { short: string; long: string } {
+function useWalletAddress(prerenderProps?: PrerenderProps): {
+  short: string
+  long: string
+} {
   const signer = useRecoilValue(signerState)
   const [walletAddress, setWalletAddress] = useRecoilState(walletAddressState)
+
   useEffect(() => {
     const getWalletAddress = async () => {
       if (signer) {
@@ -17,14 +22,25 @@ function useWalletAddress(): { short: string; long: string } {
     }
     getWalletAddress()
   }, [setWalletAddress, signer])
+
   return useMemo(() => {
-    const short = walletAddress
-      ? `${walletAddress.substring(0, 6)}...${walletAddress.substring(
-          walletAddress.length - 4,
-        )}`
+    let long: string
+    if (
+      prerenderProps?.walletAddress &&
+      isAddress(prerenderProps?.walletAddress)
+    ) {
+      long =
+        (prerenderProps?.walletAddress &&
+          isAddress(prerenderProps?.walletAddress)) ||
+        ''
+    } else {
+      long = walletAddress
+    }
+    const short = long
+      ? `${long.substring(0, 6)}...${long.substring(long.length - 4)}`
       : ''
-    return { short: short, long: walletAddress }
-  }, [walletAddress])
+    return { short, long }
+  }, [prerenderProps?.walletAddress, walletAddress])
 }
 
 export default useWalletAddress

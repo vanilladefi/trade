@@ -7,9 +7,11 @@ import SmallWalletInfo from './SmallWalletInfo'
 function NavLinks(props: PrerenderProps) {
   return (
     <>
-      <NavLink href='/'>Home</NavLink>
+      <NavLink href={`/${props.walletAddress ? props.walletAddress : ''}`}>
+        Home
+      </NavLink>
       <NavLink
-        href={`/trade${props.userAddress ? '/' + props.userAddress : ''}`}
+        href={`/${props.walletAddress ? props.walletAddress + '/' : ''}trade`}
       >
         Trade
       </NavLink>
