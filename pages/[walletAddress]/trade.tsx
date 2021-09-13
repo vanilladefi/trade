@@ -146,7 +146,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
     return positionsV1_0.length + positionsV1_1.length > 0
   })
   return {
-    paths: usersWithPositions.map((user) => `/trade/${user}`),
+    paths: usersWithPositions.map((user) => `/${user}/trade`),
     fallback: true,
   }
 }
