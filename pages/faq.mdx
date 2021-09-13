@@ -97,10 +97,10 @@ E_{i} &= E_{i-1} + Q_{eth}
 \end{aligned}
 $$
 
-When selling $Q_{token}$ tokens for $Q_{eth}$, Vanilla calculates the profit as:
+When selling $Q_{token}$ tokens for $Q_{eth}$, Vanilla calculates the absolute profit as:
 
 $$
-P_{i}=max(Q_{eth}-\frac{Q_{token}*E_{i-1}}{T_{i-1}},0)
+P_{i}^{abs}=max(Q_{eth}-\frac{Q_{token}*E_{i-1}}{T_{i-1}},0)
 $$
 and updates the variables for the next trade as
 
@@ -138,7 +138,7 @@ P_{i}^{R}&=\frac{P_{i}^{pool} * t + {price}_{i}^{avg} * (300-t)}{300}
 \end{aligned}
 $$
 
-If the price observation history is not available at all (i.e. observation cardinality = 1), then the rewardable price will equal to the average purchasing price, meaning there's no rewardable profit and VNL will not be rewarded. This is why the cardinality warning is displayed in the trading UI.
+If the price observation history is not available at all (i.e. observation cardinality = 1), then the rewardable price will equal to the average purchasing price, meaning there's no rewardable profit and VNL will not be rewarded. This is also why the cardinality warning is displayed in the trading UI.
 
 ## What is the Holding/Trading Ratio (Squared) and why does Vanilla use it?
 
