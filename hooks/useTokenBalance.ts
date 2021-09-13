@@ -19,7 +19,7 @@ function useTokenBalance(
   const [raw, setRaw] = useState(BigNumber.from('0'))
   const [formatted, setFormatted] = useState('')
 
-  const { long: userAddress } = useWalletAddress()
+  const { long: walletAddress } = useWalletAddress()
   const contract = useTokenContract(tokenAddress || '')
 
   const getRawBalance = useCallback(
@@ -32,11 +32,11 @@ function useTokenBalance(
       ) {
         raw = await signer.getBalance()
       } else {
-        raw = await contract.balanceOf(userAddress)
+        raw = await contract.balanceOf(walletAddress)
       }
       return raw
     },
-    [userAddress, wethAsEth],
+    [walletAddress, wethAsEth],
   )
 
   useEffect(() => {
@@ -44,7 +44,7 @@ function useTokenBalance(
       if (
         tokenAddress &&
         isAddress(tokenAddress) &&
-        isAddress(userAddress) &&
+        isAddress(walletAddress) &&
         decimals &&
         contract &&
         signer
@@ -85,7 +85,7 @@ function useTokenBalance(
     getRawBalance,
     signer,
     tokenAddress,
-    userAddress,
+    walletAddress,
     wethAsEth,
     blockNumber,
   ])

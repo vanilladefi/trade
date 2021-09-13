@@ -266,7 +266,7 @@ const HeaderContent = ({ initialTokens }: PrerenderProps): JSX.Element => {
 }
 
 const BodyContent = ({
-  userAddress,
+  walletAddress,
   initialTokens,
   ethPrice,
   currentBlockNumber,
@@ -293,11 +293,11 @@ const BodyContent = ({
 
   const userPositionsV3 = useUserPositions(
     VanillaVersion.V1_1,
-    userAddress || account,
+    walletAddress || account,
   )
   const userPositionsV2 = useUserPositions(
     VanillaVersion.V1_0,
-    userAddress || account,
+    walletAddress || account,
   )
 
   useEffect(() => {

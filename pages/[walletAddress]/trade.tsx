@@ -7,29 +7,26 @@ import {
   addVnlEligibility,
   getAllTokens,
   getETHPrice,
-  isAddress,
 } from 'lib/tokens'
 import { getUserPositions } from 'lib/vanilla'
-import { getUsers } from 'lib/vanilla/users'
+import { getBasicWalletDetails, getUsers } from 'lib/vanilla/users'
 import type { GetStaticPaths, GetStaticProps, GetStaticPropsResult } from 'next'
 import { PrerenderProps } from 'types/content'
 import { UniswapVersion, VanillaVersion } from 'types/general'
 import { Eligibility, Token } from 'types/trade'
-import TradePage from '.'
+import { parseWalletAddressFromQuery } from 'utils/api'
+import TradePage from '../trade'
 
 export default TradePage
 
 export const getStaticProps: GetStaticProps = async ({
   params,
 }): Promise<GetStaticPropsResult<PrerenderProps>> => {
-  const userAddress: string | false =
-    typeof params.userAddress === 'string'
-      ? isAddress(params.userAddress)
-        ? isAddress(params.userAddress)
-        : false
-      : isAddress(params.userAddress[0])
-      ? isAddress(params.userAddress[0])
-      : false
+  const walletAddress: string | false = parseWalletAddressFromQuery(params)
+
+  const { vnlBalance, ethBalance } =
+    (walletAddress && (await getBasicWalletDetails(walletAddress))) || undefined
+
   let block24hAgo
 
   const currentBlockNumberV2 = await getCurrentBlockNumber(UniswapVersion.v2)
@@ -69,7 +66,7 @@ export const getStaticProps: GetStaticProps = async ({
   try {
     userPositionsV2 = await getUserPositions(
       VanillaVersion.V1_0,
-      userAddress || '',
+      walletAddress || '',
       tokensV2,
     )
   } catch (e) {
@@ -115,7 +112,7 @@ export const getStaticProps: GetStaticProps = async ({
   try {
     userPositionsV3 = await getUserPositions(
       VanillaVersion.V1_1,
-      userAddress || '',
+      walletAddress || '',
       tokensV3,
     )
   } catch (e) {
@@ -125,7 +122,9 @@ export const getStaticProps: GetStaticProps = async ({
 
   return {
     props: {
-      userAddress: userAddress,
+      walletAddress: walletAddress,
+      vnlBalance: vnlBalance,
+      ethBalance: ethBalance,
       initialTokens: {
         v2: tokensV2,
         v3: tokensV3,

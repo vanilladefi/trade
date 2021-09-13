@@ -17,7 +17,7 @@ import useVanillaRouter from './useVanillaRouter'
 
 function useUserPositions(
   version: VanillaVersion,
-  userAddress: string,
+  walletAddress: string,
 ): Token[] | null {
   useETHPrice(UniswapVersion.v3)
   const allTokens = useRecoilValue(
@@ -35,11 +35,11 @@ function useUserPositions(
       tokens: Token[],
     ): Promise<Token[] | null> => {
       let tokensWithBalance = []
-      if (vanillaRouter && isAddress(userAddress) && isAddress(vnl.address)) {
+      if (vanillaRouter && isAddress(walletAddress) && isAddress(vnl.address)) {
         try {
           tokensWithBalance = await getUserPositions(
             version,
-            userAddress,
+            walletAddress,
             tokens,
           )
         } catch (e) {
@@ -51,7 +51,7 @@ function useUserPositions(
     }
     filterUserTokens(allTokens).then(setTokens)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userAddress, counterAsset, setTokens, vnl.address, version])
+  }, [walletAddress, counterAsset, setTokens, vnl.address, version])
 
   return tokens
 }
