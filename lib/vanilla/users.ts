@@ -57,9 +57,7 @@ export const getBasicWalletDetails = async (
       ).balanceOf(walletAddress),
       vnlDecimals,
     )
-    console.log(vnlBalance)
     ethBalance = formatUnits(await getBalance(walletAddress, defaultProvider))
-    console.log(ethBalance)
   }
   return { vnlBalance, ethBalance }
 }
