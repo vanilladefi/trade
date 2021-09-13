@@ -257,7 +257,10 @@ const RowRenderer = (
   )
 }
 
-export default function MyPositions({ onSellClick }: Props): JSX.Element {
+export default function MyPositions({
+  initialTokens,
+  onSellClick,
+}: Props): JSX.Element {
   const userPositions = useRecoilValue(userV2TokensState)
   const [query, clearQuery] = useTokenSearch()
   const [liquidityModalContent, setLiquidityModalContent] = useState<
@@ -360,7 +363,7 @@ export default function MyPositions({ onSellClick }: Props): JSX.Element {
 
   const initialSortBy = useMemo(() => [{ id: 'value', desc: true }], [])
 
-  return userPositions ? (
+  return userPositions || initialTokens?.userPositionsV2 ? (
     <>
       <Modal
         open={!!liquidityModalContent}
@@ -369,7 +372,11 @@ export default function MyPositions({ onSellClick }: Props): JSX.Element {
         {liquidityModalContent}
       </Modal>
       <Table
-        data={userPositions}
+        data={
+          userPositions?.length > 0
+            ? userPositions
+            : initialTokens?.userPositionsV2 || []
+        }
         columns={columns}
         initialSortBy={initialSortBy}
         query={query}
