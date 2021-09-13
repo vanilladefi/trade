@@ -8,12 +8,19 @@ import {
 import { FeeAmount } from '@uniswap/v3-sdk'
 import { BigNumber, ethers, providers, Signer } from 'ethers'
 import { formatUnits, getAddress } from 'ethers/lib/utils'
-import { getVanillaRouter } from 'hooks/useVanillaRouter'
+import {
+  getAllTokens,
+  getETHPrice,
+  isAddress,
+  tokenListChainId,
+  weth,
+} from 'lib/tokens'
 import {
   constructTrade as constructV2Trade,
   tryParseAmount,
 } from 'lib/uniswap/v2/trade'
 import { constructTrade as constructV3Trade } from 'lib/uniswap/v3/trade'
+import { getVanillaRouter } from 'lib/vanilla/contracts'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import { UniswapVersion, VanillaVersion } from 'types/general'
 import {
@@ -32,13 +39,6 @@ import {
   getVnlTokenAddress,
   vnlDecimals,
 } from 'utils/config'
-import {
-  getAllTokens,
-  getETHPrice,
-  isAddress,
-  tokenListChainId,
-  weth,
-} from './tokens'
 
 export const estimateReward = async (
   version: VanillaVersion,
