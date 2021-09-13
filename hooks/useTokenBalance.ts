@@ -1,10 +1,10 @@
 import { Token, TokenAmount } from '@uniswap/sdk-core'
-import { BigNumber, Contract, Signer } from 'ethers'
+import { BigNumber, Contract, providers, Signer } from 'ethers'
 import { isAddress, tokenListChainId, weth } from 'lib/tokens'
 import { useCallback, useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { currentBlockNumberState } from 'state/meta'
-import { signerState } from 'state/wallet'
+import { providerState, signerState } from 'state/wallet'
 import { useTokenContract } from './useContract'
 import useWalletAddress from './useWalletAddress'
 
@@ -14,6 +14,7 @@ function useTokenBalance(
   wethAsEth?: boolean,
 ): { formatted: string; raw: BigNumber; decimals: number } {
   const signer = useRecoilValue(signerState)
+  const provider = useRecoilValue(providerState)
   const blockNumber = useRecoilValue(currentBlockNumberState)
 
   const [raw, setRaw] = useState(BigNumber.from('0'))
@@ -23,14 +24,18 @@ function useTokenBalance(
   const contract = useTokenContract(tokenAddress || '')
 
   const getRawBalance = useCallback(
-    async (tokenAddress: string, contract: Contract, signer: Signer) => {
+    async (
+      tokenAddress: string,
+      contract: Contract,
+      signerOrProvider: Signer | providers.Provider,
+    ) => {
       let raw: BigNumber = BigNumber.from('0')
       if (
         wethAsEth &&
         tokenAddress.toLowerCase() === weth.address.toLowerCase() &&
-        signer
+        signerOrProvider
       ) {
-        raw = await signer.getBalance()
+        raw = await signerOrProvider.getBalance('latest')
       } else {
         raw = await contract.balanceOf(walletAddress)
       }
@@ -41,20 +46,21 @@ function useTokenBalance(
 
   useEffect(() => {
     const getBalances = async () => {
+      const signerOrProvider = signer || provider
       if (
         tokenAddress &&
         isAddress(tokenAddress) &&
         isAddress(walletAddress) &&
         decimals &&
         contract &&
-        signer
+        signerOrProvider
       ) {
         try {
           // Get raw BigNumber balance. Interpret wETH as ETH if specified.
           const raw: BigNumber = await getRawBalance(
             tokenAddress,
             contract,
-            signer,
+            signerOrProvider,
           )
           // Make sure "decimals" is an integer
           const parsedDecimals = parseInt(decimals.toString())
@@ -88,6 +94,7 @@ function useTokenBalance(
     walletAddress,
     wethAsEth,
     blockNumber,
+    provider,
   ])
 
   return {
