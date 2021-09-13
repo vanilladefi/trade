@@ -8,8 +8,6 @@ import InViewWrapper from 'components/InViewWrapper'
 import Layout from 'components/Layout'
 import Wrapper from 'components/Wrapper'
 import useWalletAddress from 'hooks/useWalletAddress'
-import { getBasicWalletDetails } from 'lib/vanilla/users'
-import { GetStaticProps, GetStaticPropsResult } from 'next'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -17,7 +15,6 @@ import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { InView } from 'react-intersection-observer'
 import { PrerenderProps } from 'types/content'
-import { parseWalletAddressFromQuery } from 'utils/api'
 
 const SVGFlower = dynamic(import('components/SVGFlower'))
 const Timeline = dynamic(import('components/Timeline'))
@@ -660,22 +657,3 @@ export const IndexPage = (prerenderProps: PrerenderProps): JSX.Element => (
 )
 
 export default IndexPage
-
-export const getStaticProps: GetStaticProps = async ({
-  params,
-}): Promise<GetStaticPropsResult<PrerenderProps>> => {
-  const walletAddress = parseWalletAddressFromQuery(params)
-
-  const { vnlBalance, ethBalance } = await getBasicWalletDetails(
-    walletAddress || '',
-  )
-
-  return {
-    props: {
-      walletAddress: walletAddress,
-      vnlBalance: vnlBalance,
-      ethBalance: ethBalance,
-    },
-    revalidate: 300,
-  }
-}
