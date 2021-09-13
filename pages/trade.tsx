@@ -53,9 +53,7 @@ import {
 } from 'types/trade'
 import { useWallet } from 'use-wallet'
 
-const TradeModal = dynamic(() => import('components/Trade/Modal'), {
-  ssr: false,
-})
+const TradeModal = dynamic(() => import('components/Trade/Modal'))
 
 const HeaderContent = ({ initialTokens }: PrerenderProps): JSX.Element => {
   const wallet = useWallet()
@@ -309,7 +307,10 @@ const BodyContent = ({
     setETHPrice(ethPrice)
     setCurrentBlockNumber(currentBlockNumber)
   }, [
-    initialTokens,
+    initialTokens?.v2,
+    initialTokens?.v3,
+    initialTokens?.userPositionsV2,
+    initialTokens?.userPositionsV3,
     setETHPrice,
     ethPrice,
     setCurrentBlockNumber,

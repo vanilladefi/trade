@@ -320,7 +320,7 @@ export default function MyPositions({
 
   const initialSortBy = useMemo(() => [{ id: 'value', desc: true }], [])
 
-  return userPositions ? (
+  return userPositions || initialTokens?.userPositionsV3 ? (
     <>
       <Modal
         open={!!cardinalityModalContent}
