@@ -2,7 +2,7 @@ import { BreakPoint } from 'components/GlobalStyles/Breakpoints'
 import Button, {
   ButtonColor,
   ButtonSize,
-  Rounding,
+  Rounding
 } from 'components/input/Button'
 import Modal, { ContentWrapper } from 'components/Modal'
 import { Dots } from 'components/Spinner'
@@ -16,13 +16,13 @@ import React, { MouseEvent, useCallback, useMemo, useState } from 'react'
 import type { CellProps, Row } from 'react-table'
 import { useRecoilValue } from 'recoil'
 import { userV2TokensState } from 'state/tokens'
+import { PrerenderProps } from 'types/content'
 import { HandleSellClick, Liquidity, ListColumn, Token } from 'types/trade'
 import { epoch } from 'utils/config'
 import { LowLiquidityContent, VeryLowLiquidityContent } from '../Content'
 
-interface Props {
+type Props = PrerenderProps & {
   onSellClick: HandleSellClick
-  initialTokens?: Token[]
 }
 
 // No hooks can be used inside the RowRenderer because of Next.js error "less hooks rendered than previous render"
