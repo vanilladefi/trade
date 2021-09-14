@@ -23,7 +23,6 @@ export const getStaticProps: GetStaticProps = async ({
   params,
 }): Promise<GetStaticPropsResult<PrerenderProps>> => {
   const walletAddress: string | false = parseWalletAddressFromQuery(params)
-
   const { vnlBalance, ethBalance } =
     (walletAddress &&
       (await getBasicWalletDetails(VanillaVersion.V1_1, walletAddress))) ||

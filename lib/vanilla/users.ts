@@ -54,10 +54,20 @@ export const getBasicWalletDetails = async (
   walletAddress: string,
 ): Promise<PrerenderProps> => {
   let [vnlBalance, ethBalance]: string[] = ['0', '0']
-  if (isAddress(walletAddress)) {
-    const vnl: ERC20 = getVanillaTokenContract(vanillaVersion, defaultProvider)
-    vnlBalance = formatUnits(await vnl.balanceOf(walletAddress), vnlDecimals)
-    ethBalance = formatUnits(await getBalance(walletAddress, defaultProvider))
+  try {
+    if (isAddress(walletAddress)) {
+      const vnl: ERC20 = getVanillaTokenContract(
+        vanillaVersion,
+        defaultProvider,
+      )
+      vnlBalance = formatUnits(await vnl.balanceOf(walletAddress), vnlDecimals)
+      ethBalance = formatUnits(await getBalance(walletAddress, defaultProvider))
+    }
+  } catch (e) {
+    console.error(
+      `getBasicWalletDetails failed for address ${walletAddress}: ${e}`,
+    )
+    throw e
   }
   return { vnlBalance, ethBalance }
 }
