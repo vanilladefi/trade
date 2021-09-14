@@ -76,13 +76,13 @@ $$
 where
 
 - $R_{i}$ is the amount of VNL reward the trader gets.
-- $P_{i}$ is the amount of Ether profit made in the trade.
+- $P_{i}$ is the amount of rewardable Ether profit made in the trade.
 - $H_{i}$ is the _Holding/Trading Ratio (Squared)_
 
 
-## How is profit calculated?
+## How is rewardable profit calculated?
 
-Profit is determined by the positive difference of how much WETH the trader used to buy tokens and how much WETH the trader got back when selling those tokens. For example, buying 1000 USDC with 1 WETH, and selling them all for 2 WETH would equal 1 WETH profit.
+Absolute profit is determined by the positive difference of how much WETH the trader used to buy tokens and how much WETH the trader got back when selling those tokens. For example, buying 1000 USDC with 1 WETH, and selling them all for 2 WETH would equal 1 WETH profit.
 
 To calculate the profit of the trade, the Vanilla contract must keep track of the purchase price. However, if the trader buys 1000 USDC for 1 WETH, then 1000 USDC for 0.5 WETH, and finally sells 1500 USDC for 1.5 WETH, what is the profit? Unfortunately, the traditionally used pricing conventions ([FIFO and LIFO](https://en.wikipedia.org/wiki/FIFO_and_LIFO_accounting)) are impractical to implement in smart contracts due to the gas costs of keeping track of all purchases. Instead, Vanilla uses a _Weighted Average Exchange Rate_ to maintain the average purchase price for all token inventory in a fair and gas efficient way.
 
@@ -97,10 +97,10 @@ E_{i} &= E_{i-1} + Q_{eth}
 \end{aligned}
 $$
 
-When selling $Q_{token}$ tokens for $Q_{eth}$, Vanilla calculates the profit as:
+When selling $Q_{token}$ tokens for $Q_{eth}$, Vanilla calculates the absolute profit as:
 
 $$
-P_{i}=max(Q_{eth}-\frac{Q_{token}*E_{i-1}}{T_{i-1}},0)
+P_{i}^{abs}=max(Q_{eth}-\frac{Q_{token}*E_{i-1}}{T_{i-1}},0)
 $$
 and updates the variables for the next trade as
 
@@ -116,6 +116,29 @@ For reference, the quote for the average purchase price is calculated simply as 
 $$
 {price}_{i}^{avg}=\frac{T_{i}}{E_{i}}
 $$
+
+Finally, the rewardable Ether profit is calculated as the positive difference of average purchase price and the rewardable price.
+$$
+{P}_{i}= max(P_{i}^{R} - {price}_{i}^{avg}, 0)
+$$
+
+## What is "observation cardinality" and why it matters in profit mining?
+
+Price manipulation is one of the biggest risks for VNL value. If a malicious trader can manipulate the token's ETH price in Uniswap at will, then they can easily rig the VNL supply. Price oracles are commonly used to mitigate this.
+
+Uniswap v3 introduced robust price oracles which enable the pool to store variable amount of price observations on-chain. Integrating smart contracts can then use the observations to calculate a [time-weighted average price](https://docs.uniswap.org/protocol/concepts/V3-overview/oracle#deriving-price-from-a-tick) (TWAP) across a time interval. Larger the time interval, the costlier it becomes to manipulate the average price.
+
+The _observation cardinality_ is the maximum number of the price observations in the Uniswap pool. [Growing it](https://docs.uniswap.org/protocol/reference/core/UniswapV3Pool#increaseobservationcardinalitynext) requires someone to pay the fees and it's not incentivized in any way, which is probably why many pools still have the initial cardinality 1. When the cardinality is 1, it effectively means the pool doesn't keep enough price observation history to calculate any robust price average.
+
+Vanilla uses the pool oracle in profit mining calculations to compute a TWAP across a 5-minute interval, which is the _rewardable price_ $P_{i}^{R}$. If the pool doesn't have enough observations to compute the full 5-minute TWAP, then the rewardable price is weighted proportionally based on longest available TWAP interval ( $P_{i}^{pool}$ across $t$ seconds):
+
+$$
+\begin{aligned}
+P_{i}^{R}&=\frac{P_{i}^{pool} * t + {price}_{i}^{avg} * (300-t)}{300}
+\end{aligned}
+$$
+
+If the price observation history is not available at all (i.e. observation cardinality = 1), then the rewardable price will equal to the average purchasing price, meaning there's no rewardable profit and VNL will not be rewarded. This is also why the cardinality warning is displayed in the trading UI.
 
 ## What is the Holding/Trading Ratio (Squared) and why does Vanilla use it?
 
