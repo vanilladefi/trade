@@ -16,7 +16,7 @@ export default async (
       const positions = await getUserPositions(vanillaVersion, address)
       res.status(200).json(positions)
     } else {
-      res.status(500).json('Invalid wallet address')
+      res.status(404).json('No wallet found with given address')
     }
   } catch (error) {
     res.status(500).json(error)

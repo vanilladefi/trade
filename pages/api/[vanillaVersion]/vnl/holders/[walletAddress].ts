@@ -13,9 +13,13 @@ export default async (
   const vnlVersion = parseVanillaVersionFromQuery(req.query)
   const walletAddress = parseWalletAddressFromQuery(req.query)
 
-  const contract = getVanillaTokenContract(vnlVersion, defaultProvider)
+  if (walletAddress) {
+    const contract = getVanillaTokenContract(vnlVersion, defaultProvider)
 
-  const balance = contract.functions.balanceOf(walletAddress)
+    const balance = contract.balanceOf(walletAddress)
 
-  res.status(200).json(balance)
+    res.status(200).json(balance)
+  } else {
+    res.status(404).json('No wallet found with given address.')
+  }
 }
