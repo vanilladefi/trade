@@ -2,9 +2,13 @@ import { formatUnits } from '@ethersproject/units'
 import { ADDRESS_ZERO } from '@uniswap/v3-sdk'
 import { ethers } from 'ethers'
 import { getBalance, isAddress } from 'lib/tokens'
-import { getVanillaRouter } from 'lib/vanilla/contracts'
+import {
+  getVanillaRouter,
+  getVanillaTokenContract,
+} from 'lib/vanilla/contracts'
 import { PrerenderProps } from 'types/content'
 import { VanillaVersion } from 'types/general'
+import { ERC20 } from 'types/typechain/vanilla_v1.1/ERC20'
 import { ERC20__factory } from 'types/typechain/vanilla_v1.1/factories/ERC20__factory'
 import { defaultProvider, getVnlTokenAddress, vnlDecimals } from 'utils/config'
 
@@ -46,17 +50,13 @@ export const getUsers = async (): Promise<string[]> => {
 }
 
 export const getBasicWalletDetails = async (
+  vanillaVersion: VanillaVersion,
   walletAddress: string,
 ): Promise<PrerenderProps> => {
   let [vnlBalance, ethBalance]: string[] = ['0', '0']
   if (isAddress(walletAddress)) {
-    vnlBalance = formatUnits(
-      await ERC20__factory.connect(
-        getVnlTokenAddress(VanillaVersion.V1_1),
-        defaultProvider,
-      ).balanceOf(walletAddress),
-      vnlDecimals,
-    )
+    const vnl: ERC20 = getVanillaTokenContract(vanillaVersion, defaultProvider)
+    vnlBalance = formatUnits(await vnl.balanceOf(walletAddress), vnlDecimals)
     ethBalance = formatUnits(await getBalance(walletAddress, defaultProvider))
   }
   return { vnlBalance, ethBalance }
