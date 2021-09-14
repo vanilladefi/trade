@@ -326,8 +326,7 @@ export async function getUserPositions(
           // Amount out from the trade as a Bignumber gwei string and an ether float
           const amountOut = trade?.outputAmount.raw ?? undefined
           const parsedAmountOut =
-            amountOut &&
-            parseFloat(formatUnits(amountOut.toString(), weth.decimals))
+            amountOut && formatUnits(amountOut.toString(), weth.decimals)
 
           let reward: RewardResponse | null = null
           // Get reward estimate from Vanilla router
@@ -339,7 +338,7 @@ export async function getUserPositions(
                 token,
                 weth,
                 tokenAmount.toSignificant(),
-                parsedAmountOut?.toString() || '0',
+                parsedAmountOut,
               )
             : null
 
@@ -367,16 +366,22 @@ export async function getUserPositions(
           const btrade = epoch
             ? BigNumber.from(blockNumber.toString()).sub(epoch)
             : BigNumber.from('0')
-          const htrs = (
-            bhold.mul(bhold).mul(million).div(btrade.mul(btrade)).toNumber() /
-            million
-          ).toString()
+
+          let htrs = '0'
+          try {
+            htrs = (
+              bhold.mul(bhold).mul(million).div(btrade.mul(btrade)).toNumber() /
+              million
+            ).toString()
+          } catch (e) {
+            console.error('Could not calculate HTRS: ', e)
+          }
 
           // Parse the minimum profitable price from the reward estimate
-          let profitablePrice: number | undefined
+          let profitablePrice: string | undefined
           let usedEstimate: keyof RewardEstimate
           if (version === VanillaVersion.V1_0 && reward?.profitablePrice) {
-            profitablePrice = parseFloat(formatUnits(reward.profitablePrice))
+            profitablePrice = formatUnits(reward.profitablePrice)
           } else if (version === VanillaVersion.V1_1 && reward?.estimate) {
             switch (Number(token.fee)) {
               case FeeAmount.LOW:
@@ -391,16 +396,25 @@ export async function getUserPositions(
               default:
                 usedEstimate = 'medium'
             }
-            profitablePrice = parseFloat(
-              formatUnits(reward?.estimate[usedEstimate].profitablePrice),
+            profitablePrice = formatUnits(
+              reward?.estimate[usedEstimate].profitablePrice,
             )
           }
 
           // Calculate profit percentage
-          const profitPercentage =
-            reward && profitablePrice && parsedAmountOut
-              ? -(profitablePrice - parsedAmountOut) / profitablePrice
-              : 0
+          let profitPercentage = 0
+          try {
+            profitPercentage =
+              reward && profitablePrice && parsedAmountOut
+                ? -(parseFloat(profitablePrice) - parseFloat(parsedAmountOut)) /
+                  parseFloat(profitablePrice)
+                : 0
+          } catch (e) {
+            console.error(
+              'Could not calculate profit percentage. Falling back to 0: ',
+              e,
+            )
+          }
 
           // Parse the available VNL reward
           let parsedVnl = 0

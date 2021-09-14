@@ -1,13 +1,13 @@
+import Header from 'components/Header'
 import dynamic from 'next/dynamic'
 import Head from 'next/head'
 import React, { ReactNode, useEffect, useState } from 'react'
 import { RecoilRoot } from 'recoil'
 import { UseWalletProvider } from 'use-wallet'
 import { chainId, rpcUrl } from 'utils/config'
-import GlobalStyles from './GlobalStyles'
 
+const GlobalStyles = dynamic(import('components/GlobalStyles'))
 const Footer = dynamic(import('components/Footer'))
-const Header = dynamic(import('components/Header'))
 const WalletModal = dynamic(import('components/WalletModal'))
 
 const MobileWalletFloater = dynamic(() =>
