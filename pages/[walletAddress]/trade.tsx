@@ -25,12 +25,13 @@ export const getStaticProps: GetStaticProps = async ({
   const walletAddress: string | false = parseWalletAddressFromQuery(params)
 
   const { vnlBalance, ethBalance } =
-    (walletAddress && (await getBasicWalletDetails(walletAddress))) || undefined
+    (walletAddress &&
+      (await getBasicWalletDetails(VanillaVersion.V1_1, walletAddress))) ||
+    undefined
 
-  let block24hAgo
+  let block24hAgo: number
 
-  const currentBlockNumberV2 = await getCurrentBlockNumber(UniswapVersion.v2)
-  const currentBlockNumberV3 = await getCurrentBlockNumber(UniswapVersion.v3)
+  const currentBlockNumber = await getCurrentBlockNumber(UniswapVersion.v3)
 
   // Fetch Uniswap V2 token info
   let tokensV2 = getAllTokens(VanillaVersion.V1_0)
@@ -42,11 +43,11 @@ export const getStaticProps: GetStaticProps = async ({
     getETHPrice(UniswapVersion.v2),
   ])
 
-  if (ethPriceV2 === 0 || currentBlockNumberV2 === 0 || blocksPerHourV2 === 0) {
+  if (ethPriceV2 === 0 || currentBlockNumber === 0 || blocksPerHourV2 === 0) {
     throw Error('Query failed')
   }
 
-  block24hAgo = currentBlockNumberV2 - 24 * blocksPerHourV2
+  block24hAgo = currentBlockNumber - 24 * blocksPerHourV2
 
   tokensV2 = await addGraphInfo(UniswapVersion.v2, tokensV2, 0, ethPriceV2)
   tokensV2 = addUSDPrice(tokensV2, ethPriceV2)
@@ -84,7 +85,7 @@ export const getStaticProps: GetStaticProps = async ({
     getETHPrice(UniswapVersion.v3),
   ])
 
-  if (ethPriceV3 === 0 || currentBlockNumberV3 === 0 || blocksPerHourV3 === 0) {
+  if (ethPriceV3 === 0 || currentBlockNumber === 0 || blocksPerHourV3 === 0) {
     throw Error('Query failed')
   }
 
@@ -96,7 +97,7 @@ export const getStaticProps: GetStaticProps = async ({
   })
   tokensV3 = await addObservationCardinality(tokensV3)
 
-  block24hAgo = currentBlockNumberV3 - 24 * blocksPerHourV3
+  block24hAgo = currentBlockNumber - 24 * blocksPerHourV3
 
   // Add historical data (price change)
   if (block24hAgo > 0) {
@@ -132,7 +133,7 @@ export const getStaticProps: GetStaticProps = async ({
         userPositionsV3: userPositionsV3,
       },
       ethPrice: ethPriceV3 || ethPriceV2 || 0,
-      currentBlockNumber: currentBlockNumberV3 || currentBlockNumberV2,
+      currentBlockNumber: currentBlockNumber,
     },
     revalidate: 300,
   }

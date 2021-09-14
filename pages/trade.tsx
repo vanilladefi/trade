@@ -515,27 +515,57 @@ export const getStaticProps: GetStaticProps = async (): Promise<
 > => {
   let block24hAgo
 
-  const currentBlockNumberV2 = await getCurrentBlockNumber(UniswapVersion.v2)
-  const currentBlockNumberV3 = await getCurrentBlockNumber(UniswapVersion.v3)
+  const currentBlockNumber = await getCurrentBlockNumber(UniswapVersion.v3)
+
+  // Fetch Uniswap V3 token info
+  let tokensV3 = getAllTokens(VanillaVersion.V1_1)
+  tokensV3 = await addLogoColor(tokensV3)
+
+  // Fetch these simultaneously
+  const [blocksPerHourV3, ethPrice] = await Promise.all([
+    getAverageBlockCountPerHour(),
+    getETHPrice(UniswapVersion.v3),
+  ])
+
+  if (ethPrice === 0 || currentBlockNumber === 0 || blocksPerHourV3 === 0) {
+    throw Error('Query failed')
+  }
+
+  tokensV3 = await addGraphInfo(UniswapVersion.v3, tokensV3, 0, ethPrice)
+  tokensV3 = addUSDPrice(tokensV3, ethPrice)
+  tokensV3 = tokensV3.map((token) => {
+    token.eligible = Eligibility.Eligible
+    return token
+  })
+  tokensV3 = await addObservationCardinality(tokensV3)
+
+  block24hAgo = currentBlockNumber - 24 * blocksPerHourV3
+
+  // Add historical data (price change)
+  if (block24hAgo > 0) {
+    tokensV3 = await addGraphInfo(
+      UniswapVersion.v3,
+      tokensV3,
+      block24hAgo,
+      ethPrice,
+    )
+  }
 
   // Fetch Uniswap V2 token info
   let tokensV2 = getAllTokens(VanillaVersion.V1_0)
   tokensV2 = await addLogoColor(tokensV2)
 
   // Fetch these simultaneously
-  const [blocksPerHourV2, ethPriceV2] = await Promise.all([
-    getAverageBlockCountPerHour(),
-    getETHPrice(UniswapVersion.v2),
-  ])
+  const blocksPerHourV2 = await getAverageBlockCountPerHour()
 
-  if (ethPriceV2 === 0 || currentBlockNumberV2 === 0 || blocksPerHourV2 === 0) {
+  if (ethPrice === 0 || currentBlockNumber === 0 || blocksPerHourV2 === 0) {
     throw Error('Query failed')
   }
 
-  block24hAgo = currentBlockNumberV2 - 24 * blocksPerHourV2
+  block24hAgo = currentBlockNumber - 24 * blocksPerHourV2
 
-  tokensV2 = await addGraphInfo(UniswapVersion.v2, tokensV2, 0, ethPriceV2)
-  tokensV2 = addUSDPrice(tokensV2, ethPriceV2)
+  tokensV2 = await addGraphInfo(UniswapVersion.v2, tokensV2, 0, ethPrice)
+  tokensV2 = addUSDPrice(tokensV2, ethPrice)
   tokensV2 = await addVnlEligibility(tokensV2, VanillaVersion.V1_0)
 
   // Add historical data (price change)
@@ -544,41 +574,7 @@ export const getStaticProps: GetStaticProps = async (): Promise<
       UniswapVersion.v2,
       tokensV2,
       block24hAgo,
-      ethPriceV2,
-    )
-  }
-
-  // Fetch Uniswap V3 token info
-  let tokensV3 = getAllTokens(VanillaVersion.V1_1)
-  tokensV3 = await addLogoColor(tokensV3)
-
-  // Fetch these simultaneously
-  const [blocksPerHourV3, ethPriceV3] = await Promise.all([
-    getAverageBlockCountPerHour(),
-    getETHPrice(UniswapVersion.v3),
-  ])
-
-  if (ethPriceV3 === 0 || currentBlockNumberV3 === 0 || blocksPerHourV3 === 0) {
-    throw Error('Query failed')
-  }
-
-  tokensV3 = await addGraphInfo(UniswapVersion.v3, tokensV3, 0, ethPriceV3)
-  tokensV3 = addUSDPrice(tokensV3, ethPriceV3)
-  tokensV3 = tokensV3.map((token) => {
-    token.eligible = Eligibility.Eligible
-    return token
-  })
-  tokensV3 = await addObservationCardinality(tokensV3)
-
-  block24hAgo = currentBlockNumberV3 - 24 * blocksPerHourV3
-
-  // Add historical data (price change)
-  if (block24hAgo > 0) {
-    tokensV3 = await addGraphInfo(
-      UniswapVersion.v3,
-      tokensV3,
-      block24hAgo,
-      ethPriceV3,
+      ethPrice,
     )
   }
 
@@ -590,9 +586,9 @@ export const getStaticProps: GetStaticProps = async (): Promise<
         userPositionsV2: null,
         userPositionsV3: null,
       },
-      ethPrice: ethPriceV3 || ethPriceV2 || 0,
-      currentBlockNumber: currentBlockNumberV3 || currentBlockNumberV2,
+      ethPrice: ethPrice || 0,
+      currentBlockNumber: currentBlockNumber,
     },
-    revalidate: 60,
+    revalidate: 300,
   }
 }

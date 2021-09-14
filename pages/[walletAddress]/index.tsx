@@ -2,6 +2,7 @@ import { getBasicWalletDetails, getVnlHolders } from 'lib/vanilla/users'
 import { GetStaticPaths, GetStaticProps, GetStaticPropsResult } from 'next'
 import IndexPage from 'pages'
 import { PrerenderProps } from 'types/content'
+import { VanillaVersion } from 'types/general'
 import { parseWalletAddressFromQuery } from 'utils/api'
 
 export default IndexPage
@@ -12,6 +13,7 @@ export const getStaticProps: GetStaticProps = async ({
   const walletAddress = parseWalletAddressFromQuery(params)
 
   const { vnlBalance, ethBalance } = await getBasicWalletDetails(
+    VanillaVersion.V1_1,
     walletAddress || '',
   )
 
