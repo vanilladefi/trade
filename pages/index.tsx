@@ -127,11 +127,14 @@ const UserSniffer = (prerenderProps: PrerenderProps): null => {
   const walletAddress = useWalletAddress(prerenderProps)
   const router = useRouter()
   useEffect(() => {
-    const nextPath = `/${walletAddress.long}`
-    if (isAddress(walletAddress.long) && router.asPath !== nextPath) {
+    const nextPath = isAddress(walletAddress.long)
+      ? `/${walletAddress.long}`
+      : false
+    if (nextPath && router.asPath !== nextPath) {
       router.push(nextPath)
     }
-  }, [walletAddress?.long, router])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletAddress])
   return null
 }
 
