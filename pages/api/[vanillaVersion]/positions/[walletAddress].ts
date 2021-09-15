@@ -1,11 +1,15 @@
-import { getUserPositions } from 'lib/vanilla'
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { Token } from 'types/trade'
+import { VanillaVersion } from 'types/general'
 import {
   parseVanillaVersionFromQuery,
   parseWalletAddressFromQuery,
 } from 'utils/api'
-import { addToCache, getFromCache } from 'utils/cache'
+import { getCachedBlockNumber, getCachedEthPrice } from 'utils/cache/meta'
+import {
+  getCachedUserPositionsV2,
+  getCachedUserPositionsV3,
+} from 'utils/cache/positions'
+import { getCachedV2Tokens, getCachedV3Tokens } from 'utils/cache/tokens'
 
 export default async (
   req: NextApiRequest,
@@ -15,18 +19,18 @@ export default async (
     const vanillaVersion = parseVanillaVersionFromQuery(req.query)
     const address = parseWalletAddressFromQuery(req.query)
 
-    const cacheKey = `${vanillaVersion}-positions-${address}`
-    const cachedPositions = await getFromCache(cacheKey)
-
     if (address) {
-      let positions: Token[]
+      const currentBlockNumber = await getCachedBlockNumber()
+      const ethPrice = await getCachedEthPrice()
+      const tokens =
+        vanillaVersion === VanillaVersion.V1_1
+          ? await getCachedV3Tokens(currentBlockNumber, ethPrice)
+          : await getCachedV2Tokens(currentBlockNumber, ethPrice)
 
-      if (cachedPositions) {
-        positions = JSON.parse(cachedPositions)
-      } else {
-        positions = await getUserPositions(vanillaVersion, address)
-        await addToCache(cacheKey, JSON.stringify(positions))
-      }
+      const positions =
+        vanillaVersion === VanillaVersion.V1_1
+          ? await getCachedUserPositionsV3(tokens, address)
+          : await getCachedUserPositionsV2(tokens, address)
 
       res.status(200).json(positions)
     } else {

@@ -11,7 +11,7 @@ import { UniswapVersion, VanillaVersion } from 'types/general'
 import { Eligibility, Token } from 'types/trade'
 import { addToCache, getFromCache } from 'utils/cache'
 
-export const getV2Tokens = async (
+export const getCachedV2Tokens = async (
   currentBlockNumber: number,
   ethPrice: number,
 ): Promise<Token[]> => {
@@ -52,7 +52,7 @@ export const getV2Tokens = async (
   return tokensV2
 }
 
-export const getV3Tokens = async (
+export const getCachedV3Tokens = async (
   currentBlockNumber: number,
   ethPrice: number,
 ): Promise<Token[]> => {

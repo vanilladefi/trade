@@ -4,7 +4,7 @@ import { getBasicWalletDetails } from 'lib/vanilla/users'
 import { UniswapVersion, VanillaVersion } from 'types/general'
 import { addToCache, getFromCache } from 'utils/cache'
 
-export const getBlockNumber = async (): Promise<number> => {
+export const getCachedBlockNumber = async (): Promise<number> => {
   let currentBlockNumber: number
   const currentBlockNumberCacheKey = 'currentBlockNumber'
   const cachedBlockNumber = await getFromCache(currentBlockNumberCacheKey)
@@ -17,7 +17,7 @@ export const getBlockNumber = async (): Promise<number> => {
   return currentBlockNumber
 }
 
-export const getEthPrice = async (): Promise<number> => {
+export const getCachedEthPrice = async (): Promise<number> => {
   let ethPrice: number
   const ethPriceCacheKey = 'ethPrice'
   const cachedEthPrice = await getFromCache(ethPriceCacheKey)
@@ -30,7 +30,7 @@ export const getEthPrice = async (): Promise<number> => {
   return ethPrice
 }
 
-export const getWalletBalances = async (
+export const getCachedWalletBalances = async (
   walletAddress: string | false,
 ): Promise<{ vnlBalance: string; ethBalance: string }> => {
   let [vnlBalance, ethBalance] = ['0', '0']
