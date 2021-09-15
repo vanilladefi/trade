@@ -56,11 +56,12 @@ const SmallWalletInfo = ({
 
   const getVnlBalance = useCallback(() => {
     const prerenderedBalance = Number(prerenderProps?.vnlBalance || '0')
+    console.log(prerenderedBalance)
     const legacyAmount = Number(legacyBalance)
     const vnlAmount =
       prerenderedBalance > 0 &&
-      prerenderedBalance !== Number(vnlBalance) &&
-      Number(vnlBalance) !== 0
+      Number(vnlBalance) > 0 &&
+      prerenderedBalance !== Number(vnlBalance)
         ? Number(vnlBalance)
         : prerenderedBalance
     return legacyAmount + vnlAmount
@@ -68,13 +69,14 @@ const SmallWalletInfo = ({
 
   const walletBalance = useMemo(() => {
     const prerenderedBalance = Number(prerenderProps?.vnlBalance || '0')
+    console.log(prerenderedBalance)
     const activeBalance = Number.parseFloat(
       ethersUtils.formatUnits(balance, 'ether'),
     )
     const returnedBalance =
       prerenderedBalance > 0 &&
-      prerenderedBalance !== activeBalance &&
-      activeBalance !== 0
+      activeBalance !== 0 &&
+      prerenderedBalance !== activeBalance
         ? activeBalance
         : prerenderedBalance
     return returnedBalance.toFixed(3)

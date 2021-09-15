@@ -127,7 +127,6 @@ const UserSniffer = (prerenderProps: PrerenderProps): null => {
   const walletAddress = useWalletAddress(prerenderProps)
   const router = useRouter()
   useEffect(() => {
-    console.log('debug')
     const nextPath = isAddress(walletAddress.long)
       ? `/${walletAddress.long}`
       : false
