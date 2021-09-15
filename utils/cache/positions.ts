@@ -3,7 +3,7 @@ import { VanillaVersion } from 'types/general'
 import { Token } from 'types/trade'
 import { addToCache, getFromCache } from '.'
 
-export const getUserPositionsV2 = async (
+export const getCachedUserPositionsV2 = async (
   tokens: Token[],
   walletAddress: string | false,
 ): Promise<Token[] | null> => {
@@ -29,7 +29,7 @@ export const getUserPositionsV2 = async (
   return userPositionsV2
 }
 
-export const getUserPositionsV3 = async (
+export const getCachedUserPositionsV3 = async (
   tokens: Token[],
   walletAddress: string | false,
 ): Promise<Token[] | null> => {

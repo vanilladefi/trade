@@ -1,16 +1,17 @@
-import { getUserPositions } from 'lib/vanilla'
-import { getUsers } from 'lib/vanilla/users'
 import type { GetStaticPaths, GetStaticProps, GetStaticPropsResult } from 'next'
 import { PrerenderProps } from 'types/content'
-import { VanillaVersion } from 'types/general'
 import { parseWalletAddressFromQuery } from 'utils/api'
 import {
-  getBlockNumber,
-  getEthPrice,
-  getWalletBalances,
+  getCachedBlockNumber,
+  getCachedEthPrice,
+  getCachedWalletBalances,
 } from 'utils/cache/meta'
-import { getUserPositionsV2, getUserPositionsV3 } from 'utils/cache/positions'
-import { getV2Tokens, getV3Tokens } from 'utils/cache/tokens'
+import {
+  getCachedUserPositionsV2,
+  getCachedUserPositionsV3,
+} from 'utils/cache/positions'
+import { getCachedV2Tokens, getCachedV3Tokens } from 'utils/cache/tokens'
+import { getCachedUsersWithPositions } from 'utils/cache/users'
 import TradePage from '../trade'
 
 export default TradePage
@@ -20,16 +21,24 @@ export const getStaticProps: GetStaticProps = async ({
 }): Promise<GetStaticPropsResult<PrerenderProps>> => {
   const walletAddress: string | false = parseWalletAddressFromQuery(params)
 
-  const { vnlBalance, ethBalance } = await getWalletBalances(walletAddress)
+  const { vnlBalance, ethBalance } = await getCachedWalletBalances(
+    walletAddress,
+  )
 
-  const currentBlockNumber = await getBlockNumber()
-  const ethPrice = await getEthPrice()
+  const currentBlockNumber = await getCachedBlockNumber()
+  const ethPrice = await getCachedEthPrice()
 
-  const tokensV2 = await getV2Tokens(currentBlockNumber, ethPrice)
-  const userPositionsV2 = await getUserPositionsV2(tokensV2, walletAddress)
+  const tokensV2 = await getCachedV2Tokens(currentBlockNumber, ethPrice)
+  const userPositionsV2 = await getCachedUserPositionsV2(
+    tokensV2,
+    walletAddress,
+  )
 
-  const tokensV3 = await getV3Tokens(currentBlockNumber, ethPrice)
-  const userPositionsV3 = await getUserPositionsV3(tokensV3, walletAddress)
+  const tokensV3 = await getCachedV3Tokens(currentBlockNumber, ethPrice)
+  const userPositionsV3 = await getCachedUserPositionsV3(
+    tokensV3,
+    walletAddress,
+  )
 
   return {
     props: {
@@ -50,12 +59,7 @@ export const getStaticProps: GetStaticProps = async ({
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const users = await getUsers()
-  const usersWithPositions = users.filter(async (user) => {
-    const positionsV1_0 = await getUserPositions(VanillaVersion.V1_0, user)
-    const positionsV1_1 = await getUserPositions(VanillaVersion.V1_1, user)
-    return positionsV1_0.length + positionsV1_1.length > 0
-  })
+  const usersWithPositions = await getCachedUsersWithPositions()
   return {
     paths: usersWithPositions.map((user) => `/${user}/trade`),
     fallback: true,
