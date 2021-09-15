@@ -25,7 +25,7 @@ export const DesktopNavigation = (props: PrerenderProps): JSX.Element => {
   return (
     <nav>
       <NavLinks {...props} />
-      <SmallWalletInfo />
+      <SmallWalletInfo {...props} />
       <style jsx>{`
         nav {
           display: flex;

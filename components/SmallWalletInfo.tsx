@@ -24,14 +24,14 @@ import Spacer from './typography/Spacer'
 import WalletIcon from './typography/WalletIcon'
 import WalletConnectButton from './WalletConnectButton'
 
-interface SmallWalletInfoProps {
+type SmallWalletInfoProps = PrerenderProps & {
   grow?: boolean
-  prerenderProps?: PrerenderProps
 }
 
 const SmallWalletInfo = ({
   grow,
-  prerenderProps,
+  vnlBalance,
+  ethBalance,
 }: SmallWalletInfoProps): JSX.Element => {
   const { status, balance, connector } = useWallet()
   const [walletModalOpen, setWalletModalOpen] =
@@ -40,7 +40,9 @@ const SmallWalletInfo = ({
   const { balance: legacyBalance } = useVanillaGovernanceToken(
     VanillaVersion.V1_0,
   )
-  const { balance: vnlBalance } = useVanillaGovernanceToken(VanillaVersion.V1_1)
+  const { balance: activeVnlBalance } = useVanillaGovernanceToken(
+    VanillaVersion.V1_1,
+  )
 
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
 
@@ -55,21 +57,19 @@ const SmallWalletInfo = ({
   }, [legacyBalance])
 
   const getVnlBalance = useCallback(() => {
-    const prerenderedBalance = Number(prerenderProps?.vnlBalance || '0')
-    console.log(prerenderedBalance)
+    const prerenderedBalance = Number(vnlBalance || '0')
     const legacyAmount = Number(legacyBalance)
     const vnlAmount =
       prerenderedBalance > 0 &&
-      Number(vnlBalance) > 0 &&
-      prerenderedBalance !== Number(vnlBalance)
-        ? Number(vnlBalance)
+      Number(activeVnlBalance) > 0 &&
+      prerenderedBalance !== Number(activeVnlBalance)
+        ? Number(activeVnlBalance)
         : prerenderedBalance
     return legacyAmount + vnlAmount
-  }, [legacyBalance, prerenderProps?.vnlBalance, vnlBalance])
+  }, [legacyBalance, vnlBalance, activeVnlBalance])
 
   const walletBalance = useMemo(() => {
-    const prerenderedBalance = Number(prerenderProps?.vnlBalance || '0')
-    console.log(prerenderedBalance)
+    const prerenderedBalance = Number(ethBalance || '0')
     const activeBalance = Number.parseFloat(
       ethersUtils.formatUnits(balance, 'ether'),
     )
@@ -80,9 +80,9 @@ const SmallWalletInfo = ({
         ? activeBalance
         : prerenderedBalance
     return returnedBalance.toFixed(3)
-  }, [balance, prerenderProps?.vnlBalance])
+  }, [balance, ethBalance])
 
-  const walletAddress = useWalletAddress(prerenderProps)
+  const walletAddress = useWalletAddress()
 
   return status !== 'connected' && !walletAddress ? (
     <WalletConnectButton />
