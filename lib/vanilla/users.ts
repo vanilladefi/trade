@@ -10,22 +10,28 @@ import { PrerenderProps } from 'types/content'
 import { VanillaVersion } from 'types/general'
 import { ERC20 } from 'types/typechain/vanilla_v1.1/ERC20'
 import { ERC20__factory } from 'types/typechain/vanilla_v1.1/factories/ERC20__factory'
-import { defaultProvider, getVnlTokenAddress, vnlDecimals } from 'utils/config'
+import {
+  defaultProvider,
+  epoch,
+  getVnlTokenAddress,
+  vnlDecimals,
+} from 'utils/config'
 
 export const getUsers = async (): Promise<string[]> => {
   const users: string[] = []
 
   const vnlRouter = getVanillaRouter(VanillaVersion.V1_1, defaultProvider)
   const vnlLegacyRouter = getVanillaRouter(VanillaVersion.V1_0, defaultProvider)
-  const epoch = await vnlRouter.epoch()
 
   // Fetch Vanilla v1.1 users
   const purchaseFilter: ethers.EventFilter = vnlRouter.filters.TokensPurchased()
   const events: ethers.Event[] = await vnlRouter.queryFilter(
     purchaseFilter,
-    epoch.toNumber(),
+    epoch,
   )
-  events.forEach((event) => {
+  events.forEach(async (event, index) => {
+    const block = await event.getBlock()
+    console.log(index, block.number)
     const walletAddress = isAddress(event.args.buyer)
     if (walletAddress && !users.includes(walletAddress)) {
       users.push(walletAddress)
@@ -37,7 +43,7 @@ export const getUsers = async (): Promise<string[]> => {
     vnlLegacyRouter.filters.TokensPurchased()
   const legacyEvents: ethers.Event[] = await vnlLegacyRouter.queryFilter(
     legacyFilter,
-    epoch.toNumber(),
+    epoch,
   )
   legacyEvents.forEach((event) => {
     const walletAddress = isAddress(event.args.buyer)
