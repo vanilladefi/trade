@@ -29,9 +29,7 @@ export const getUsers = async (): Promise<string[]> => {
     purchaseFilter,
     epoch,
   )
-  events.forEach(async (event, index) => {
-    const block = await event.getBlock()
-    console.log(index, block.number)
+  events.forEach((event) => {
     const walletAddress = isAddress(event.args.buyer)
     if (walletAddress && !users.includes(walletAddress)) {
       users.push(walletAddress)

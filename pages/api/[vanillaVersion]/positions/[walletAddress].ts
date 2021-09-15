@@ -22,7 +22,6 @@ export default async (
       let positions: Token[]
 
       if (cachedPositions) {
-        console.log('Used cache!')
         positions = JSON.parse(cachedPositions)
       } else {
         positions = await getUserPositions(vanillaVersion, address)
