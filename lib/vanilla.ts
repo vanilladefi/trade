@@ -35,6 +35,7 @@ import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1'
 import {
   blockDeadlineThreshold,
   defaultProvider,
+  epoch,
   getVanillaRouterAddress,
   getVnlTokenAddress,
   vnlDecimals,
@@ -121,6 +122,7 @@ export const getEpoch = async (
   signerOrProvider: Signer | providers.Provider,
 ): Promise<BigNumber | null> => {
   let epoch: BigNumber | null
+
   const router =
     version === VanillaVersion.V1_0
       ? new ethers.Contract(
@@ -350,7 +352,6 @@ export async function getUserPositions(
           }
 
           // Calculate HTRS
-          let epoch: BigNumber | null = BigNumber.from('0')
           const priceData = await getPriceData(
             version,
             address,
@@ -358,7 +359,6 @@ export async function getUserPositions(
             token.address,
           )
           const blockNumber = await defaultProvider.getBlockNumber()
-          epoch = await getEpoch(version, defaultProvider)
           const avgBlock =
             priceData?.weightedBlockSum.div(priceData?.tokenSum) ??
             BigNumber.from('0')
