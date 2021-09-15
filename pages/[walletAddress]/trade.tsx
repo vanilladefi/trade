@@ -3,10 +3,10 @@ import { getBasicWalletDetails, getUsers } from 'lib/vanilla/users'
 import type { GetStaticPaths, GetStaticProps, GetStaticPropsResult } from 'next'
 import { PrerenderProps } from 'types/content'
 import { VanillaVersion } from 'types/general'
-import { Token } from 'types/trade'
 import { parseWalletAddressFromQuery } from 'utils/api'
-import { getBlockNumber, getEthPrice } from 'utils/build/meta'
-import { getV2Tokens, getV3Tokens } from 'utils/build/tokens'
+import { getBlockNumber, getEthPrice } from 'utils/cache/meta'
+import { getUserPositionsV2, getUserPositionsV3 } from 'utils/cache/positions'
+import { getV2Tokens, getV3Tokens } from 'utils/cache/tokens'
 import TradePage from '../trade'
 
 export default TradePage
@@ -24,32 +24,10 @@ export const getStaticProps: GetStaticProps = async ({
   const ethPrice = await getEthPrice()
 
   const tokensV2 = await getV2Tokens(currentBlockNumber, ethPrice)
-
-  let userPositionsV2: Token[] | null
-  try {
-    userPositionsV2 = await getUserPositions(
-      VanillaVersion.V1_0,
-      walletAddress || '',
-      tokensV2,
-    )
-  } catch (e) {
-    console.error(e)
-    userPositionsV2 = null
-  }
+  const userPositionsV2 = await getUserPositionsV2(tokensV2, walletAddress)
 
   const tokensV3 = await getV3Tokens(currentBlockNumber, ethPrice)
-
-  let userPositionsV3: Token[] | null
-  try {
-    userPositionsV3 = await getUserPositions(
-      VanillaVersion.V1_1,
-      walletAddress || '',
-      tokensV3,
-    )
-  } catch (e) {
-    console.error(e)
-    userPositionsV3 = null
-  }
+  const userPositionsV3 = await getUserPositionsV3(tokensV3, walletAddress)
 
   return {
     props: {

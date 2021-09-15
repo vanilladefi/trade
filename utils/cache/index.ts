@@ -4,9 +4,13 @@ export const redis = new Redis(`rediss://${process.env.REDIS_URL}`, {
   password: process.env.REDIS_PASSWORD,
 })
 
-export const addToCache = async (key: string, value: string): Promise<void> => {
+export const addToCache = async (
+  key: string,
+  value: string,
+  expiryAfterSeconds?: number,
+): Promise<void> => {
   await redis.set(key, value)
-  await redis.expire(key, 300)
+  await redis.expire(key, expiryAfterSeconds ?? 300)
 }
 
 export const getFromCache = async (key: string): Promise<string | false> => {

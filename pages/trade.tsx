@@ -37,8 +37,8 @@ import { BodyProps, PrerenderProps } from 'types/content'
 import { UniswapVersion, VanillaVersion } from 'types/general'
 import { HandleBuyClick, HandleSellClick, Operation } from 'types/trade'
 import { useWallet } from 'use-wallet'
-import { getBlockNumber, getEthPrice } from 'utils/build/meta'
-import { getV2Tokens, getV3Tokens } from 'utils/build/tokens'
+import { getBlockNumber, getEthPrice } from 'utils/cache/meta'
+import { getV2Tokens, getV3Tokens } from 'utils/cache/tokens'
 
 const TradeModal = dynamic(() => import('components/Trade/Modal'))
 
@@ -512,7 +512,7 @@ export const getStaticProps: GetStaticProps = async (): Promise<
         userPositionsV2: null,
         userPositionsV3: null,
       },
-      ethPrice: ethPrice || 0,
+      ethPrice: ethPrice,
       currentBlockNumber: currentBlockNumber,
     },
     revalidate: 300,
