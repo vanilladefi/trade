@@ -15,16 +15,6 @@ import useTotalOwned from 'hooks/useTotalOwned'
 import useUserPositions from 'hooks/useUserPositions'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import useWalletAddress from 'hooks/useWalletAddress'
-import { getAverageBlockCountPerHour, getCurrentBlockNumber } from 'lib/block'
-import {
-  addGraphInfo,
-  addLogoColor,
-  addObservationCardinality,
-  addUSDPrice,
-  addVnlEligibility,
-  getAllTokens,
-  getETHPrice,
-} from 'lib/tokens'
 import type { GetStaticProps, GetStaticPropsResult } from 'next'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
@@ -45,15 +35,10 @@ import {
 import { walletModalOpenState } from 'state/wallet'
 import { BodyProps, PrerenderProps } from 'types/content'
 import { UniswapVersion, VanillaVersion } from 'types/general'
-import {
-  Eligibility,
-  HandleBuyClick,
-  HandleSellClick,
-  Operation,
-  Token,
-} from 'types/trade'
+import { HandleBuyClick, HandleSellClick, Operation } from 'types/trade'
 import { useWallet } from 'use-wallet'
-import { addToCache, getFromCache } from 'utils/cache'
+import { getBlockNumber, getEthPrice } from 'utils/build/meta'
+import { getV2Tokens, getV3Tokens } from 'utils/build/tokens'
 
 const TradeModal = dynamic(() => import('components/Trade/Modal'))
 
@@ -515,88 +500,10 @@ export default function TradePage(props: PrerenderProps): JSX.Element {
 export const getStaticProps: GetStaticProps = async (): Promise<
   GetStaticPropsResult<PrerenderProps>
 > => {
-  let block24hAgo
-
-  const currentBlockNumber = await getCurrentBlockNumber(UniswapVersion.v3)
-
-  const ethPrice = await getETHPrice(UniswapVersion.v3)
-
-  // Fetch Uniswap V3 token info
-  let tokensV3: Token[]
-  const tokensV3CacheKey = 'tokensV3'
-  const cachedTokensV3 = await getFromCache(tokensV3CacheKey)
-  if (cachedTokensV3) {
-    tokensV3 = JSON.parse(cachedTokensV3)
-  } else {
-    tokensV3 = getAllTokens(VanillaVersion.V1_1)
-    tokensV3 = await addLogoColor(tokensV3)
-
-    // Fetch these simultaneously
-    const blocksPerHourV3 = await getAverageBlockCountPerHour()
-
-    if (ethPrice === 0 || currentBlockNumber === 0 || blocksPerHourV3 === 0) {
-      throw Error('Query failed')
-    }
-
-    tokensV3 = await addGraphInfo(UniswapVersion.v3, tokensV3, 0, ethPrice)
-    tokensV3 = addUSDPrice(tokensV3, ethPrice)
-    tokensV3 = tokensV3.map((token) => {
-      token.eligible = Eligibility.Eligible
-      return token
-    })
-    tokensV3 = await addObservationCardinality(tokensV3)
-
-    block24hAgo = currentBlockNumber - 24 * blocksPerHourV3
-
-    // Add historical data (price change)
-    if (block24hAgo > 0) {
-      tokensV3 = await addGraphInfo(
-        UniswapVersion.v3,
-        tokensV3,
-        block24hAgo,
-        ethPrice,
-      )
-    }
-
-    await addToCache(tokensV3CacheKey, JSON.stringify(tokensV3))
-  }
-
-  // Fetch Uniswap V2 token info
-  let tokensV2: Token[]
-  const tokensV2CacheKey = 'tokensV2'
-  const cachedTokensV2 = await getFromCache(tokensV2CacheKey)
-  if (cachedTokensV2) {
-    tokensV2 = JSON.parse(cachedTokensV2)
-  } else {
-    tokensV2 = getAllTokens(VanillaVersion.V1_0)
-    tokensV2 = await addLogoColor(tokensV2)
-
-    // Fetch these simultaneously
-    const blocksPerHourV2 = await getAverageBlockCountPerHour()
-
-    if (ethPrice === 0 || currentBlockNumber === 0 || blocksPerHourV2 === 0) {
-      throw Error('Query failed')
-    }
-
-    block24hAgo = currentBlockNumber - 24 * blocksPerHourV2
-
-    tokensV2 = await addGraphInfo(UniswapVersion.v2, tokensV2, 0, ethPrice)
-    tokensV2 = addUSDPrice(tokensV2, ethPrice)
-    tokensV2 = await addVnlEligibility(tokensV2, VanillaVersion.V1_0)
-
-    // Add historical data (price change)
-    if (block24hAgo > 0) {
-      tokensV2 = await addGraphInfo(
-        UniswapVersion.v2,
-        tokensV2,
-        block24hAgo,
-        ethPrice,
-      )
-    }
-
-    await addToCache(tokensV2CacheKey, JSON.stringify(tokensV2))
-  }
-
+  const currentBlockNumber = await getBlockNumber()
+  const ethPrice = await getEthPrice()
+  const tokensV3 = await getV3Tokens(currentBlockNumber, ethPrice)
+  const tokensV2 = await getV2Tokens(currentBlockNumber, ethPrice)
   return {
     props: {
       initialTokens: {
