@@ -1,6 +1,6 @@
 import { Token, TokenAmount } from '@uniswap/sdk-core'
 import { BigNumber, constants } from 'ethers'
-import { getTheGraphClient, v3 } from 'lib/graphql'
+import { getTheGraphClient, v2 } from 'lib/graphql'
 import { isAddress, tokenListChainId, weth } from 'lib/tokens'
 import { getVanillaTokenContract } from 'lib/vanilla/contracts'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -117,9 +117,9 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
           tokenAddresses: [versionAddress.toLowerCase()],
         }
         // TODO: Change this to Uniswap.v3 when VNL gets liquidity there
-        const { http } = getTheGraphClient(UniswapVersion.v3)
+        const { http } = getTheGraphClient(UniswapVersion.v2)
         if (http) {
-          const response = await http.request(v3.TokenInfoQuery, variables)
+          const response = await http.request(v2.TokenInfoQuery, variables)
           const data = [...response?.tokensAB, ...response?.tokensBA]
           data[0] && setVnlEthPrice(data[0].price)
         }

@@ -36,10 +36,12 @@ const SmallWalletInfo = ({
   const { status, balance, connector } = useWallet()
   const [walletModalOpen, setWalletModalOpen] =
     useRecoilState(walletModalOpenState)
+
   const { balance: legacyBalance } = useVanillaGovernanceToken(
     VanillaVersion.V1_0,
   )
   const { balance: vnlBalance } = useVanillaGovernanceToken(VanillaVersion.V1_1)
+
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
 
   const getLegacyBalanceState = useCallback(() => {
@@ -53,16 +55,30 @@ const SmallWalletInfo = ({
   }, [legacyBalance])
 
   const getVnlBalance = useCallback(() => {
+    const prerenderedBalance = Number(prerenderProps?.vnlBalance || '0')
     const legacyAmount = Number(legacyBalance)
-    const vnlAmount = Number(vnlBalance)
+    const vnlAmount =
+      prerenderedBalance > 0 &&
+      prerenderedBalance !== Number(vnlBalance) &&
+      Number(vnlBalance) !== 0
+        ? Number(vnlBalance)
+        : prerenderedBalance
     return legacyAmount + vnlAmount
-  }, [legacyBalance, vnlBalance])
+  }, [legacyBalance, prerenderProps?.vnlBalance, vnlBalance])
 
   const walletBalance = useMemo(() => {
-    return Number.parseFloat(ethersUtils.formatUnits(balance, 'ether')).toFixed(
-      3,
+    const prerenderedBalance = Number(prerenderProps?.vnlBalance || '0')
+    const activeBalance = Number.parseFloat(
+      ethersUtils.formatUnits(balance, 'ether'),
     )
-  }, [balance])
+    const returnedBalance =
+      prerenderedBalance > 0 &&
+      prerenderedBalance !== activeBalance &&
+      activeBalance !== 0
+        ? activeBalance
+        : prerenderedBalance
+    return returnedBalance.toFixed(3)
+  }, [balance, prerenderProps?.vnlBalance])
 
   const walletAddress = useWalletAddress(prerenderProps)
 
@@ -109,8 +125,12 @@ const SmallWalletInfo = ({
           justifyContent={Justification.SPACE_AROUND}
         >
           {walletBalance} ETH
-          <Spacer />
-          <WalletIcon walletType={connector} />
+          {status === 'connected' && (
+            <>
+              <Spacer />
+              <WalletIcon walletType={connector} />
+            </>
+          )}
         </Row>
       </Button>
     </ButtonGroup>
