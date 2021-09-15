@@ -307,22 +307,26 @@ export async function getUserPositions(
 
           // Get current best trade from Uniswap to calculate available rewards
           let trade: TradeV2 | V3Trade | null = null
-          if (version === VanillaVersion.V1_0) {
-            trade = await constructV2Trade(
-              defaultProvider,
-              tokenAmount.toSignificant(),
-              weth,
-              token,
-              TradeType.EXACT_INPUT,
-            )
-          } else if (version === VanillaVersion.V1_1) {
-            trade = await constructV3Trade(
-              defaultProvider,
-              tokenAmount.toSignificant(),
-              weth,
-              token,
-              TradeType.EXACT_INPUT,
-            )
+          try {
+            if (version === VanillaVersion.V1_0) {
+              trade = await constructV2Trade(
+                defaultProvider,
+                tokenAmount.toSignificant(),
+                weth,
+                token,
+                TradeType.EXACT_INPUT,
+              )
+            } else if (version === VanillaVersion.V1_1) {
+              trade = await constructV3Trade(
+                defaultProvider,
+                tokenAmount.toSignificant(),
+                weth,
+                token,
+                TradeType.EXACT_INPUT,
+              )
+            }
+          } catch (e) {
+            console.error('Could not construct trade: ', e)
           }
 
           // Amount out from the trade as a Bignumber gwei string and an ether float
