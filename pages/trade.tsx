@@ -37,8 +37,8 @@ import { BodyProps, PrerenderProps } from 'types/content'
 import { UniswapVersion, VanillaVersion } from 'types/general'
 import { HandleBuyClick, HandleSellClick, Operation } from 'types/trade'
 import { useWallet } from 'use-wallet'
-import { getBlockNumber, getEthPrice } from 'utils/cache/meta'
-import { getV2Tokens, getV3Tokens } from 'utils/cache/tokens'
+import { getCachedBlockNumber, getCachedEthPrice } from 'utils/cache/meta'
+import { getCachedV2Tokens, getCachedV3Tokens } from 'utils/cache/tokens'
 
 const TradeModal = dynamic(() => import('components/Trade/Modal'))
 
@@ -500,10 +500,10 @@ export default function TradePage(props: PrerenderProps): JSX.Element {
 export const getStaticProps: GetStaticProps = async (): Promise<
   GetStaticPropsResult<PrerenderProps>
 > => {
-  const currentBlockNumber = await getBlockNumber()
-  const ethPrice = await getEthPrice()
-  const tokensV3 = await getV3Tokens(currentBlockNumber, ethPrice)
-  const tokensV2 = await getV2Tokens(currentBlockNumber, ethPrice)
+  const currentBlockNumber = await getCachedBlockNumber()
+  const ethPrice = await getCachedEthPrice()
+  const tokensV3 = await getCachedV3Tokens(currentBlockNumber, ethPrice)
+  const tokensV2 = await getCachedV2Tokens(currentBlockNumber, ethPrice)
   return {
     props: {
       initialTokens: {
