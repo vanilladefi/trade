@@ -1,10 +1,14 @@
 import { getUserPositions } from 'lib/vanilla'
-import { getBasicWalletDetails, getUsers } from 'lib/vanilla/users'
+import { getUsers } from 'lib/vanilla/users'
 import type { GetStaticPaths, GetStaticProps, GetStaticPropsResult } from 'next'
 import { PrerenderProps } from 'types/content'
 import { VanillaVersion } from 'types/general'
 import { parseWalletAddressFromQuery } from 'utils/api'
-import { getBlockNumber, getEthPrice } from 'utils/cache/meta'
+import {
+  getBlockNumber,
+  getEthPrice,
+  getWalletBalances,
+} from 'utils/cache/meta'
 import { getUserPositionsV2, getUserPositionsV3 } from 'utils/cache/positions'
 import { getV2Tokens, getV3Tokens } from 'utils/cache/tokens'
 import TradePage from '../trade'
@@ -15,10 +19,8 @@ export const getStaticProps: GetStaticProps = async ({
   params,
 }): Promise<GetStaticPropsResult<PrerenderProps>> => {
   const walletAddress: string | false = parseWalletAddressFromQuery(params)
-  const { vnlBalance, ethBalance } =
-    (walletAddress &&
-      (await getBasicWalletDetails(VanillaVersion.V1_1, walletAddress))) ||
-    undefined
+
+  const { vnlBalance, ethBalance } = await getWalletBalances(walletAddress)
 
   const currentBlockNumber = await getBlockNumber()
   const ethPrice = await getEthPrice()
