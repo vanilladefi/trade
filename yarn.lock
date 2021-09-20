@@ -5974,9 +5974,9 @@ graphql-request@^3.4.0:
     extract-files "^9.0.0"
     form-data "^3.0.0"
 
-"graphql-subscriptions-client@https://github.com/lunchboxer/graphql-subscriptions-client.git#isomorphic":
+"graphql-subscriptions-client@git+https://github.com/lunchboxer/graphql-subscriptions-client.git#isomorphic":
   version "0.16.0"
-  resolved "https://github.com/lunchboxer/graphql-subscriptions-client.git#c3d634e72b7ce71596b014b9313f89ef17dca662"
+  resolved "git+https://github.com/lunchboxer/graphql-subscriptions-client.git#c3d634e72b7ce71596b014b9313f89ef17dca662"
   dependencies:
     backo2 "^1.0.2"
     eventemitter3 "^3.1.2"

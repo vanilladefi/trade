@@ -25,12 +25,12 @@ import {
   uniswapV2TokenState,
   uniswapV3TokenState,
   userV2TokensState,
-  userV3TokensState,
+  userV3TokensState
 } from 'state/tokens'
 import {
   selectedExchange,
   selectedOperation,
-  selectedPairIdState,
+  selectedPairIdState
 } from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
 import { BodyProps, PrerenderProps } from 'types/content'
@@ -480,6 +480,7 @@ export default function TradePage(props: PrerenderProps): JSX.Element {
       description='Make trades, see your profits blossom and mine VNL.'
       shareImg='/social/social-share-trade.png'
       hero={<HeaderContent {...props} />}
+      {...props}
     >
       <TradeModal
         open={modalOpen}
