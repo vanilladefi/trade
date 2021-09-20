@@ -12,7 +12,7 @@ type RenderFunction = () => React.ReactNode
 type Props = PrerenderProps & {
   background?: React.ReactNode
   renderChildren?: RenderFunction
-  children?: React.ReactChildren
+  children?: React.ReactNode
 }
 
 const Header = ({
