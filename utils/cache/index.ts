@@ -1,8 +1,19 @@
 import Redis from 'ioredis'
 
-export const redis = new Redis(`rediss://${process.env.REDIS_URL}`, {
-  password: process.env.REDIS_PASSWORD,
-})
+const protocolPrefix =
+  process.env.NODE_ENV === 'development' ? 'redis://' : 'rediss://'
+
+const redisOptions =
+  process.env.NODE_ENV !== 'development'
+    ? {
+        password: process.env.REDIS_PASSWORD,
+      }
+    : {}
+
+export const redis = new Redis(
+  `${protocolPrefix}${process.env.REDIS_URL}`,
+  redisOptions,
+)
 
 export const addToCache = async (
   key: string,

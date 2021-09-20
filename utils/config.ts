@@ -21,13 +21,13 @@ export const protocolPrefix: string = useWebsocketRpc ? 'wss://' : 'https://'
 export const rpcUrl: string =
   (ssrApiKey && `https://eth-mainnet.alchemyapi.io/v2/${ssrApiKey}`) ||
   (apiKey && `https://eth-mainnet.alchemyapi.io/v2/${apiKey}`) ||
-  'http://localhost:8545'
+  'http://hardhat:8545'
 
 export const defaultProvider =
   useWebsocketRpc && apiKey && !ssrApiKey
     ? new providers.AlchemyWebSocketProvider(network, apiKey)
     : useWebsocketRpc && !ssrApiKey && !apiKey
-    ? new providers.WebSocketProvider('ws://localhost:8545', network)
+    ? new providers.WebSocketProvider('ws://hardhat:8545', network)
     : !ssrApiKey && apiKey
     ? new providers.AlchemyProvider(network, apiKey)
     : new providers.JsonRpcProvider(rpcUrl, network)
