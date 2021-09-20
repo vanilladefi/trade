@@ -25,12 +25,12 @@ import {
   uniswapV2TokenState,
   uniswapV3TokenState,
   userV2TokensState,
-  userV3TokensState
+  userV3TokensState,
 } from 'state/tokens'
 import {
   selectedExchange,
   selectedOperation,
-  selectedPairIdState
+  selectedPairIdState,
 } from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
 import { BodyProps, PrerenderProps } from 'types/content'
@@ -286,6 +286,7 @@ const BodyContent = ({
   )
 
   useEffect(() => {
+    console.log('Debug')
     setExchange(activeExchange)
     setV2Tokens(initialTokens?.v2 || [])
     setV3Tokens(initialTokens?.v3 || [])
