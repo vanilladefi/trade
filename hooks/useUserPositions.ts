@@ -51,7 +51,7 @@ function useUserPositions(
     }
     filterUserTokens(allTokens).then(setTokens)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletAddress, counterAsset, setTokens, vnl.address, version])
+  }, [walletAddress, counterAsset, setTokens, version])
 
   return tokens
 }

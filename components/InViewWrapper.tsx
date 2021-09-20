@@ -1,11 +1,12 @@
-import { useEffect } from 'react'
 import { motion, useAnimation } from 'framer-motion'
+import React, { useEffect } from 'react'
 import { useInView } from 'react-intersection-observer'
 
 export default function InViewWrapper(
   props: React.PropsWithChildren<{
     className?: string
     delay?: number
+    children?: React.ReactNode
   }>,
 ): React.ReactElement {
   const controls = useAnimation()

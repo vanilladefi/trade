@@ -120,7 +120,7 @@ export default function Table<D extends Record<string, unknown>>({
   useEffect(() => {
     // Disable auto reset page
     autoResetPageRef.current = false
-  })
+  }, [])
 
   useEffect(() => {
     const hiddenColumns = getHiddenColumns(columns, { isSmaller, isBigger })
