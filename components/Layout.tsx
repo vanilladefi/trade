@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic'
 import Head from 'next/head'
 import React, { ReactNode, useEffect, useState } from 'react'
 import { RecoilRoot } from 'recoil'
+import { PrerenderProps } from 'types/content'
 import { UseWalletProvider } from 'use-wallet'
 import { chainId, rpcUrl } from 'utils/config'
 
@@ -16,7 +17,7 @@ const MobileWalletFloater = dynamic(() =>
 
 type RenderFunction = () => ReactNode
 
-export type LayoutProps = {
+export type LayoutProps = PrerenderProps & {
   children?: ReactNode
   hero?: ReactNode
   heroRenderer?: RenderFunction
@@ -34,6 +35,8 @@ const Layout = ({
   title = 'Start #ProfitMining',
   description = 'Vanilla Rewards You For Making a Profit In DeFi',
   shareImg = '/social/social-share-general.png',
+  ethBalance,
+  vnlBalance,
 }: LayoutProps): JSX.Element => {
   // Use useEffect side effect to gain access to windowURL for full URL
   // We could do this by defining base url in process specific .env -files as well
@@ -99,7 +102,13 @@ const Layout = ({
         <WalletModal />
 
         {/* Header, nav */}
-        <Header renderChildren={heroRenderer}>{hero}</Header>
+        <Header
+          renderChildren={heroRenderer}
+          ethBalance={ethBalance}
+          vnlBalance={vnlBalance}
+        >
+          {hero}
+        </Header>
 
         {/* Site content */}
         {children}

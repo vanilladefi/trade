@@ -1,6 +1,7 @@
 import useWalletAddress from 'hooks/useWalletAddress'
 import Link from 'next/link'
 import React from 'react'
+import { PrerenderProps } from 'types/content'
 import { Logo } from './Brand'
 import { BreakPoint } from './GlobalStyles/Breakpoints'
 import { DesktopNavigation, MobileNavigation } from './Navigation'
@@ -8,15 +9,18 @@ import Wrapper from './Wrapper'
 
 type RenderFunction = () => React.ReactNode
 
-interface Props {
+type Props = PrerenderProps & {
   background?: React.ReactNode
   renderChildren?: RenderFunction
+  children?: React.ReactChildren
 }
 
 const Header = ({
   children,
   background,
   renderChildren,
+  ethBalance,
+  vnlBalance,
 }: React.PropsWithChildren<Props>): JSX.Element => {
   const { long } = useWalletAddress()
   return (
@@ -33,10 +37,18 @@ const Header = ({
                   </a>
                 </Link>
                 <div className='mobileNav'>
-                  <MobileNavigation walletAddress={long} />
+                  <MobileNavigation
+                    walletAddress={long}
+                    ethBalance={ethBalance}
+                    vnlBalance={vnlBalance}
+                  />
                 </div>
                 <div className='desktopNav'>
-                  <DesktopNavigation walletAddress={long} />
+                  <DesktopNavigation
+                    walletAddress={long}
+                    ethBalance={ethBalance}
+                    vnlBalance={vnlBalance}
+                  />
                 </div>
               </div>
             </div>

@@ -43,7 +43,7 @@
     "framer-motion": "^3.3.0",
     "graphql": "^15.5.0",
     "graphql-request": "^3.4.0",
-    "graphql-subscriptions-client": "https://github.com/lunchboxer/graphql-subscriptions-client.git#isomorphic",
+    "graphql-subscriptions-client": "git+https://github.com/lunchboxer/graphql-subscriptions-client.git#isomorphic",
     "ioredis": "^4.27.9",
     "jsbi": "^3.1.4",
     "keccak256": "^1.0.2",

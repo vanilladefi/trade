@@ -75,7 +75,7 @@ const SmallWalletInfo = ({
     )
     const returnedBalance =
       prerenderedBalance > 0 &&
-      activeBalance !== 0 &&
+      activeBalance > 0 &&
       prerenderedBalance !== activeBalance
         ? activeBalance
         : prerenderedBalance

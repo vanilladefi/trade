@@ -143,6 +143,7 @@ export const IndexPage = (prerenderProps: PrerenderProps): JSX.Element => (
     title='Start #ProfitMining'
     description='Vanilla Rewards You For Making a Profit In DeFi'
     hero={HeaderContent}
+    {...prerenderProps}
   >
     <UserSniffer {...prerenderProps} />
     <Wrapper>
