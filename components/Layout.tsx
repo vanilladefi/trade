@@ -37,6 +37,7 @@ const Layout = ({
   shareImg = '/social/social-share-general.png',
   ethBalance,
   vnlBalance,
+  walletAddress,
 }: LayoutProps): JSX.Element => {
   // Use useEffect side effect to gain access to windowURL for full URL
   // We could do this by defining base url in process specific .env -files as well
@@ -114,7 +115,11 @@ const Layout = ({
         {children}
 
         {/* Footer */}
-        <Footer />
+        <Footer
+          walletAddress={walletAddress}
+          ethBalance={ethBalance}
+          vnlBalance={vnlBalance}
+        />
 
         {/* Mobile Wallet Floater */}
         <MobileWalletFloater />
