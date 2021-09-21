@@ -57,7 +57,7 @@ const SmallWalletInfo = ({
   }, [legacyBalance])
 
   const getVnlBalance = useCallback(() => {
-    const prerenderedBalance = Number(vnlBalance || '0')
+    const prerenderedBalance = Number(Number(vnlBalance || '0').toFixed(1))
     const legacyAmount = Number(legacyBalance)
     const vnlAmount =
       prerenderedBalance > 0 &&
