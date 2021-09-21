@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
+import { PrerenderProps } from 'types/content'
 import { Logo } from './Brand'
 import { BreakPoint } from './GlobalStyles/Breakpoints'
 import { DesktopNavigation } from './Navigation'
@@ -198,7 +199,7 @@ const SoMeLinks = (): JSX.Element => (
   </ul>
 )
 
-const Footer = (): JSX.Element => (
+const Footer = (props: PrerenderProps): JSX.Element => (
   <>
     <footer>
       <Wrapper>
@@ -209,7 +210,7 @@ const Footer = (): JSX.Element => (
             </a>
           </Link>
           <div className='desktopNav'>
-            <DesktopNavigation />
+            <DesktopNavigation {...props} />
           </div>
         </div>
         <div className='extra'>
