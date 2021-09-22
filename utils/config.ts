@@ -30,7 +30,7 @@ export const defaultProvider =
     ? new providers.WebSocketProvider('ws://hardhat:8545', network)
     : !ssrApiKey && apiKey
     ? new providers.AlchemyProvider(network, apiKey)
-    : new providers.JsonRpcProvider(rpcUrl, network)
+    : new providers.JsonRpcBatchProvider(rpcUrl, network)
 
 export const blockDeadlineThreshold = 60000 // 600 seconds added to the latest block timestamp (10 minutes)
 
@@ -40,6 +40,7 @@ export const ethersOverrides = { gasLimit: conservativeGasLimit }
 export const epoch = Number(process.env.NEXT_PUBLIC_EPOCH) || 0
 
 export const hiddenTokens = ['0xd46ba6d942050d489dbd938a2c909a5d5039a161']
+
 export const getVanillaRouterAddress = (version: VanillaVersion): string =>
   version === VanillaVersion.V1_0
     ? process.env.NEXT_PUBLIC_VANILLA_ROUTER_V1_0_ADDRESS ||

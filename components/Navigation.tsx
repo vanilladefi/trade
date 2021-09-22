@@ -15,7 +15,11 @@ function NavLinks(props: PrerenderProps) {
       >
         Trade
       </NavLink>
-      <NavLink href='/faq'>FAQ</NavLink>
+      <NavLink
+        href={`/${props.walletAddress ? props.walletAddress + '/' : ''}faq`}
+      >
+        FAQ
+      </NavLink>
       <NavLink href='https://community.vanilladefi.com'>Community</NavLink>
     </>
   )

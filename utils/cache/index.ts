@@ -3,7 +3,10 @@ import Redis from 'ioredis'
 const defaultExpiry = process.env.NODE_ENV === 'development' ? 3600 : 300
 
 const protocolPrefix =
-  process.env.NODE_ENV === 'development' ? 'redis://' : 'rediss://'
+  process.env.NODE_ENV === 'development' ||
+  process.env.REDIS_INSECURE === 'true'
+    ? 'redis://'
+    : 'rediss://'
 
 const redisOptions =
   process.env.NODE_ENV !== 'development'
