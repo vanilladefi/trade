@@ -7,6 +7,9 @@ import {
 } from 'utils/cache/positions'
 import { getCachedV2Tokens, getCachedV3Tokens } from 'utils/cache/tokens'
 
+const testAccounts: string[] | false =
+  !!process.env.TEST_ACCOUNTS && JSON.parse(process.env.TEST_ACCOUNTS)
+
 export const getCachedVnlHolders = async (): Promise<string[]> => {
   let vnlHolders: string[]
   const vnlHoldersCacheKey = 'vnlHolders'
@@ -14,7 +17,11 @@ export const getCachedVnlHolders = async (): Promise<string[]> => {
   if (cachedVnlHolders) {
     vnlHolders = JSON.parse(cachedVnlHolders)
   } else {
-    vnlHolders = await getVnlHolders()
+    if (testAccounts) {
+      vnlHolders = testAccounts
+    } else {
+      vnlHolders = await getVnlHolders()
+    }
     await addToCache(vnlHoldersCacheKey, JSON.stringify(vnlHolders), 3600)
   }
   return vnlHolders
@@ -27,7 +34,11 @@ export const getCachedUsers = async (): Promise<string[]> => {
   if (cachedUsers) {
     users = JSON.parse(cachedUsers)
   } else {
-    users = await getUsers()
+    if (testAccounts) {
+      users = testAccounts
+    } else {
+      users = await getUsers()
+    }
     await addToCache(usersCacheKey, JSON.stringify(users), 3600)
   }
   return users
