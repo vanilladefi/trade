@@ -4,16 +4,18 @@ services:
   vanilla-frontend:
     build:
       context: .
+    image: eqlabs/vanilla-dapp
     container_name: vanilla-frontend
     volumes:
       - ./:/app
+      - /app/contracts
     ports:
       - 3000:3000
     environment:
       - REDIS_URL=redis:6379
+      - REDIS_INSECURE=true
   vanilla-frontend-cacher:
-    build:
-      context: .
+    image: eqlabs/vanilla-dapp
     container_name: vanilla-frontend-cacher
     environment:
       - REDIS_URL=redis:6379

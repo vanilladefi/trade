@@ -8,7 +8,7 @@ import {
 import { getCachedV2Tokens, getCachedV3Tokens } from 'utils/cache/tokens'
 
 const testAccounts: string[] | false =
-  !!process.env.TEST_ACCOUNTS && JSON.parse(process.env.TEST_ACCOUNTS)
+  process.env.TEST_ACCOUNTS && JSON.parse(process.env.TEST_ACCOUNTS)
 
 export const getCachedVnlHolders = async (): Promise<string[]> => {
   let vnlHolders: string[]

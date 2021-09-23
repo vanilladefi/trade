@@ -8,55 +8,59 @@ import { DesktopNavigation } from './Navigation'
 import Icon, { IconUrls } from './typography/Icon'
 import Wrapper from './Wrapper'
 
-const LawLinks = (): JSX.Element => (
-  <ul>
-    <li>
-      <Link href='/shill-kit'>
-        <a>Shill kit</a>
-      </Link>
-    </li>
-    <li>
-      <Link href='/bug-bounty'>
-        <a>Bug Bounty</a>
-      </Link>
-    </li>
-    <li>
-      <Link href='/terms'>
-        <a>Terms of Use</a>
-      </Link>
-    </li>
-    <li>
-      <Link href='/privacy'>
-        <a>Privacy Policy</a>
-      </Link>
-    </li>
+const LawLinks = ({ walletAddress }: PrerenderProps): JSX.Element => {
+  const prefixPath = (href: string): string =>
+    `/${walletAddress ? walletAddress + '/' + href : href}`
+  return (
+    <ul>
+      <li>
+        <Link href={prefixPath('shill-kit')}>
+          <a>Shill kit</a>
+        </Link>
+      </li>
+      <li>
+        <Link href={prefixPath('bug-bounty')}>
+          <a>Bug Bounty</a>
+        </Link>
+      </li>
+      <li>
+        <Link href={prefixPath('terms')}>
+          <a>Terms of Use</a>
+        </Link>
+      </li>
+      <li>
+        <Link href={prefixPath('privacy')}>
+          <a>Privacy Policy</a>
+        </Link>
+      </li>
 
-    <style jsx>{`
-      ul,
-      li {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        text-indent: 0;
-      }
-      li {
-        font-family: var(--bodyfont);
-        font-size: var(--minisize);
-        line-height: 40px;
-        text-align: right;
-      }
-      a {
-        text-decoration: none;
-        color: var(--white);
-      }
-      @media (max-width: ${BreakPoint.xs}px) {
+      <style jsx>{`
+        ul,
         li {
-          text-align: left;
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          text-indent: 0;
         }
-      }
-    `}</style>
-  </ul>
-)
+        li {
+          font-family: var(--bodyfont);
+          font-size: var(--minisize);
+          line-height: 40px;
+          text-align: right;
+        }
+        a {
+          text-decoration: none;
+          color: var(--white);
+        }
+        @media (max-width: ${BreakPoint.xs}px) {
+          li {
+            text-align: left;
+          }
+        }
+      `}</style>
+    </ul>
+  )
+}
 
 const SoMeLinks = (): JSX.Element => (
   <ul>
@@ -218,7 +222,7 @@ const Footer = (props: PrerenderProps): JSX.Element => (
             <SoMeLinks />
           </div>
           <div className='law'>
-            <LawLinks />
+            <LawLinks {...props} />
           </div>
         </div>
       </Wrapper>
