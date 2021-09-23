@@ -30,7 +30,8 @@ export const defaultProvider =
     ? new providers.WebSocketProvider('ws://hardhat:8545', network)
     : !ssrApiKey && apiKey
     ? new providers.AlchemyProvider(network, apiKey)
-    : new providers.JsonRpcBatchProvider(rpcUrl, network)
+    : new providers.JsonRpcProvider(rpcUrl, network)
+// TODO: Check if this works in the future: new providers.JsonRpcBatchProvider(rpcUrl, network)
 
 export const blockDeadlineThreshold = 60000 // 600 seconds added to the latest block timestamp (10 minutes)
 
