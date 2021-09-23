@@ -36,13 +36,18 @@ module.exports = withBundleAnalyzer(
     experimental: {
       staticPageGenerationTimeout: 120,
     },
-    webpackDevMiddleware: (config) => {
+    webpack: (config, { isServer }) => {
+      // Fixes npm packages that depend on `fs` module
+      if (!isServer) {
+        config.resolve.fallback.fs = false
+      }
       config.watchOptions = {
         poll: 1000,
         aggregateTimeout: 300,
       }
       return config
     },
+
     async headers() {
       return [
         {

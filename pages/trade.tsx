@@ -286,7 +286,6 @@ const BodyContent = ({
   )
 
   useEffect(() => {
-    console.log('Debug')
     setExchange(activeExchange)
     setV2Tokens(initialTokens?.v2 || [])
     setV3Tokens(initialTokens?.v3 || [])

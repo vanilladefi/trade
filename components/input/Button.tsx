@@ -53,7 +53,7 @@ export enum ButtonState {
 
 type Callback = MouseEventHandler<HTMLButtonElement>
 
-type Props = {
+export type ButtonProps = {
   children?: ReactNode
   size?: ButtonSize
   color?: ButtonColor
@@ -93,7 +93,7 @@ const Button = ({
   buttonState = ButtonState.NORMAL,
   disabled,
   opacity,
-}: Props): JSX.Element => {
+}: ButtonProps): JSX.Element => {
   const buttonClass = classNames({
     [`${size}`]: true,
     gradient: color === ButtonColor.GRADIENT,

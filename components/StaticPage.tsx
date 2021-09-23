@@ -2,7 +2,7 @@ import Layout from 'components/Layout'
 import Wrapper from 'components/Wrapper'
 import { PrerenderProps } from 'types/content'
 
-type Props = PrerenderProps & {
+export type StaticPageProps = PrerenderProps & {
   children: React.ReactChild
   pageTitle: string
   SEOTitle: string
@@ -13,7 +13,7 @@ export default function StaticPage({
   pageTitle,
   SEOTitle,
   ...rest
-}: Props): JSX.Element {
+}: StaticPageProps): JSX.Element {
   return (
     <Layout title={`${SEOTitle} | Vanilla`} {...rest}>
       <Wrapper>

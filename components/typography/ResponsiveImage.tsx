@@ -1,11 +1,11 @@
 import Image from 'next/image'
 import { useState } from 'react'
 
-type Props = {
+export type ImageProps = {
   src: string
 }
 
-const ResponsiveImage = ({ src }: Props): JSX.Element => {
+const ResponsiveImage = ({ src }: ImageProps): JSX.Element => {
   const [dimensions, setDimensions] = useState({ height: 0, width: 0 })
   return (
     <>
