@@ -406,17 +406,20 @@ const BodyContent = ({
               onBuyClick={handleV3BuyClick}
               onSellClick={handleV3SellClick}
             />
-            {userPositionsV2?.length > 0 && (
-              <>
-                <div className='tableHeaderWrapper'>
-                  <h2 style={{ marginBottom: 0 }}>MY VANILLA 1.0 POSITIONS</h2>
-                </div>
-                <MyPositionsV2
-                  initialTokens={initialTokens}
-                  onSellClick={handleV2SellClick}
-                />
-              </>
-            )}
+            {userPositionsV2?.length > 0 ||
+              (initialTokens?.userPositionsV2?.length > 0 && (
+                <>
+                  <div className='tableHeaderWrapper'>
+                    <h2 style={{ marginBottom: 0 }}>
+                      MY VANILLA 1.0 POSITIONS
+                    </h2>
+                  </div>
+                  <MyPositionsV2
+                    initialTokens={initialTokens}
+                    onSellClick={handleV2SellClick}
+                  />
+                </>
+              ))}
 
             <div className='tableHeaderWrapper'>
               <h2 style={{ marginBottom: 0 }}>AVAILABLE TOKENS</h2>
