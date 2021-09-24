@@ -4,7 +4,7 @@ class MyDocument extends Document {
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   render() {
     return (
-      <Html>
+      <Html lang='en'>
         <Head>
           <meta charSet='utf-8' />
           <meta

@@ -31,7 +31,7 @@ const Header = ({
           <Wrapper>
             <div className='innerPadding'>
               <div className='navBar'>
-                <Link href='/'>
+                <Link href={`/${long}`}>
                   <a className='logo'>
                     <Logo />
                   </a>
