@@ -32,7 +32,7 @@ class MyDocument extends Document {
           <link
             rel='preconnect'
             href='https://fonts.gstatic.com'
-            crossOrigin='true'
+            crossOrigin='anonymous'
           />
           <link
             href='https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@700&family=Fira+Code&family=Inter:wght@400;600&display=swap'
