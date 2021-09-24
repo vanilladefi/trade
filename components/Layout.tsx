@@ -62,6 +62,10 @@ const Layout = ({
         <Head>
           <title>{title} - Vanilla</title>
           <meta name='description' content={description}></meta>
+          <meta
+            name='viewport'
+            content='initial-scale=1.0, width=device-width'
+          />
           {hideFromSearch && <meta name='robots' content='noindex, nofollow' />}
           <meta property='og:title' content={`${title} - Vanilla `} />
           <meta property='og:description' content={description} />
