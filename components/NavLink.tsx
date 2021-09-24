@@ -9,7 +9,7 @@ type Props = LinkProps & {
 
 const NavLink = ({ href, children }: Props): JSX.Element => {
   const router = useRouter()
-  const linkClass = classNames({ active: router.pathname === href })
+  const linkClass = classNames({ active: router.asPath === href })
   return (
     <>
       <Link href={href}>
