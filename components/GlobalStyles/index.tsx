@@ -1,5 +1,4 @@
 import React from 'react'
-import Fonts from './Fonts'
 import Variables from './Variables'
 
 /* type Props = {
@@ -8,7 +7,6 @@ import Variables from './Variables'
 
 const GlobalStyles = (): JSX.Element => (
   <>
-    <Fonts />
     <Variables />
     <style jsx global>{`
       * {
