@@ -411,7 +411,10 @@ const BodyContent = ({
                 <div className='tableHeaderWrapper'>
                   <h2 style={{ marginBottom: 0 }}>MY VANILLA 1.0 POSITIONS</h2>
                 </div>
-                <MyPositionsV2 onSellClick={handleV2SellClick} />
+                <MyPositionsV2
+                  initialTokens={initialTokens}
+                  onSellClick={handleV2SellClick}
+                />
               </>
             )}
 
