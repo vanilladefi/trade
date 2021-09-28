@@ -31,7 +31,7 @@ import {
   getVanillaRouterAddress,
   getVnlTokenAddress,
   vnlDecimals,
-} from 'utils/config'
+} from 'utils/config/vanilla'
 import useWalletAddress from './useWalletAddress'
 
 export default function useTokenConversion(): {

@@ -7,7 +7,10 @@ import { VanillaVersion } from 'types/general'
 import { Action, TransactionDetails } from 'types/trade'
 import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Router02__factory'
 import { VanillaV1Token02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Token02__factory'
-import { getVanillaRouterAddress, getVnlTokenAddress } from 'utils/config'
+import {
+  getVanillaRouterAddress,
+  getVnlTokenAddress,
+} from 'utils/config/vanilla'
 import useAllTransactions from './useAllTransactions'
 import usePositionUpdater, { PositionUpdater } from './usePositionUpdater'
 

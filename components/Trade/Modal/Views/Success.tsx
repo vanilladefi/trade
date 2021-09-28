@@ -7,7 +7,7 @@ import { formatUnits } from 'ethers/lib/utils'
 import useTransaction from 'hooks/useTransaction'
 import React, { Suspense, useCallback } from 'react'
 import { VanillaVersion } from 'types/general'
-import { vnlDecimals } from 'utils/config'
+import { vnlDecimals } from 'utils/config/vanilla'
 
 type Props = {
   id: string

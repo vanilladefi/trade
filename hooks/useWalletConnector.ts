@@ -8,11 +8,12 @@ import {
   storedWalletConnectorState,
 } from 'state/wallet'
 import { useWallet, Wallet } from 'use-wallet'
-import { apiKey, network, useWebsocketRpc } from 'utils/config'
+import { network, useWebsocketRpc } from 'utils/config'
+import { apiKey } from 'utils/config/secrets'
 
 type JsonRpcWallet = Wallet<providers.JsonRpcProvider>
 
-const WalletConnector = (): null => {
+const WalletConnector = (): (() => Promise<void>) => {
   const {
     status,
     error,
@@ -26,7 +27,7 @@ const WalletConnector = (): null => {
   const setSigner = useSetRecoilState(signerState)
   const setProvider = useSetRecoilState(providerState)
 
-  const initialLoad = useRecoilCallback(
+  const connectWallet = useRecoilCallback(
     ({ snapshot }) =>
       async () => {
         const stored = await snapshot.getPromise(storedWalletConnectorState)
@@ -73,10 +74,6 @@ const WalletConnector = (): null => {
   }, [ethereum, setSigner, setProvider])
 
   useEffect(() => {
-    initialLoad()
-  }, [initialLoad])
-
-  useEffect(() => {
     setStoredWalletConnector(connector)
   }, [setStoredWalletConnector, connector])
 
@@ -84,7 +81,7 @@ const WalletConnector = (): null => {
     if (status === 'error') reset()
   }, [status, reset, error])
 
-  return null
+  return connectWallet
 }
 
 export default WalletConnector

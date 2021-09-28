@@ -32,14 +32,13 @@ import {
   V3Trade,
 } from 'types/trade'
 import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1'
+import { blockDeadlineThreshold, defaultProvider } from 'utils/config'
 import {
-  blockDeadlineThreshold,
-  defaultProvider,
   epoch,
   getVanillaRouterAddress,
   getVnlTokenAddress,
   vnlDecimals,
-} from 'utils/config'
+} from 'utils/config/vanilla'
 
 export const estimateReward = async (
   version: VanillaVersion,

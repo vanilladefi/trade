@@ -23,7 +23,7 @@ import type {
   ListColumn,
   Token,
 } from 'types/trade'
-import { epoch } from 'utils/config'
+import { epoch } from 'utils/config/vanilla'
 import { CardinalityContent } from '../Content'
 
 type Props = PrerenderProps & {

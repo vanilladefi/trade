@@ -42,17 +42,15 @@ import { providerState, signerState } from 'state/wallet'
 import { PrerenderProps } from 'types/content'
 import { VanillaVersion } from 'types/general'
 import { Action, Operation, Token, V3Trade } from 'types/trade'
-import {
-  blockDeadlineThreshold,
-  ethersOverrides,
-  vnlDecimals,
-} from 'utils/config'
+import { blockDeadlineThreshold, ethersOverrides } from 'utils/config'
+import { vnlDecimals } from 'utils/config/vanilla'
 import { getFeeTier, padUniswapTokenToToken } from 'utils/transactions'
 import useAllTransactions from './useAllTransactions'
 import useEligibleTokenBalance from './useEligibleTokenBalance'
 import useTokenBalance from './useTokenBalance'
 import useVanillaGovernanceToken from './useVanillaGovernanceToken'
 import useWalletAddress from './useWalletAddress'
+import useWalletConnector from './useWalletConnector'
 
 export enum TransactionState {
   PREPARE,
@@ -92,6 +90,7 @@ const useTradeEngine = (
   setError: Dispatch<SetStateAction<string | null>>
 } => {
   const { long: walletAddress } = useWalletAddress()
+  const connectWallet = useWalletConnector()
   const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
   const operation = useRecoilValue(selectedOperation)
@@ -143,6 +142,8 @@ const useTradeEngine = (
           amountReceived: amountReceived,
           addedTime: Date.now(),
         })
+    } else {
+      connectWallet()
     }
     return transaction?.hash
   }
@@ -191,6 +192,8 @@ const useTradeEngine = (
           amountReceived: amountReceived,
           addedTime: Date.now(),
         })
+    } else {
+      connectWallet()
     }
     return transaction?.hash
   }

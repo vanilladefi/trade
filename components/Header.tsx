@@ -1,4 +1,3 @@
-import useWalletAddress from 'hooks/useWalletAddress'
 import Link from 'next/link'
 import React from 'react'
 import { PrerenderProps } from 'types/content'
@@ -19,10 +18,8 @@ const Header = ({
   children,
   background,
   renderChildren,
-  ethBalance,
-  vnlBalance,
+  ...rest
 }: React.PropsWithChildren<Props>): JSX.Element => {
-  const { long } = useWalletAddress()
   return (
     <>
       <header>
@@ -31,24 +28,16 @@ const Header = ({
           <Wrapper>
             <div className='innerPadding'>
               <div className='navBar'>
-                <Link href={`/${long}`}>
+                <Link href={`/${rest.walletAddress}`}>
                   <a className='logo'>
                     <Logo />
                   </a>
                 </Link>
                 <div className='mobileNav'>
-                  <MobileNavigation
-                    walletAddress={long}
-                    ethBalance={ethBalance}
-                    vnlBalance={vnlBalance}
-                  />
+                  <MobileNavigation {...rest} />
                 </div>
                 <div className='desktopNav'>
-                  <DesktopNavigation
-                    walletAddress={long}
-                    ethBalance={ethBalance}
-                    vnlBalance={vnlBalance}
-                  />
+                  <DesktopNavigation {...rest} />
                 </div>
               </div>
             </div>

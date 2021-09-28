@@ -12,14 +12,12 @@ services:
     ports:
       - 3000:3000
     environment:
-      - REDIS_URL=redis:6379
-      - REDIS_INSECURE=true
+      - DOCKER=true
   vanilla-frontend-cacher:
     image: eqlabs/vanilla-dapp
     container_name: vanilla-frontend-cacher
     environment:
-      - REDIS_URL=redis:6379
-      - REDIS_INSECURE=true
+      - DOCKER=true
     command: yarn build
   redis:
     image: redis:alpine

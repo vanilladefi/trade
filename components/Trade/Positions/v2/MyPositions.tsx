@@ -2,7 +2,7 @@ import { BreakPoint } from 'components/GlobalStyles/Breakpoints'
 import Button, {
   ButtonColor,
   ButtonSize,
-  Rounding
+  Rounding,
 } from 'components/input/Button'
 import Modal, { ContentWrapper } from 'components/Modal'
 import { Dots } from 'components/Spinner'
@@ -18,7 +18,7 @@ import { useRecoilValue } from 'recoil'
 import { userV2TokensState } from 'state/tokens'
 import { PrerenderProps } from 'types/content'
 import { HandleSellClick, Liquidity, ListColumn, Token } from 'types/trade'
-import { epoch } from 'utils/config'
+import { epoch } from 'utils/config/vanilla'
 import { LowLiquidityContent, VeryLowLiquidityContent } from '../Content'
 
 type Props = PrerenderProps & {

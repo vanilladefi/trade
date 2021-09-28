@@ -10,7 +10,7 @@ import { uniswapV2TokenState, uniswapV3TokenState } from 'state/tokens'
 import { PrerenderProps } from 'types/content'
 import { UniswapVersion } from 'types/general'
 import { HandleBuyClick, Liquidity, ListColumn, Token } from 'types/trade'
-import { hiddenTokens } from 'utils/config'
+import { hiddenTokens } from 'utils/config/vanilla'
 import {
   CardinalityContent,
   LowLiquidityContent,

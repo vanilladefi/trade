@@ -15,12 +15,9 @@ import { VanillaVersion } from 'types/general'
 import { Token, UniSwapToken } from 'types/trade'
 import { Quoter, Quoter__factory } from 'types/typechain/uniswap_v3_periphery'
 import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Router02__factory'
-import {
-  conservativeGasLimit,
-  ethersOverrides,
-  getUniswapQuoterAddress,
-  getVanillaRouterAddress,
-} from 'utils/config'
+import { conservativeGasLimit, ethersOverrides } from 'utils/config'
+import { getUniswapQuoterAddress } from 'utils/config/uniswap'
+import { getVanillaRouterAddress } from 'utils/config/vanilla'
 import { getFeeTier } from 'utils/transactions'
 import { TransactionProps } from '..'
 
