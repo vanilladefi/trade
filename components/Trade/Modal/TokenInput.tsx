@@ -2,8 +2,6 @@ import { Column, Width } from 'components/grid/Flex'
 import { Dots } from 'components/Spinner'
 import Icon from 'components/typography/Icon'
 import { formatUnits } from 'ethers/lib/utils'
-import useEligibleTokenBalance from 'hooks/useEligibleTokenBalance'
-import useTokenBalance from 'hooks/useTokenBalance'
 import useTradeEngine from 'hooks/useTradeEngine'
 import { debounce } from 'lodash'
 import React, { useEffect, useState } from 'react'
@@ -15,11 +13,11 @@ import {
   token1Amount,
   token1Selector,
 } from 'state/trade'
+import { PrerenderProps } from 'types/content'
 import { VanillaVersion } from 'types/general'
 import { Operation } from 'types/trade'
-import { useWallet } from 'use-wallet'
 
-type Props = {
+type Props = PrerenderProps & {
   version: VanillaVersion
   useWethProxy?: boolean
 }
@@ -27,10 +25,18 @@ type Props = {
 const ethLogoURI =
   'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png'
 
-const TokenInput = ({ version, useWethProxy = true }: Props): JSX.Element => {
-  const wallet = useWallet()
-
-  const { handleAmountChanged } = useTradeEngine(version)
+const TokenInput = ({
+  version,
+  useWethProxy = true,
+  ...rest
+}: Props): JSX.Element => {
+  const {
+    handleAmountChanged,
+    getBalance0,
+    getBalance0Raw,
+    getBalance1,
+    getBalance1Raw,
+  } = useTradeEngine(version, { ...rest })
 
   const token0 = useRecoilValue(token0Selector)
   const token1 = useRecoilValue(token1Selector)
@@ -42,22 +48,6 @@ const TokenInput = ({ version, useWethProxy = true }: Props): JSX.Element => {
   const [amount0, setAmount0] = useState<string | null | undefined>()
   const [amount1, setAmount1] = useState<string | null | undefined>()
   const [focused, setFocused] = useState<number | undefined>(undefined)
-
-  const { formatted: eligibleBalance0, raw: eligibleBalance0Raw } =
-    useEligibleTokenBalance(version, token0?.address)
-  const { formatted: balance1, raw: balance1Raw } = useTokenBalance(
-    token1?.address,
-    token1?.decimals,
-    true,
-  )
-
-  const ethBalance = useWethProxy
-    ? formatUnits(wallet.balance, 18)
-    : balance1 && token1 && formatUnits(balance1, token1.decimals)
-
-  const ethBalanceRaw = useWethProxy
-    ? ethBalance
-    : balance1 && token1 && formatUnits(balance1Raw, token1.decimals)
 
   useEffect(() => {
     token0AmountPretty &&
@@ -147,10 +137,10 @@ const TokenInput = ({ version, useWethProxy = true }: Props): JSX.Element => {
                     className='maxButton'
                     onClick={() =>
                       token0 &&
-                      eligibleBalance0Raw &&
+                      getBalance0Raw() &&
                       handleAmountChange(
                         0,
-                        formatUnits(eligibleBalance0Raw, token0.decimals),
+                        formatUnits(getBalance0Raw(), token0.decimals),
                       )
                     }
                   >
@@ -166,16 +156,16 @@ const TokenInput = ({ version, useWethProxy = true }: Props): JSX.Element => {
                     token0 &&
                     handleAmountChange(
                       0,
-                      formatUnits(eligibleBalance0Raw, token0.decimals),
+                      formatUnits(getBalance0Raw(), token0.decimals),
                     )
                   }
                   title={
                     (token0 &&
-                      formatUnits(eligibleBalance0Raw, token0.decimals)) ||
+                      formatUnits(getBalance0Raw(), token0.decimals)) ||
                     '0'
                   }
                 >
-                  Balance: {eligibleBalance0}
+                  Balance: {getBalance0()}
                 </span>
                 <div className='tokenIndicator'>
                   {token0?.logoURI && <Icon src={token0.logoURI} />}
@@ -212,7 +202,8 @@ const TokenInput = ({ version, useWethProxy = true }: Props): JSX.Element => {
                   <button
                     className='maxButton'
                     onClick={() =>
-                      ethBalanceRaw && handleAmountChange(1, ethBalanceRaw)
+                      getBalance1Raw() &&
+                      handleAmountChange(1, getBalance1Raw().toString())
                     }
                   >
                     max
@@ -224,11 +215,12 @@ const TokenInput = ({ version, useWethProxy = true }: Props): JSX.Element => {
               <div className='tokenSelector'>
                 <span
                   onClick={() =>
-                    ethBalanceRaw && handleAmountChange(1, ethBalanceRaw)
+                    getBalance1Raw() &&
+                    handleAmountChange(1, getBalance1Raw().toString())
                   }
-                  title={ethBalance || balance1}
+                  title={getBalance1()}
                 >
-                  Balance: {ethBalance}
+                  Balance: {getBalance1()}
                 </span>
                 <div className='tokenIndicator'>
                   {useWethProxy ? (

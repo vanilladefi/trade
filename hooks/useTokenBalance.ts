@@ -6,9 +6,9 @@ import { useRecoilValue } from 'recoil'
 import { currentBlockNumberState } from 'state/meta'
 import { providerState, signerState } from 'state/wallet'
 import { useTokenContract } from './useContract'
-import useWalletAddress from './useWalletAddress'
 
 function useTokenBalance(
+  walletAddress: string,
   tokenAddress?: string | null,
   decimals?: string | number | null,
   wethAsEth?: boolean,
@@ -20,7 +20,6 @@ function useTokenBalance(
   const [raw, setRaw] = useState(BigNumber.from('0'))
   const [formatted, setFormatted] = useState('')
 
-  const { long: walletAddress } = useWalletAddress()
   const contract = useTokenContract(tokenAddress || '')
 
   const getRawBalance = useCallback(
@@ -35,7 +34,7 @@ function useTokenBalance(
         tokenAddress.toLowerCase() === weth.address.toLowerCase() &&
         signerOrProvider
       ) {
-        raw = await signerOrProvider.getBalance('latest')
+        raw = await signerOrProvider.getBalance(walletAddress, 'latest')
       } else {
         raw = await contract.balanceOf(walletAddress)
       }

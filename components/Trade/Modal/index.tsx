@@ -1,11 +1,14 @@
 import { Column, Row, Width } from 'components/grid/Flex'
 import Modal from 'components/Modal'
 import { Dots } from 'components/Spinner'
+import PrepareV2 from 'components/Trade/Modal/Views/v2/Prepare'
+import PrepareV3 from 'components/Trade/Modal/Views/v3/Prepare'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import React, { Suspense, useCallback } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { selectedOperation, selectedPairIdState } from 'state/trade'
+import { PrerenderProps } from 'types/content'
 import { UniswapVersion, VanillaVersion } from 'types/general'
 
 const Loading = (): JSX.Element => (
@@ -27,13 +30,9 @@ const Loading = (): JSX.Element => (
   </Row>
 )
 
-const PrepareV2 = dynamic(() => import('./Views/v2/Prepare'))
-
-const PrepareV3 = dynamic(() => import('./Views/v3/Prepare'))
-
 const Success = dynamic(() => import('./Views/Success'))
 
-type Props = {
+type Props = PrerenderProps & {
   open: boolean
   onRequestClose: () => void
   uniswapVersion: UniswapVersion
@@ -43,6 +42,7 @@ const TradeModal = ({
   open,
   onRequestClose,
   uniswapVersion,
+  ...rest
 }: Props): JSX.Element => {
   const [operation, setOperation] = useRecoilState(selectedOperation)
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
@@ -63,7 +63,11 @@ const TradeModal = ({
       <Suspense fallback={<Loading />}>
         {uniswapVersion === UniswapVersion.v2 &&
           (!parsedId() ? (
-            <PrepareV2 operation={operation} setOperation={setOperation} />
+            <PrepareV2
+              operation={operation}
+              setOperation={setOperation}
+              {...rest}
+            />
           ) : (
             <Success
               id={parsedId()}
@@ -73,7 +77,11 @@ const TradeModal = ({
           ))}
         {uniswapVersion === UniswapVersion.v3 &&
           (!parsedId() ? (
-            <PrepareV3 operation={operation} setOperation={setOperation} />
+            <PrepareV3
+              operation={operation}
+              setOperation={setOperation}
+              {...rest}
+            />
           ) : (
             <Success
               id={parsedId()}

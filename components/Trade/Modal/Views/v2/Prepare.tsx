@@ -14,13 +14,14 @@ import React, { Dispatch, SetStateAction, Suspense, useEffect } from 'react'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { token0Amount, token1Amount } from 'state/trade'
 import { modalCloseEnabledState } from 'state/ui'
+import { PrerenderProps } from 'types/content'
 import { VanillaVersion } from 'types/general'
 import { Operation } from 'types/trade'
 import ErrorDisplay from '../../ErrorDisplay'
 import OperationToggle from '../../OperationToggle'
 import TradeInfoDisplay from '../../TradeInfoDisplay'
 
-type ContentProps = {
+type ContentProps = PrerenderProps & {
   operation: Operation
   setOperation: Dispatch<SetStateAction<Operation>>
 }
@@ -81,6 +82,7 @@ const ButtonAmountDisplay = ({
 const PrepareView = ({
   operation,
   setOperation,
+  ...rest
 }: ContentProps): JSX.Element => {
   const router = useRouter()
 
@@ -136,7 +138,7 @@ const PrepareView = ({
 
             <section className='modalMain'>
               <div className='row noBottomMargin'>
-                <TokenInput version={VanillaVersion.V1_0} />
+                <TokenInput version={VanillaVersion.V1_0} {...rest} />
               </div>
 
               {amount0 && trade?.executionPrice && vanillaRouter && (
