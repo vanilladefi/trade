@@ -8,10 +8,15 @@ import {
 import { FeeAmount } from '@uniswap/v3-sdk'
 import { BigNumber, Transaction } from 'ethers'
 import { formatUnits, isAddress, parseUnits } from 'ethers/lib/utils'
+import { tokenListChainId } from 'lib/tokens'
 import { TransactionProps } from 'lib/uniswap'
 import * as uniV2 from 'lib/uniswap/v2/trade'
 import * as uniV3 from 'lib/uniswap/v3/trade'
-import { calculateGasMargin, estimateGas, estimateReward } from 'lib/vanilla'
+import {
+  calculateGasMargin,
+  estimateGas,
+  estimateReward,
+} from 'lib/vanilla/trades'
 import { debounce } from 'lodash'
 import { Dispatch, SetStateAction, useCallback, useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
@@ -34,6 +39,7 @@ import {
   token1Selector,
 } from 'state/trade'
 import { providerState, signerState } from 'state/wallet'
+import { PrerenderProps } from 'types/content'
 import { VanillaVersion } from 'types/general'
 import { Action, Operation, Token, V3Trade } from 'types/trade'
 import {
@@ -59,6 +65,7 @@ export enum TransactionState {
  */
 const useTradeEngine = (
   version: VanillaVersion,
+  prerenderProps?: PrerenderProps,
 ): {
   buy: (options: TransactionProps) => Promise<string | undefined>
   sell: (options: TransactionProps) => Promise<string | undefined>
@@ -68,8 +75,10 @@ const useTradeEngine = (
   setTransactionState: Dispatch<SetStateAction<TransactionState>>
   token0: Token | null
   token1: Token | null
-  eligibleBalance0Raw: BigNumber
-  balance1Raw: BigNumber
+  getBalance0Raw: () => BigNumber
+  getBalance1Raw: () => BigNumber
+  getBalance0: () => string
+  getBalance1: () => string
   gasPrice: BigNumber | null
   estimatedGasLimit: BigNumber | null
   estimatedGas: string | null
@@ -215,16 +224,76 @@ const useTradeEngine = (
     [operation, token0, token1],
   )
 
-  // Balances of token0 and token1
+  // Balances of token0 and token1 TODO: Doesn't work now for prerendered balances
   const { raw: eligibleBalance0Raw } = useEligibleTokenBalance(
     version,
     token0?.address,
   )
   const { raw: balance1Raw } = useTokenBalance(
+    walletAddress,
     token1?.address,
     token1?.decimals,
     true,
   )
+
+  const getBalance0Raw = useCallback(() => {
+    let balance0 = eligibleBalance0Raw
+    if (!signer) {
+      const prerenderedPositions =
+        version === VanillaVersion.V1_0
+          ? prerenderProps?.initialTokens?.userPositionsV2 || []
+          : prerenderProps?.initialTokens?.userPositionsV3 || []
+      const token = prerenderedPositions.find(
+        (token) =>
+          token?.address?.toLowerCase() === token0?.address?.toLowerCase(),
+      )
+      balance0 = BigNumber.from(token?.ownedRaw ?? '0')
+    }
+    return balance0
+  }, [
+    eligibleBalance0Raw,
+    prerenderProps?.initialTokens?.userPositionsV2,
+    prerenderProps?.initialTokens?.userPositionsV3,
+    signer,
+    token0?.address,
+    version,
+  ])
+
+  const getBalance1Raw = useCallback(() => {
+    let balance1 = balance1Raw
+    if (!signer && token1) {
+      balance1 = parseUnits(prerenderProps?.ethBalance ?? '0', token1.decimals)
+    }
+    return balance1
+  }, [balance1Raw, prerenderProps?.ethBalance, signer, token1])
+
+  const getBalance0 = useCallback(() => {
+    let formattedBalance = '0'
+    if (token0) {
+      const raw = getBalance0Raw()
+      const token = new UniswapToken(
+        tokenListChainId,
+        token0?.address,
+        Number(token0?.decimals),
+      )
+      formattedBalance = new TokenAmount(token, raw.toString()).toSignificant()
+    }
+    return formattedBalance
+  }, [getBalance0Raw, token0])
+
+  const getBalance1 = useCallback(() => {
+    let formattedBalance = '0'
+    if (token1) {
+      const raw = getBalance1Raw()
+      const token = new UniswapToken(
+        tokenListChainId,
+        token1?.address,
+        Number(token1?.decimals),
+      )
+      formattedBalance = new TokenAmount(token, raw.toString()).toSignificant()
+    }
+    return formattedBalance
+  }, [getBalance1Raw, token1])
 
   // Estimates
   const [estimatedGasLimit, setEstimatedGasLimit] = useRecoilState(
@@ -254,10 +323,10 @@ const useTradeEngine = (
       if (
         (operation === Operation.Buy &&
           amount1 &&
-          parseUnits(amount1, token1?.decimals).gt(balance1Raw)) ||
+          parseUnits(amount1, token1?.decimals).gt(getBalance1Raw())) ||
         (operation === Operation.Sell &&
           amount0 &&
-          parseUnits(amount0, token0?.decimals).gt(eligibleBalance0Raw))
+          parseUnits(amount0, token0?.decimals).gt(getBalance0Raw()))
       ) {
         return true
       } else {
@@ -270,10 +339,10 @@ const useTradeEngine = (
     operation,
     amount1,
     token1?.decimals,
-    balance1Raw,
+    getBalance1Raw,
     amount0,
     token0?.decimals,
-    eligibleBalance0Raw,
+    getBalance0Raw,
   ])
 
   const estimatedRewardInUsd = useCallback(() => {
@@ -618,8 +687,10 @@ const useTradeEngine = (
     setTransactionState,
     token0,
     token1,
-    eligibleBalance0Raw,
-    balance1Raw,
+    getBalance0Raw,
+    getBalance1Raw,
+    getBalance0,
+    getBalance1,
     gasPrice,
     estimatedGasLimit,
     estimatedGas,

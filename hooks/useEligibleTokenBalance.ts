@@ -2,6 +2,7 @@ import { BigNumber } from 'ethers'
 import { useRecoilValue } from 'recoil'
 import { userV2TokensState, userV3TokensState } from 'state/tokens'
 import { VanillaVersion } from 'types/general'
+import { Token } from 'types/trade'
 
 function useEligibleTokenBalance(
   version: VanillaVersion,
@@ -11,14 +12,13 @@ function useEligibleTokenBalance(
   let formatted = '0'
   let raw: BigNumber = BigNumber.from('0')
 
-  const userTokens = useRecoilValue(
+  const userTokens: Token[] = useRecoilValue(
     version === VanillaVersion.V1_0 ? userV2TokensState : userV3TokensState,
   )
-  const token =
-    tokenAddress &&
-    userTokens?.find(
-      (token) => token.address.toLowerCase() === tokenAddress.toLowerCase(),
-    )
+
+  const token = userTokens?.find(
+    (token) => token?.address?.toLowerCase() === tokenAddress?.toLowerCase(),
+  )
 
   if (token) {
     formatted = token.owned || '0'

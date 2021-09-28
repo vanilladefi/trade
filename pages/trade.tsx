@@ -2,7 +2,6 @@ import { TopGradient } from 'components/backgrounds/gradient'
 import { Column, Row, Width } from 'components/grid/Flex'
 import Button from 'components/input/Button'
 import Layout from 'components/Layout'
-import SyncIndicator from 'components/SyncIndicator'
 import TokenConversion from 'components/TokenConversion'
 import TokenSearch from 'components/TokenSearch'
 import { AvailableTokens, MyPositionsV2, MyPositionsV3 } from 'components/Trade'
@@ -423,7 +422,6 @@ const BodyContent = ({
 
             <div className='tableHeaderWrapper'>
               <h2 style={{ marginBottom: 0 }}>AVAILABLE TOKENS</h2>
-              <SyncIndicator />
             </div>
             <AvailableTokens
               initialTokens={initialTokens}
@@ -494,6 +492,7 @@ export default function TradePage(props: PrerenderProps): JSX.Element {
         onRequestClose={() => {
           toggleModalOpen(activeExchange)
         }}
+        {...props}
       />
       <BodyContent
         setModalOpen={toggleModalOpen}

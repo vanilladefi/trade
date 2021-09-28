@@ -1,4 +1,4 @@
-import { getUserPositions } from 'lib/vanilla'
+import { getUserPositions } from 'lib/vanilla/trades'
 import { VanillaVersion } from 'types/general'
 import { Token } from 'types/trade'
 import { addToCache, getFromCache } from '.'
