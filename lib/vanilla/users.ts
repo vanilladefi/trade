@@ -10,12 +10,8 @@ import { PrerenderProps } from 'types/content'
 import { VanillaVersion } from 'types/general'
 import { ERC20 } from 'types/typechain/vanilla_v1.1/ERC20'
 import { ERC20__factory } from 'types/typechain/vanilla_v1.1/factories/ERC20__factory'
-import {
-  defaultProvider,
-  epoch,
-  getVnlTokenAddress,
-  vnlDecimals,
-} from 'utils/config'
+import { defaultProvider } from 'utils/config'
+import { epoch, getVnlTokenAddress, vnlDecimals } from 'utils/config/vanilla'
 
 export const getUsers = async (): Promise<string[]> => {
   const users: string[] = []

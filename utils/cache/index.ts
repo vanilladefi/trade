@@ -1,24 +1,9 @@
 import Redis from 'ioredis'
+import { redisOptions, redisUrl } from 'utils/config/redis'
 
 const defaultExpiry = process.env.NODE_ENV === 'development' ? 3600 : 300
 
-const protocolPrefix =
-  process.env.NODE_ENV === 'development' ||
-  process.env.REDIS_INSECURE === 'true'
-    ? 'redis://'
-    : 'rediss://'
-
-const redisOptions =
-  process.env.NODE_ENV !== 'development'
-    ? {
-        password: process.env.REDIS_PASSWORD,
-      }
-    : {}
-
-export const redis = new Redis(
-  `${protocolPrefix}${process.env.REDIS_URL}`,
-  redisOptions,
-)
+export const redis = new Redis(redisUrl, redisOptions)
 
 export const addToCache = async (
   key: string,

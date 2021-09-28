@@ -15,7 +15,7 @@ import { useSetRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
 import { VanillaVersion } from 'types/general'
 import { ConversionState } from 'types/migration'
-import { vnlDecimals } from 'utils/config'
+import { vnlDecimals } from 'utils/config/vanilla'
 import { ConversionViewProps } from '..'
 
 const Minted = ({ transactionHash }: ConversionViewProps): JSX.Element => {

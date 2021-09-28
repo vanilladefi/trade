@@ -2,7 +2,8 @@ import { formatUnits } from 'ethers/lib/utils'
 import { getVanillaTokenContract } from 'lib/vanilla/contracts'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { parseVanillaVersionFromQuery } from 'utils/api'
-import { defaultProvider, vnlDecimals } from 'utils/config'
+import { defaultProvider } from 'utils/config'
+import { vnlDecimals } from 'utils/config/vanilla'
 
 export default async (
   req: NextApiRequest,

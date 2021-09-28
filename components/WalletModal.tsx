@@ -1,5 +1,4 @@
 import { ethers } from 'ethers'
-import useWalletConnector from 'hooks/useWalletConnector'
 import React from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { userV2TokensState, userV3TokensState } from 'state/tokens'
@@ -326,7 +325,6 @@ const WalletView = (): JSX.Element => {
 }
 
 const WalletModal = (): JSX.Element => {
-  useWalletConnector()
   const { status } = useWallet()
 
   const [walletModalOpen, setWalletModalOpen] =

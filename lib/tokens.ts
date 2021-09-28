@@ -15,7 +15,8 @@ import {
 } from 'types/general'
 import { Eligibility, Token, TokenInfoQueryResponse } from 'types/trade'
 import { UniswapV3Pool__factory } from 'types/typechain/uniswap_v3_core'
-import { chainId, defaultProvider, getVanillaRouterAddress } from 'utils/config'
+import { chainId, defaultProvider } from 'utils/config'
+import { getVanillaRouterAddress } from 'utils/config/vanilla'
 
 export { chainId }
 

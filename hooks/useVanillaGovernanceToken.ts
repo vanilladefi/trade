@@ -4,8 +4,9 @@ import { getTheGraphClient, v2 } from 'lib/graphql'
 import { isAddress, tokenListChainId, weth } from 'lib/tokens'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { UniswapVersion, VanillaVersion } from 'types/general'
-import { getVnlTokenAddress, vnlDecimals } from 'utils/config'
+import { getVnlTokenAddress, vnlDecimals } from 'utils/config/vanilla'
 import useTokenBalance from './useTokenBalance'
+import useWalletAddress from './useWalletAddress'
 
 function useVanillaGovernanceToken(version: VanillaVersion): {
   address: string
@@ -25,12 +26,15 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
     [],
   )
 
+  const { long: walletAddress } = useWalletAddress()
+
   const [uniswapVersion, setUniswapVersion] = useState<UniswapVersion | null>(
     null,
   )
   const [versionAddress, setVersionAddress] = useState<string | null>(null)
   const [vnlEthPrice, setVnlEthPrice] = useState('0')
   const { formatted: vnlBalance, raw: vnlBalanceRaw } = useTokenBalance(
+    walletAddress,
     versionAddress,
     vnlDecimals,
   )

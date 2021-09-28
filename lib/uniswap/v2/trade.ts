@@ -13,7 +13,8 @@ import { getContract, tokenListChainId } from 'lib/tokens'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import { VanillaVersion } from 'types/general'
 import type { Token as UniswapToken } from 'types/trade'
-import { ethersOverrides, getVanillaRouterAddress } from 'utils/config'
+import { ethersOverrides } from 'utils/config'
+import { getVanillaRouterAddress } from 'utils/config/vanilla'
 import { TransactionProps } from '..'
 
 export const buy = async ({

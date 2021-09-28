@@ -5,7 +5,10 @@ import { ERC20 } from 'types/typechain/vanilla_v1.1/ERC20'
 import { ERC20__factory } from 'types/typechain/vanilla_v1.1/factories/ERC20__factory'
 import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Router02__factory'
 import { VanillaV1Router02 } from 'types/typechain/vanilla_v1.1/VanillaV1Router02'
-import { getVanillaRouterAddress, getVnlTokenAddress } from 'utils/config'
+import {
+  getVanillaRouterAddress,
+  getVnlTokenAddress,
+} from 'utils/config/vanilla'
 
 export function getVanillaTokenContract(
   version: VanillaVersion,

@@ -8,7 +8,7 @@ import { tokenConversionState } from 'state/migration'
 import { VanillaVersion } from 'types/general'
 import { ConversionState } from 'types/migration'
 import { Action, TransactionDetails } from 'types/trade'
-import { getVnlTokenAddress } from 'utils/config'
+import { getVnlTokenAddress } from 'utils/config/vanilla'
 import Wrapper from '../Wrapper'
 import { Approved, Approving, Available, Error, Minted, Ready } from './Views'
 

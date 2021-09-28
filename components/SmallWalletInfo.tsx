@@ -1,6 +1,5 @@
 import { utils as ethersUtils } from 'ethers'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
-import useWalletAddress from 'hooks/useWalletAddress'
 import { useCallback, useMemo } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
@@ -32,6 +31,7 @@ const SmallWalletInfo = ({
   grow,
   vnlBalance,
   ethBalance,
+  walletAddress,
 }: SmallWalletInfoProps): JSX.Element => {
   const { status, balance, connector } = useWallet()
   const [walletModalOpen, setWalletModalOpen] =
@@ -82,9 +82,7 @@ const SmallWalletInfo = ({
     return returnedBalance.toFixed(3)
   }, [balance, ethBalance])
 
-  const walletAddress = useWalletAddress()
-
-  return status !== 'connected' && !walletAddress ? (
+  return !walletAddress ? (
     <WalletConnectButton />
   ) : (
     <ButtonGroup grow={grow}>
@@ -118,7 +116,7 @@ const SmallWalletInfo = ({
         bordered
         rounded={Rounding.RIGHT}
         overflow={Overflow.ELLIPSIS}
-        title={walletAddress.long}
+        title={walletAddress || ''}
         grow={grow}
         justifyContent={Justification.CENTER}
       >
