@@ -15,12 +15,10 @@ export const redisOptions =
       }
     : {}
 
-const localRedisUrl: string = runsOnDocker
-  ? `redis:${redisPort}`
-  : `localhost:${redisPort}`
+const localRedisUrl: string = runsOnDocker ? `redis` : `localhost`
 
 export const redisUrl = `${redisProtocolPrefix}${
   process.env.REDIS_URL && process.env.REDIS_URL !== ''
     ? process.env.REDIS_URL
     : localRedisUrl
-}`
+}:${redisPort}`
