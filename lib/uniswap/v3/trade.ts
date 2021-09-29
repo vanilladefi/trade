@@ -257,7 +257,7 @@ export async function constructTrade(
       )
       quote = amountIn
     }
-
+    console.log(quote, signerOrProvider)
     const formattedQuote = formatUnits(quote, quotedToken.decimals)
     const parsedQuote = tryParseAmount(formattedQuote, quotedToken)
 

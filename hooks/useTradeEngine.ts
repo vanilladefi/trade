@@ -493,7 +493,7 @@ const useTradeEngine = (
                   tradeType,
                 )
               : await uniV3.constructTrade(
-                  signer,
+                  provider,
                   amount,
                   receivedToken,
                   paidToken,

@@ -35,9 +35,7 @@ const Layout = ({
   title = 'Start #ProfitMining',
   description = 'Vanilla Rewards You For Making a Profit In DeFi',
   shareImg = '/social/social-share-general.png',
-  ethBalance,
-  vnlBalance,
-  walletAddress,
+  ...rest
 }: LayoutProps): JSX.Element => {
   // Use useEffect side effect to gain access to windowURL for full URL
   // We could do this by defining base url in process specific .env -files as well
@@ -81,11 +79,7 @@ const Layout = ({
         <WalletModal />
 
         {/* Header, nav */}
-        <Header
-          renderChildren={heroRenderer}
-          ethBalance={ethBalance}
-          vnlBalance={vnlBalance}
-        >
+        <Header renderChildren={heroRenderer} {...rest}>
           {hero}
         </Header>
 
@@ -93,11 +87,7 @@ const Layout = ({
         {children}
 
         {/* Footer */}
-        <Footer
-          walletAddress={walletAddress}
-          ethBalance={ethBalance}
-          vnlBalance={vnlBalance}
-        />
+        <Footer {...rest} />
 
         {/* Mobile Wallet Floater */}
         <MobileWalletFloater />
