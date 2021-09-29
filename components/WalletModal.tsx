@@ -1,20 +1,29 @@
 import { ethers } from 'ethers'
+import dynamic from 'next/dynamic'
 import React from 'react'
-import { useRecoilState, useSetRecoilState } from 'recoil'
-import { userV2TokensState, userV3TokensState } from 'state/tokens'
+import { useRecoilState } from 'recoil'
 import { walletModalOpenState } from 'state/wallet'
 import { Connectors, useWallet, Wallet } from 'use-wallet'
-import { ModalGradient } from './backgrounds/gradient'
-import { Alignment, Column, Justification, Row, Width } from './grid/Flex'
-import Button, { ButtonColor, ButtonSize } from './input/Button'
-import Modal from './Modal'
-import Icon, { IconUrls } from './typography/Icon'
-import Spacer from './typography/Spacer'
-import { SmallTitle } from './typography/Titles'
-import WalletAddress from './typography/WalletAddress'
-import WalletIcon from './typography/WalletIcon'
+import { Alignment, Justification, Width } from './grid/Flex'
+import { ButtonColor, ButtonSize } from './input/Button'
+import { IconUrls } from './typography/Icon'
 
-const ProviderOptions = (): JSX.Element => {
+const SmallTitle = dynamic(
+  import('components/typography/Titles').then((mod) => mod.SmallTitle),
+)
+const Spacer = dynamic(import('components/typography/Spacer'))
+const Icon = dynamic(import('components/typography/Icon'))
+const WalletIcon = dynamic(import('components/typography/WalletIcon'))
+const WalletAddress = dynamic(import('components/typography/WalletAddress'))
+const Button = dynamic(import('components/input/Button'))
+const Modal = dynamic(import('components/Modal'))
+const ModalGradient = dynamic(
+  import('components/backgrounds/gradient').then((mod) => mod.ModalGradient),
+)
+const Column = dynamic(import('components/grid/Flex').then((mod) => mod.Column))
+const Row = dynamic(import('components/grid/Flex').then((mod) => mod.Row))
+
+const ProviderOptions: React.FC = () => {
   const wallet = useWallet()
 
   const connectWallet = async (connector: keyof Connectors) => {
@@ -144,16 +153,11 @@ const ProviderOptions = (): JSX.Element => {
   )
 }
 
-const WalletView = (): JSX.Element => {
+const WalletView: React.FC = () => {
   const wallet = useWallet<Wallet<ethers.Signer>>()
   const { account, connector } = wallet
-  const setV2Tokens = useSetRecoilState(userV2TokensState)
-  const setV3Tokens = useSetRecoilState(userV3TokensState)
 
   const resetWallet = (): void => {
-    // Reset user owned tokens status
-    setV2Tokens([])
-    setV3Tokens([])
     // Disconnect if function available
     if (wallet.ethereum.disconnect instanceof Function) {
       wallet.ethereum.disconnect()

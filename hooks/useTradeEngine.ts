@@ -142,8 +142,6 @@ const useTradeEngine = (
           amountReceived: amountReceived,
           addedTime: Date.now(),
         })
-    } else {
-      connectWallet()
     }
     return transaction?.hash
   }
@@ -157,6 +155,7 @@ const useTradeEngine = (
     gasLimit,
   }: TransactionProps) => {
     let transaction: Transaction | undefined = undefined
+    console.log(signer, 'haloo')
     if (signer) {
       if (version === VanillaVersion.V1_0) {
         transaction = await uniV2.sell({
@@ -192,8 +191,6 @@ const useTradeEngine = (
           amountReceived: amountReceived,
           addedTime: Date.now(),
         })
-    } else {
-      connectWallet()
     }
     return transaction?.hash
   }
@@ -265,6 +262,7 @@ const useTradeEngine = (
   const getBalance1Raw = useCallback(() => {
     let balance1 = balance1Raw
     if (!signer && token1) {
+      console.log(prerenderProps.ethBalance)
       balance1 = parseUnits(prerenderProps?.ethBalance ?? '0', token1.decimals)
     }
     return balance1
@@ -667,6 +665,8 @@ const useTradeEngine = (
         setError(error.message)
         return
       }
+    } else {
+      connectWallet()
     }
   }
 

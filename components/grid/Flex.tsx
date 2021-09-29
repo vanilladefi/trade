@@ -51,7 +51,7 @@ type Props = {
  * @param width taken flex-basis of the column on a 12-column grid. e.g. Width.FIVE.
  * @param className regular React className for CSS variable scoping to work
  */
-export const Column = ({
+export const Column: React.FC<Props> = ({
   children,
   width,
   className,
@@ -89,7 +89,7 @@ export const Column = ({
  * @param className regular React className for CSS variable scoping to work
  * @param gap CSS gap property
  */
-export const Row = ({
+export const Row: React.FC<Props> = ({
   children,
   className,
   gap,

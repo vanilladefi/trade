@@ -34,7 +34,7 @@ type ArrowProps = {
   children: ReactNode
 }
 
-const ArrowWrapper = ({ children }: ArrowProps): JSX.Element => (
+const ArrowWrapper: React.FC<ArrowProps> = ({ children }: ArrowProps) => (
   <>
     <span>
       <div className='inner'>{children}</div>
@@ -59,13 +59,13 @@ const ArrowWrapper = ({ children }: ArrowProps): JSX.Element => (
   </>
 )
 
-const ArrowClosed = (): JSX.Element => (
+const ArrowClosed: React.FC = () => (
   <ArrowWrapper>
     <Image src='/images/caret.svg' layout='fill' />
   </ArrowWrapper>
 )
 
-const ArrowOpen = (): JSX.Element => (
+const ArrowOpen: React.FC = () => (
   <>
     <ArrowWrapper>
       <Image src='/images/caret.svg' layout='fill' />
@@ -78,7 +78,7 @@ const ArrowOpen = (): JSX.Element => (
   </>
 )
 
-const SlippageSelector = (): JSX.Element => {
+const SlippageSelector: React.FC = () => {
   const mappedSlippageOptions = Object.values(slippageOptions).map(
     returnOptionWithLabel,
   )

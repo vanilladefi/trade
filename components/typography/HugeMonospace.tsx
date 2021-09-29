@@ -4,7 +4,7 @@ type Props = {
   children?: ReactNode
 }
 
-const HugeMonospace = ({ children }: Props): JSX.Element => (
+const HugeMonospace: React.FC<Props> = ({ children }: Props) => (
   <>
     <h2>{children}</h2>
     <style jsx>{`

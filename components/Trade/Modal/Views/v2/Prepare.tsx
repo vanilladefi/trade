@@ -1,11 +1,9 @@
-import { Column } from 'components/grid/Flex'
-import Button, {
+import {
   ButtonColor,
   ButtonSize,
   ButtonState,
   Rounding,
 } from 'components/input/Button'
-import { Dots } from 'components/Spinner'
 import useTradeEngine from 'hooks/useTradeEngine'
 import useVanillaRouter from 'hooks/useVanillaRouter'
 import dynamic from 'next/dynamic'
@@ -17,16 +15,23 @@ import { modalCloseEnabledState } from 'state/ui'
 import { PrerenderProps } from 'types/content'
 import { VanillaVersion } from 'types/general'
 import { Operation } from 'types/trade'
-import ErrorDisplay from '../../ErrorDisplay'
-import OperationToggle from '../../OperationToggle'
-import TradeInfoDisplay from '../../TradeInfoDisplay'
+
+const Button = dynamic(import('components/input/Button'))
+const Column = dynamic(import('components/grid/Flex').then((mod) => mod.Column))
+const Dots = dynamic(import('components/Spinner').then((mod) => mod.Dots))
+const ErrorDisplay = dynamic(import('components/Trade/Modal/ErrorDisplay'))
+const OperationToggle = dynamic(
+  import('components/Trade/Modal/OperationToggle'),
+)
+const TradeInfoDisplay = dynamic(
+  import('components/Trade/Modal/TradeInfoDisplay'),
+)
+const TokenInput = dynamic(import('components/Trade/Modal/TokenInput'))
 
 type ContentProps = PrerenderProps & {
   operation: Operation
   setOperation: Dispatch<SetStateAction<Operation>>
 }
-
-const TokenInput = dynamic(() => import('components/Trade/Modal/TokenInput'))
 
 enum TransactionState {
   PREPARE,
@@ -40,11 +45,11 @@ type ButtonAmountDisplayProps = {
   tokenSymbol: string
 }
 
-const ButtonAmountDisplay = ({
+const ButtonAmountDisplay: React.FC<ButtonAmountDisplayProps> = ({
   operationText,
   tokenAmount,
   tokenSymbol,
-}: ButtonAmountDisplayProps): JSX.Element => (
+}: ButtonAmountDisplayProps) => (
   <>
     <div>
       {operationText} <span>{tokenAmount}</span> {tokenSymbol}
@@ -79,11 +84,11 @@ const ButtonAmountDisplay = ({
   </>
 )
 
-const PrepareView = ({
+const PrepareView: React.FC<ContentProps> = ({
   operation,
   setOperation,
   ...rest
-}: ContentProps): JSX.Element => {
+}: ContentProps) => {
   const router = useRouter()
 
   const {

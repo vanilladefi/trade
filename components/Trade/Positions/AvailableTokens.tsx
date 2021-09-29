@@ -1,8 +1,8 @@
-import Button, { ButtonColor, ButtonSize } from 'components/input/Button'
-import Modal, { ContentWrapper } from 'components/Modal'
-import { Columns, Table } from 'components/Table'
+import { ButtonColor, ButtonSize } from 'components/input/Button'
+import { Columns } from 'components/Table'
 import { TokenLogo } from 'components/Table/Cells'
 import useTokenSearch from 'hooks/useTokenSearch'
+import dynamic from 'next/dynamic'
 import { useMemo, useState } from 'react'
 import type { CellProps } from 'react-table'
 import { useRecoilValue } from 'recoil'
@@ -16,6 +16,13 @@ import {
   LowLiquidityContent,
   VeryLowLiquidityContent,
 } from './Content'
+
+const Modal = dynamic(import('components/Modal'))
+const ContentWrapper = dynamic(
+  import('components/Modal').then((mod) => mod.ContentWrapper),
+)
+const Button = dynamic(import('components/input/Button'))
+const Table = dynamic(import('components/Table').then((mod) => mod.Table))
 
 type Props = PrerenderProps & {
   onBuyClick: HandleBuyClick

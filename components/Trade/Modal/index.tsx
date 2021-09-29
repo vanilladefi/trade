@@ -1,8 +1,4 @@
-import { Column, Row, Width } from 'components/grid/Flex'
-import Modal from 'components/Modal'
-import { Dots } from 'components/Spinner'
-import PrepareV2 from 'components/Trade/Modal/Views/v2/Prepare'
-import PrepareV3 from 'components/Trade/Modal/Views/v3/Prepare'
+import { Width } from 'components/grid/Flex'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import React, { Suspense, useCallback } from 'react'
@@ -11,7 +7,14 @@ import { selectedOperation, selectedPairIdState } from 'state/trade'
 import { PrerenderProps } from 'types/content'
 import { UniswapVersion, VanillaVersion } from 'types/general'
 
-const Loading = (): JSX.Element => (
+const Modal = dynamic(import('components/Modal'))
+const Column = dynamic(import('components/grid/Flex').then((mod) => mod.Column))
+const Row = dynamic(import('components/grid/Flex').then((mod) => mod.Row))
+const Dots = dynamic(import('components/Spinner').then((mod) => mod.Dots))
+const PrepareV2 = dynamic(import('components/Trade/Modal/Views/v2/Prepare'))
+const PrepareV3 = dynamic(import('components/Trade/Modal/Views/v3/Prepare'))
+
+const Loading: React.FC = () => (
   <Row>
     <Column width={Width.TWELVE}>
       <div>
@@ -38,12 +41,12 @@ type Props = PrerenderProps & {
   uniswapVersion: UniswapVersion
 }
 
-const TradeModal = ({
+const TradeModal: React.FC<Props> = ({
   open,
   onRequestClose,
   uniswapVersion,
   ...rest
-}: Props): JSX.Element => {
+}: Props) => {
   const [operation, setOperation] = useRecoilState(selectedOperation)
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
 

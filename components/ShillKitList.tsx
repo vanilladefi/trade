@@ -1,4 +1,7 @@
+import dynamic from 'next/dynamic'
 import { BreakPoint } from '../components/GlobalStyles/Breakpoints'
+
+const ResponsiveImage = dynamic(import('components/typography/ResponsiveImage'))
 
 const theList = [
   {
@@ -105,12 +108,9 @@ const ShillKitList = (): JSX.Element => {
                 <source src={shill.url} type='video/mp4' />
               </video>
             ) : (
-              <img
-                style={{ width: '100%' }}
-                src={shill.url}
-                alt={shill.description}
-                loading='lazy'
-              />
+              <div className='imageContainer'>
+                <ResponsiveImage src={shill.url} alt={shill.description} />
+              </div>
             )}
           </a>
         </div>
@@ -120,6 +120,15 @@ const ShillKitList = (): JSX.Element => {
           column-gap: 1.5em;
           column-count: 1;
           grid-auto-columns: 1fr;
+        }
+        .imageContainer {
+          position: relative;
+          width: 100%;
+          height: auto;
+          min-height: 300px;
+        }
+        .imageContainer > * {
+          object-fit: contain;
         }
         @media (min-width: ${BreakPoint.sm}px) {
           .galleryContainer {

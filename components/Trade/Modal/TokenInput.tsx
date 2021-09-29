@@ -1,9 +1,8 @@
-import { Column, Width } from 'components/grid/Flex'
-import { Dots } from 'components/Spinner'
-import Icon from 'components/typography/Icon'
+import { Width } from 'components/grid/Flex'
 import { formatUnits } from 'ethers/lib/utils'
 import useTradeEngine from 'hooks/useTradeEngine'
 import { debounce } from 'lodash'
+import dynamic from 'next/dynamic'
 import React, { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import {
@@ -16,6 +15,10 @@ import {
 import { PrerenderProps } from 'types/content'
 import { VanillaVersion } from 'types/general'
 import { Operation } from 'types/trade'
+
+const Dots = dynamic(import('components/Spinner').then((mod) => mod.Dots))
+const Column = dynamic(import('components/grid/Flex').then((mod) => mod.Column))
+const Icon = dynamic(import('components/typography/Icon'))
 
 type Props = PrerenderProps & {
   version: VanillaVersion

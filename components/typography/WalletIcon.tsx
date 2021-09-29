@@ -1,6 +1,8 @@
-import Image from 'next/image'
+import dynamic from 'next/dynamic'
 import React from 'react'
 import { Connectors } from 'use-wallet'
+
+const Image = dynamic(import('next/image'))
 
 type Props = {
   walletType: keyof Connectors
@@ -25,11 +27,11 @@ const matchWalletTypeToIcon = (walletType: keyof Connectors): string => {
   }
 }
 
-const WalletIcon = ({
+const WalletIcon: React.FC<Props> = ({
   walletType,
   height = '22px',
   width = '22px',
-}: Props): JSX.Element => {
+}: Props) => {
   const iconSrc = matchWalletTypeToIcon(walletType)
   return iconSrc !== '' ? (
     <Image src={iconSrc} height={height} width={width} layout='fixed' />

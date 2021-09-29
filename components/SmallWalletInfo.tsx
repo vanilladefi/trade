@@ -1,5 +1,6 @@
 import { utils as ethersUtils } from 'ethers'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
+import dynamic from 'next/dynamic'
 import { useCallback, useMemo } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
@@ -8,10 +9,9 @@ import { PrerenderProps } from 'types/content'
 import { VanillaVersion } from 'types/general'
 import { ConversionState } from 'types/migration'
 import { useWallet } from 'use-wallet'
-import BottomFloater from './BottomFloater'
 import { BreakPoint } from './GlobalStyles/Breakpoints'
-import { Alignment, Justification, Row } from './grid/Flex'
-import Button, {
+import { Alignment, Justification } from './grid/Flex'
+import {
   ButtonColor,
   ButtonGroup,
   ButtonSize,
@@ -19,20 +19,24 @@ import Button, {
   Overflow,
   Rounding,
 } from './input/Button'
-import Spacer from './typography/Spacer'
-import WalletIcon from './typography/WalletIcon'
-import WalletConnectButton from './WalletConnectButton'
+
+const WalletIcon = dynamic(import('components/typography/WalletIcon'))
+const Spacer = dynamic(import('components/typography/Spacer'))
+const WalletConnectButton = dynamic(import('components/WalletConnectButton'))
+const Button = dynamic(import('components/input/Button'))
+const Row = dynamic(import('components/grid/Flex').then((mod) => mod.Row))
+const BottomFloater = dynamic(import('components/BottomFloater'))
 
 type SmallWalletInfoProps = PrerenderProps & {
   grow?: boolean
 }
 
-const SmallWalletInfo = ({
+const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
   grow,
   vnlBalance,
   ethBalance,
   walletAddress,
-}: SmallWalletInfoProps): JSX.Element => {
+}: SmallWalletInfoProps) => {
   const { status, balance, connector } = useWallet()
   const [walletModalOpen, setWalletModalOpen] =
     useRecoilState(walletModalOpenState)
