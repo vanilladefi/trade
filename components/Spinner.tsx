@@ -1,6 +1,6 @@
 import 'three-dots'
 
-export const Dots = (): JSX.Element => (
+export const Dots: React.FC = () => (
   <>
     <div className='dot-flashing' />
     <style jsx>{`
@@ -12,7 +12,7 @@ export const Dots = (): JSX.Element => (
   </>
 )
 
-export const Spinner = (): JSX.Element => (
+export const Spinner: React.FC = () => (
   <>
     <div className='wrapper'>
       <div className='spinner'>

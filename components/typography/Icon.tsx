@@ -1,4 +1,6 @@
-import Image from 'next/image'
+import dynamic from 'next/dynamic'
+
+const Image = dynamic(import('next/image'))
 
 type Props = {
   src: string
@@ -12,7 +14,7 @@ export enum IconUrls {
   ALERT = '/images/icons/Alert.svg',
 }
 
-const Icon = ({ src, injectedStyles }: Props): JSX.Element => {
+const Icon: React.FC<Props> = ({ src, injectedStyles }: Props) => {
   return (
     <div>
       <Image src={src} layout='fill' />

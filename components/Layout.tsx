@@ -1,4 +1,3 @@
-import Header from 'components/Header'
 import dynamic from 'next/dynamic'
 import Head from 'next/head'
 import React, { ReactNode, useEffect, useState } from 'react'
@@ -7,10 +6,10 @@ import { PrerenderProps } from 'types/content'
 import { UseWalletProvider } from 'use-wallet'
 import { chainId, rpcUrl } from 'utils/config'
 
+const Header = dynamic(import('components/Header'))
 const GlobalStyles = dynamic(import('components/GlobalStyles'))
 const Footer = dynamic(import('components/Footer'))
 const WalletModal = dynamic(import('components/WalletModal'))
-
 const MobileWalletFloater = dynamic(() =>
   import('components/SmallWalletInfo').then((mod) => mod.MobileWalletFloater),
 )
@@ -27,7 +26,7 @@ export type LayoutProps = PrerenderProps & {
   hideFromSearch?: boolean
 }
 
-const Layout = ({
+const Layout: React.FC<LayoutProps> = ({
   children,
   hero,
   heroRenderer,
@@ -36,7 +35,7 @@ const Layout = ({
   description = 'Vanilla Rewards You For Making a Profit In DeFi',
   shareImg = '/social/social-share-general.png',
   ...rest
-}: LayoutProps): JSX.Element => {
+}: LayoutProps) => {
   // Use useEffect side effect to gain access to windowURL for full URL
   // We could do this by defining base url in process specific .env -files as well
   // But then branch preview url's wouldn't probably work correctly?

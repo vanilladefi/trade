@@ -30,14 +30,15 @@ const WalletConnector = (): (() => Promise<void>) => {
   const connectWallet = useRecoilCallback(
     ({ snapshot }) =>
       async () => {
-        console.log('Walletconnector called!')
         const stored = await snapshot.getPromise(storedWalletConnectorState)
+        console.log('Walletconnector called!', walletType, stored, status)
         if (!walletType && status === 'disconnected' && stored) connect(stored)
       },
     [walletType, status, connect],
   )
 
   useEffect(() => {
+    console.log('useEffect fired in walletConnector', status)
     if (ethereum) {
       let ethersProvider:
         | providers.AlchemyWebSocketProvider

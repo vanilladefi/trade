@@ -5,12 +5,12 @@ type Props = {
   wallet: Wallet<unknown>
 }
 
-const WalletAddress = ({ wallet }: Props): JSX.Element => {
+const WalletAddress: React.FC<Props> = ({ wallet }: Props) => {
   const walletAddress = useMemo(() => {
     const long = wallet.account || ''
     const short = wallet.account
       ? `${wallet.account.substring(0, 6)}...${wallet.account.substring(
-          wallet.account.length - 4
+          wallet.account.length - 4,
         )}`
       : ''
     return { long, short }

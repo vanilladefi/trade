@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Katex = (): JSX.Element => (
+const Katex: React.FC = () => (
   <style jsx>{`
     /* stylelint-disable font-family-no-missing-generic-family-keyword */
     //@font-face {

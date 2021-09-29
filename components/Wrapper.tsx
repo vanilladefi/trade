@@ -5,7 +5,7 @@ type Props = {
   className?: string
 }
 
-const Wrapper = ({ children, className }: Props): JSX.Element => (
+const Wrapper: React.FC<Props> = ({ children, className }: Props) => (
   <>
     <div className={className}>{children}</div>
     <style jsx>{`

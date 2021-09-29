@@ -1,6 +1,10 @@
-import { Column, Width } from 'components/grid/Flex'
-import Icon, { IconUrls } from 'components/typography/Icon'
+import { Width } from 'components/grid/Flex'
+import { IconUrls } from 'components/typography/Icon'
+import dynamic from 'next/dynamic'
 import React from 'react'
+
+const Column = dynamic(import('components/grid/Flex').then((mod) => mod.Column))
+const Icon = dynamic(import('components/typography/Icon'))
 
 type ErrorDisplayProps = {
   error: string

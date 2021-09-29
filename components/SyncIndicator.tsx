@@ -4,7 +4,7 @@ import { useRecoilValue } from 'recoil'
 import { currentBlockNumberState } from 'state/meta'
 import { providerState } from 'state/wallet'
 
-const SyncIndicator = (): JSX.Element => {
+const SyncIndicator: React.FC = () => {
   const blockNumber = useRecoilValue(currentBlockNumberState)
   const provider = useRecoilValue(providerState)
   const [blockDelta, setBlockDelta] = useState<number>(0)
