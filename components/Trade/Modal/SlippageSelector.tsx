@@ -1,4 +1,5 @@
 import { Percent } from '@uniswap/sdk-core'
+import Image from 'next/image'
 import { ReactNode } from 'react'
 import Dropdown, { Option } from 'react-dropdown'
 import { useRecoilState } from 'recoil'
@@ -35,10 +36,13 @@ type ArrowProps = {
 
 const ArrowWrapper = ({ children }: ArrowProps): JSX.Element => (
   <>
-    <span>{children}</span>
+    <span>
+      <div className='inner'>{children}</div>
+    </span>
     <style jsx>{`
       span {
         display: flex;
+        position: relative;
         width: 2rem;
         height: 2rem;
         background: var(--dark);
@@ -46,20 +50,25 @@ const ArrowWrapper = ({ children }: ArrowProps): JSX.Element => (
         justify-content: center;
         align-items: center;
       }
+      .inner {
+        position: relative;
+        width: 50%;
+        height: 50%;
+      }
     `}</style>
   </>
 )
 
 const ArrowClosed = (): JSX.Element => (
   <ArrowWrapper>
-    <img src='images/caret.svg' />
+    <Image src='/images/caret.svg' layout='fill' />
   </ArrowWrapper>
 )
 
 const ArrowOpen = (): JSX.Element => (
   <>
     <ArrowWrapper>
-      <img src='images/caret.svg' />
+      <Image src='/images/caret.svg' layout='fill' />
     </ArrowWrapper>
     <style jsx>{`
       img {

@@ -11,16 +11,12 @@ export const getStaticProps: GetStaticProps = async ({
   params,
 }): Promise<GetStaticPropsResult<PrerenderProps>> => {
   const walletAddress = parseWalletAddressFromQuery(params)
-
-  const { vnlBalance, ethBalance } = await getCachedWalletBalances(
-    walletAddress,
-  )
+  const walletBalances = await getCachedWalletBalances(walletAddress)
 
   return {
     props: {
-      walletAddress: walletAddress,
-      vnlBalance: vnlBalance,
-      ethBalance: ethBalance,
+      walletAddress,
+      ...walletBalances,
     },
     revalidate: 300,
   }
