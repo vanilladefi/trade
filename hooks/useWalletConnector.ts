@@ -30,6 +30,7 @@ const WalletConnector = (): (() => Promise<void>) => {
   const connectWallet = useRecoilCallback(
     ({ snapshot }) =>
       async () => {
+        console.log('Walletconnector called!')
         const stored = await snapshot.getPromise(storedWalletConnectorState)
         if (!walletType && status === 'disconnected' && stored) connect(stored)
       },
