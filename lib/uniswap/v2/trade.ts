@@ -74,7 +74,7 @@ export const sell = async ({
 
 // Pricing function for UniSwap v2 trades
 export async function constructTrade(
-  provider: providers.Provider,
+  provider: providers.BaseProvider,
   amountToTrade: string, // Not amountPaid because of tradeType
   tokenReceived: UniswapToken,
   tokenPaid: UniswapToken,
