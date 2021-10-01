@@ -249,7 +249,6 @@ const HeaderContent = ({ initialTokens }: PrerenderProps): JSX.Element => {
 }
 
 const BodyContent = ({
-  walletAddress,
   initialTokens,
   ethPrice,
   currentBlockNumber,
