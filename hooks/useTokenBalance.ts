@@ -45,21 +45,20 @@ function useTokenBalance(
 
   useEffect(() => {
     const getBalances = async () => {
-      const signerOrProvider = signer || provider
       if (
         tokenAddress &&
         isAddress(tokenAddress) &&
         isAddress(walletAddress) &&
         decimals &&
         contract &&
-        signerOrProvider
+        provider
       ) {
         try {
           // Get raw BigNumber balance. Interpret wETH as ETH if specified.
           const raw: BigNumber = await getRawBalance(
             tokenAddress,
             contract,
-            signerOrProvider,
+            provider,
           )
           // Make sure "decimals" is an integer
           const parsedDecimals = parseInt(decimals.toString())
