@@ -141,12 +141,14 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
   )
 }
 
-export const MobileWalletFloater = (): JSX.Element => {
+export const MobileWalletFloater: React.FC<SmallWalletInfoProps> = (
+  props: SmallWalletInfoProps,
+) => {
   return (
     <>
       <BottomFloater>
         <div className='walletInfoWrapper'>
-          <SmallWalletInfo grow />
+          <SmallWalletInfo grow {...props} />
         </div>
       </BottomFloater>
       <style jsx>{`

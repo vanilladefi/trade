@@ -328,7 +328,7 @@ const WalletView: React.FC = () => {
   )
 }
 
-const WalletModal = (): JSX.Element => {
+const WalletModal: React.FC = () => {
   const { status } = useWallet()
 
   const [walletModalOpen, setWalletModalOpen] =

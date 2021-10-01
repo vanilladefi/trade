@@ -89,7 +89,7 @@ const Layout: React.FC<LayoutProps> = ({
         <Footer {...rest} />
 
         {/* Mobile Wallet Floater */}
-        <MobileWalletFloater />
+        <MobileWalletFloater {...rest} />
 
         {/* Global CSS, like variables & fonts */}
         <GlobalStyles />

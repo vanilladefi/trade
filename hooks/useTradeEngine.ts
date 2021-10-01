@@ -155,7 +155,6 @@ const useTradeEngine = (
     gasLimit,
   }: TransactionProps) => {
     let transaction: Transaction | undefined = undefined
-    console.log(signer, 'haloo')
     if (signer) {
       if (version === VanillaVersion.V1_0) {
         transaction = await uniV2.sell({

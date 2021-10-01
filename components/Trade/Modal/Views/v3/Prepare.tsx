@@ -154,7 +154,6 @@ const PrepareView: React.FC<ContentProps> = ({
               <Button
                 onClick={async () => {
                   const hash = await executeTrade()
-                  console.log('ebin?', hash)
                   if (hash) {
                     // Wait for a bit, and then redirect the user to the TradeFlower view with more trade info
                     setTimeout(() => {
