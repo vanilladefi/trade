@@ -238,7 +238,7 @@ const useTradeEngine = (
 
   const getBalance0Raw = useCallback(() => {
     let balance0 = eligibleBalance0Raw
-    if (!signer) {
+    if (!signer && token0) {
       const prerenderedPositions =
         version === VanillaVersion.V1_0
           ? prerenderProps?.initialTokens?.userPositionsV2 || []
@@ -255,14 +255,13 @@ const useTradeEngine = (
     prerenderProps?.initialTokens?.userPositionsV2,
     prerenderProps?.initialTokens?.userPositionsV3,
     signer,
-    token0?.address,
+    token0,
     version,
   ])
 
   const getBalance1Raw = useCallback(() => {
     let balance1 = balance1Raw
     if (!signer && token1) {
-      console.log(prerenderProps.ethBalance)
       balance1 = parseUnits(prerenderProps?.ethBalance ?? '0', token1.decimals)
     }
     return balance1
