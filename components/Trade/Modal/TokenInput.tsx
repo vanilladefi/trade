@@ -205,8 +205,7 @@ const TokenInput = ({
                   <button
                     className='maxButton'
                     onClick={() =>
-                      getBalance1Raw() &&
-                      handleAmountChange(1, getBalance1Raw().toString())
+                      getBalance1Raw() && handleAmountChange(1, getBalance1())
                     }
                   >
                     max
@@ -218,8 +217,7 @@ const TokenInput = ({
               <div className='tokenSelector'>
                 <span
                   onClick={() =>
-                    getBalance1Raw() &&
-                    handleAmountChange(1, getBalance1Raw().toString())
+                    getBalance1Raw() && handleAmountChange(1, getBalance1())
                   }
                   title={getBalance1()}
                 >
