@@ -35,6 +35,10 @@ const WalletConnector = (): (() => void) => {
   }, [connectWallet])
 
   useEffect(() => {
+    connectWallet()
+  }, [connectWallet])
+
+  useEffect(() => {
     if (ethereum) {
       const ethersSigner = new providers.Web3Provider(
         ethereum as providers.ExternalProvider,

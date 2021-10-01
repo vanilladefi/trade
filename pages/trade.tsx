@@ -11,14 +11,13 @@ import Wrapper from 'components/Wrapper'
 import useMetaSubscription from 'hooks/useMetaSubscription'
 import useTokenSubscription from 'hooks/useTokenSubscription'
 import useTotalOwned from 'hooks/useTotalOwned'
-import useUserPositions from 'hooks/useUserPositions'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import useWalletAddress from 'hooks/useWalletAddress'
 import type { GetStaticProps, GetStaticPropsResult } from 'next'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import React, { useCallback, useEffect, useState } from 'react'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { currentBlockNumberState, currentETHPrice } from 'state/meta'
 import {
   uniswapV2TokenState,
@@ -267,36 +266,27 @@ const BodyContent = ({
   const setETHPrice = useSetRecoilState(currentETHPrice)
   const setV2Tokens = useSetRecoilState(uniswapV2TokenState)
   const setV3Tokens = useSetRecoilState(uniswapV3TokenState)
-  const setV2UserTokens = useSetRecoilState(userV2TokensState)
-  const setV3UserTokens = useSetRecoilState(userV3TokensState)
   const setCurrentBlockNumber = useSetRecoilState(currentBlockNumberState)
   const setSelectedPairId = useSetRecoilState(selectedPairIdState)
   const setWalletModalOpen = useSetRecoilState(walletModalOpenState)
   const setOperation = useSetRecoilState(selectedOperation)
   const setExchange = useSetRecoilState(selectedExchange)
 
-  const userPositionsV3 = useUserPositions(
-    VanillaVersion.V1_1,
-    walletAddress || account,
-  )
-  const userPositionsV2 = useUserPositions(
-    VanillaVersion.V1_0,
-    walletAddress || account,
-  )
+  const [userPositionsV2, setUserPositionsV2] =
+    useRecoilState(userV2TokensState)
+  const [userPositionsV3, setUserPositionsV3] =
+    useRecoilState(userV3TokensState)
 
   useEffect(() => {
     setExchange(activeExchange)
     setV2Tokens(initialTokens?.v2 || [])
     setV3Tokens(initialTokens?.v3 || [])
-    setV2UserTokens(initialTokens?.userPositionsV2 || [])
-    setV3UserTokens(initialTokens?.userPositionsV3 || [])
+    setUserPositionsV2(initialTokens?.userPositionsV2 || [])
+    setUserPositionsV3(initialTokens?.userPositionsV3 || [])
     setETHPrice(ethPrice)
     setCurrentBlockNumber(currentBlockNumber)
   }, [
-    initialTokens?.v2,
-    initialTokens?.v3,
-    initialTokens?.userPositionsV2,
-    initialTokens?.userPositionsV3,
+    initialTokens,
     setETHPrice,
     ethPrice,
     setCurrentBlockNumber,
@@ -305,8 +295,8 @@ const BodyContent = ({
     setV3Tokens,
     setExchange,
     activeExchange,
-    setV3UserTokens,
-    setV2UserTokens,
+    setUserPositionsV3,
+    setUserPositionsV2,
   ])
 
   const profitablePositions = useCallback(() => {
