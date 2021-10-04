@@ -32,15 +32,15 @@ export function TokenLogo({
   ) : null
 
   // Uniswap v2 liquidity warnings
-  const liquidity = row?.original?.reserve
-    ? row?.original?.reserve < Liquidity.LOW
+  const liquidity = row?.original?.reserveETH
+    ? row?.original?.reserveETH < Liquidity.LOW
       ? Liquidity.LOW
-      : row?.original?.reserve < Liquidity.MEDIUM
+      : row?.original?.reserveETH < Liquidity.MEDIUM
       ? Liquidity.MEDIUM
       : Liquidity.HIGH
     : Liquidity.LOW
   const warningSrc: false | string =
-    (liquidityWarning && row?.original?.reserve) ||
+    (liquidityWarning && row?.original?.reserveETH) ||
     row?.original?.symbol === 'AMPL'
       ? liquidity === Liquidity.LOW
         ? alertSrc
