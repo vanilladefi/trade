@@ -33,9 +33,9 @@ export function TokenLogo({
 
   // Uniswap v2 liquidity warnings
   const liquidity = row?.original?.reserveETH
-    ? row?.original?.reserveETH < Liquidity.LOW
+    ? Number(row?.original?.reserveETH) < Liquidity.LOW
       ? Liquidity.LOW
-      : row?.original?.reserveETH < Liquidity.MEDIUM
+      : Number(row?.original?.reserveETH) < Liquidity.MEDIUM
       ? Liquidity.MEDIUM
       : Liquidity.HIGH
     : Liquidity.LOW
