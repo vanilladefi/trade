@@ -363,7 +363,7 @@ const useTradeEngine = (
     return false
   }, [trade])
 
-  // Estimate gas fees
+  // Estimate gas fees TODO: Make estimation possible with only provider instead of requiring a signer. Not possible now with v1.1 positions.
   useEffect(() => {
     const gasEstimation = async () => {
       if (trade && provider && signer && token0) {
@@ -401,7 +401,7 @@ const useTradeEngine = (
     })
     !notEnoughFunds() && debouncedGasEstimation()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [trade])
+  }, [trade, signer, slippageTolerance])
 
   // Estimate LP fees
   useEffect(() => {
