@@ -1,42 +1,43 @@
 /* eslint-disable prefer-const */
 import { providers } from 'ethers'
-import { useCallback, useEffect } from 'react'
-import { useRecoilCallback, useSetRecoilState } from 'recoil'
+import { useEffect } from 'react'
+import { useRecoilState, useSetRecoilState } from 'recoil'
 import { signerState, storedWalletConnectorState } from 'state/wallet'
-import { useWallet, Wallet } from 'use-wallet'
+import { Connectors, useWallet, Wallet } from 'use-wallet'
 import { network } from 'utils/config'
 
 type JsonRpcWallet = Wallet<providers.JsonRpcProvider>
 
-const WalletConnector = (): (() => void) => {
+const WalletConnector = (): ((
+  connector?: keyof Connectors,
+) => Promise<void>) => {
   const {
     status,
     error,
     connect,
     reset,
     type: walletType,
-    connector,
     ethereum,
   } = useWallet<JsonRpcWallet>()
-  const setStoredWalletConnector = useSetRecoilState(storedWalletConnectorState)
+
+  const [storedWalletConnector, setStoredWalletConnector] = useRecoilState(
+    storedWalletConnectorState,
+  )
   const setSigner = useSetRecoilState(signerState)
 
-  const connectWallet = useRecoilCallback(
-    ({ snapshot }) =>
-      async () => {
-        const stored = await snapshot.getPromise(storedWalletConnectorState)
-        if (!walletType && status === 'disconnected' && stored) connect(stored)
-      },
-    [walletType, status, connect],
-  )
-
-  const callback = useCallback(() => {
-    connectWallet()
-  }, [connectWallet])
-
-  useEffect(() => {
-    connectWallet()
-  }, [connectWallet])
+  const connectWallet = async (connector?: keyof Connectors) => {
+    if (
+      !connector &&
+      !walletType &&
+      status === 'disconnected' &&
+      storedWalletConnector
+    ) {
+      connect(storedWalletConnector)
+    } else {
+      connect(connector)
+      setStoredWalletConnector(connector)
+    }
+  }
 
   useEffect(() => {
     if (ethereum) {
@@ -44,7 +45,7 @@ const WalletConnector = (): (() => void) => {
         ethereum as providers.ExternalProvider,
         network,
       ).getSigner()
-
+      console.log('EBIN?')
       setSigner(ethersSigner)
     } else {
       setSigner(null)
@@ -52,14 +53,10 @@ const WalletConnector = (): (() => void) => {
   }, [ethereum, setSigner])
 
   useEffect(() => {
-    setStoredWalletConnector(connector)
-  }, [setStoredWalletConnector, connector])
-
-  useEffect(() => {
     if (status === 'error') reset()
   }, [status, reset, error])
 
-  return callback
+  return connectWallet
 }
 
 export default WalletConnector

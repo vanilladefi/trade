@@ -1,9 +1,10 @@
 import { ethers } from 'ethers'
+import useWalletConnector from 'hooks/useWalletConnector'
 import dynamic from 'next/dynamic'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { walletModalOpenState } from 'state/wallet'
-import { Connectors, useWallet, Wallet } from 'use-wallet'
+import { useWallet, Wallet } from 'use-wallet'
 import { Alignment, Justification, Width } from './grid/Flex'
 import { ButtonColor, ButtonSize } from './input/Button'
 import { IconUrls } from './typography/Icon'
@@ -24,21 +25,18 @@ const Column = dynamic(import('components/grid/Flex').then((mod) => mod.Column))
 const Row = dynamic(import('components/grid/Flex').then((mod) => mod.Row))
 
 const ProviderOptions: React.FC = () => {
-  const wallet = useWallet()
+  const { status } = useWallet()
+  const connectWallet = useWalletConnector()
 
-  const connectWallet = async (connector: keyof Connectors) => {
-    await wallet.connect(connector)
-  }
+  const [errorMessage, setErrorMessage] = useState('')
 
-  const [errorMessage, setErrorMessage] = React.useState('')
-
-  React.useEffect(() => {
-    if (wallet.status === 'error') {
+  useEffect(() => {
+    if (status === 'error') {
       setErrorMessage(
         'Wallet connection failed. Check that you are using the Ethereum mainnet.',
       )
     }
-  }, [wallet.status])
+  }, [status])
 
   return (
     <Column>

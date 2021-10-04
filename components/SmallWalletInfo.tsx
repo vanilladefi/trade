@@ -37,7 +37,7 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
   ethBalance,
   walletAddress,
 }: SmallWalletInfoProps) => {
-  const { status, balance, connector } = useWallet()
+  const { status, balance, connector, account } = useWallet()
   const [walletModalOpen, setWalletModalOpen] =
     useRecoilState(walletModalOpenState)
 
@@ -86,7 +86,7 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
     return returnedBalance.toFixed(3)
   }, [balance, ethBalance])
 
-  return !walletAddress ? (
+  return !walletAddress && !account ? (
     <WalletConnectButton />
   ) : (
     <ButtonGroup grow={grow}>
