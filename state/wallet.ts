@@ -4,9 +4,16 @@ import { recoilPersist } from 'recoil-persist'
 import type { Connectors } from 'use-wallet'
 import { defaultProvider } from 'utils/config'
 
-const { persistAtom } =
+const { persistAtom: persistLocalStorage } =
   typeof window !== 'undefined'
-    ? recoilPersist({ key: 'vanilla-walletstate' })
+    ? recoilPersist({ key: 'vanilla-walletstate', storage: localStorage })
+    : {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        persistAtom: () => {},
+      }
+const { persistAtom: persistSessionStorage } =
+  typeof window !== 'undefined'
+    ? recoilPersist({ key: 'vanilla-walletstate', storage: sessionStorage })
     : {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         persistAtom: () => {},
@@ -20,7 +27,7 @@ export const walletModalOpenState = atom<boolean>({
 export const storedWalletConnectorState = atom<keyof Connectors | null>({
   key: 'storedWalletConnectorState',
   default: null,
-  effects_UNSTABLE: [persistAtom],
+  effects_UNSTABLE: [persistSessionStorage],
 })
 
 export const signerState = atom<providers.JsonRpcSigner | null>({
@@ -38,5 +45,5 @@ export const providerState = atom<providers.JsonRpcProvider>({
 export const walletAddressState = atom<string | null>({
   key: 'walletAddress',
   default: null,
-  effects_UNSTABLE: [persistAtom],
+  effects_UNSTABLE: [persistLocalStorage],
 })

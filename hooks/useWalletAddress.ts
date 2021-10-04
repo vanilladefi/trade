@@ -15,6 +15,7 @@ function useWalletAddress(prerenderProps?: PrerenderProps): {
     const getWalletAddress = async () => {
       if (signer) {
         const checkSummedAddress = isAddress(await signer.getAddress())
+        console.log(checkSummedAddress)
         if (checkSummedAddress) {
           setWalletAddress(checkSummedAddress)
         }
