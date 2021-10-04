@@ -1,5 +1,6 @@
 import { utils as ethersUtils } from 'ethers'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
+import useWalletConnector from 'hooks/useWalletConnector'
 import dynamic from 'next/dynamic'
 import { useCallback, useMemo } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
@@ -40,6 +41,7 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
   const { status, balance, connector, account } = useWallet()
   const [walletModalOpen, setWalletModalOpen] =
     useRecoilState(walletModalOpenState)
+  useWalletConnector()
 
   const { balance: legacyBalance } = useVanillaGovernanceToken(
     VanillaVersion.V1_0,

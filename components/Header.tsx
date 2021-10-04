@@ -28,7 +28,7 @@ const Header = ({
           <Wrapper>
             <div className='innerPadding'>
               <div className='navBar'>
-                <Link href={`/${rest.walletAddress}`}>
+                <Link href={`/${rest.walletAddress ? rest.walletAddress : ''}`}>
                   <a className='logo'>
                     <Logo />
                   </a>
