@@ -363,7 +363,12 @@ export default function MyPositions({
 
   const initialSortBy = useMemo(() => [{ id: 'value', desc: true }], [])
 
-  return userPositions || initialTokens?.userPositionsV2 ? (
+  const data = useMemo(
+    () => userPositions || initialTokens?.userPositionsV2 || [],
+    [initialTokens?.userPositionsV2, userPositions],
+  )
+
+  return data && data.length > 0 ? (
     <>
       <Modal
         open={!!liquidityModalContent}
@@ -372,11 +377,7 @@ export default function MyPositions({
         {liquidityModalContent}
       </Modal>
       <Table
-        data={
-          userPositions?.length > 0
-            ? userPositions
-            : initialTokens?.userPositionsV2 || []
-        }
+        data={data}
         columns={columns}
         initialSortBy={initialSortBy}
         query={query}
