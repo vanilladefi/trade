@@ -2,7 +2,7 @@
 
 ## Developing
 
-Make sure you have `docker` and `nodejs` installed on your machine.
+Make sure you have `docker`, `docker-compose` and `nodejs` installed on your machine.
 
 Run following commands to get the dev environment up and running:
 
@@ -16,11 +16,11 @@ TEST_ACCOUNTS=["<account_key>"]
 ```
 Store the matching private key somewhere since you will need it if you want to connect Metamask wallet later.
 
-Then you can start the docker:
+Then, go back to the project root (`cd ..`), and start the platform with docker-compose:
 ```bash
 docker-compose up -d
 ```
 
-It might take a while but once it is finisehd go to localhost:3000 and you should be able to see project running.
+It might take a while but once it is finished go to localhost:3000 and you should be able to see project running.
 
-If you want to use Metamask wallet take the matching private key for account you added behind `TEST_ACCOUNT` env. Import that private key to Metamask. Connect to localhost:8584 with Metamask. If you get "Wallet connection failed. Check that you are using Ethereum network" error. Click the account icon (ball on top right corner) and go to settings -> network. Select the localhost:8584 and change the Chain ID value to `1`. After that you should be able to connect to Vanilla with your Metamask account.
+If you want to use Metamask wallet, take the matching private key for account you added behind `TEST_ACCOUNT` env. Import that private key to Metamask. Connect to localhost:8584 with Metamask. If you get "Wallet connection failed. Check that you are using Ethereum network" error, click the account icon (ball on top right corner), go to settings -> network. Select the localhost:8584 and change the Chain ID value to `1`. After that you should be able to connect to Vanilla with your Metamask account.
