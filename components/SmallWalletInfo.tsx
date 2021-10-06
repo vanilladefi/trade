@@ -1,8 +1,9 @@
-import { utils as ethersUtils } from 'ethers'
+import { BigNumber } from 'ethers'
+import { formatUnits } from 'ethers/lib/utils'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import useWalletConnector from 'hooks/useWalletConnector'
 import dynamic from 'next/dynamic'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
 import { walletModalOpenState } from 'state/wallet'
@@ -10,6 +11,7 @@ import { PrerenderProps } from 'types/content'
 import { VanillaVersion } from 'types/general'
 import { ConversionState } from 'types/migration'
 import { useWallet } from 'use-wallet'
+import { defaultProvider } from 'utils/config'
 import { BreakPoint } from './GlobalStyles/Breakpoints'
 import { Alignment, Justification } from './grid/Flex'
 import {
@@ -38,19 +40,40 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
   ethBalance,
   walletAddress,
 }: SmallWalletInfoProps) => {
+  useWalletConnector()
+
   const { status, balance, connector, account } = useWallet()
   const [walletModalOpen, setWalletModalOpen] =
     useRecoilState(walletModalOpenState)
-  useWalletConnector()
+  const [walletBalance, setWalletBalance] = useState('0')
 
   const { balance: legacyBalance } = useVanillaGovernanceToken(
     VanillaVersion.V1_0,
+    { walletAddress },
   )
   const { balance: activeVnlBalance } = useVanillaGovernanceToken(
     VanillaVersion.V1_1,
+    { walletAddress },
   )
 
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
+
+  useEffect(() => {
+    const fetchBalances = async () => {
+      const prerenderedBalance = Number(ethBalance || '0')
+      const activeBalance = formatUnits(
+        (walletAddress && (await defaultProvider.getBalance(walletAddress))) ||
+          BigNumber.from(0),
+      )
+      const returnedBalance =
+        (prerenderedBalance > 0 || Number(activeBalance) > 0) &&
+        prerenderedBalance !== Number(activeBalance)
+          ? Number(activeBalance)
+          : prerenderedBalance
+      setWalletBalance(returnedBalance.toFixed(3))
+    }
+    fetchBalances()
+  }, [balance, ethBalance, walletAddress])
 
   const getLegacyBalanceState = useCallback(() => {
     let userHasLegacyBalance = false
@@ -66,26 +89,12 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
     const prerenderedBalance = Number(Number(vnlBalance || '0').toFixed(1))
     const legacyAmount = Number(legacyBalance)
     const vnlAmount =
-      prerenderedBalance > 0 ||
-      (Number(activeVnlBalance) > 0 &&
-        prerenderedBalance !== Number(activeVnlBalance))
+      (prerenderedBalance > 0 || Number(activeVnlBalance) > 0) &&
+      prerenderedBalance !== Number(activeVnlBalance)
         ? Number(activeVnlBalance)
         : prerenderedBalance
     return legacyAmount + vnlAmount
   }, [legacyBalance, vnlBalance, activeVnlBalance])
-
-  const walletBalance = useMemo(() => {
-    const prerenderedBalance = Number(ethBalance || '0')
-    const activeBalance = Number.parseFloat(
-      ethersUtils.formatUnits(balance, 'ether'),
-    )
-    const returnedBalance =
-      prerenderedBalance > 0 ||
-      (activeBalance > 0 && prerenderedBalance !== activeBalance)
-        ? activeBalance
-        : prerenderedBalance
-    return returnedBalance.toFixed(3)
-  }, [balance, ethBalance])
 
   return !walletAddress && !account ? (
     <WalletConnectButton />

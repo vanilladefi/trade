@@ -3,12 +3,16 @@ import { BigNumber } from 'ethers'
 import { getTheGraphClient, v2 } from 'lib/graphql'
 import { isAddress, tokenListChainId, weth } from 'lib/tokens'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { PrerenderProps } from 'types/content'
 import { UniswapVersion, VanillaVersion } from 'types/general'
 import { getVnlTokenAddress, vnlDecimals } from 'utils/config/vanilla'
 import useTokenBalance from './useTokenBalance'
 import useWalletAddress from './useWalletAddress'
 
-function useVanillaGovernanceToken(version: VanillaVersion): {
+function useVanillaGovernanceToken(
+  version: VanillaVersion,
+  prerenderProps?: PrerenderProps,
+): {
   address: string
   decimals: number
   balance: string
@@ -26,7 +30,7 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
     [],
   )
 
-  const { long: walletAddress } = useWalletAddress()
+  const { long: walletAddress } = useWalletAddress(prerenderProps)
 
   const [uniswapVersion, setUniswapVersion] = useState<UniswapVersion | null>(
     null,
