@@ -24,6 +24,7 @@ import type {
   Token,
 } from 'types/trade'
 import { epoch } from 'utils/config/vanilla'
+import { LoaderWrapper } from '..'
 import { CardinalityContent } from '../Content'
 
 type Props = PrerenderProps & {
@@ -320,9 +321,12 @@ export default function MyPositions({
 
   const initialSortBy = useMemo(() => [{ id: 'value', desc: true }], [])
 
-  console.log(userPositions)
+  const data = useMemo(
+    () => userPositions || initialTokens?.userPositionsV3,
+    [userPositions, initialTokens?.userPositionsV3],
+  )
 
-  return userPositions || initialTokens?.userPositionsV3 ? (
+  return data ? (
     <>
       <Modal
         open={!!cardinalityModalContent}
@@ -331,11 +335,7 @@ export default function MyPositions({
         {cardinalityModalContent}
       </Modal>
       <Table
-        data={
-          userPositions?.length > 0
-            ? userPositions
-            : initialTokens?.userPositionsV3 || []
-        }
+        data={data}
         columns={columns}
         initialSortBy={initialSortBy}
         query={query}
@@ -346,19 +346,8 @@ export default function MyPositions({
       />
     </>
   ) : (
-    <div className='spinnerWrapper'>
+    <LoaderWrapper>
       <Dots />
-      <style jsx>{`
-        .spinnerWrapper {
-          display: flex;
-          width: 100%;
-          flex-direction: row;
-          justify-content: center;
-          align-items: center;
-          height: 80px;
-          --iconsize: 2rem;
-        }
-      `}</style>
-    </div>
+    </LoaderWrapper>
   )
 }

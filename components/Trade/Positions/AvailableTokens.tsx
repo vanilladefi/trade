@@ -2,7 +2,6 @@ import { ButtonColor, ButtonSize } from 'components/input/Button'
 import { Dots } from 'components/Spinner'
 import { Columns } from 'components/Table'
 import { TokenLogo } from 'components/Table/Cells'
-import Wrapper from 'components/Wrapper'
 import useTokenSearch from 'hooks/useTokenSearch'
 import dynamic from 'next/dynamic'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -13,6 +12,7 @@ import { PrerenderProps } from 'types/content'
 import { UniswapVersion } from 'types/general'
 import { HandleBuyClick, Liquidity, ListColumn, Token } from 'types/trade'
 import { hiddenTokens } from 'utils/config/vanilla'
+import { LoaderWrapper } from '.'
 import {
   CardinalityContent,
   LowLiquidityContent,
@@ -29,30 +29,6 @@ const Table = dynamic(import('components/Table').then((mod) => mod.Table))
 type Props = PrerenderProps & {
   onBuyClick: HandleBuyClick
   uniswapVersion: UniswapVersion
-}
-
-type WrapperProps = {
-  children: React.ReactNode
-}
-
-const LoaderWrapper: React.FC = ({ children }: WrapperProps) => {
-  return (
-    <>
-      <Wrapper>
-        <div>{children}</div>
-      </Wrapper>
-      <style jsx>{`
-        div {
-          position: relative;
-          display: flex;
-          width: 100vw;
-          padding: var(--tablepadding);
-          justify-content: center;
-          align-items: center;
-        }
-      `}</style>
-    </>
-  )
 }
 
 export default function AvailableTokens({
