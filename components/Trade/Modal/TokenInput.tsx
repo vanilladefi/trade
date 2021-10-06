@@ -293,6 +293,7 @@ const TokenInput = ({
             width: 100%;
             position: relative;
             margin-top: 1rem;
+            padding: 1rem 1.2rem;
           }
           .tokenSelector {
             position: relative;
