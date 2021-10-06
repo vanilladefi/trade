@@ -9,7 +9,7 @@ import type {
   Meta,
   Row,
   TableKeyedProps,
-  TableSortByToggleProps
+  TableSortByToggleProps,
 } from 'react-table'
 import {
   useExpanded,
@@ -17,7 +17,7 @@ import {
   useGlobalFilter,
   usePagination,
   useSortBy,
-  useTable
+  useTable,
 } from 'react-table'
 import { useRecoilValue } from 'recoil'
 import { currentBlockNumberState } from 'state/meta'
@@ -26,7 +26,7 @@ import type {
   LeftOrRightAlignable,
   Liquidity,
   ListColumn,
-  Token
+  Token,
 } from 'types/trade'
 import PageControl from './PageControl'
 
@@ -100,7 +100,7 @@ const Table: React.FC<Props<Token>> = <D extends Record<string, unknown>>({
   )
 
   useEffect(() => {
-    uniswapVersion console.log(data)
+    console.log(data)
     return () => {
       console.log(data)
     }

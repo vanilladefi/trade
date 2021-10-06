@@ -59,10 +59,12 @@ const TradeInfoDisplay: React.FC<TradeInfoProps> = ({
             USD
           </span>
         </div>
-        <div className='tradeInfoRow'>
-          <span>Estimated gas</span>
-          <span>{estimatedGas} ETH</span>
-        </div>
+        {estimatedGas && (
+          <div className='tradeInfoRow'>
+            <span>Estimated gas</span>
+            <span>{estimatedGas} ETH</span>
+          </div>
+        )}
         <div className='tradeInfoRow'>
           <span>Liquidity provider fees</span>
           <span>
