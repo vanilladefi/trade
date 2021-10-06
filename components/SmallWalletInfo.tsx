@@ -66,9 +66,9 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
     const prerenderedBalance = Number(Number(vnlBalance || '0').toFixed(1))
     const legacyAmount = Number(legacyBalance)
     const vnlAmount =
-      prerenderedBalance > 0 &&
-      Number(activeVnlBalance) > 0 &&
-      prerenderedBalance !== Number(activeVnlBalance)
+      prerenderedBalance > 0 ||
+      (Number(activeVnlBalance) > 0 &&
+        prerenderedBalance !== Number(activeVnlBalance))
         ? Number(activeVnlBalance)
         : prerenderedBalance
     return legacyAmount + vnlAmount
@@ -80,9 +80,8 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
       ethersUtils.formatUnits(balance, 'ether'),
     )
     const returnedBalance =
-      prerenderedBalance > 0 &&
-      activeBalance > 0 &&
-      prerenderedBalance !== activeBalance
+      prerenderedBalance > 0 ||
+      (activeBalance > 0 && prerenderedBalance !== activeBalance)
         ? activeBalance
         : prerenderedBalance
     return returnedBalance.toFixed(3)
