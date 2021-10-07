@@ -45,7 +45,6 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
   const { status, balance, connector, account } = useWallet()
   const [walletModalOpen, setWalletModalOpen] =
     useRecoilState(walletModalOpenState)
-  const [walletBalance, setWalletBalance] = useState('0')
 
   const { balance: legacyBalance } = useVanillaGovernanceToken(
     VanillaVersion.V1_0,
@@ -56,24 +55,30 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
     { walletAddress },
   )
 
+  const [walletBalance, setWalletBalance] = useState(
+    Number(ethBalance || '0').toFixed(3),
+  )
+  const [walletVnlBalance, setWalletVnlBalance] = useState(
+    Number(Number(vnlBalance || '0').toFixed(1)),
+  )
+
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
 
   useEffect(() => {
     const fetchBalances = async () => {
-      const prerenderedBalance = Number(ethBalance || '0')
       const activeBalance = formatUnits(
         (walletAddress && (await defaultProvider.getBalance(walletAddress))) ||
           BigNumber.from(0),
       )
       const returnedBalance =
-        (prerenderedBalance > 0 || Number(activeBalance) > 0) &&
-        prerenderedBalance !== Number(activeBalance)
+        (Number(walletBalance) > 0 || Number(activeBalance) > 0) &&
+        Number(walletBalance) !== Number(activeBalance)
           ? Number(activeBalance)
-          : prerenderedBalance
+          : Number(walletBalance)
       setWalletBalance(returnedBalance.toFixed(3))
     }
     fetchBalances()
-  }, [balance, ethBalance, walletAddress])
+  }, [balance, ethBalance, walletAddress, walletBalance])
 
   const getLegacyBalanceState = useCallback(() => {
     let userHasLegacyBalance = false
@@ -85,16 +90,15 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
     return userHasLegacyBalance
   }, [legacyBalance])
 
-  const getVnlBalance = useCallback(() => {
-    const prerenderedBalance = Number(Number(vnlBalance || '0').toFixed(1))
+  useEffect(() => {
     const legacyAmount = Number(legacyBalance)
     const vnlAmount =
-      (prerenderedBalance > 0 || Number(activeVnlBalance) > 0) &&
-      prerenderedBalance !== Number(activeVnlBalance)
+      (walletVnlBalance > 0 || Number(activeVnlBalance) > 0) &&
+      walletVnlBalance !== Number(activeVnlBalance)
         ? Number(activeVnlBalance)
-        : prerenderedBalance
-    return legacyAmount + vnlAmount
-  }, [legacyBalance, vnlBalance, activeVnlBalance])
+        : walletVnlBalance
+    setWalletVnlBalance(legacyAmount + vnlAmount)
+  }, [legacyBalance, walletVnlBalance, activeVnlBalance])
 
   return !walletAddress && !account ? (
     <WalletConnectButton />
@@ -119,7 +123,7 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
             : undefined
         }
       >
-        {getVnlBalance()} VNL
+        {walletVnlBalance} VNL
       </Button>
       <Button
         onClick={() => {
