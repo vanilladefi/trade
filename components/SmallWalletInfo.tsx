@@ -3,7 +3,7 @@ import { formatUnits } from 'ethers/lib/utils'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import useWalletConnector from 'hooks/useWalletConnector'
 import dynamic from 'next/dynamic'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
 import { walletModalOpenState } from 'state/wallet'
@@ -80,16 +80,6 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
     fetchBalances()
   }, [balance, ethBalance, walletAddress, walletBalance])
 
-  const getLegacyBalanceState = useCallback(() => {
-    let userHasLegacyBalance = false
-    try {
-      userHasLegacyBalance = Number(legacyBalance) > 0
-    } catch (e) {
-      userHasLegacyBalance = true
-    }
-    return userHasLegacyBalance
-  }, [legacyBalance])
-
   useEffect(() => {
     const legacyAmount = Number(legacyBalance)
     const vnlAmount =
@@ -106,7 +96,7 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
     <ButtonGroup grow={grow}>
       <Button
         onClick={() => {
-          getLegacyBalanceState() &&
+          legacyBalance !== '0' &&
             setTokenConversionState(ConversionState.LOADING)
           setWalletModalOpen(!walletModalOpen)
         }}
@@ -116,9 +106,9 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
         bordered
         noRightBorder
         grow={grow}
-        opacity={getLegacyBalanceState() ? Opacity.SEETHROUGH : undefined}
+        opacity={legacyBalance !== '0' ? Opacity.SEETHROUGH : undefined}
         title={
-          getLegacyBalanceState()
+          legacyBalance !== '0'
             ? "You've got unconverted v1.0 balances!"
             : undefined
         }
