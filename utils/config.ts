@@ -36,6 +36,7 @@ export const defaultProvider =
 export const blockDeadlineThreshold = 60000 // 600 seconds added to the latest block timestamp (10 minutes)
 
 export const conservativeGasLimit = 800_000
+export const conservativeMigrationGasLimit = 120_000
 export const ethersOverrides = { gasLimit: conservativeGasLimit }
 
 export const epoch = Number(process.env.NEXT_PUBLIC_EPOCH) || 0
