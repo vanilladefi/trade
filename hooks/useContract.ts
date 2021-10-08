@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 import { useRecoilValue } from 'recoil'
 import { signerState } from 'state/wallet'
 import ABI from 'types/abis'
+import { defaultProvider } from 'utils/config'
 
 export function useContract(
   address: string | undefined,
@@ -13,9 +14,9 @@ export function useContract(
   const signer = useRecoilValue(signerState)
 
   return useMemo(() => {
-    if (!address || !ABI || !signer) return null
+    if (!address || !ABI) return null
     try {
-      return getContract(address, ABI, signer)
+      return getContract(address, ABI, signer || defaultProvider)
     } catch (error) {
       console.error('Failed to get contract', error)
       return null

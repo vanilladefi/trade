@@ -45,6 +45,7 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
   const { status, balance, connector, account } = useWallet()
   const [walletModalOpen, setWalletModalOpen] =
     useRecoilState(walletModalOpenState)
+  const setTokenConversionState = useSetRecoilState(tokenConversionState)
 
   const { balance: legacyBalance } = useVanillaGovernanceToken(
     VanillaVersion.V1_0,
@@ -61,8 +62,6 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
   const [walletVnlBalance, setWalletVnlBalance] = useState(
     Number(Number(vnlBalance || '0').toFixed(1)),
   )
-
-  const setTokenConversionState = useSetRecoilState(tokenConversionState)
 
   useEffect(() => {
     const fetchBalances = async () => {

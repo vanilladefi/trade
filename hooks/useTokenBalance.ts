@@ -1,10 +1,10 @@
 import { Token, TokenAmount } from '@uniswap/sdk-core'
-import { BigNumber, Contract, providers, Signer } from 'ethers'
+import { BigNumber, Contract, providers } from 'ethers'
 import { isAddress, tokenListChainId, weth } from 'lib/tokens'
 import { useCallback, useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { currentBlockNumberState } from 'state/meta'
-import { providerState, signerState } from 'state/wallet'
+import { providerState } from 'state/wallet'
 import { useTokenContract } from './useContract'
 
 function useTokenBalance(
@@ -13,7 +13,6 @@ function useTokenBalance(
   decimals?: string | number | null,
   wethAsEth?: boolean,
 ): { formatted: string; raw: BigNumber; decimals: number } {
-  const signer = useRecoilValue(signerState)
   const provider = useRecoilValue(providerState)
   const blockNumber = useRecoilValue(currentBlockNumberState)
 
@@ -26,15 +25,15 @@ function useTokenBalance(
     async (
       tokenAddress: string,
       contract: Contract,
-      signerOrProvider: Signer | providers.Provider,
+      provider: providers.Provider,
     ) => {
       let raw: BigNumber = BigNumber.from('0')
       if (
         wethAsEth &&
         tokenAddress.toLowerCase() === weth.address.toLowerCase() &&
-        signerOrProvider
+        provider
       ) {
-        raw = await signerOrProvider.getBalance(walletAddress, 'latest')
+        raw = await provider.getBalance(walletAddress, 'latest')
       } else {
         raw = await contract.balanceOf(walletAddress)
       }
@@ -46,7 +45,6 @@ function useTokenBalance(
   useEffect(() => {
     const getBalances = async () => {
       if (
-        tokenAddress &&
         isAddress(tokenAddress) &&
         isAddress(walletAddress) &&
         decimals &&
@@ -79,15 +77,10 @@ function useTokenBalance(
       }
     }
     getBalances()
-    return () => {
-      setRaw(BigNumber.from('0'))
-      setFormatted('')
-    }
   }, [
     contract,
     decimals,
     getRawBalance,
-    signer,
     tokenAddress,
     walletAddress,
     wethAsEth,
