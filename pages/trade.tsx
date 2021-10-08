@@ -47,7 +47,7 @@ const HeaderContent = ({ initialTokens }: PrerenderProps): JSX.Element => {
   const { USD: totalOwnedUSD, ETH: totalOwnedETH } = useTotalOwned({
     initialTokens: initialTokens,
   })
-  const { price } = useVanillaGovernanceToken(VanillaVersion.V1_0)
+  const { price } = useVanillaGovernanceToken(VanillaVersion.V1_1)
 
   const userV2Tokens = useRecoilValue(userV2TokensState)
   const userV3Tokens = useRecoilValue(userV3TokensState)

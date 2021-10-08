@@ -28,3 +28,7 @@ export function getVanillaRouter(
     ? VanillaV1Router02__factory.connect(routerAddress, signerOrProvider)
     : new Contract(routerAddress, v1abi, signerOrProvider)
 }
+
+export const vnlPools = {
+  ETH: '0xff6949065aebb4be59d30c970694a7495da0c0ff',
+}

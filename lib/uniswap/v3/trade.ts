@@ -215,7 +215,7 @@ export async function constructTrade(
   tokenReceived: Token,
   tokenPaid: Token,
   tradeType: TradeType,
-): Promise<V3Trade> {
+): Promise<V3Trade | null> {
   const defaultFeeTier = FeeAmount.MEDIUM
   try {
     const tokenToTrade =
@@ -249,25 +249,31 @@ export async function constructTrade(
         parsedAmountTraded,
         feeTier.valueOf(),
       )
-      quote = amountOut
+      if (amountOut) {
+        quote = amountOut
+      }
     } else {
       const amountIn = await swapOperation.estimateAmountIn(
         parsedAmountTraded,
         feeTier.valueOf(),
       )
-      quote = amountIn
+      if (amountIn) {
+        quote = amountIn
+      }
     }
 
     const formattedQuote = formatUnits(quote, quotedToken.decimals)
     const parsedQuote = tryParseAmount(formattedQuote, quotedToken)
 
-    const trade: V3Trade = new V3Trade(
-      tradeType === TradeType.EXACT_INPUT ? parsedAmountTraded : parsedQuote,
-      tradeType === TradeType.EXACT_INPUT ? parsedQuote : parsedAmountTraded,
-      tradeType,
-    )
-
-    return trade
+    if (parsedQuote && parsedAmountTraded) {
+      return new V3Trade(
+        tradeType === TradeType.EXACT_INPUT ? parsedAmountTraded : parsedQuote,
+        tradeType === TradeType.EXACT_INPUT ? parsedQuote : parsedAmountTraded,
+        tradeType,
+      )
+    } else {
+      return null
+    }
   } catch (error) {
     console.error(error)
     throw error

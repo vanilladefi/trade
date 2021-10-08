@@ -1,10 +1,17 @@
-import { Token, TokenAmount } from '@uniswap/sdk-core'
+import {
+  Token as UniswapToken,
+  TokenAmount,
+  TradeType,
+} from '@uniswap/sdk-core'
 import { BigNumber } from 'ethers'
-import { getTheGraphClient, v2 } from 'lib/graphql'
 import { isAddress, tokenListChainId, weth } from 'lib/tokens'
+import { constructTrade } from 'lib/uniswap/v3/trade'
+import { vnlPools } from 'lib/vanilla/contracts'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { PrerenderProps } from 'types/content'
 import { UniswapVersion, VanillaVersion } from 'types/general'
+import { Token } from 'types/trade'
+import { defaultProvider } from 'utils/config'
 import { getVnlTokenAddress, vnlDecimals } from 'utils/config/vanilla'
 import useTokenBalance from './useTokenBalance'
 import useWalletAddress from './useWalletAddress'
@@ -45,7 +52,7 @@ function useVanillaGovernanceToken(
 
   const getTokenAmount = useCallback(() => {
     if (versionAddress && isAddress(versionAddress)) {
-      const token = new Token(
+      const token = new UniswapToken(
         tokenListChainId,
         versionAddress || '',
         vnlDecimals,
@@ -58,20 +65,34 @@ function useVanillaGovernanceToken(
   useEffect(() => {
     if (versionAddress && uniswapVersion) {
       const getTokenPrice = async () => {
-        const variables = {
-          weth: weth.address.toLowerCase(),
-          tokenAddresses: [versionAddress.toLowerCase()],
+        const vanillaToken: Token = {
+          chainId: tokenListChainId.toString(),
+          address: versionAddress,
+          decimals: vnlDecimals.toString(),
+          pairId: vnlPools.ETH,
+          logoColor: '',
+          symbol: 'VNL',
         }
-        const { http } = getTheGraphClient(UniswapVersion.v2)
-        if (http) {
-          const response = await http.request(v2.TokenInfoQuery, variables)
-          const data = [...response?.tokensAB, ...response?.tokensBA]
-          data[0] && setVnlEthPrice(data[0].price)
+        const trade = await constructTrade(
+          defaultProvider,
+          '1000',
+          weth,
+          vanillaToken,
+          TradeType.EXACT_INPUT,
+        )
+        if (trade?.executionPrice) {
+          setVnlEthPrice(trade.executionPrice.toSignificant())
         }
       }
       getTokenPrice()
     }
-  }, [uniswapVersion, version, versionAddress])
+  }, [
+    prerenderProps?.vnlBalance,
+    uniswapVersion,
+    version,
+    versionAddress,
+    vnlBalance,
+  ])
 
   useEffect(() => {
     setVersionAddress(
