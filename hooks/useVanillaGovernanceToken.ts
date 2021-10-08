@@ -62,6 +62,7 @@ function useVanillaGovernanceToken(
     }
   }, [versionAddress, vnlBalanceRaw])
 
+  // TODO: Separate as getVnlPrice(vanillaVersion) under lib/vanilla -> SDK
   useEffect(() => {
     if (versionAddress && uniswapVersion) {
       const getTokenPrice = async () => {
