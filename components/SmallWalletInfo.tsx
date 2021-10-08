@@ -67,6 +67,7 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
     const fetchBalances = async () => {
       const activeBalance = formatUnits(
         (walletAddress && (await defaultProvider.getBalance(walletAddress))) ||
+          balance ||
           BigNumber.from(0),
       )
       const returnedBalance =
