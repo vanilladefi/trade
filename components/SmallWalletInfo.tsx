@@ -60,7 +60,7 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
     Number(ethBalance || '0').toFixed(3),
   )
   const [walletVnlBalance, setWalletVnlBalance] = useState(
-    Number(Number(vnlBalance || '0').toFixed(1)),
+    Number(vnlBalance || '0').toFixed(1),
   )
 
   useEffect(() => {
@@ -83,11 +83,11 @@ const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
   useEffect(() => {
     const legacyAmount = Number(legacyBalance)
     const vnlAmount =
-      (walletVnlBalance > 0 || Number(activeVnlBalance) > 0) &&
-      walletVnlBalance !== Number(activeVnlBalance)
+      (Number(walletVnlBalance) > 0 || Number(activeVnlBalance) > 0) &&
+      Number(walletVnlBalance) !== Number(activeVnlBalance)
         ? Number(activeVnlBalance)
-        : walletVnlBalance
-    setWalletVnlBalance(legacyAmount + vnlAmount)
+        : Number(walletVnlBalance)
+    setWalletVnlBalance((legacyAmount + vnlAmount).toFixed(1))
   }, [legacyBalance, walletVnlBalance, activeVnlBalance])
 
   return !walletAddress && !account ? (
