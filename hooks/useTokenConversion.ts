@@ -2,7 +2,8 @@ import { formatUnits, parseUnits } from '@ethersproject/units'
 import { addDays } from 'date-fns'
 import { BigNumber, ContractTransaction } from 'ethers'
 import { isAddress } from 'lib/tokens'
-import { calculateGasMargin, snapshot } from 'lib/vanilla'
+import { snapshot } from 'lib/vanilla/migration'
+import { calculateGasMargin } from 'lib/vanilla/trades'
 import { debounce } from 'lodash'
 import { useCallback, useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
@@ -27,8 +28,8 @@ import {
 import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Router02__factory'
 import { VanillaV1Token01__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Token01__factory'
 import { VanillaV1Token02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Token02__factory'
+import { conservativeMigrationGasLimit } from 'utils/config'
 import {
-  conservativeMigrationGasLimit,
   getVanillaRouterAddress,
   getVnlTokenAddress,
   vnlDecimals,
