@@ -7,9 +7,9 @@ import {
   Trade,
   TradeType,
 } from '@uniswap/sdk'
+import { getContract, tokenListChainId } from '@vanilladefi/sdk/tokens'
 import { providers, Transaction } from 'ethers'
 import { getAddress, parseUnits } from 'ethers/lib/utils'
-import { getContract, tokenListChainId } from 'lib/tokens'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
 import { VanillaVersion } from 'types/general'
 import type { Token as UniswapToken } from 'types/trade'

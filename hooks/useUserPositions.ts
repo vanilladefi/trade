@@ -1,5 +1,5 @@
+import { getUserPositions } from '@vanilladefi/sdk/trades'
 import { isAddress } from 'ethers/lib/utils'
-import { getUserPositions } from 'lib/vanilla/trades'
 import { useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import {

@@ -1,51 +1,20 @@
-import uniswapTokens from '@uniswap/default-token-list'
-import v1_0Tokens from 'data/tokens_v1_0.json'
-import v1_1Tokens from 'data/tokens_v1_1.json'
+import {
+  getAllTokens,
+  UniswapVersion,
+  VanillaVersion,
+  weth,
+} from '@vanilladefi/sdk'
 import { BigNumber, constants, Contract, providers, Signer } from 'ethers'
 import { getAddress } from 'ethers/lib/utils'
 import { ETHPriceQueryResponse } from 'hooks/useETHPrice'
 import { getTheGraphClient, v2, v3 } from 'lib/graphql'
-import { ipfsToHttp } from 'lib/ipfs'
 import Vibrant from 'node-vibrant'
 import VanillaRouter from 'types/abis/vanillaRouter.json'
-import {
-  TokenQueryVariables,
-  UniswapVersion,
-  VanillaVersion,
-} from 'types/general'
+import { TokenQueryVariables } from 'types/general'
 import { Eligibility, Token, TokenInfoQueryResponse } from 'types/trade'
 import { UniswapV3Pool__factory } from 'types/typechain/uniswap_v3_core'
 import { chainId, defaultProvider } from 'utils/config'
 import { getVanillaRouterAddress } from 'utils/config/vanilla'
-
-export { chainId }
-
-// This is just for compatibility of local testnet with "use-wallet"
-export const tokenListChainId = chainId === 1337 ? 1 : chainId
-
-// WETH stuff
-const defaultWeth = {
-  chainId: String(1),
-  address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-  decimals: String(18),
-  symbol: 'WETH',
-  name: 'Wrapped Ether',
-  logoURI: ipfsToHttp(
-    'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
-  ),
-  logoColor: null,
-  pairId: null,
-  price: null,
-  priceHistorical: null,
-  liquidity: null,
-  priceChange: null,
-}
-export const weth: Token =
-  getAllTokens(VanillaVersion.V1_0)?.find(
-    (token) =>
-      token.chainId === String(tokenListChainId) &&
-      token.symbol === defaultWeth.symbol,
-  ) || defaultWeth
 
 export const getTokenInfoQueryVariables = (
   version: VanillaVersion,
@@ -76,67 +45,6 @@ export const getTokenInfoQueryVariables = (
     }
   }
   return variables
-}
-
-export function getAllTokens(version: VanillaVersion): Token[] {
-  // Convert TokenList format to our own format
-  const defaultTokens: Token[] = uniswapTokens?.tokens
-    .map((t) => JSON.parse(JSON.stringify(t))) // Needed for casting to Token[] format
-    .map((t) => ({
-      ...t,
-      chainId: String(t.chainId),
-      decimals: String(t.decimals),
-    }))
-
-  let additionalTokens
-  switch (version) {
-    case VanillaVersion.V1_0:
-      additionalTokens = v1_0Tokens
-      break
-    case VanillaVersion.V1_1:
-      additionalTokens = v1_1Tokens
-      break
-    default:
-      additionalTokens = v1_1Tokens
-  }
-
-  const vanillaTokens: Token[] = additionalTokens
-    .map((t) => JSON.parse(JSON.stringify(t))) // Needed for casting to Token[] format
-    .map((t) => ({
-      ...t,
-      chainId: String(t.chainId),
-      decimals: String(t.decimals),
-    }))
-
-  let allTokens
-  switch (version) {
-    case VanillaVersion.V1_0:
-      allTokens = [...defaultTokens, ...vanillaTokens]
-      break
-    case VanillaVersion.V1_1:
-      allTokens = [...vanillaTokens]
-      break
-    default:
-      allTokens = [...vanillaTokens]
-  }
-
-  // include only tokens with specified 'chainId' and exclude WETH
-  return allTokens
-    .filter(
-      (token) =>
-        token.chainId === String(tokenListChainId) &&
-        token.symbol !== defaultWeth.symbol,
-    )
-    .map((t) => ({
-      ...t,
-      logoURI: ipfsToHttp(t.logoURI),
-      logoColor: null,
-      pairId: null,
-      price: null,
-      priceHistorical: null,
-      liquidity: null,
-      priceChange: null,
-    }))
 }
 
 /**

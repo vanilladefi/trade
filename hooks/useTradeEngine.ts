@@ -6,17 +6,17 @@ import {
   TradeType,
 } from '@uniswap/sdk-core'
 import { FeeAmount } from '@uniswap/v3-sdk'
-import { BigNumber, Transaction } from 'ethers'
-import { formatUnits, isAddress, parseUnits } from 'ethers/lib/utils'
-import { tokenListChainId } from 'lib/tokens'
-import { TransactionProps } from 'lib/uniswap'
-import * as uniV2 from 'lib/uniswap/v2/trade'
-import * as uniV3 from 'lib/uniswap/v3/trade'
+import { tokenListChainId } from '@vanilladefi/sdk/tokens'
 import {
   calculateGasMargin,
   estimateGas,
   estimateReward,
-} from 'lib/vanilla/trades'
+} from '@vanilladefi/sdk/trades'
+import { BigNumber, Transaction } from 'ethers'
+import { formatUnits, isAddress, parseUnits } from 'ethers/lib/utils'
+import { TransactionProps } from 'lib/uniswap'
+import * as uniV2 from 'lib/uniswap/v2/trade'
+import * as uniV3 from 'lib/uniswap/v3/trade'
 import { debounce } from 'lodash'
 import { Dispatch, SetStateAction, useCallback, useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'

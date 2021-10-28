@@ -1,6 +1,10 @@
+import {
+  addData,
+  addGraphInfo,
+  getTokenInfoQueryVariables,
+} from '@vanilladefi/sdk/tokens'
 import { getAverageBlockCountPerHour } from 'lib/block'
 import { getTheGraphClient, v2, v3 } from 'lib/graphql'
-import { addData, addGraphInfo, getTokenInfoQueryVariables } from 'lib/tokens'
 import { useEffect } from 'react'
 import { useRecoilCallback, useRecoilValue } from 'recoil'
 import { currentBlockNumberState, currentETHPrice } from 'state/meta'

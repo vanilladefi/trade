@@ -1,4 +1,4 @@
-import { isAddress } from 'lib/tokens'
+import { isAddress } from '@vanilladefi/sdk/tokens'
 import { useEffect, useMemo } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { signerState, walletAddressState } from 'state/wallet'

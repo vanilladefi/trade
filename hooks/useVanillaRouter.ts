@@ -1,5 +1,5 @@
+import { getVanillaRouter } from '@vanilladefi/sdk/contracts'
 import { Contract } from 'ethers'
-import { getVanillaRouter } from 'lib/vanilla/contracts'
 import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState, signerState } from 'state/wallet'

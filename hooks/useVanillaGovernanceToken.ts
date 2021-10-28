@@ -3,10 +3,10 @@ import {
   TokenAmount,
   TradeType,
 } from '@uniswap/sdk-core'
+import { chainId, vnlPools, weth } from '@vanilladefi/sdk'
+import { isAddress } from '@vanilladefi/sdk/tokens'
 import { BigNumber } from 'ethers'
-import { isAddress, tokenListChainId, weth } from 'lib/tokens'
 import { constructTrade } from 'lib/uniswap/v3/trade'
-import { vnlPools } from 'lib/vanilla/contracts'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { PrerenderProps } from 'types/content'
 import { UniswapVersion, VanillaVersion } from 'types/general'
@@ -52,22 +52,18 @@ function useVanillaGovernanceToken(
 
   const getTokenAmount = useCallback(() => {
     if (versionAddress && isAddress(versionAddress)) {
-      const token = new UniswapToken(
-        tokenListChainId,
-        versionAddress || '',
-        vnlDecimals,
-      )
+      const token = new UniswapToken(chainId, versionAddress || '', vnlDecimals)
       const tokenAmount = new TokenAmount(token, vnlBalanceRaw.toString())
       return tokenAmount
     }
   }, [versionAddress, vnlBalanceRaw])
 
-  // TODO: Separate as getVnlPrice(vanillaVersion) under lib/vanilla -> SDK
+  // TODO: Separate as getVnlPrice(vanillaVersion) under @vanilladefi/sdk -> SDK
   useEffect(() => {
     if (versionAddress && uniswapVersion) {
       const getTokenPrice = async () => {
         const vanillaToken: Token = {
-          chainId: tokenListChainId.toString(),
+          chainId: chainId.toString(),
           address: versionAddress,
           decimals: vnlDecimals.toString(),
           pairId: vnlPools.ETH,

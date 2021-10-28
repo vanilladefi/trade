@@ -1,4 +1,3 @@
-import { getAverageBlockCountPerHour } from 'lib/block'
 import {
   addGraphInfo,
   addLogoColor,
@@ -6,7 +5,8 @@ import {
   addUSDPrice,
   addVnlEligibility,
   getAllTokens,
-} from 'lib/tokens'
+} from '@vanilladefi/sdk/tokens'
+import { getAverageBlockCountPerHour } from 'lib/block'
 import { UniswapVersion, VanillaVersion } from 'types/general'
 import { Eligibility, Token } from 'types/trade'
 import { addToCache, getFromCache } from 'utils/cache'
