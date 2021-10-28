@@ -1,4 +1,4 @@
-import { getVanillaRouter } from '@vanilladefi/sdk/contracts'
+import { getVanillaRouter } from '@vanilladefi/sdk'
 import { Contract } from 'ethers'
 import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'

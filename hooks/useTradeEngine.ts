@@ -6,12 +6,12 @@ import {
   TradeType,
 } from '@uniswap/sdk-core'
 import { FeeAmount } from '@uniswap/v3-sdk'
-import { tokenListChainId } from '@vanilladefi/sdk/tokens'
 import {
   calculateGasMargin,
   estimateGas,
   estimateReward,
-} from '@vanilladefi/sdk/trades'
+  tokenListChainId,
+} from '@vanilladefi/sdk'
 import { BigNumber, Transaction } from 'ethers'
 import { formatUnits, isAddress, parseUnits } from 'ethers/lib/utils'
 import { TransactionProps } from 'lib/uniswap'

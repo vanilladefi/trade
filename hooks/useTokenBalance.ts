@@ -1,5 +1,5 @@
 import { Token, TokenAmount } from '@uniswap/sdk-core'
-import { isAddress, tokenListChainId, weth } from '@vanilladefi/sdk/tokens'
+import { isAddress, tokenListChainId, weth } from '@vanilladefi/sdk'
 import { BigNumber, Contract, providers } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'

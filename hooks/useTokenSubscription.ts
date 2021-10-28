@@ -2,7 +2,7 @@ import {
   addData,
   addGraphInfo,
   getTokenInfoQueryVariables,
-} from '@vanilladefi/sdk/tokens'
+} from '@vanilladefi/sdk'
 import { getAverageBlockCountPerHour } from 'lib/block'
 import { getTheGraphClient, v2, v3 } from 'lib/graphql'
 import { useEffect } from 'react'

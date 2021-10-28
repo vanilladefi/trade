@@ -5,7 +5,7 @@ import {
   addUSDPrice,
   addVnlEligibility,
   getAllTokens,
-} from '@vanilladefi/sdk/tokens'
+} from '@vanilladefi/sdk'
 import { getAverageBlockCountPerHour } from 'lib/block'
 import { UniswapVersion, VanillaVersion } from 'types/general'
 import { Eligibility, Token } from 'types/trade'

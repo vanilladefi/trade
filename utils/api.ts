@@ -1,4 +1,4 @@
-import { isAddress } from '@vanilladefi/sdk/tokens'
+import { isAddress } from '@vanilladefi/sdk'
 import { ParsedUrlQuery } from 'querystring'
 import { VanillaVersion } from 'types/general'
 

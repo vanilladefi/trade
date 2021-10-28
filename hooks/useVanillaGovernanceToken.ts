@@ -3,8 +3,7 @@ import {
   TokenAmount,
   TradeType,
 } from '@uniswap/sdk-core'
-import { chainId, vnlPools, weth } from '@vanilladefi/sdk'
-import { isAddress } from '@vanilladefi/sdk/tokens'
+import { chainId, isAddress, vnlPools, weth } from '@vanilladefi/sdk'
 import { BigNumber } from 'ethers'
 import { constructTrade } from 'lib/uniswap/v3/trade'
 import { useCallback, useEffect, useMemo, useState } from 'react'

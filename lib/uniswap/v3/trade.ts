@@ -8,7 +8,7 @@ import {
   TradeType,
 } from '@uniswap/sdk-core'
 import { FeeAmount } from '@uniswap/v3-sdk'
-import { isAddress, tokenListChainId } from '@vanilladefi/sdk/tokens'
+import { isAddress, tokenListChainId } from '@vanilladefi/sdk'
 import { BigNumber, providers, Signer, Transaction } from 'ethers'
 import { formatUnits, getAddress, parseUnits } from 'ethers/lib/utils'
 import { VanillaVersion } from 'types/general'

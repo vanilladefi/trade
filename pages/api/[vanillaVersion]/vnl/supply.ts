@@ -1,4 +1,4 @@
-import { getVanillaTokenContract } from '@vanilladefi/sdk/contracts'
+import { getVanillaTokenContract } from '@vanilladefi/sdk'
 import { formatUnits } from 'ethers/lib/utils'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { parseVanillaVersionFromQuery } from 'utils/api'

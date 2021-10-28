@@ -1,4 +1,4 @@
-import { getUserPositions } from '@vanilladefi/sdk/trades'
+import { getUserPositions } from '@vanilladefi/sdk'
 import { VanillaVersion } from 'types/general'
 import { Token } from 'types/trade'
 import { addToCache, getFromCache } from '.'

@@ -1,6 +1,6 @@
 import { Trade as V2Trade } from '@uniswap/sdk'
 import { Percent } from '@uniswap/sdk-core'
-import { weth } from '@vanilladefi/sdk/tokens'
+import { weth } from '@vanilladefi/sdk'
 import { BigNumber } from 'ethers'
 import { TransactionState } from 'hooks/useTradeEngine'
 import { atom, selector } from 'recoil'
