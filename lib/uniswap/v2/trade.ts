@@ -7,7 +7,7 @@ import {
   Trade,
   TradeType,
 } from '@uniswap/sdk'
-import { getContract, tokenListChainId } from '@vanilladefi/sdk'
+import { chainId, getContract } from '@vanilladefi/sdk'
 import { providers, Transaction } from 'ethers'
 import { getAddress, parseUnits } from 'ethers/lib/utils'
 import vanillaRouter from 'types/abis/vanillaRouter.json'
@@ -123,7 +123,7 @@ export function tryParseAmount(
   }
   try {
     const convertedToken = new Token(
-      tokenListChainId,
+      chainId,
       getAddress(currency.address),
       Number(currency.decimals),
     )

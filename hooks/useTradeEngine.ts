@@ -8,9 +8,9 @@ import {
 import { FeeAmount } from '@uniswap/v3-sdk'
 import {
   calculateGasMargin,
+  chainId,
   estimateGas,
   estimateReward,
-  tokenListChainId,
 } from '@vanilladefi/sdk'
 import { BigNumber, Transaction } from 'ethers'
 import { formatUnits, isAddress, parseUnits } from 'ethers/lib/utils'
@@ -271,7 +271,7 @@ const useTradeEngine = (
     if (token0) {
       const raw = getBalance0Raw()
       const token = new UniswapToken(
-        tokenListChainId,
+        chainId,
         token0?.address,
         Number(token0?.decimals),
       )
@@ -285,7 +285,7 @@ const useTradeEngine = (
     if (token1) {
       const raw = getBalance1Raw()
       const token = new UniswapToken(
-        tokenListChainId,
+        chainId,
         token1?.address,
         Number(token1?.decimals),
       )

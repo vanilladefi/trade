@@ -1,5 +1,5 @@
 import { Token, TokenAmount } from '@uniswap/sdk-core'
-import { isAddress, tokenListChainId, weth } from '@vanilladefi/sdk'
+import { chainId, isAddress, weth } from '@vanilladefi/sdk'
 import { BigNumber, Contract, providers } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
@@ -62,11 +62,7 @@ function useTokenBalance(
           const parsedDecimals = parseInt(decimals.toString())
 
           // Construct token amounts
-          const token = new Token(
-            tokenListChainId,
-            tokenAddress,
-            parsedDecimals,
-          )
+          const token = new Token(chainId, tokenAddress, parsedDecimals)
           const formatted = new TokenAmount(token, raw.toString())
 
           setRaw(raw)
