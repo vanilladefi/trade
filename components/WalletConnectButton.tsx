@@ -1,13 +1,14 @@
+import { BreakPoint } from 'components/GlobalStyles/Breakpoints'
+import { ButtonSize } from 'components/input/Button'
+import dynamic from 'next/dynamic'
 import { useRecoilState } from 'recoil'
 import { walletModalOpenState } from 'state/wallet'
-import Button, { ButtonSize } from './input/Button'
-import { BreakPoint } from './GlobalStyles/Breakpoints'
 
-export default function WalletConnectButton(): JSX.Element {
-  const [walletModalOpen, setWalletModalOpen] = useRecoilState(
-    walletModalOpenState,
-  )
+const Button = dynamic(import('components/input/Button'))
 
+const WalletConnectButton: React.FC = () => {
+  const [walletModalOpen, setWalletModalOpen] =
+    useRecoilState(walletModalOpenState)
   return (
     <>
       <Button
@@ -31,3 +32,5 @@ export default function WalletConnectButton(): JSX.Element {
     </>
   )
 }
+
+export default WalletConnectButton

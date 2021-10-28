@@ -6,7 +6,7 @@ import Button, {
   Rounding,
 } from 'components/input/Button'
 import Modal, { ContentWrapper } from 'components/Modal'
-import { Spinner } from 'components/Spinner'
+import { Dots } from 'components/Spinner'
 import { Columns, Table } from 'components/Table'
 import { TokenLogo } from 'components/Table/Cells'
 import { cellProps, rowProps } from 'components/Table/Table'
@@ -16,19 +16,20 @@ import React, { MouseEvent, useCallback, useMemo, useState } from 'react'
 import type { CellProps, Row } from 'react-table'
 import { useRecoilValue } from 'recoil'
 import { userV3TokensState } from 'state/tokens'
+import { PrerenderProps } from 'types/content'
 import type {
   HandleBuyClick,
   HandleSellClick,
   ListColumn,
   Token,
 } from 'types/trade'
-import { epoch } from 'utils/config'
+import { epoch } from 'utils/config/vanilla'
+import { LoaderWrapper } from '..'
 import { CardinalityContent } from '../Content'
 
-interface Props {
+type Props = PrerenderProps & {
   onBuyClick: HandleBuyClick
   onSellClick: HandleSellClick
-  initialTokens?: Token[]
 }
 
 // No hooks can be used inside the RowRenderer because of Next.js error "less hooks rendered than previous render"
@@ -205,6 +206,7 @@ const RowRenderer = (
 }
 
 export default function MyPositions({
+  initialTokens,
   onBuyClick,
   onSellClick,
 }: Props): JSX.Element {
@@ -319,7 +321,12 @@ export default function MyPositions({
 
   const initialSortBy = useMemo(() => [{ id: 'value', desc: true }], [])
 
-  return userPositions ? (
+  const data = useMemo(
+    () => userPositions || initialTokens?.userPositionsV3,
+    [userPositions, initialTokens?.userPositionsV3],
+  )
+
+  return data ? (
     <>
       <Modal
         open={!!cardinalityModalContent}
@@ -328,7 +335,7 @@ export default function MyPositions({
         {cardinalityModalContent}
       </Modal>
       <Table
-        data={userPositions}
+        data={data}
         columns={columns}
         initialSortBy={initialSortBy}
         query={query}
@@ -339,19 +346,8 @@ export default function MyPositions({
       />
     </>
   ) : (
-    <div className='spinnerWrapper'>
-      <Spinner />
-      <style jsx>{`
-        .spinnerWrapper {
-          display: flex;
-          width: 100%;
-          flex-direction: row;
-          justify-content: center;
-          align-items: center;
-          height: 80px;
-          --iconsize: 2rem;
-        }
-      `}</style>
-    </div>
+    <LoaderWrapper>
+      <Dots />
+    </LoaderWrapper>
   )
 }

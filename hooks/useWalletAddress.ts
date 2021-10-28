@@ -1,23 +1,46 @@
 import { isAddress } from 'lib/tokens'
-import { useMemo } from 'react'
-import { useWallet } from 'use-wallet'
+import { useEffect, useMemo } from 'react'
+import { useRecoilState, useRecoilValue } from 'recoil'
+import { signerState, walletAddressState } from 'state/wallet'
+import { PrerenderProps } from 'types/content'
 
-function useWalletAddress(): { short: string; long: string } {
-  const { account } = useWallet()
-  return useMemo(() => {
-    const checkSummedAddress = isAddress(account)
-    let [long, short] = ['', '']
-    if (checkSummedAddress) {
-      long = checkSummedAddress || ''
-      short = checkSummedAddress
-        ? `${checkSummedAddress.substring(
-            0,
-            6,
-          )}...${checkSummedAddress.substring(checkSummedAddress.length - 4)}`
-        : ''
+function useWalletAddress(prerenderProps?: PrerenderProps): {
+  short: string
+  long: string
+} {
+  const signer = useRecoilValue(signerState)
+  const [walletAddress, setWalletAddress] = useRecoilState(walletAddressState)
+
+  useEffect(() => {
+    const getWalletAddress = async () => {
+      if (signer) {
+        const checkSummedAddress = isAddress(await signer.getAddress())
+        if (checkSummedAddress) {
+          setWalletAddress(checkSummedAddress)
+        }
+      }
     }
-    return { long, short }
-  }, [account])
+    getWalletAddress()
+  }, [setWalletAddress, signer])
+
+  return useMemo(() => {
+    let long: string
+    if (
+      prerenderProps?.walletAddress &&
+      isAddress(prerenderProps?.walletAddress)
+    ) {
+      long =
+        (prerenderProps?.walletAddress &&
+          isAddress(prerenderProps?.walletAddress)) ||
+        ''
+    } else {
+      long = walletAddress
+    }
+    const short = long
+      ? `${long.substring(0, 6)}...${long.substring(long.length - 4)}`
+      : ''
+    return { short, long }
+  }, [prerenderProps?.walletAddress, walletAddress])
 }
 
 export default useWalletAddress

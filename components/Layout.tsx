@@ -1,18 +1,22 @@
+import dynamic from 'next/dynamic'
 import Head from 'next/head'
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import { RecoilRoot } from 'recoil'
+import { PrerenderProps } from 'types/content'
 import { UseWalletProvider } from 'use-wallet'
 import { chainId, rpcUrl } from 'utils/config'
-import Footer from './Footer'
-import GlobalStyles from './GlobalStyles'
-import Header from './Header'
-import { MobileWalletFloater } from './SmallWalletInfo'
-import { WalletConnector } from './WalletConnector'
-import WalletModal from './WalletModal'
+
+const Header = dynamic(import('components/Header'))
+const GlobalStyles = dynamic(import('components/GlobalStyles'))
+const Footer = dynamic(import('components/Footer'))
+const WalletModal = dynamic(import('components/WalletModal'))
+const MobileWalletFloater = dynamic(() =>
+  import('components/SmallWalletInfo').then((mod) => mod.MobileWalletFloater),
+)
 
 type RenderFunction = () => ReactNode
 
-type Props = {
+export type LayoutProps = PrerenderProps & {
   children?: ReactNode
   hero?: ReactNode
   heroRenderer?: RenderFunction
@@ -22,7 +26,7 @@ type Props = {
   hideFromSearch?: boolean
 }
 
-const Layout = ({
+const Layout: React.FC<LayoutProps> = ({
   children,
   hero,
   heroRenderer,
@@ -30,12 +34,14 @@ const Layout = ({
   title = 'Start #ProfitMining',
   description = 'Vanilla Rewards You For Making a Profit In DeFi',
   shareImg = '/social/social-share-general.png',
-}: Props): JSX.Element => {
+  ...rest
+}: LayoutProps) => {
   // Use useEffect side effect to gain access to windowURL for full URL
   // We could do this by defining base url in process specific .env -files as well
   // But then branch preview url's wouldn't probably work correctly?
-  const [origin, setOrigin] = React.useState('')
-  React.useEffect(() => {
+  const [origin, setOrigin] = useState('')
+
+  useEffect(() => {
     background: setOrigin(window.location.origin)
   }, [])
 
@@ -49,39 +55,15 @@ const Layout = ({
           },
         }}
       >
-        <WalletConnector />
-
         {/* HTML <head> */}
         <Head>
           <title>{title} - Vanilla</title>
           <meta name='description' content={description}></meta>
-          {hideFromSearch && <meta name='robots' content='noindex, nofollow' />}
-          <meta charSet='utf-8' />
           <meta
             name='viewport'
             content='initial-scale=1.0, width=device-width'
           />
-          <link
-            rel='apple-touch-icon'
-            sizes='180x180'
-            href='/apple-touch-icon.png'
-          />
-          <link
-            rel='icon'
-            type='image/png'
-            sizes='32x32'
-            href='/favicon-32x32.png'
-          />
-          <link
-            rel='icon'
-            type='image/png'
-            sizes='16x16'
-            href='/favicon-16x16.png'
-          />
-          <link rel='manifest' href='/site.webmanifest' />
-          <link rel='mask-icon' href='/safari-pinned-tab.svg' color='#fd9b1e' />
-          <meta name='msapplication-TileColor' content='#fd9b1e' />
-          <meta name='theme-color' content='#ffffff' />
+          {hideFromSearch && <meta name='robots' content='noindex, nofollow' />}
           <meta property='og:title' content={`${title} - Vanilla `} />
           <meta property='og:description' content={description} />
           <meta property='og:image' content={`${origin}${shareImg}`} />
@@ -96,16 +78,18 @@ const Layout = ({
         <WalletModal />
 
         {/* Header, nav */}
-        <Header renderChildren={heroRenderer}>{hero}</Header>
+        <Header renderChildren={heroRenderer} {...rest}>
+          {hero}
+        </Header>
 
         {/* Site content */}
         {children}
 
         {/* Footer */}
-        <Footer />
+        <Footer {...rest} />
 
         {/* Mobile Wallet Floater */}
-        <MobileWalletFloater />
+        <MobileWalletFloater {...rest} />
 
         {/* Global CSS, like variables & fonts */}
         <GlobalStyles />

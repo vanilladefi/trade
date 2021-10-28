@@ -7,12 +7,12 @@ type OperationToggleProps = {
   buyDisabled?: boolean
 }
 
-const OperationToggle = ({
+const OperationToggle: React.FC<OperationToggleProps> = ({
   operation,
   setOperation,
   sellDisabled,
   buyDisabled,
-}: OperationToggleProps): JSX.Element => (
+}: OperationToggleProps) => (
   <>
     <div className='toggleWrapper'>
       <button

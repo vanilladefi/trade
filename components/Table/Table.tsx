@@ -26,6 +26,7 @@ import type {
   LeftOrRightAlignable,
   Liquidity,
   ListColumn,
+  Token,
 } from 'types/trade'
 import PageControl from './PageControl'
 
@@ -52,7 +53,7 @@ type CustomColumnInstance<D extends Record<string, unknown>> =
 
 const pageSizes = [20, 50, 100]
 
-export default function Table<D extends Record<string, unknown>>({
+const Table: React.FC<Props<Token>> = <D extends Record<string, unknown>>({
   data,
   columns,
   initialSortBy,
@@ -61,7 +62,7 @@ export default function Table<D extends Record<string, unknown>>({
   pagination = false,
   colorize = false,
   rowRenderer,
-}: Props<D>): JSX.Element {
+}: Props<D>) => {
   const { isSmaller, isBigger } = useBreakpoints()
   const blockNumber = useRecoilValue(currentBlockNumberState)
 
@@ -98,6 +99,13 @@ export default function Table<D extends Record<string, unknown>>({
     usePagination,
   )
 
+  useEffect(() => {
+    console.log(data)
+    return () => {
+      console.log(data)
+    }
+  }, [])
+
   const {
     rows: allRows,
     getTableProps,
@@ -120,7 +128,7 @@ export default function Table<D extends Record<string, unknown>>({
   useEffect(() => {
     // Disable auto reset page
     autoResetPageRef.current = false
-  })
+  }, [])
 
   useEffect(() => {
     const hiddenColumns = getHiddenColumns(columns, { isSmaller, isBigger })
@@ -458,3 +466,5 @@ function getHiddenColumns<D extends Record<string, unknown>>(
     )
     .map(({ id }) => id ?? '')
 }
+
+export default Table

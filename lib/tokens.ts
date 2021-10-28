@@ -4,14 +4,19 @@ import v1_1Tokens from 'data/tokens_v1_1.json'
 import { BigNumber, constants, Contract, providers, Signer } from 'ethers'
 import { getAddress } from 'ethers/lib/utils'
 import { ETHPriceQueryResponse } from 'hooks/useETHPrice'
-import { getTheGraphClient, UniswapVersion, v2, v3 } from 'lib/graphql'
+import { getTheGraphClient, v2, v3 } from 'lib/graphql'
 import { ipfsToHttp } from 'lib/ipfs'
 import Vibrant from 'node-vibrant'
 import VanillaRouter from 'types/abis/vanillaRouter.json'
-import { TokenQueryVariables, VanillaVersion } from 'types/general'
+import {
+  TokenQueryVariables,
+  UniswapVersion,
+  VanillaVersion,
+} from 'types/general'
 import { Eligibility, Token, TokenInfoQueryResponse } from 'types/trade'
 import { UniswapV3Pool__factory } from 'types/typechain/uniswap_v3_core'
-import { chainId, defaultProvider, getVanillaRouterAddress } from 'utils/config'
+import { chainId, defaultProvider } from 'utils/config'
+import { getVanillaRouterAddress } from 'utils/config/vanilla'
 
 export { chainId }
 

@@ -1,11 +1,11 @@
 import { getAverageBlockCountPerHour } from 'lib/block'
-import { getTheGraphClient, UniswapVersion, v2, v3 } from 'lib/graphql'
+import { getTheGraphClient, v2, v3 } from 'lib/graphql'
 import { addData, addGraphInfo, getTokenInfoQueryVariables } from 'lib/tokens'
 import { useEffect } from 'react'
 import { useRecoilCallback, useRecoilValue } from 'recoil'
 import { currentBlockNumberState, currentETHPrice } from 'state/meta'
 import { uniswapV2TokenState, uniswapV3TokenState } from 'state/tokens'
-import { VanillaVersion } from 'types/general'
+import { UniswapVersion, VanillaVersion } from 'types/general'
 import type { TokenInfoQueryResponse } from 'types/trade'
 
 interface subReturnValue {

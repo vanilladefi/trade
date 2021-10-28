@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import React from 'react'
+import { PrerenderProps } from 'types/content'
 import { Logo } from './Brand'
 import { BreakPoint } from './GlobalStyles/Breakpoints'
 import { DesktopNavigation, MobileNavigation } from './Navigation'
@@ -7,15 +8,17 @@ import Wrapper from './Wrapper'
 
 type RenderFunction = () => React.ReactNode
 
-interface Props {
+type Props = PrerenderProps & {
   background?: React.ReactNode
   renderChildren?: RenderFunction
+  children?: React.ReactNode
 }
 
 const Header = ({
   children,
   background,
   renderChildren,
+  ...rest
 }: React.PropsWithChildren<Props>): JSX.Element => {
   return (
     <>
@@ -25,16 +28,16 @@ const Header = ({
           <Wrapper>
             <div className='innerPadding'>
               <div className='navBar'>
-                <Link href='/'>
+                <Link href={`/${rest.walletAddress ? rest.walletAddress : ''}`}>
                   <a className='logo'>
                     <Logo />
                   </a>
                 </Link>
                 <div className='mobileNav'>
-                  <MobileNavigation />
+                  <MobileNavigation {...rest} />
                 </div>
                 <div className='desktopNav'>
-                  <DesktopNavigation />
+                  <DesktopNavigation {...rest} />
                 </div>
               </div>
             </div>

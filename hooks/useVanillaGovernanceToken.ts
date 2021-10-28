@@ -1,28 +1,32 @@
-import { Token, TokenAmount } from '@uniswap/sdk-core'
-import { BigNumber, constants } from 'ethers'
-import { getTheGraphClient, UniswapVersion, v2 } from 'lib/graphql'
+import {
+  Token as UniswapToken,
+  TokenAmount,
+  TradeType,
+} from '@uniswap/sdk-core'
+import { BigNumber } from 'ethers'
 import { isAddress, tokenListChainId, weth } from 'lib/tokens'
+import { constructTrade } from 'lib/uniswap/v3/trade'
+import { vnlPools } from 'lib/vanilla/contracts'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useRecoilValue } from 'recoil'
-import { providerState } from 'state/wallet'
-import VanillaV1Token02 from 'types/abis/VanillaV1Token02.json'
-import { VanillaVersion } from 'types/general'
-import { getVnlTokenAddress, vnlDecimals } from 'utils/config'
-import { useContract, useTokenContract } from './useContract'
+import { PrerenderProps } from 'types/content'
+import { UniswapVersion, VanillaVersion } from 'types/general'
+import { Token } from 'types/trade'
+import { defaultProvider } from 'utils/config'
+import { getVnlTokenAddress, vnlDecimals } from 'utils/config/vanilla'
 import useTokenBalance from './useTokenBalance'
 import useWalletAddress from './useWalletAddress'
 
-function useVanillaGovernanceToken(version: VanillaVersion): {
+function useVanillaGovernanceToken(
+  version: VanillaVersion,
+  prerenderProps?: PrerenderProps,
+): {
   address: string
   decimals: number
   balance: string
   balanceRaw: BigNumber
   getTokenAmount: () => TokenAmount | undefined
   price: string
-  userMintedTotal: string
 } {
-  const provider = useRecoilValue(providerState)
-
   const addresses = useMemo(
     () => [
       isAddress(getVnlTokenAddress(VanillaVersion.V1_0)) ||
@@ -33,24 +37,22 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
     [],
   )
 
+  const { long: walletAddress } = useWalletAddress(prerenderProps)
+
   const [uniswapVersion, setUniswapVersion] = useState<UniswapVersion | null>(
     null,
   )
   const [versionAddress, setVersionAddress] = useState<string | null>(null)
   const [vnlEthPrice, setVnlEthPrice] = useState('0')
-  const { long: userAddress } = useWalletAddress()
-  const [mints, setMints] = useState<Array<BigNumber>>()
-
-  const contract1 = useTokenContract(addresses[0])
-  const contract2 = useContract(addresses[1], VanillaV1Token02.abi)
   const { formatted: vnlBalance, raw: vnlBalanceRaw } = useTokenBalance(
+    walletAddress,
     versionAddress,
     vnlDecimals,
   )
 
   const getTokenAmount = useCallback(() => {
     if (versionAddress && isAddress(versionAddress)) {
-      const token = new Token(
+      const token = new UniswapToken(
         tokenListChainId,
         versionAddress || '',
         vnlDecimals,
@@ -60,69 +62,38 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
     }
   }, [versionAddress, vnlBalanceRaw])
 
-  const userMintedTotal = useCallback(() => {
-    if (versionAddress) {
-      const bigSum: BigNumber | undefined =
-        mints && mints.length
-          ? mints.reduce((accumulator, current) => accumulator.add(current))
-          : BigNumber.from('0')
-      if (bigSum) {
-        const token = new Token(tokenListChainId, versionAddress, vnlDecimals)
-        const tokenAmount = new TokenAmount(token, bigSum.toString())
-        return tokenAmount.toSignificant()
-      }
-    } else {
-      return '0'
-    }
-  }, [mints, versionAddress])
-
-  useEffect(() => {
-    const getMints = async () => {
-      if (contract1 && contract2 && provider && isAddress(userAddress)) {
-        const [contract, eventFilter] =
-          version === VanillaVersion.V1_0
-            ? [
-                contract1,
-                contract1.filters.Transfer(constants.AddressZero, userAddress),
-              ]
-            : [
-                contract2,
-                contract2.filters.Transfer(constants.AddressZero, userAddress),
-              ]
-        try {
-          const blockNumber = await provider.getBlockNumber()
-          const mintedValues = await contract
-            .connect(provider)
-            .queryFilter(eventFilter, 0, blockNumber)
-            .then((events) => events.map((event) => event.args?.value))
-          setMints(mintedValues)
-        } catch (e) {
-          console.error(e)
-          setMints([BigNumber.from('0')])
-        }
-      }
-    }
-    getMints()
-  }, [contract1, contract2, provider, userAddress, version])
-
+  // TODO: Separate as getVnlPrice(vanillaVersion) under lib/vanilla -> SDK
   useEffect(() => {
     if (versionAddress && uniswapVersion) {
       const getTokenPrice = async () => {
-        const variables = {
-          weth: weth.address.toLowerCase(),
-          tokenAddresses: [versionAddress.toLowerCase()],
+        const vanillaToken: Token = {
+          chainId: tokenListChainId.toString(),
+          address: versionAddress,
+          decimals: vnlDecimals.toString(),
+          pairId: vnlPools.ETH,
+          logoColor: '',
+          symbol: 'VNL',
         }
-        // TODO: Change this to Uniswap.v3 when VNL gets liquidity there
-        const { http } = getTheGraphClient(UniswapVersion.v2)
-        if (http) {
-          const response = await http.request(v2.TokenInfoQuery, variables)
-          const data = [...response?.tokensAB, ...response?.tokensBA]
-          data[0] && setVnlEthPrice(data[0].price)
+        const trade = await constructTrade(
+          defaultProvider,
+          '1000',
+          weth,
+          vanillaToken,
+          TradeType.EXACT_INPUT,
+        )
+        if (trade?.executionPrice) {
+          setVnlEthPrice(trade.executionPrice.toSignificant())
         }
       }
       getTokenPrice()
     }
-  }, [uniswapVersion, version, versionAddress])
+  }, [
+    prerenderProps?.vnlBalance,
+    uniswapVersion,
+    version,
+    versionAddress,
+    vnlBalance,
+  ])
 
   useEffect(() => {
     setVersionAddress(
@@ -140,7 +111,6 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
     balanceRaw: vnlBalanceRaw,
     getTokenAmount: getTokenAmount,
     price: vnlEthPrice,
-    userMintedTotal: userMintedTotal() || '0',
   }
 }
 

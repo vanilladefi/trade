@@ -13,6 +13,11 @@ export enum VanillaVersion {
   V1_1,
 }
 
+export enum UniswapVersion {
+  v2 = 'v2',
+  v3 = 'v3',
+}
+
 export type TokenQueryVariables = {
   blockNumber?: number | null
   weth: string

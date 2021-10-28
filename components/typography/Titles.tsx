@@ -4,7 +4,7 @@ type Props = {
   children?: ReactNode
 }
 
-export const Title = ({ children }: Props): JSX.Element => (
+export const Title: React.FC<Props> = ({ children }: Props) => (
   <>
     <h1>{children}</h1>
     <style jsx>{`
@@ -19,7 +19,7 @@ export const Title = ({ children }: Props): JSX.Element => (
   </>
 )
 
-export const MediumTitle = ({ children }: Props): JSX.Element => (
+export const MediumTitle: React.FC<Props> = ({ children }: Props) => (
   <>
     <h1>{children}</h1>
     <style jsx>{`
@@ -34,7 +34,7 @@ export const MediumTitle = ({ children }: Props): JSX.Element => (
   </>
 )
 
-export const SmallTitle = ({ children }: Props): JSX.Element => (
+export const SmallTitle: React.FC<Props> = ({ children }: Props) => (
   <>
     <h2>{children}</h2>
     <style jsx>{`

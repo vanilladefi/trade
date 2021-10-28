@@ -1,30 +1,39 @@
-import Button, { ButtonColor, ButtonSize } from 'components/input/Button'
-import Modal, { ContentWrapper } from 'components/Modal'
-import { Columns, Table } from 'components/Table'
+import { ButtonColor, ButtonSize } from 'components/input/Button'
+import { Dots } from 'components/Spinner'
+import { Columns } from 'components/Table'
 import { TokenLogo } from 'components/Table/Cells'
 import useTokenSearch from 'hooks/useTokenSearch'
-import { UniswapVersion } from 'lib/graphql'
-import { useMemo, useState } from 'react'
+import dynamic from 'next/dynamic'
+import React, { useCallback, useMemo, useState } from 'react'
 import type { CellProps } from 'react-table'
 import { useRecoilValue } from 'recoil'
 import { uniswapV2TokenState, uniswapV3TokenState } from 'state/tokens'
+import { PrerenderProps } from 'types/content'
+import { UniswapVersion } from 'types/general'
 import { HandleBuyClick, Liquidity, ListColumn, Token } from 'types/trade'
-import { hiddenTokens } from 'utils/config'
+import { hiddenTokens } from 'utils/config/vanilla'
+import { LoaderWrapper } from '.'
 import {
   CardinalityContent,
   LowLiquidityContent,
   VeryLowLiquidityContent,
 } from './Content'
 
-interface Props {
+const Modal = dynamic(import('components/Modal'))
+const ContentWrapper = dynamic(
+  import('components/Modal').then((mod) => mod.ContentWrapper),
+)
+const Button = dynamic(import('components/input/Button'))
+const Table = dynamic(import('components/Table').then((mod) => mod.Table))
+
+type Props = PrerenderProps & {
   onBuyClick: HandleBuyClick
-  initialTokens?: Token[]
   uniswapVersion: UniswapVersion
 }
 
 export default function AvailableTokens({
   onBuyClick,
-  initialTokens = [],
+  initialTokens,
   uniswapVersion,
 }: Props): JSX.Element {
   const tokens = useRecoilValue(
@@ -77,10 +86,21 @@ export default function AvailableTokens({
 
   const initialSortBy = useMemo(() => [{ id: 'liquidity', desc: true }], [])
 
-  const filterMinableTokens = (input: Token[]) =>
-    input.filter(
+  const filterMinableTokens = useCallback(() => {
+    const usedInitialTokens =
+      uniswapVersion === UniswapVersion.v2
+        ? initialTokens?.userPositionsV2
+        : initialTokens?.userPositionsV3 || []
+    const input = tokens?.length > 0 ? tokens : usedInitialTokens
+    return input.filter(
       (token) => token.eligible && !hiddenTokens.includes(token.address),
     )
+  }, [
+    initialTokens?.userPositionsV2,
+    initialTokens?.userPositionsV3,
+    tokens,
+    uniswapVersion,
+  ])
 
   return (
     <>
@@ -90,14 +110,20 @@ export default function AvailableTokens({
       >
         {alertModalContent}
       </Modal>
-      <Table
-        data={filterMinableTokens(tokens?.length ? tokens : initialTokens)}
-        columns={columns}
-        initialSortBy={initialSortBy}
-        query={query}
-        clearQuery={clearQuery}
-        pagination
-      />
+      {filterMinableTokens().length > 0 ? (
+        <Table
+          data={filterMinableTokens()}
+          columns={columns}
+          initialSortBy={initialSortBy}
+          query={query}
+          clearQuery={clearQuery}
+          pagination
+        />
+      ) : (
+        <LoaderWrapper>
+          <Dots />
+        </LoaderWrapper>
+      )}
     </>
   )
 }

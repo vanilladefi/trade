@@ -1,8 +1,10 @@
 import useAllTransactions from 'hooks/useAllTransactions'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
-import { Column } from './grid/Flex'
 
-const TransactionList = (): JSX.Element => {
+const Column = dynamic(import('components/grid/Flex').then((mod) => mod.Column))
+
+const TransactionList: React.FC = () => {
   const { transactions } = useAllTransactions()
   const router = useRouter()
   return (

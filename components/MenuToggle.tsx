@@ -1,5 +1,5 @@
-import * as React from 'react'
 import { motion, Variant } from 'framer-motion'
+import * as React from 'react'
 
 type PathProps = {
   d: string
@@ -10,7 +10,7 @@ type MenuToggleProps = {
   toggle: () => void
 }
 
-const Path = (props: PathProps) => (
+const Path: React.FC<PathProps> = (props: PathProps) => (
   <motion.path
     fill='transparent'
     strokeWidth='2.5'
@@ -21,7 +21,7 @@ const Path = (props: PathProps) => (
   />
 )
 
-const MenuToggle = ({ toggle }: MenuToggleProps): JSX.Element => (
+const MenuToggle: React.FC<MenuToggleProps> = ({ toggle }: MenuToggleProps) => (
   <>
     <button className='menuButton' aria-label='Open menu' onClick={toggle}>
       <svg width='32' height='24' viewBox='0 0 32 24'>

@@ -1,4 +1,5 @@
-import { getTheGraphClient, MetaQuery, UniswapVersion } from 'lib/graphql'
+import { getTheGraphClient, MetaQuery } from 'lib/graphql'
+import { UniswapVersion } from 'types/general'
 import type { MetaQueryResponse } from 'types/trade'
 
 export async function getCurrentBlockNumber(

@@ -1,7 +1,8 @@
-import { getTheGraphClient, UniswapVersion, v2, v3 } from 'lib/graphql'
+import { getTheGraphClient, v2, v3 } from 'lib/graphql'
 import { useEffect } from 'react'
 import { useRecoilCallback } from 'recoil'
 import { currentETHPrice } from 'state/meta'
+import { UniswapVersion } from 'types/general'
 
 export interface ETHPriceQueryResponse {
   bundle: {
@@ -21,12 +22,13 @@ function useETHPrice(version: UniswapVersion): void {
   const query = version === UniswapVersion.v2 ? v2.ETHPriceSub : v3.ETHPriceSub
 
   const handleNewData = useRecoilCallback(
-    ({ set }) => ({ data }: ETHPriceSubResponse) => {
-      const ethPrice = parseFloat(data?.bundle?.ethPrice)
-      if (ethPrice !== undefined && ethPrice !== null && ethPrice > 0) {
-        set(currentETHPrice, ethPrice)
-      }
-    },
+    ({ set }) =>
+      ({ data }: ETHPriceSubResponse) => {
+        const ethPrice = parseFloat(data?.bundle?.ethPrice)
+        if (ethPrice !== undefined && ethPrice !== null && ethPrice > 0) {
+          set(currentETHPrice, ethPrice)
+        }
+      },
     [],
   )
 

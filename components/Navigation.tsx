@@ -1,24 +1,35 @@
 import { AnimatePresence, motion, useCycle } from 'framer-motion'
+import { PrerenderProps } from 'types/content'
 import MenuToggle from './MenuToggle'
 import NavLink from './NavLink'
 import SmallWalletInfo from './SmallWalletInfo'
 
-function NavLinks() {
+function NavLinks(props: PrerenderProps) {
   return (
     <>
-      <NavLink href='/'>Home</NavLink>
-      <NavLink href='/trade'>Trade</NavLink>
-      <NavLink href='/faq'>FAQ</NavLink>
+      <NavLink href={`/${props.walletAddress ? props.walletAddress : ''}`}>
+        Home
+      </NavLink>
+      <NavLink
+        href={`/${props.walletAddress ? props.walletAddress + '/' : ''}trade`}
+      >
+        Trade
+      </NavLink>
+      <NavLink
+        href={`/${props.walletAddress ? props.walletAddress + '/' : ''}faq`}
+      >
+        FAQ
+      </NavLink>
       <NavLink href='https://community.vanilladefi.com'>Community</NavLink>
     </>
   )
 }
 
-export const DesktopNavigation = (): JSX.Element => {
+export const DesktopNavigation = (props: PrerenderProps): JSX.Element => {
   return (
     <nav>
-      <NavLinks />
-      <SmallWalletInfo />
+      <NavLinks {...props} />
+      <SmallWalletInfo {...props} />
       <style jsx>{`
         nav {
           display: flex;
@@ -34,7 +45,7 @@ export const DesktopNavigation = (): JSX.Element => {
   )
 }
 
-export const MobileNavigation = (): JSX.Element => {
+export const MobileNavigation = (props: PrerenderProps): JSX.Element => {
   const [isOpen, toggleOpen] = useCycle(false, true)
 
   return (
@@ -66,7 +77,7 @@ export const MobileNavigation = (): JSX.Element => {
               exit={{ right: -440 }}
               transition={{ type: 'tween' }}
             >
-              <NavLinks />
+              <NavLinks {...props} />
             </motion.div>
           </motion.nav>
         )}

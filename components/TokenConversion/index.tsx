@@ -8,7 +8,7 @@ import { tokenConversionState } from 'state/migration'
 import { VanillaVersion } from 'types/general'
 import { ConversionState } from 'types/migration'
 import { Action, TransactionDetails } from 'types/trade'
-import { getVnlTokenAddress } from 'utils/config'
+import { getVnlTokenAddress } from 'utils/config/vanilla'
 import Wrapper from '../Wrapper'
 import { Approved, Approving, Available, Error, Minted, Ready } from './Views'
 
@@ -27,7 +27,7 @@ export type ConversionViewProps = {
 
 const TokenConversion = (): JSX.Element => {
   const { approve, convert } = useTokenConversion()
-  const { long: userAddress } = useWalletAddress()
+  const { long: walletAddress } = useWalletAddress()
 
   const vnlV1Address = isAddress(getVnlTokenAddress(VanillaVersion.V1_0))
   const vnlV2Address = isAddress(getVnlTokenAddress(VanillaVersion.V1_1))
@@ -44,7 +44,7 @@ const TokenConversion = (): JSX.Element => {
         setTransactionHash(transaction.hash)
         const transactionDetails: TransactionDetails = {
           hash: transaction.hash,
-          from: userAddress,
+          from: walletAddress,
           action: Action.APPROVAL,
           approval: { tokenAddress: vnlV1Address, spender: vnlV2Address },
         }
@@ -56,7 +56,7 @@ const TokenConversion = (): JSX.Element => {
       return approval
     }
     return approval
-  }, [addTransaction, vnlV1Address, approve, userAddress, vnlV2Address])
+  }, [addTransaction, vnlV1Address, approve, walletAddress, vnlV2Address])
 
   const runConversion = useCallback(async () => {
     let conversionSuccessful = false
@@ -66,7 +66,7 @@ const TokenConversion = (): JSX.Element => {
         setTransactionHash(transaction.hash)
         const transactionDetails: TransactionDetails = {
           hash: transaction.hash,
-          from: userAddress,
+          from: walletAddress,
           action: Action.CONVERSION,
         }
         addTransaction(transactionDetails)
@@ -77,7 +77,7 @@ const TokenConversion = (): JSX.Element => {
       return conversionSuccessful
     }
     return conversionSuccessful
-  }, [addTransaction, convert, userAddress])
+  }, [addTransaction, convert, walletAddress])
 
   const getView = useCallback(
     (conversionState: ConversionState): JSX.Element => {

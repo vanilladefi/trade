@@ -4,7 +4,7 @@ type Props = {
   children?: ReactNode
 }
 
-export const Highlight = ({ children }: Props): JSX.Element => (
+export const Highlight: React.FC<Props> = ({ children }: Props) => (
   <>
     <p>{children}</p>
     <style jsx>{`

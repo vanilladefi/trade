@@ -1,22 +1,34 @@
+import { isAddress } from '@ethersproject/address'
+import BoxSection, { Color } from 'components/BoxSection'
+import { BreakPoint } from 'components/GlobalStyles/Breakpoints'
+import { Column, Row, Width } from 'components/grid/Flex'
+import { GridItem, GridTemplate } from 'components/grid/Grid'
+import Button from 'components/input/Button'
 import InViewWrapper from 'components/InViewWrapper'
+import Layout from 'components/Layout'
+import Wrapper from 'components/Wrapper'
+import useWalletAddress from 'hooks/useWalletAddress'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { useEffect } from 'react'
 import { InView } from 'react-intersection-observer'
-import BoxSection, { Color } from '../components/BoxSection'
-import { BreakPoint } from '../components/GlobalStyles/Breakpoints'
-import { Column, Row, Width } from '../components/grid/Flex'
-import { GridItem, GridTemplate } from '../components/grid/Grid'
-import Button from '../components/input/Button'
-import Layout from '../components/Layout'
-import SVGFlower from '../components/SVGFlower'
-import Timeline from '../components/Timeline'
-import HugeMonospace from '../components/typography/HugeMonospace'
-import { Highlight } from '../components/typography/Text'
-import { MediumTitle, Title } from '../components/typography/Titles'
-import Wrapper from '../components/Wrapper'
+import { PrerenderProps } from 'types/content'
 
-const ShillKitList = dynamic(import('../components/ShillKitList'))
+const SVGFlower = dynamic(import('components/SVGFlower'))
+const Timeline = dynamic(import('components/Timeline'))
+const HugeMonospace = dynamic(import('components/typography/HugeMonospace'))
+const Highlight = dynamic(() =>
+  import('components/typography/Text').then((mod) => mod.Highlight),
+)
+const MediumTitle = dynamic(() =>
+  import('components/typography/Titles').then((mod) => mod.MediumTitle),
+)
+const Title = dynamic(() =>
+  import('components/typography/Titles').then((mod) => mod.Title),
+)
+const ShillKitList = dynamic(import('components/ShillKitList'))
 
 const HeaderContent = (
   <Wrapper>
@@ -33,7 +45,7 @@ const HeaderContent = (
               </HugeMonospace>
             </InViewWrapper>
             <InViewWrapper delay={0.3}>
-              <Link href='/trade'>
+              <Link href='/trade' passHref>
                 <Button>Start trading</Button>
               </Link>
             </InViewWrapper>
@@ -111,12 +123,29 @@ const milestones = [
   { name: 'TBD', time: 'Q1' },
 ]
 
-const IndexPage = (): JSX.Element => (
+const UserSniffer = (prerenderProps: PrerenderProps): null => {
+  const walletAddress = useWalletAddress(prerenderProps)
+  const router = useRouter()
+  useEffect(() => {
+    const nextPath = isAddress(walletAddress.long)
+      ? `/${walletAddress.long}`
+      : false
+    if (nextPath && router.asPath !== nextPath) {
+      router.push(nextPath)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletAddress])
+  return null
+}
+
+export const IndexPage = (prerenderProps: PrerenderProps): JSX.Element => (
   <Layout
     title='Start #ProfitMining'
     description='Vanilla Rewards You For Making a Profit In DeFi'
     hero={HeaderContent}
+    {...prerenderProps}
   >
+    <UserSniffer {...prerenderProps} />
     <Wrapper>
       <div className='miningWrapper'>
         <BoxSection color={Color.DARK}>
@@ -156,7 +185,7 @@ const IndexPage = (): JSX.Element => (
                   difficulty increases over time.
                 </p>
                 <br />
-                <Link href='/faq'>
+                <Link href='/faq' passHref>
                   <Button>Learn more</Button>
                 </Link>
               </Column>
@@ -468,7 +497,7 @@ const IndexPage = (): JSX.Element => (
               </Highlight>
             </InViewWrapper>
             <InViewWrapper delay={0.3}>
-              <Link href='/faq'>
+              <Link href='/faq' passHref>
                 <Button>Learn more</Button>
               </Link>
             </InViewWrapper>
@@ -595,7 +624,7 @@ const IndexPage = (): JSX.Element => (
               </a>
             </GridItem>
             <GridItem>
-              <Link href='/bug-bounty'>
+              <Link href='/bug-bounty' passHref>
                 <a
                   style={{
                     minWidth: '200px',

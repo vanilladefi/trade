@@ -1,11 +1,9 @@
-import { Column } from 'components/grid/Flex'
-import Button, {
+import {
   ButtonColor,
   ButtonSize,
   ButtonState,
   Rounding,
 } from 'components/input/Button'
-import { Spinner } from 'components/Spinner'
 import useTradeEngine from 'hooks/useTradeEngine'
 import useVanillaRouter from 'hooks/useVanillaRouter'
 import dynamic from 'next/dynamic'
@@ -14,18 +12,26 @@ import React, { Dispatch, SetStateAction, Suspense, useEffect } from 'react'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { token0Amount, token1Amount } from 'state/trade'
 import { modalCloseEnabledState } from 'state/ui'
+import { PrerenderProps } from 'types/content'
 import { VanillaVersion } from 'types/general'
 import { Operation } from 'types/trade'
-import ErrorDisplay from '../../ErrorDisplay'
-import OperationToggle from '../../OperationToggle'
-import TradeInfoDisplay from '../../TradeInfoDisplay'
 
-type ContentProps = {
+const Button = dynamic(import('components/input/Button'))
+const Column = dynamic(import('components/grid/Flex').then((mod) => mod.Column))
+const Dots = dynamic(import('components/Spinner').then((mod) => mod.Dots))
+const ErrorDisplay = dynamic(import('components/Trade/Modal/ErrorDisplay'))
+const OperationToggle = dynamic(
+  import('components/Trade/Modal/OperationToggle'),
+)
+const TradeInfoDisplay = dynamic(
+  import('components/Trade/Modal/TradeInfoDisplay'),
+)
+const TokenInput = dynamic(import('components/Trade/Modal/TokenInput'))
+
+type ContentProps = PrerenderProps & {
   operation: Operation
   setOperation: Dispatch<SetStateAction<Operation>>
 }
-
-const TokenInput = dynamic(() => import('components/Trade/Modal/TokenInput'))
 
 enum TransactionState {
   PREPARE,
@@ -39,11 +45,11 @@ type ButtonAmountDisplayProps = {
   tokenSymbol: string
 }
 
-const ButtonAmountDisplay = ({
+const ButtonAmountDisplay: React.FC<ButtonAmountDisplayProps> = ({
   operationText,
   tokenAmount,
   tokenSymbol,
-}: ButtonAmountDisplayProps): JSX.Element => (
+}: ButtonAmountDisplayProps) => (
   <>
     <div>
       {operationText} <span>{tokenAmount}</span> {tokenSymbol}
@@ -78,10 +84,11 @@ const ButtonAmountDisplay = ({
   </>
 )
 
-const PrepareView = ({
+const PrepareView: React.FC<ContentProps> = ({
   operation,
   setOperation,
-}: ContentProps): JSX.Element => {
+  ...rest
+}: ContentProps) => {
   const router = useRouter()
 
   const {
@@ -136,7 +143,7 @@ const PrepareView = ({
 
             <section className='modalMain'>
               <div className='row noBottomMargin'>
-                <TokenInput version={VanillaVersion.V1_0} />
+                <TokenInput version={VanillaVersion.V1_0} {...rest} />
               </div>
 
               {amount0 && trade?.executionPrice && vanillaRouter && (
@@ -178,7 +185,7 @@ const PrepareView = ({
                 grow
               >
                 {amount1 === null ? (
-                  <Spinner />
+                  <Dots />
                 ) : notEnoughLiquidity() ? (
                   'Not enough liquidity'
                 ) : notEnoughFunds() ? (

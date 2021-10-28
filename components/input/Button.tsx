@@ -53,7 +53,7 @@ export enum ButtonState {
 
 type Callback = MouseEventHandler<HTMLButtonElement>
 
-type Props = {
+export type ButtonProps = {
   children?: ReactNode
   size?: ButtonSize
   color?: ButtonColor
@@ -93,7 +93,7 @@ const Button = ({
   buttonState = ButtonState.NORMAL,
   disabled,
   opacity,
-}: Props): JSX.Element => {
+}: ButtonProps): JSX.Element => {
   const buttonClass = classNames({
     [`${size}`]: true,
     gradient: color === ButtonColor.GRADIENT,
@@ -112,7 +112,7 @@ const Button = ({
     'roundedTopRight roundedBottomRight': rounded === Rounding.RIGHT,
   })
   const StateIndicator = (): JSX.Element => {
-    const Wrapper = ({ children }: Props) => (
+    const Wrapper = ({ children }: ButtonProps) => (
       <div>
         {children}
         <style jsx>{`
@@ -247,7 +247,7 @@ const Button = ({
   )
 }
 
-export const ButtonGroup = ({ children, grow }: Props): JSX.Element => (
+export const ButtonGroup = ({ children, grow }: ButtonProps): JSX.Element => (
   <>
     <div className='buttonGroup'>{children}</div>
     <style jsx>{`

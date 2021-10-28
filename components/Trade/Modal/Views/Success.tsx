@@ -1,13 +1,20 @@
-import { Column, Row, Width } from 'components/grid/Flex'
-import Button, { ButtonSize } from 'components/input/Button'
-import { Spinner } from 'components/Spinner'
-import TradeFlower from 'components/TradeFlower'
-import { SmallTitle } from 'components/typography/Titles'
+import { Width } from 'components/grid/Flex'
+import { ButtonSize } from 'components/input/Button'
 import { formatUnits } from 'ethers/lib/utils'
 import useTransaction from 'hooks/useTransaction'
+import dynamic from 'next/dynamic'
 import React, { Suspense, useCallback } from 'react'
 import { VanillaVersion } from 'types/general'
-import { vnlDecimals } from 'utils/config'
+import { vnlDecimals } from 'utils/config/vanilla'
+
+const Dots = dynamic(import('components/Spinner').then((mod) => mod.Dots))
+const Column = dynamic(import('components/grid/Flex').then((mod) => mod.Column))
+const Row = dynamic(import('components/grid/Flex').then((mod) => mod.Row))
+const Button = dynamic(import('components/input/Button'))
+const TradeFlower = dynamic(import('components/TradeFlower'))
+const SmallTitle = dynamic(
+  import('components/typography/Titles').then((mod) => mod.SmallTitle),
+)
 
 type Props = {
   id: string
@@ -15,11 +22,11 @@ type Props = {
   version: VanillaVersion
 }
 
-const Loading = (): JSX.Element => (
+const Loading: React.FC = () => (
   <Row>
     <Column width={Width.TWELVE}>
       <div>
-        <Spinner />
+        <Dots />
       </div>
       <style jsx>{`
         div {
@@ -34,7 +41,7 @@ const Loading = (): JSX.Element => (
   </Row>
 )
 
-const SuccessView = ({ id, closeModal, version }: Props): JSX.Element => {
+const SuccessView: React.FC<Props> = ({ id, closeModal, version }: Props) => {
   const transaction = useTransaction(version, id)
 
   const amountPaid = useCallback(() => {

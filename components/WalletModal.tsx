@@ -1,35 +1,42 @@
 import { ethers } from 'ethers'
-import React from 'react'
-import { useRecoilState, useSetRecoilState } from 'recoil'
-import { userV2TokensState, userV3TokensState } from 'state/tokens'
+import useWalletConnector from 'hooks/useWalletConnector'
+import dynamic from 'next/dynamic'
+import React, { useEffect, useState } from 'react'
+import { useRecoilState } from 'recoil'
 import { walletModalOpenState } from 'state/wallet'
-import { Connectors, useWallet, Wallet } from 'use-wallet'
-import { ModalGradient } from './backgrounds/gradient'
-import { Alignment, Column, Justification, Row, Width } from './grid/Flex'
-import Button, { ButtonColor, ButtonSize } from './input/Button'
-import Modal from './Modal'
-import Icon, { IconUrls } from './typography/Icon'
-import Spacer from './typography/Spacer'
-import { SmallTitle } from './typography/Titles'
-import WalletAddress from './typography/WalletAddress'
-import WalletIcon from './typography/WalletIcon'
+import { useWallet, Wallet } from 'use-wallet'
+import { Alignment, Justification, Width } from './grid/Flex'
+import { ButtonColor, ButtonSize } from './input/Button'
+import { IconUrls } from './typography/Icon'
 
-const ProviderOptions = (): JSX.Element => {
-  const wallet = useWallet()
+const SmallTitle = dynamic(
+  import('components/typography/Titles').then((mod) => mod.SmallTitle),
+)
+const Spacer = dynamic(import('components/typography/Spacer'))
+const Icon = dynamic(import('components/typography/Icon'))
+const WalletIcon = dynamic(import('components/typography/WalletIcon'))
+const WalletAddress = dynamic(import('components/typography/WalletAddress'))
+const Button = dynamic(import('components/input/Button'))
+const Modal = dynamic(import('components/Modal'))
+const ModalGradient = dynamic(
+  import('components/backgrounds/gradient').then((mod) => mod.ModalGradient),
+)
+const Column = dynamic(import('components/grid/Flex').then((mod) => mod.Column))
+const Row = dynamic(import('components/grid/Flex').then((mod) => mod.Row))
 
-  const connectWallet = async (connector: keyof Connectors) => {
-    await wallet.connect(connector)
-  }
+const ProviderOptions: React.FC = () => {
+  const { status } = useWallet()
+  const connectWallet = useWalletConnector()
 
-  const [errorMessage, setErrorMessage] = React.useState('')
+  const [errorMessage, setErrorMessage] = useState('')
 
-  React.useEffect(() => {
-    if (wallet.status === 'error') {
+  useEffect(() => {
+    if (status === 'error') {
       setErrorMessage(
         'Wallet connection failed. Check that you are using the Ethereum mainnet.',
       )
     }
-  }, [wallet.status])
+  }, [status])
 
   return (
     <Column>
@@ -144,16 +151,11 @@ const ProviderOptions = (): JSX.Element => {
   )
 }
 
-const WalletView = (): JSX.Element => {
+const WalletView: React.FC = () => {
   const wallet = useWallet<Wallet<ethers.Signer>>()
   const { account, connector } = wallet
-  const setV2Tokens = useSetRecoilState(userV2TokensState)
-  const setV3Tokens = useSetRecoilState(userV3TokensState)
 
   const resetWallet = (): void => {
-    // Reset user owned tokens status
-    setV2Tokens([])
-    setV3Tokens([])
     // Disconnect if function available
     if (wallet.ethereum.disconnect instanceof Function) {
       wallet.ethereum.disconnect()
@@ -324,7 +326,7 @@ const WalletView = (): JSX.Element => {
   )
 }
 
-const WalletModal = (): JSX.Element => {
+const WalletModal: React.FC = () => {
   const { status } = useWallet()
 
   const [walletModalOpen, setWalletModalOpen] =

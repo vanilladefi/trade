@@ -1,11 +1,14 @@
-import Image from 'next/image'
+import dynamic from 'next/dynamic'
 import { useState } from 'react'
 
-type Props = {
+const Image = dynamic(import('next/image'))
+
+export type ImageProps = {
   src: string
+  alt?: string
 }
 
-const ResponsiveImage = ({ src }: Props): JSX.Element => {
+const ResponsiveImage: React.FC<ImageProps> = ({ src, alt }: ImageProps) => {
   const [dimensions, setDimensions] = useState({ height: 0, width: 0 })
   return (
     <>
@@ -22,6 +25,7 @@ const ResponsiveImage = ({ src }: Props): JSX.Element => {
               width: element.currentTarget.naturalWidth,
             })
           }
+          alt={alt}
         />
       </div>
       <style jsx>{`

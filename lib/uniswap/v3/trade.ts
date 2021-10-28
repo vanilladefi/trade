@@ -8,19 +8,16 @@ import {
   TradeType,
 } from '@uniswap/sdk-core'
 import { FeeAmount } from '@uniswap/v3-sdk'
-import { BigNumber, Signer, Transaction } from 'ethers'
+import { BigNumber, providers, Signer, Transaction } from 'ethers'
 import { formatUnits, getAddress, parseUnits } from 'ethers/lib/utils'
 import { isAddress, tokenListChainId } from 'lib/tokens'
 import { VanillaVersion } from 'types/general'
 import { Token, UniSwapToken } from 'types/trade'
 import { Quoter, Quoter__factory } from 'types/typechain/uniswap_v3_periphery'
 import { VanillaV1Router02__factory } from 'types/typechain/vanilla_v1.1/factories/VanillaV1Router02__factory'
-import {
-  conservativeGasLimit,
-  ethersOverrides,
-  getUniswapQuoterAddress,
-  getVanillaRouterAddress,
-} from 'utils/config'
+import { conservativeGasLimit, ethersOverrides } from 'utils/config'
+import { getUniswapQuoterAddress } from 'utils/config/uniswap'
+import { getVanillaRouterAddress } from 'utils/config/vanilla'
 import { getFeeTier } from 'utils/transactions'
 import { TransactionProps } from '..'
 
@@ -213,12 +210,12 @@ class V3Trade {
 
 // Pricing function for UniSwap v3 trades
 export async function constructTrade(
-  signer: Signer,
+  signerOrProvider: Signer | providers.Provider,
   amountToTrade: string, // Not amountPaid because of tradeType
   tokenReceived: Token,
   tokenPaid: Token,
   tradeType: TradeType,
-): Promise<V3Trade> {
+): Promise<V3Trade | null> {
   const defaultFeeTier = FeeAmount.MEDIUM
   try {
     const tokenToTrade =
@@ -238,7 +235,7 @@ export async function constructTrade(
 
     const uniV3Oracle = Quoter__factory.connect(
       getUniswapQuoterAddress(),
-      signer,
+      signerOrProvider,
     )
 
     const swapOperation = UniswapOracle(uniV3Oracle).swap(
@@ -252,25 +249,31 @@ export async function constructTrade(
         parsedAmountTraded,
         feeTier.valueOf(),
       )
-      quote = amountOut
+      if (amountOut) {
+        quote = amountOut
+      }
     } else {
       const amountIn = await swapOperation.estimateAmountIn(
         parsedAmountTraded,
         feeTier.valueOf(),
       )
-      quote = amountIn
+      if (amountIn) {
+        quote = amountIn
+      }
     }
 
     const formattedQuote = formatUnits(quote, quotedToken.decimals)
     const parsedQuote = tryParseAmount(formattedQuote, quotedToken)
 
-    const trade: V3Trade = new V3Trade(
-      tradeType === TradeType.EXACT_INPUT ? parsedAmountTraded : parsedQuote,
-      tradeType === TradeType.EXACT_INPUT ? parsedQuote : parsedAmountTraded,
-      tradeType,
-    )
-
-    return trade
+    if (parsedQuote && parsedAmountTraded) {
+      return new V3Trade(
+        tradeType === TradeType.EXACT_INPUT ? parsedAmountTraded : parsedQuote,
+        tradeType === TradeType.EXACT_INPUT ? parsedQuote : parsedAmountTraded,
+        tradeType,
+      )
+    } else {
+      return null
+    }
   } catch (error) {
     console.error(error)
     throw error

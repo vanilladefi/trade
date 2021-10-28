@@ -1,6 +1,7 @@
-import React from 'react'
 import dynamic from 'next/dynamic'
-const Flower = dynamic(import('../components/Flower'))
+import React from 'react'
+
+const Flower = dynamic(import('components/Flower'))
 
 export type Token = {
   symbol: string
@@ -19,12 +20,12 @@ type Props = {
   paid?: Token
 }
 
-const TradeFlower = ({
+const TradeFlower: React.FC<Props> = ({
   received,
   reward,
   tradeURL,
   paid,
-}: Props): JSX.Element => {
+}: Props) => {
   const receivedData = received && (
     <>
       +{received.amount}

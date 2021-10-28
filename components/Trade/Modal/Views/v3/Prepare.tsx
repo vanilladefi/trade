@@ -1,11 +1,9 @@
-import { Column } from 'components/grid/Flex'
-import Button, {
+import {
   ButtonColor,
   ButtonSize,
   ButtonState,
   Rounding,
 } from 'components/input/Button'
-import { Spinner } from 'components/Spinner'
 import useTradeEngine, { TransactionState } from 'hooks/useTradeEngine'
 import useVanillaRouter from 'hooks/useVanillaRouter'
 import dynamic from 'next/dynamic'
@@ -14,18 +12,26 @@ import React, { Dispatch, SetStateAction, Suspense, useEffect } from 'react'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { token0Amount, token1Amount } from 'state/trade'
 import { modalCloseEnabledState } from 'state/ui'
+import { PrerenderProps } from 'types/content'
 import { VanillaVersion } from 'types/general'
 import { Operation } from 'types/trade'
-import ErrorDisplay from '../../ErrorDisplay'
-import OperationToggle from '../../OperationToggle'
-import TradeInfoDisplay from '../../TradeInfoDisplay'
 
-type ContentProps = {
+const Button = dynamic(import('components/input/Button'))
+const Column = dynamic(import('components/grid/Flex').then((mod) => mod.Column))
+const Dots = dynamic(import('components/Spinner').then((mod) => mod.Dots))
+const ErrorDisplay = dynamic(import('components/Trade/Modal/ErrorDisplay'))
+const OperationToggle = dynamic(
+  import('components/Trade/Modal/OperationToggle'),
+)
+const TradeInfoDisplay = dynamic(
+  import('components/Trade/Modal/TradeInfoDisplay'),
+)
+const TokenInput = dynamic(import('components/Trade/Modal/TokenInput'))
+
+type ContentProps = PrerenderProps & {
   operation: Operation
   setOperation: Dispatch<SetStateAction<Operation>>
 }
-
-const TokenInput = dynamic(() => import('components/Trade/Modal/TokenInput'))
 
 type ButtonAmountDisplayProps = {
   operationText: string
@@ -37,7 +43,7 @@ const ButtonAmountDisplay = ({
   operationText,
   tokenAmount,
   tokenSymbol,
-}: ButtonAmountDisplayProps): JSX.Element => (
+}: ButtonAmountDisplayProps) => (
   <>
     <div>
       {operationText} <span>{tokenAmount}</span> {tokenSymbol}
@@ -72,10 +78,11 @@ const ButtonAmountDisplay = ({
   </>
 )
 
-const PrepareView = ({
+const PrepareView: React.FC<ContentProps> = ({
   operation,
   setOperation,
-}: ContentProps): JSX.Element => {
+  ...rest
+}: ContentProps) => {
   const router = useRouter()
 
   const {
@@ -88,8 +95,8 @@ const PrepareView = ({
     executeTrade,
     notEnoughFunds,
     notEnoughLiquidity,
-    eligibleBalance0Raw,
-  } = useTradeEngine(VanillaVersion.V1_1)
+    getBalance0Raw,
+  } = useTradeEngine(VanillaVersion.V1_1, { ...rest })
 
   const amount0 = useRecoilValue(token0Amount)
   const amount1 = useRecoilValue(token1Amount)
@@ -125,13 +132,13 @@ const PrepareView = ({
               <OperationToggle
                 operation={operation}
                 setOperation={setOperation}
-                sellDisabled={eligibleBalance0Raw.isZero()}
+                sellDisabled={getBalance0Raw().isZero()}
               />
             </div>
 
             <section className='modalMain'>
               <div className='row noBottomMargin'>
-                <TokenInput version={VanillaVersion.V1_1} />
+                <TokenInput version={VanillaVersion.V1_1} {...rest} />
               </div>
 
               {amount0 && trade?.executionPrice && vanillaRouter && (
@@ -173,7 +180,7 @@ const PrepareView = ({
                 grow
               >
                 {amount1 === null ? (
-                  <Spinner />
+                  <Dots />
                 ) : notEnoughLiquidity() ? (
                   'Not enough liquidity'
                 ) : notEnoughFunds() ? (

@@ -5,7 +5,7 @@ import Button, {
   Rounding,
 } from 'components/input/Button'
 import Modal, { ContentWrapper } from 'components/Modal'
-import { Spinner } from 'components/Spinner'
+import { Dots } from 'components/Spinner'
 import { Columns, Table } from 'components/Table'
 import { TokenLogo } from 'components/Table/Cells'
 import { cellProps, rowProps } from 'components/Table/Table'
@@ -16,13 +16,13 @@ import React, { MouseEvent, useCallback, useMemo, useState } from 'react'
 import type { CellProps, Row } from 'react-table'
 import { useRecoilValue } from 'recoil'
 import { userV2TokensState } from 'state/tokens'
+import { PrerenderProps } from 'types/content'
 import { HandleSellClick, Liquidity, ListColumn, Token } from 'types/trade'
-import { epoch } from 'utils/config'
+import { epoch } from 'utils/config/vanilla'
 import { LowLiquidityContent, VeryLowLiquidityContent } from '../Content'
 
-interface Props {
+type Props = PrerenderProps & {
   onSellClick: HandleSellClick
-  initialTokens?: Token[]
 }
 
 // No hooks can be used inside the RowRenderer because of Next.js error "less hooks rendered than previous render"
@@ -257,7 +257,10 @@ const RowRenderer = (
   )
 }
 
-export default function MyPositions({ onSellClick }: Props): JSX.Element {
+export default function MyPositions({
+  initialTokens,
+  onSellClick,
+}: Props): JSX.Element {
   const userPositions = useRecoilValue(userV2TokensState)
   const [query, clearQuery] = useTokenSearch()
   const [liquidityModalContent, setLiquidityModalContent] = useState<
@@ -360,7 +363,12 @@ export default function MyPositions({ onSellClick }: Props): JSX.Element {
 
   const initialSortBy = useMemo(() => [{ id: 'value', desc: true }], [])
 
-  return userPositions ? (
+  const data = useMemo(
+    () => userPositions || initialTokens?.userPositionsV2 || [],
+    [initialTokens?.userPositionsV2, userPositions],
+  )
+
+  return data && data.length > 0 ? (
     <>
       <Modal
         open={!!liquidityModalContent}
@@ -369,7 +377,7 @@ export default function MyPositions({ onSellClick }: Props): JSX.Element {
         {liquidityModalContent}
       </Modal>
       <Table
-        data={userPositions}
+        data={data}
         columns={columns}
         initialSortBy={initialSortBy}
         query={query}
@@ -381,7 +389,7 @@ export default function MyPositions({ onSellClick }: Props): JSX.Element {
     </>
   ) : (
     <div className='spinnerWrapper'>
-      <Spinner />
+      <Dots />
       <style jsx>{`
         .spinnerWrapper {
           display: flex;

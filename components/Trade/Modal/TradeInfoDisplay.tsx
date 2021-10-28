@@ -1,18 +1,25 @@
-import { Column, Width } from 'components/grid/Flex'
+import { Width } from 'components/grid/Flex'
 import useTradeEngine from 'hooks/useTradeEngine'
+import dynamic from 'next/dynamic'
 import React from 'react'
 import { useRecoilValue } from 'recoil'
 import { currentETHPrice } from 'state/meta'
 import { selectedOperation } from 'state/trade'
 import { VanillaVersion } from 'types/general'
 import { Operation } from 'types/trade'
-import SlippageSelector from './SlippageSelector'
+
+const Column = dynamic(import('components/grid/Flex').then((mod) => mod.Column))
+const SlippageSelector = dynamic(
+  import('components/Trade/Modal/SlippageSelector'),
+)
 
 type TradeInfoProps = {
   version: VanillaVersion
 }
 
-const TradeInfoDisplay = ({ version }: TradeInfoProps): JSX.Element => {
+const TradeInfoDisplay: React.FC<TradeInfoProps> = ({
+  version,
+}: TradeInfoProps) => {
   const {
     token0,
     token1,
@@ -52,10 +59,12 @@ const TradeInfoDisplay = ({ version }: TradeInfoProps): JSX.Element => {
             USD
           </span>
         </div>
-        <div className='tradeInfoRow'>
-          <span>Estimated gas</span>
-          <span>{estimatedGas} ETH</span>
-        </div>
+        {estimatedGas && (
+          <div className='tradeInfoRow'>
+            <span>Estimated gas</span>
+            <span>{estimatedGas} ETH</span>
+          </div>
+        )}
         <div className='tradeInfoRow'>
           <span>Liquidity provider fees</span>
           <span>

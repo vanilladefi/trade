@@ -1,6 +1,8 @@
+import dynamic from 'next/dynamic'
 import React from 'react'
-import InViewWrapper from './InViewWrapper'
-import Wrapper from './Wrapper'
+
+const InViewWrapper = dynamic(import('components/InViewWrapper'))
+const Wrapper = dynamic(import('components/Wrapper'))
 
 export type Milestone = {
   name: string
@@ -11,7 +13,7 @@ type Props = {
   milestones: Array<Milestone>
 }
 
-const Timeline = ({ milestones }: Props): JSX.Element => {
+const Timeline: React.FC<Props> = ({ milestones }: Props) => {
   return (
     <>
       <div className='line' />

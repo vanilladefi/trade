@@ -1,17 +1,20 @@
-import { utils as ethersUtils } from 'ethers'
+import { BigNumber } from 'ethers'
+import { formatUnits } from 'ethers/lib/utils'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
-import useWalletAddress from 'hooks/useWalletAddress'
-import { useCallback, useMemo } from 'react'
+import useWalletConnector from 'hooks/useWalletConnector'
+import dynamic from 'next/dynamic'
+import { useEffect, useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { tokenConversionState } from 'state/migration'
 import { walletModalOpenState } from 'state/wallet'
+import { PrerenderProps } from 'types/content'
 import { VanillaVersion } from 'types/general'
 import { ConversionState } from 'types/migration'
 import { useWallet } from 'use-wallet'
-import BottomFloater from './BottomFloater'
+import { defaultProvider } from 'utils/config'
 import { BreakPoint } from './GlobalStyles/Breakpoints'
-import { Alignment, Justification, Row } from './grid/Flex'
-import Button, {
+import { Alignment, Justification } from './grid/Flex'
+import {
   ButtonColor,
   ButtonGroup,
   ButtonSize,
@@ -19,56 +22,81 @@ import Button, {
   Overflow,
   Rounding,
 } from './input/Button'
-import Spacer from './typography/Spacer'
-import WalletIcon from './typography/WalletIcon'
-import WalletConnectButton from './WalletConnectButton'
 
-interface SmallWalletInfoProps {
+const WalletIcon = dynamic(import('components/typography/WalletIcon'))
+const Spacer = dynamic(import('components/typography/Spacer'))
+const WalletConnectButton = dynamic(import('components/WalletConnectButton'))
+const Button = dynamic(import('components/input/Button'))
+const Row = dynamic(import('components/grid/Flex').then((mod) => mod.Row))
+const BottomFloater = dynamic(import('components/BottomFloater'))
+
+type SmallWalletInfoProps = PrerenderProps & {
   grow?: boolean
 }
 
-const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
-  const wallet = useWallet()
-  const { status, balance } = wallet
+const SmallWalletInfo: React.FC<SmallWalletInfoProps> = ({
+  grow,
+  vnlBalance,
+  ethBalance,
+  walletAddress,
+}: SmallWalletInfoProps) => {
+  useWalletConnector()
+
+  const { status, balance, connector, account } = useWallet()
   const [walletModalOpen, setWalletModalOpen] =
     useRecoilState(walletModalOpenState)
-  const { balance: legacyBalance } = useVanillaGovernanceToken(
-    VanillaVersion.V1_0,
-  )
-  const { balance: vnlBalance } = useVanillaGovernanceToken(VanillaVersion.V1_1)
   const setTokenConversionState = useSetRecoilState(tokenConversionState)
 
-  const getLegacyBalanceState = useCallback(() => {
-    let userHasLegacyBalance = false
-    try {
-      userHasLegacyBalance = Number(legacyBalance) > 0
-    } catch (e) {
-      userHasLegacyBalance = true
+  const { balance: legacyBalance } = useVanillaGovernanceToken(
+    VanillaVersion.V1_0,
+    { walletAddress },
+  )
+  const { balance: activeVnlBalance } = useVanillaGovernanceToken(
+    VanillaVersion.V1_1,
+    { walletAddress },
+  )
+
+  const [walletBalance, setWalletBalance] = useState(
+    Number(ethBalance || '0').toFixed(3),
+  )
+  const [walletVnlBalance, setWalletVnlBalance] = useState(
+    Number(vnlBalance || '0').toFixed(1),
+  )
+
+  useEffect(() => {
+    const fetchBalances = async () => {
+      const activeBalance = formatUnits(
+        (walletAddress && (await defaultProvider.getBalance(walletAddress))) ||
+          balance ||
+          BigNumber.from(0),
+      )
+      const returnedBalance =
+        (Number(walletBalance) > 0 || Number(activeBalance) > 0) &&
+        Number(walletBalance) !== Number(activeBalance)
+          ? Number(activeBalance)
+          : Number(walletBalance)
+      setWalletBalance(returnedBalance.toFixed(3))
     }
-    return userHasLegacyBalance
-  }, [legacyBalance])
+    fetchBalances()
+  }, [balance, ethBalance, walletAddress, walletBalance])
 
-  const getVnlBalance = useCallback(() => {
+  useEffect(() => {
     const legacyAmount = Number(legacyBalance)
-    const vnlAmount = Number(vnlBalance)
-    return legacyAmount + vnlAmount
-  }, [legacyBalance, vnlBalance])
+    const vnlAmount =
+      (Number(walletVnlBalance) > 0 || Number(activeVnlBalance) > 0) &&
+      Number(walletVnlBalance) !== Number(activeVnlBalance)
+        ? Number(activeVnlBalance)
+        : Number(walletVnlBalance)
+    setWalletVnlBalance((legacyAmount + vnlAmount).toFixed(1))
+  }, [legacyBalance, walletVnlBalance, activeVnlBalance])
 
-  const walletBalance = useMemo(() => {
-    return Number.parseFloat(ethersUtils.formatUnits(balance, 'ether')).toFixed(
-      3,
-    )
-  }, [balance])
-
-  const walletAddress = useWalletAddress()
-
-  if (status !== 'connected') return <WalletConnectButton />
-
-  return (
+  return !walletAddress && !account ? (
+    <WalletConnectButton />
+  ) : (
     <ButtonGroup grow={grow}>
       <Button
         onClick={() => {
-          getLegacyBalanceState() &&
+          legacyBalance !== '0' &&
             setTokenConversionState(ConversionState.LOADING)
           setWalletModalOpen(!walletModalOpen)
         }}
@@ -78,14 +106,14 @@ const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
         bordered
         noRightBorder
         grow={grow}
-        opacity={getLegacyBalanceState() ? Opacity.SEETHROUGH : undefined}
+        opacity={legacyBalance !== '0' ? Opacity.SEETHROUGH : undefined}
         title={
-          getLegacyBalanceState()
+          legacyBalance !== '0'
             ? "You've got unconverted v1.0 balances!"
             : undefined
         }
       >
-        {getVnlBalance()} VNL
+        {walletVnlBalance} VNL
       </Button>
       <Button
         onClick={() => {
@@ -96,7 +124,7 @@ const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
         bordered
         rounded={Rounding.RIGHT}
         overflow={Overflow.ELLIPSIS}
-        title={walletAddress.long}
+        title={walletAddress || ''}
         grow={grow}
         justifyContent={Justification.CENTER}
       >
@@ -105,20 +133,26 @@ const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
           justifyContent={Justification.SPACE_AROUND}
         >
           {walletBalance} ETH
-          <Spacer />
-          <WalletIcon walletType={wallet.connector} />
+          {status === 'connected' && (
+            <>
+              <Spacer />
+              <WalletIcon walletType={connector} />
+            </>
+          )}
         </Row>
       </Button>
     </ButtonGroup>
   )
 }
 
-export const MobileWalletFloater = (): JSX.Element => {
+export const MobileWalletFloater: React.FC<SmallWalletInfoProps> = (
+  props: SmallWalletInfoProps,
+) => {
   return (
     <>
       <BottomFloater>
         <div className='walletInfoWrapper'>
-          <SmallWalletInfo grow />
+          <SmallWalletInfo grow {...props} />
         </div>
       </BottomFloater>
       <style jsx>{`

@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  vanilla-frontend:
+    build:
+      context: .
+    image: eqlabs/vanilla-dapp
+    container_name: vanilla-frontend
+    volumes:
+      - ./:/app
+      - /app/contracts
+    ports:
+      - 3000:3000
+    environment:
+      - DOCKER=true
+  vanilla-frontend-cacher:
+    image: eqlabs/vanilla-dapp
+    container_name: vanilla-frontend-cacher
+    environment:
+      - DOCKER=true
+    command: yarn build
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - 6379:6379
+  hardhat:
+    build:
+      context: ./contracts
+    container_name: hardhat
+    ports:
+      - 8545:8545

@@ -1,19 +1,23 @@
-import Layout from 'components/Layout'
-import Wrapper from 'components/Wrapper'
+import dynamic from 'next/dynamic'
+import { PrerenderProps } from 'types/content'
 
-type Props = {
+const Layout = dynamic(import('components/Layout'))
+const Wrapper = dynamic(import('components/Wrapper'))
+
+export type StaticPageProps = PrerenderProps & {
   children: React.ReactChild
   pageTitle: string
   SEOTitle: string
 }
 
-export default function StaticPage({
+const StaticPage: React.FC<StaticPageProps> = ({
   children,
   pageTitle,
   SEOTitle,
-}: Props): JSX.Element {
+  ...rest
+}: StaticPageProps) => {
   return (
-    <Layout title={`${SEOTitle} | Vanilla`}>
+    <Layout title={`${SEOTitle} | Vanilla`} {...rest}>
       <Wrapper>
         <div className='staticPage'>
           <div className='content'>
@@ -37,3 +41,5 @@ export default function StaticPage({
     </Layout>
   )
 }
+
+export default StaticPage

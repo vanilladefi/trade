@@ -1,4 +1,5 @@
 import { Percent } from '@uniswap/sdk-core'
+import Image from 'next/image'
 import { ReactNode } from 'react'
 import Dropdown, { Option } from 'react-dropdown'
 import { useRecoilState } from 'recoil'
@@ -39,12 +40,15 @@ type ArrowProps = {
   children: ReactNode
 }
 
-const ArrowWrapper = ({ children }: ArrowProps): JSX.Element => (
+const ArrowWrapper: React.FC<ArrowProps> = ({ children }: ArrowProps) => (
   <>
-    <span>{children}</span>
+    <span>
+      <div className='inner'>{children}</div>
+    </span>
     <style jsx>{`
       span {
         display: flex;
+        position: relative;
         width: 2rem;
         height: 2rem;
         background: var(--dark);
@@ -52,20 +56,25 @@ const ArrowWrapper = ({ children }: ArrowProps): JSX.Element => (
         justify-content: center;
         align-items: center;
       }
+      .inner {
+        position: relative;
+        width: 50%;
+        height: 50%;
+      }
     `}</style>
   </>
 )
 
-const ArrowClosed = (): JSX.Element => (
+const ArrowClosed: React.FC = () => (
   <ArrowWrapper>
-    <img src='images/caret.svg' />
+    <Image src='/images/caret.svg' layout='fill' />
   </ArrowWrapper>
 )
 
-const ArrowOpen = (): JSX.Element => (
+const ArrowOpen: React.FC = () => (
   <>
     <ArrowWrapper>
-      <img src='images/caret.svg' />
+      <Image src='/images/caret.svg' layout='fill' />
     </ArrowWrapper>
     <style jsx>{`
       img {
@@ -75,7 +84,7 @@ const ArrowOpen = (): JSX.Element => (
   </>
 )
 
-const SlippageSelector = (): JSX.Element => {
+const SlippageSelector: React.FC = () => {
   const mappedSlippageOptions = Object.values(slippageOptions).map(
     returnOptionWithLabel,
   )

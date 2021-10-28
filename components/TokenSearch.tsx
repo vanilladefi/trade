@@ -7,7 +7,7 @@ interface Props {
   placeholder: string
 }
 
-export default function TokenSearch({ placeholder }: Props): JSX.Element {
+const TokenSearch: React.FC<Props> = ({ placeholder }: Props) => {
   const [value, setValue] = useRecoilState(tokenSearchQuery)
   useKeyboardInputListener(['Escape', 'Esc'], () => setValue(''))
   return (
@@ -44,3 +44,5 @@ export default function TokenSearch({ placeholder }: Props): JSX.Element {
     </div>
   )
 }
+
+export default TokenSearch

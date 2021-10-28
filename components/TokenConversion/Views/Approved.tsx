@@ -6,7 +6,7 @@ import {
   Width,
 } from 'components/grid/Flex'
 import Button from 'components/input/Button'
-import { Spinner } from 'components/Spinner'
+import { Dots } from 'components/Spinner'
 import Spacer from 'components/typography/Spacer'
 import useTokenConversion from 'hooks/useTokenConversion'
 import useTransaction from 'hooks/useTransaction'
@@ -46,7 +46,7 @@ const Approved = ({
       {waiting ? (
         <Column grow={true} width={Width.TWELVE}>
           <Row alignItems={Alignment.CENTER}>
-            <Spinner />
+            <Dots />
             <Spacer />
             <h2>WAITING FOR TRANSACTION</h2>
           </Row>
