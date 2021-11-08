@@ -1,7 +1,7 @@
 import { utils as ethersUtils } from 'ethers'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import useWalletAddress from 'hooks/useWalletAddress'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useRecoilState } from 'recoil'
 import { walletModalOpenState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
@@ -29,16 +29,7 @@ const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
   const { status, balance } = wallet
   const [walletModalOpen, setWalletModalOpen] =
     useRecoilState(walletModalOpenState)
-  const { balance: legacyBalance } = useVanillaGovernanceToken(
-    VanillaVersion.V1_0,
-  )
   const { balance: vnlBalance } = useVanillaGovernanceToken(VanillaVersion.V1_1)
-
-  const getVnlBalance = useCallback(() => {
-    const legacyAmount = Number(legacyBalance)
-    const vnlAmount = Number(vnlBalance)
-    return legacyAmount + vnlAmount
-  }, [legacyBalance, vnlBalance])
 
   const walletBalance = useMemo(() => {
     return Number.parseFloat(ethersUtils.formatUnits(balance, 'ether')).toFixed(
@@ -63,7 +54,7 @@ const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
         noRightBorder
         grow={grow}
       >
-        {getVnlBalance()} VNL
+        {vnlBalance} VNL
       </Button>
       <Button
         onClick={() => {
