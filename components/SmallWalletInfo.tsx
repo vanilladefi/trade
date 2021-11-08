@@ -1,12 +1,10 @@
 import { utils as ethersUtils } from 'ethers'
 import useVanillaGovernanceToken from 'hooks/useVanillaGovernanceToken'
 import useWalletAddress from 'hooks/useWalletAddress'
-import { useCallback, useMemo } from 'react'
-import { useRecoilState, useSetRecoilState } from 'recoil'
-import { tokenConversionState } from 'state/migration'
+import { useMemo } from 'react'
+import { useRecoilState } from 'recoil'
 import { walletModalOpenState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
-import { ConversionState } from 'types/migration'
 import { useWallet } from 'use-wallet'
 import BottomFloater from './BottomFloater'
 import { BreakPoint } from './GlobalStyles/Breakpoints'
@@ -15,7 +13,6 @@ import Button, {
   ButtonColor,
   ButtonGroup,
   ButtonSize,
-  Opacity,
   Overflow,
   Rounding,
 } from './input/Button'
@@ -32,27 +29,7 @@ const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
   const { status, balance } = wallet
   const [walletModalOpen, setWalletModalOpen] =
     useRecoilState(walletModalOpenState)
-  const { balance: legacyBalance } = useVanillaGovernanceToken(
-    VanillaVersion.V1_0,
-  )
   const { balance: vnlBalance } = useVanillaGovernanceToken(VanillaVersion.V1_1)
-  const setTokenConversionState = useSetRecoilState(tokenConversionState)
-
-  const getLegacyBalanceState = useCallback(() => {
-    let userHasLegacyBalance = false
-    try {
-      userHasLegacyBalance = Number(legacyBalance) > 0
-    } catch (e) {
-      userHasLegacyBalance = true
-    }
-    return userHasLegacyBalance
-  }, [legacyBalance])
-
-  const getVnlBalance = useCallback(() => {
-    const legacyAmount = Number(legacyBalance)
-    const vnlAmount = Number(vnlBalance)
-    return legacyAmount + vnlAmount
-  }, [legacyBalance, vnlBalance])
 
   const walletBalance = useMemo(() => {
     return Number.parseFloat(ethersUtils.formatUnits(balance, 'ether')).toFixed(
@@ -68,8 +45,6 @@ const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
     <ButtonGroup grow={grow}>
       <Button
         onClick={() => {
-          getLegacyBalanceState() &&
-            setTokenConversionState(ConversionState.LOADING)
           setWalletModalOpen(!walletModalOpen)
         }}
         size={ButtonSize.SMALL}
@@ -78,14 +53,8 @@ const SmallWalletInfo = ({ grow }: SmallWalletInfoProps): JSX.Element => {
         bordered
         noRightBorder
         grow={grow}
-        opacity={getLegacyBalanceState() ? Opacity.SEETHROUGH : undefined}
-        title={
-          getLegacyBalanceState()
-            ? "You've got unconverted v1.0 balances!"
-            : undefined
-        }
       >
-        {getVnlBalance()} VNL
+        {vnlBalance} VNL
       </Button>
       <Button
         onClick={() => {
