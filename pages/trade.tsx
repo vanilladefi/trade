@@ -4,7 +4,6 @@ import Button from 'components/input/Button'
 import Layout from 'components/Layout'
 import { Spinner } from 'components/Spinner'
 import SyncIndicator from 'components/SyncIndicator'
-import TokenConversion from 'components/TokenConversion'
 import TokenSearch from 'components/TokenSearch'
 import { AvailableTokens, MyPositionsV2, MyPositionsV3 } from 'components/Trade'
 import HugeMonospace from 'components/typography/HugeMonospace'
@@ -122,7 +121,6 @@ const HeaderContent = (): JSX.Element => {
   return (
     <>
       <TopGradient />
-      <TokenConversion />
       <Wrapper>
         <Row className='subpageHeader'>
           {wallet.status === 'connected' && !getUserTokens() && (
