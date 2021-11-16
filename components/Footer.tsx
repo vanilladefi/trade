@@ -102,6 +102,24 @@ const SoMeLinks = (): JSX.Element => (
     <br />
     <li>
       <a
+        href='https://discord.gg/CnPuf2cGQ3'
+        target='_blank'
+        rel='noopener noreferrer'
+      >
+        <div>
+          <Image
+            src='/images/discord.svg'
+            alt='Discord logo'
+            layout='fixed'
+            width='30px'
+            height='30px'
+          />
+        </div>
+        Discord
+      </a>
+    </li>
+    <li>
+      <a
         href='https://t.me/vanilladefi'
         target='_blank'
         rel='noopener noreferrer'
