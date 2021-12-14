@@ -110,14 +110,13 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
   useEffect(() => {
     if (versionAddress && uniswapVersion) {
       const getTokenPrice = async () => {
-        const price = getSpotPrice(
+        const price = await getSpotPrice(
           vnlPools.ETH,
           convertVanillaTokenToUniswapToken(vnl),
           convertVanillaTokenToUniswapToken(weth),
           provider,
         )
-        setVnlEthPrice(price[0])
-        console.log(price)
+        setVnlEthPrice(price[0].toSignificant(6))
       }
       getTokenPrice()
     }
