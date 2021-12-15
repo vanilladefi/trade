@@ -1,7 +1,7 @@
+import { isAddress } from '@vanilladefi/sdk'
 import useAllTransactions from 'hooks/useAllTransactions'
 import useTokenConversion from 'hooks/useTokenConversion'
 import useWalletAddress from 'hooks/useWalletAddress'
-import { isAddress } from 'lib/tokens'
 import React, { useCallback, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { tokenConversionState } from 'state/migration'

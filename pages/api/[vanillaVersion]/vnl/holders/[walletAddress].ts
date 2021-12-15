@@ -1,4 +1,4 @@
-import { getVanillaTokenContract } from 'lib/vanilla/contracts'
+import { getVanillaTokenContract } from '@vanilladefi/sdk'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import {
   parseVanillaVersionFromQuery,

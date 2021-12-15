@@ -1,6 +1,5 @@
+import { getBasicWalletDetails, getETHPrice } from '@vanilladefi/sdk'
 import { getCurrentBlockNumber } from 'lib/block'
-import { getETHPrice } from 'lib/tokens'
-import { getBasicWalletDetails } from 'lib/vanilla/users'
 import { UniswapVersion, VanillaVersion } from 'types/general'
 import { addToCache, getFromCache } from 'utils/cache'
 

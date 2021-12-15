@@ -1,4 +1,4 @@
-import { getUsers, getVnlHolders } from 'lib/vanilla/users'
+import { getUsers, getVnlHolders } from '@vanilladefi/sdk'
 import { addToCache, getFromCache } from 'utils/cache'
 import { getCachedBlockNumber, getCachedEthPrice } from 'utils/cache/meta'
 import {

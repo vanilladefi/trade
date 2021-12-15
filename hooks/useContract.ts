@@ -1,6 +1,6 @@
 import { Contract } from '@ethersproject/contracts'
 import ERC20 from '@uniswap/v2-periphery/build/ERC20.json'
-import { getContract } from 'lib/tokens'
+import { getContract } from '@vanilladefi/sdk'
 import { useMemo } from 'react'
 import { useRecoilValue } from 'recoil'
 import { signerState } from 'state/wallet'

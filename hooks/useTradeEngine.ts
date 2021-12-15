@@ -6,17 +6,17 @@ import {
   TradeType,
 } from '@uniswap/sdk-core'
 import { FeeAmount } from '@uniswap/v3-sdk'
+import {
+  calculateGasMargin,
+  chainId,
+  estimateGas,
+  estimateReward,
+} from '@vanilladefi/sdk'
 import { BigNumber, Transaction } from 'ethers'
 import { formatUnits, isAddress, parseUnits } from 'ethers/lib/utils'
-import { tokenListChainId } from 'lib/tokens'
 import { TransactionProps } from 'lib/uniswap'
 import * as uniV2 from 'lib/uniswap/v2/trade'
 import * as uniV3 from 'lib/uniswap/v3/trade'
-import {
-  calculateGasMargin,
-  estimateGas,
-  estimateReward,
-} from 'lib/vanilla/trades'
 import { debounce } from 'lodash'
 import { Dispatch, SetStateAction, useCallback, useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
@@ -271,7 +271,7 @@ const useTradeEngine = (
     if (token0) {
       const raw = getBalance0Raw()
       const token = new UniswapToken(
-        tokenListChainId,
+        chainId,
         token0?.address,
         Number(token0?.decimals),
       )
@@ -285,7 +285,7 @@ const useTradeEngine = (
     if (token1) {
       const raw = getBalance1Raw()
       const token = new UniswapToken(
-        tokenListChainId,
+        chainId,
         token1?.address,
         Number(token1?.decimals),
       )
