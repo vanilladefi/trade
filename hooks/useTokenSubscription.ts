@@ -18,7 +18,9 @@ export default function useTokenSubscription(version: VanillaVersion): void {
   const { http } = getTheGraphClient(uniswapVersion)
   const TokenInfoQuery =
     version === VanillaVersion.V1_0 ? v2.TokenInfoQuery : v3.TokenInfoQuery
-  const { data, error } = useSWR([TokenInfoQuery, variables], http?.request)
+  const { data, error } = useSWR([TokenInfoQuery, variables], http?.request, {
+    refreshInterval: 5000,
+  })
 
   const handleNewData = useRecoilCallback(
     ({ set }) =>
@@ -56,11 +58,11 @@ export default function useTokenSubscription(version: VanillaVersion): void {
   )
 
   useEffect(() => {
-    if (!error && data && (data as any) && (data as TokenInfoQueryResponse[])) {
+    if (!error && data && (data as TokenInfoQueryResponse[])) {
       const tokenInfoQueryResponse = data as TokenInfoQueryResponse[]
       handleNewData(tokenInfoQueryResponse)
     } else {
-      console.error(error)
+      console.error('TokenInfoQuery SWR failed!', error)
     }
   }, [data, error, handleNewData])
 

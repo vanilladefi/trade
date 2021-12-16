@@ -25,14 +25,16 @@ export default function useMetaSubscription(version: VanillaVersion): void {
   }, [version])
 
   const { http } = getTheGraphClient(getUsedUniswapVersion())
-  const { data, error } = useSWR(MetaQuery, http?.request)
+  const { data, error } = useSWR(MetaQuery, http?.request, {
+    refreshInterval: 5000,
+  })
 
   useEffect(() => {
-    if (!error && data && (data as any) && (data as MetaQueryResponse)) {
+    if (!error && data && (data as MetaQueryResponse)) {
       const metaQueryResponse = data as MetaQueryResponse
       setCurrentBlockNumber(metaQueryResponse?._meta.block.number)
     } else {
-      console.error(error)
+      console.error('MetaQuery SWR failed!', error)
     }
   }, [data, error, setCurrentBlockNumber])
 }

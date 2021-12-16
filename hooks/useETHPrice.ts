@@ -13,7 +13,9 @@ export interface ETHPriceQueryResponse {
 function useETHPrice(version: UniswapVersion): void {
   const query = version === UniswapVersion.v2 ? v2.ETHPrice : v3.ETHPrice
   const { http } = getTheGraphClient(version)
-  const { data, error } = useSWR(query, http?.request)
+  const { data, error } = useSWR(query, http?.request, {
+    refreshInterval: 5000,
+  })
 
   const handleNewData = useRecoilCallback(
     ({ set }) =>
@@ -27,10 +29,11 @@ function useETHPrice(version: UniswapVersion): void {
   )
 
   useEffect(() => {
-    if (!error && data && (data as any) && (data as ETHPriceQueryResponse)) {
-      handleNewData(data as any)
+    if (!error && data && (data as ETHPriceQueryResponse)) {
+      const ethPriceQueryResponse = data as ETHPriceQueryResponse
+      handleNewData(ethPriceQueryResponse)
     } else {
-      console.error(error)
+      console.error('ETHPriceQuery SWR failed!', error)
     }
   }, [data, error, handleNewData])
 }
