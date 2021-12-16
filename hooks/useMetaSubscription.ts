@@ -1,23 +1,16 @@
-import {
-  getTheGraphClient,
-  MetaSubscription,
-  UniswapVersion,
-} from 'lib/graphql'
-import { useEffect } from 'react'
+import { getTheGraphClient, MetaQuery, UniswapVersion } from 'lib/graphql'
+import { useCallback, useEffect } from 'react'
 import { useSetRecoilState } from 'recoil'
 import { currentBlockNumberState } from 'state/meta'
+import useSWR from 'swr'
 import { VanillaVersion } from 'types/general'
 import type { MetaQueryResponse } from 'types/trade'
-
-interface subReturnValue {
-  data: MetaQueryResponse
-}
 
 export default function useMetaSubscription(version: VanillaVersion): void {
   const setCurrentBlockNumber = useSetRecoilState(currentBlockNumberState)
 
-  useEffect(() => {
-    let usedUniswapVersion: UniswapVersion
+  const getUsedUniswapVersion = useCallback(() => {
+    let usedUniswapVersion
     switch (version) {
       case VanillaVersion.V1_0:
         usedUniswapVersion = UniswapVersion.v2
@@ -28,17 +21,18 @@ export default function useMetaSubscription(version: VanillaVersion): void {
       default:
         usedUniswapVersion = UniswapVersion.v3
     }
+    return usedUniswapVersion
+  }, [version])
 
-    const { ws } = getTheGraphClient(usedUniswapVersion)
-    const subMeta = ws?.request({ query: MetaSubscription }).subscribe({
-      next: ({ data }: subReturnValue) => {
-        data?._meta.block.number &&
-          setCurrentBlockNumber(data?._meta.block.number)
-      },
-    })
+  const { http } = getTheGraphClient(getUsedUniswapVersion())
+  const { data, error } = useSWR(MetaQuery, http?.request)
 
-    return () => {
-      subMeta?.unsubscribe()
+  useEffect(() => {
+    if (!error && data && (data as any) && (data as MetaQueryResponse)) {
+      const metaQueryResponse = data as MetaQueryResponse
+      setCurrentBlockNumber(metaQueryResponse?._meta.block.number)
+    } else {
+      console.error(error)
     }
-  }, [setCurrentBlockNumber, version])
+  }, [data, error, setCurrentBlockNumber])
 }

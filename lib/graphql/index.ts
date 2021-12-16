@@ -1,5 +1,4 @@
 import { GraphQLClient } from 'graphql-request'
-import { SubscriptionClient } from 'graphql-subscriptions-client'
 
 export enum UniswapVersion {
   v2 = 'v2',
@@ -11,30 +10,10 @@ const THEGRAPH_ENDPOINTS = {
     http: new GraphQLClient(
       'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2',
     ),
-    ws: new SubscriptionClient(
-      'wss://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2',
-      {
-        reconnect: true,
-        lazy: false,
-        connectionCallback: (error) => {
-          error && console.error(error)
-        },
-      },
-    ),
   },
   v3: {
     http: new GraphQLClient(
       'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
-    ),
-    ws: new SubscriptionClient(
-      'wss://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
-      {
-        reconnect: true,
-        lazy: false,
-        connectionCallback: (error) => {
-          error && console.error(error)
-        },
-      },
     ),
   },
 }
@@ -45,14 +24,12 @@ export * as v3 from './queries/v3/tokens'
 
 export const getTheGraphClient = (
   version: UniswapVersion,
-): { http: GraphQLClient | null; ws: SubscriptionClient | null } => {
+): { http: GraphQLClient | null } => {
   return !!THEGRAPH_ENDPOINTS[version]
     ? {
         http: THEGRAPH_ENDPOINTS[version].http,
-        ws: THEGRAPH_ENDPOINTS[version].ws,
       }
     : {
         http: null,
-        ws: null,
       }
 }
