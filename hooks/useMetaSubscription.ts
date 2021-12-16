@@ -25,7 +25,11 @@ export default function useMetaSubscription(version: VanillaVersion): void {
   }, [version])
 
   const { http } = getTheGraphClient(getUsedUniswapVersion())
-  const { data, error } = useSWR(MetaQuery, http?.request, {
+  const fetcher = async (query, vars) => {
+    const result = await http?.request(query, vars)
+    return result
+  }
+  const { data, error } = useSWR(MetaQuery, fetcher, {
     refreshInterval: 5000,
   })
 

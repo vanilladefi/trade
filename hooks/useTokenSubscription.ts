@@ -18,7 +18,13 @@ export default function useTokenSubscription(version: VanillaVersion): void {
   const { http } = getTheGraphClient(uniswapVersion)
   const TokenInfoQuery =
     version === VanillaVersion.V1_0 ? v2.TokenInfoQuery : v3.TokenInfoQuery
-  const { data, error } = useSWR([TokenInfoQuery, variables], http?.request, {
+
+  const fetcher = async (query, vars) => {
+    const result = await http?.request(query, vars)
+    return result
+  }
+
+  const { data, error } = useSWR([TokenInfoQuery, variables], fetcher, {
     refreshInterval: 5000,
   })
 

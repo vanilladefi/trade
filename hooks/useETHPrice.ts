@@ -13,7 +13,13 @@ export interface ETHPriceQueryResponse {
 function useETHPrice(version: UniswapVersion): void {
   const query = version === UniswapVersion.v2 ? v2.ETHPrice : v3.ETHPrice
   const { http } = getTheGraphClient(version)
-  const { data, error } = useSWR(query, http?.request, {
+
+  const fetcher = async (query, vars) => {
+    const result = await http?.request(query, vars)
+    return result
+  }
+
+  const { data, error } = useSWR(query, fetcher, {
     refreshInterval: 5000,
   })
 
