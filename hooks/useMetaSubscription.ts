@@ -1,13 +1,13 @@
 import { getTheGraphClient, MetaQuery, UniswapVersion } from 'lib/graphql'
 import { useCallback, useEffect } from 'react'
-import { useSetRecoilState } from 'recoil'
+import { useRecoilState } from 'recoil'
 import { currentBlockNumberState } from 'state/meta'
 import useSWR from 'swr'
 import { VanillaVersion } from 'types/general'
 import type { MetaQueryResponse } from 'types/trade'
 
 export default function useMetaSubscription(version: VanillaVersion): void {
-  const setCurrentBlockNumber = useSetRecoilState(currentBlockNumberState)
+  const [currentBlockNumber, setCurrentBlockNumber] = useRecoilState(currentBlockNumberState)
 
   const getUsedUniswapVersion = useCallback(() => {
     let usedUniswapVersion
@@ -30,13 +30,16 @@ export default function useMetaSubscription(version: VanillaVersion): void {
     return result
   }
   const { data, error } = useSWR(MetaQuery, fetcher, {
-    refreshInterval: 5000,
+    refreshInterval: 10000,
   })
 
   useEffect(() => {
     if (!error && data && (data as MetaQueryResponse)) {
       const metaQueryResponse = data as MetaQueryResponse
-      setCurrentBlockNumber(metaQueryResponse?._meta.block.number)
+      const newBlockNumber = metaQueryResponse?._meta.block.number
+      if (currentBlockNumber < newBlockNumber) {
+        setCurrentBlockNumber(metaQueryResponse?._meta.block.number)
+      }
     } else {
       console.error('MetaQuery SWR failed!', error)
     }

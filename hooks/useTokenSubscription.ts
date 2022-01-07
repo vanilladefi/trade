@@ -25,7 +25,7 @@ export default function useTokenSubscription(version: VanillaVersion): void {
   }
 
   const { data, error } = useSWR([TokenInfoQuery, variables], fetcher, {
-    refreshInterval: 5000,
+    refreshInterval: 10000,
   })
 
   const handleNewData = useRecoilCallback(

@@ -20,7 +20,7 @@ function useETHPrice(version: UniswapVersion): void {
   }
 
   const { data, error } = useSWR(query, fetcher, {
-    refreshInterval: 5000,
+    refreshInterval: 10000,
   })
 
   const handleNewData = useRecoilCallback(
