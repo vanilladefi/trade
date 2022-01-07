@@ -86,7 +86,7 @@ const HeaderContent = (): JSX.Element => {
     return [...v2Tokens, ...v3Tokens]
   }, [userV2Tokens, userV3Tokens])
 
-  const { price } = useVanillaGovernanceToken(VanillaVersion.V1_0)
+  const { price } = useVanillaGovernanceToken(VanillaVersion.V1_1)
   const ethPrice = useRecoilValue(currentETHPrice)
 
   const totalUnrealizedVnl = useCallback(() => {

@@ -5,34 +5,38 @@ import { useEffect } from 'react'
 import { useRecoilCallback, useRecoilValue } from 'recoil'
 import { currentBlockNumberState, currentETHPrice } from 'state/meta'
 import { uniswapV2TokenState, uniswapV3TokenState } from 'state/tokens'
+import useSWR from 'swr'
 import { VanillaVersion } from 'types/general'
 import type { TokenInfoQueryResponse } from 'types/trade'
-
-interface subReturnValue {
-  data: { tokens: TokenInfoQueryResponse[] }
-}
 
 export default function useTokenSubscription(version: VanillaVersion): void {
   const currentBlockNumber = useRecoilValue(currentBlockNumberState)
   const ethPrice = useRecoilValue(currentETHPrice)
   const uniswapVersion =
     version === VanillaVersion.V1_0 ? UniswapVersion.v2 : UniswapVersion.v3
+  const variables = getTokenInfoQueryVariables(version)
+  const { http } = getTheGraphClient(uniswapVersion)
+  const TokenInfoQuery =
+    version === VanillaVersion.V1_0 ? v2.TokenInfoQuery : v3.TokenInfoQuery
 
-  const TokenInfoSubAB =
-    version === VanillaVersion.V1_0 ? v2.TokenInfoSubAB : v3.TokenInfoSubAB
-  const TokenInfoSubBA =
-    version === VanillaVersion.V1_0 ? v2.TokenInfoSubBA : v3.TokenInfoSubBA
+  const fetcher = async (query, vars) => {
+    const result = await http?.request(query, vars)
+    return result
+  }
+
+  const { data, error } = useSWR([TokenInfoQuery, variables], fetcher, {
+    refreshInterval: 10000,
+  })
 
   const handleNewData = useRecoilCallback(
     ({ set }) =>
-      async ({ data }: subReturnValue) => {
-        if (data?.tokens?.length && ethPrice > 0) {
+      async (data: TokenInfoQueryResponse[]) => {
+        if (data?.length && ethPrice > 0) {
           set(
             version === VanillaVersion.V1_0
               ? uniswapV2TokenState
               : uniswapV3TokenState,
-            (tokens) =>
-              addData(uniswapVersion, tokens, data.tokens, false, ethPrice),
+            (tokens) => addData(uniswapVersion, tokens, data, false, ethPrice),
           )
         }
       },
@@ -60,33 +64,13 @@ export default function useTokenSubscription(version: VanillaVersion): void {
   )
 
   useEffect(() => {
-    const subOptions = {
-      next: handleNewData,
+    if (!error && data && (data as TokenInfoQueryResponse[])) {
+      const tokenInfoQueryResponse = data as TokenInfoQueryResponse[]
+      handleNewData(tokenInfoQueryResponse)
+    } else {
+      console.error('TokenInfoQuery SWR failed!', error)
     }
-
-    const variables = getTokenInfoQueryVariables(version)
-
-    const { ws } = getTheGraphClient(uniswapVersion)
-
-    const subAB = ws
-      ?.request({
-        query: TokenInfoSubAB,
-        variables,
-      })
-      .subscribe(subOptions)
-
-    const subBA = ws
-      ?.request({
-        query: TokenInfoSubBA,
-        variables,
-      })
-      .subscribe(subOptions)
-
-    return () => {
-      subAB?.unsubscribe()
-      subBA?.unsubscribe()
-    }
-  }, [TokenInfoSubAB, TokenInfoSubBA, handleNewData, uniswapVersion, version])
+  }, [data, error, handleNewData])
 
   // Handle price change fetching
   useEffect(() => {

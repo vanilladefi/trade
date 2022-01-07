@@ -1,4 +1,5 @@
 import type { BreakPoints } from 'components/GlobalStyles/Breakpoints'
+import type { StandardLonghandProperties } from 'csstype'
 import { useBreakpoints } from 'hooks/breakpoints'
 import debounce from 'lodash.debounce'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
@@ -356,10 +357,7 @@ export const getStyles = <D extends Record<string, unknown>>(
 export const getHeaderStyles = <D extends Record<string, unknown>>(
   column: CustomColumnInstance<D>,
 ): {
-  style: {
-    textAlign: string
-    alignItems: string
-  }
+  style: StandardLonghandProperties
 } => {
   return {
     style: {

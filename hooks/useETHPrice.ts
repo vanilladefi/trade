@@ -2,6 +2,7 @@ import { getTheGraphClient, UniswapVersion, v2, v3 } from 'lib/graphql'
 import { useEffect } from 'react'
 import { useRecoilCallback } from 'recoil'
 import { currentETHPrice } from 'state/meta'
+import useSWR from 'swr'
 
 export interface ETHPriceQueryResponse {
   bundle: {
@@ -9,37 +10,38 @@ export interface ETHPriceQueryResponse {
   }
 }
 
-export interface ETHPriceSubResponse {
-  data: {
-    bundle: {
-      ethPrice: string
-    }
-  }
-}
-
 function useETHPrice(version: UniswapVersion): void {
-  const query = version === UniswapVersion.v2 ? v2.ETHPriceSub : v3.ETHPriceSub
+  const query = version === UniswapVersion.v2 ? v2.ETHPrice : v3.ETHPrice
+  const { http } = getTheGraphClient(version)
+
+  const fetcher = async (query, vars) => {
+    const result = await http?.request(query, vars)
+    return result
+  }
+
+  const { data, error } = useSWR(query, fetcher, {
+    refreshInterval: 10000,
+  })
 
   const handleNewData = useRecoilCallback(
-    ({ set }) => ({ data }: ETHPriceSubResponse) => {
-      const ethPrice = parseFloat(data?.bundle?.ethPrice)
-      if (ethPrice !== undefined && ethPrice !== null && ethPrice > 0) {
-        set(currentETHPrice, ethPrice)
-      }
-    },
+    ({ set }) =>
+      (data: ETHPriceQueryResponse) => {
+        const ethPrice = parseFloat(data?.bundle?.ethPrice)
+        if (ethPrice !== undefined && ethPrice !== null && ethPrice > 0) {
+          set(currentETHPrice, ethPrice)
+        }
+      },
     [],
   )
 
   useEffect(() => {
-    const subOptions = {
-      next: handleNewData,
+    if (!error && data && (data as ETHPriceQueryResponse)) {
+      const ethPriceQueryResponse = data as ETHPriceQueryResponse
+      handleNewData(ethPriceQueryResponse)
+    } else {
+      console.error('ETHPriceQuery SWR failed!', error)
     }
-    const { ws } = getTheGraphClient(version)
-    const ethPriceSub = ws?.request({ query: query }).subscribe(subOptions)
-    return () => {
-      ethPriceSub?.unsubscribe()
-    }
-  }, [handleNewData, query, version])
+  }, [data, error, handleNewData])
 }
 
 export default useETHPrice
