@@ -1,7 +1,9 @@
 import { Token, TokenAmount } from '@uniswap/sdk-core'
+import { convertVanillaTokenToUniswapToken, vnl } from '@vanilladefi/sdk'
 import { BigNumber, constants } from 'ethers'
-import { getTheGraphClient, UniswapVersion, v2 } from 'lib/graphql'
+import { UniswapVersion } from 'lib/graphql'
 import { isAddress, tokenListChainId, weth } from 'lib/tokens'
+import { getSpotPrice, vnlPools } from 'lib/uniswap/v3/spotPrice'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { providerState } from 'state/wallet'
@@ -108,21 +110,17 @@ function useVanillaGovernanceToken(version: VanillaVersion): {
   useEffect(() => {
     if (versionAddress && uniswapVersion) {
       const getTokenPrice = async () => {
-        const variables = {
-          weth: weth.address.toLowerCase(),
-          tokenAddresses: [versionAddress.toLowerCase()],
-        }
-        // TODO: Change this to Uniswap.v3 when VNL gets liquidity there
-        const { http } = getTheGraphClient(UniswapVersion.v2)
-        if (http) {
-          const response = await http.request(v2.TokenInfoQuery, variables)
-          const data = [...response?.tokensAB, ...response?.tokensBA]
-          data[0] && setVnlEthPrice(data[0].price)
-        }
+        const price = await getSpotPrice(
+          vnlPools.ETH,
+          convertVanillaTokenToUniswapToken(vnl),
+          convertVanillaTokenToUniswapToken(weth),
+          provider,
+        )
+        setVnlEthPrice(price[0].toSignificant(6))
       }
       getTokenPrice()
     }
-  }, [uniswapVersion, version, versionAddress])
+  }, [provider, uniswapVersion, version, versionAddress])
 
   useEffect(() => {
     setVersionAddress(
