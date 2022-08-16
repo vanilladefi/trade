@@ -102,7 +102,7 @@ export default function AvailableTokens({
 }
 
 function getColumns(
-  onBuyClick: HandleBuyClick,
+  _onBuyClick: HandleBuyClick,
   openLiquidityModal: (liquidity: Liquidity) => void,
   openCardinalityModal?: () => void,
 ): ListColumn<Token>[] {
