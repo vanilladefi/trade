@@ -1,4 +1,3 @@
-import Button, { ButtonColor, ButtonSize } from 'components/input/Button'
 import Modal, { ContentWrapper } from 'components/Modal'
 import { Columns, Table } from 'components/Table'
 import { TokenLogo } from 'components/Table/Cells'
@@ -148,19 +147,7 @@ function getColumns(
       disableSortBy: true,
       disableGlobalFilter: true,
       align: 'right',
-      Cell: ({ row }: CellProps<Token>) => (
-        <Button
-          color={ButtonColor.DARK}
-          size={ButtonSize.XSMALL}
-          onClick={() =>
-            onBuyClick({
-              pairId: row.original.pairId,
-            })
-          }
-        >
-          BUY
-        </Button>
-      ),
+      Cell: () => <></>,
     },
   ]
 }
