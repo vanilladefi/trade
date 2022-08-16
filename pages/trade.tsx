@@ -141,7 +141,7 @@ const HeaderContent = (): JSX.Element => {
                     Connect wallet
                   </Button>
                 )}
-                <Link href='/faq'>
+                <Link href='/faq' passHref>
                   <Button>Learn more</Button>
                 </Link>
               </div>
@@ -394,8 +394,8 @@ const BodyContent = ({
                   </h2>
                 </div>
                 <MyPositionsV3
-                  onBuyClick={handleV3BuyClick}
                   onSellClick={handleV3SellClick}
+                  onBuyClick={() => null}
                 />
                 {userPositionsV2 === null ||
                   (userPositionsV2?.length > 0 && (
