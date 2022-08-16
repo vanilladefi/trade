@@ -270,7 +270,7 @@ export default function MyPositions({
           Cell: ({ row }: CellProps<Token>) => (
             <Button
               color={ButtonColor.DARK}
-              rounded={Rounding.LEFT}
+              rounded={Rounding.ALL}
               size={ButtonSize.XSMALL}
               title='Sell'
               onClick={(event: MouseEvent) => {

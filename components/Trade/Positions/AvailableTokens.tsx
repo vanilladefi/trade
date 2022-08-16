@@ -141,13 +141,5 @@ function getColumns(
     Columns.Price,
     Columns.Liquidity,
     Columns.PriceChange,
-    {
-      id: 'trade',
-      width: 1,
-      disableSortBy: true,
-      disableGlobalFilter: true,
-      align: 'right',
-      Cell: () => <></>,
-    },
   ]
 }
