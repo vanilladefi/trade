@@ -3,7 +3,6 @@ import { Column, Row, Width } from 'components/grid/Flex'
 import Button from 'components/input/Button'
 import Layout from 'components/Layout'
 import { Spinner } from 'components/Spinner'
-import SyncIndicator from 'components/SyncIndicator'
 import TokenSearch from 'components/TokenSearch'
 import { MyPositionsV2, MyPositionsV3 } from 'components/Trade'
 import HugeMonospace from 'components/typography/HugeMonospace'
@@ -410,10 +409,6 @@ const BodyContent = ({
                   ))}
               </>
             )}
-            <div className='tableHeaderWrapper'>
-              <h2 style={{ marginBottom: 0 }}>AVAILABLE TOKENS</h2>
-              <SyncIndicator />
-            </div>
           </Column>
         </Row>
       </Wrapper>
