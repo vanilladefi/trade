@@ -1,4 +1,3 @@
-import Button, { ButtonColor, ButtonSize } from 'components/input/Button'
 import Modal, { ContentWrapper } from 'components/Modal'
 import { Columns, Table } from 'components/Table'
 import { TokenLogo } from 'components/Table/Cells'
@@ -103,7 +102,7 @@ export default function AvailableTokens({
 }
 
 function getColumns(
-  onBuyClick: HandleBuyClick,
+  _onBuyClick: HandleBuyClick,
   openLiquidityModal: (liquidity: Liquidity) => void,
   openCardinalityModal?: () => void,
 ): ListColumn<Token>[] {
@@ -142,25 +141,5 @@ function getColumns(
     Columns.Price,
     Columns.Liquidity,
     Columns.PriceChange,
-    {
-      id: 'trade',
-      width: 1,
-      disableSortBy: true,
-      disableGlobalFilter: true,
-      align: 'right',
-      Cell: ({ row }: CellProps<Token>) => (
-        <Button
-          color={ButtonColor.DARK}
-          size={ButtonSize.XSMALL}
-          onClick={() =>
-            onBuyClick({
-              pairId: row.original.pairId,
-            })
-          }
-        >
-          BUY
-        </Button>
-      ),
-    },
   ]
 }

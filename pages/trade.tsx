@@ -3,9 +3,8 @@ import { Column, Row, Width } from 'components/grid/Flex'
 import Button from 'components/input/Button'
 import Layout from 'components/Layout'
 import { Spinner } from 'components/Spinner'
-import SyncIndicator from 'components/SyncIndicator'
 import TokenSearch from 'components/TokenSearch'
-import { AvailableTokens, MyPositionsV2, MyPositionsV3 } from 'components/Trade'
+import { MyPositionsV2, MyPositionsV3 } from 'components/Trade'
 import HugeMonospace from 'components/typography/HugeMonospace'
 import { Title } from 'components/typography/Titles'
 import Wrapper from 'components/Wrapper'
@@ -28,7 +27,7 @@ import {
 import type { GetStaticPropsResult } from 'next'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import React, { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { currentBlockNumberState, currentETHPrice } from 'state/meta'
 import {
@@ -44,13 +43,7 @@ import {
 } from 'state/trade'
 import { walletModalOpenState } from 'state/wallet'
 import { VanillaVersion } from 'types/general'
-import {
-  Eligibility,
-  HandleBuyClick,
-  HandleSellClick,
-  Operation,
-  Token,
-} from 'types/trade'
+import { Eligibility, HandleSellClick, Operation, Token } from 'types/trade'
 import { useWallet } from 'use-wallet'
 
 type PageProps = {
@@ -147,7 +140,7 @@ const HeaderContent = (): JSX.Element => {
                     Connect wallet
                   </Button>
                 )}
-                <Link href='/faq'>
+                <Link href='/faq' passHref>
                   <Button>Learn more</Button>
                 </Link>
               </div>
@@ -357,26 +350,6 @@ const BodyContent = ({
     ],
   )
 
-  const handleV3BuyClick: HandleBuyClick = useCallback(
-    (pairInfo) => {
-      if (account === null) {
-        setWalletModalOpen(true)
-      } else {
-        setWalletModalOpen(false)
-        setOperation(Operation.Buy)
-        setSelectedPairId(pairInfo?.pairId ?? null)
-        setModalOpen(UniswapVersion.v3)
-      }
-    },
-    [
-      account,
-      setModalOpen,
-      setOperation,
-      setSelectedPairId,
-      setWalletModalOpen,
-    ],
-  )
-
   const handleV3SellClick: HandleSellClick = useCallback(
     (pairInfo) => {
       if (account === null) {
@@ -420,8 +393,8 @@ const BodyContent = ({
                   </h2>
                 </div>
                 <MyPositionsV3
-                  onBuyClick={handleV3BuyClick}
                   onSellClick={handleV3SellClick}
+                  onBuyClick={() => null}
                 />
                 {userPositionsV2 === null ||
                   (userPositionsV2?.length > 0 && (
@@ -436,16 +409,6 @@ const BodyContent = ({
                   ))}
               </>
             )}
-            <div className='tableHeaderWrapper'>
-              <h2 style={{ marginBottom: 0 }}>AVAILABLE TOKENS</h2>
-              <SyncIndicator />
-            </div>
-            {/* Pass "initialTokens" so this page is statically rendered with tokens */}
-            <AvailableTokens
-              initialTokens={initialTokens.v3}
-              onBuyClick={handleV3BuyClick}
-              uniswapVersion={UniswapVersion.v3}
-            />
           </Column>
         </Row>
       </Wrapper>

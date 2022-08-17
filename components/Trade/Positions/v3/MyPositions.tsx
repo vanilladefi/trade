@@ -1,7 +1,6 @@
 import { BreakPoint } from 'components/GlobalStyles/Breakpoints'
 import Button, {
   ButtonColor,
-  ButtonGroup,
   ButtonSize,
   Rounding,
 } from 'components/input/Button'
@@ -12,7 +11,7 @@ import { TokenLogo } from 'components/Table/Cells'
 import { cellProps, rowProps } from 'components/Table/Table'
 import { formatDistance } from 'date-fns'
 import useTokenSearch from 'hooks/useTokenSearch'
-import React, { MouseEvent, useCallback, useMemo, useState } from 'react'
+import { MouseEvent, useCallback, useMemo, useState } from 'react'
 import type { CellProps, Row } from 'react-table'
 import { useRecoilValue } from 'recoil'
 import { userV3TokensState } from 'state/tokens'
@@ -225,7 +224,6 @@ export default function MyPositions({
 
   const getColumns = useCallback(
     ({
-      onBuyClick,
       onSellClick,
     }: {
       onBuyClick: HandleBuyClick
@@ -270,41 +268,20 @@ export default function MyPositions({
           disableGlobalFilter: true,
           align: 'right',
           Cell: ({ row }: CellProps<Token>) => (
-            <ButtonGroup>
-              <Button
-                color={ButtonColor.DARK}
-                rounded={Rounding.LEFT}
-                size={ButtonSize.XSMALL}
-                title='Sell'
-                onClick={(event: MouseEvent) => {
-                  event.stopPropagation()
-                  onSellClick({
-                    pairId: row.original.pairId,
-                  })
-                }}
-              >
-                <span style={{ fontSize: '1.5rem' }}>&minus;</span>
-              </Button>
-              <span
-                style={{
-                  borderRight: '1px solid #fff',
-                }}
-              />
-              <Button
-                color={ButtonColor.DARK}
-                rounded={Rounding.RIGHT}
-                size={ButtonSize.XSMALL}
-                title='Buy'
-                onClick={(event: MouseEvent) => {
-                  event.stopPropagation()
-                  onBuyClick({
-                    pairId: row.original.pairId,
-                  })
-                }}
-              >
-                <span style={{ fontSize: '1.5rem' }}>&#43;</span>
-              </Button>
-            </ButtonGroup>
+            <Button
+              color={ButtonColor.DARK}
+              rounded={Rounding.ALL}
+              size={ButtonSize.XSMALL}
+              title='Sell'
+              onClick={(event: MouseEvent) => {
+                event.stopPropagation()
+                onSellClick({
+                  pairId: row.original.pairId,
+                })
+              }}
+            >
+              <span style={{ fontSize: '1.5rem' }}>&minus;</span>
+            </Button>
           ),
         },
       ]
